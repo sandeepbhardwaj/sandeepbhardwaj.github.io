@@ -71,3 +71,7 @@ lrwxrwxrwx 1 root root 36 Sep 24 19:27 /etc/alternatives/java -> /usr/local/java
 lrwxrwxrwx 1 root root 37 Sep 24 15:00 /etc/alternatives/javac -> /usr/local/java/jdk1.8.0_60/bin/javac
 lrwxrwxrwx 1 root root 38 Sep 24 15:06 /etc/alternatives/javaws -> /usr/local/java/jdk1.8.0_60/bin/javaws
 {% endhighlight %}
+
+
+<b>Note:</b>
+For Setting Java HOME on Ubuntu follow the [post]({% post_url 2015-10-03-set-java-home-in-ubuntu %})
