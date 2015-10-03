@@ -1,7 +1,16 @@
-name: Sitename
+name: Sandeep Blogging
+description: Blog for sharing the solution of those problems which i have faced in past.
 markdown: kramdown
 baseurl: ""
 url: http://sandeepbhardwaj.github.io
+
+#
+# Jekyll Feed
+#
+title: Sandeep Blogging
+author:
+  name: Sandeep Bhardwaj
+  email: sandeepbhardwaj01@gmail.com
 
 #
 # Pagination.
@@ -41,7 +50,7 @@ str_show_all_posts: Show all posts
 # Sitemap Plugin
 #
 #safe: true
-gems: [jekyll-sitemap]
+gems: ["jekyll-sitemap", "jekyll-feed"]
 
 #
 # Syntax Highliter
@@ -49,3 +58,7 @@ gems: [jekyll-sitemap]
 syntax-highlighting:
   enabled : true
   css: syntax.css
+
+
+tag_page_layout: tagpage
+tag_page_dir: tag
