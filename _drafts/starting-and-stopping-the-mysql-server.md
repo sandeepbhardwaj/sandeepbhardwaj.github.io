@@ -1,9 +1,9 @@
 ---
   layout: post
   title: Starting and Stopping the MySQL Server
-  published: true
+  published: false
   tags: [Linux , MySql]
-  date:
+  date: 
 ---
 
 The MySQL server is started automatically after installation. You can check/verify the status of the MySQL server with the following command:

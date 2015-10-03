@@ -27,13 +27,6 @@ highlighter: pygments
 google_analytics: UA-68409070-1 # e.g. UA-68409070-1
 disqus_user: sandeepbhardwaj # sandeepbhardwaj
 
-#
-# Gems.
-#
-#gems:
-#- archives
-#- jekyll-sitemap
-
 
 #
 # Localizations.
@@ -60,5 +53,5 @@ syntax-highlighting:
   css: syntax.css
 
 
-tag_page_layout: tagpage
-tag_page_dir: tag
+#tag_page_layout: tagpage
+#tag_page_dir: tag
