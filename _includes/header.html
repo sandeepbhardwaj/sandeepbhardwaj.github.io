@@ -15,17 +15,24 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav pull-right">
                 <li>
-                   <a {% if page.title == "Home" %} class="active" {% endif %} href="{{site.baseurl}}index.html">Home</a>
+                   <a {% if page.title == "Home" %} class="active" {% endif %} href="{{ "/index.html" | prepend: site.baseurl }}">Home</a>
                 </li>
                 <li>
-                    <a {% if page.title == "Archives" %} class="active" {% endif %} href="{{site.baseurl}}archives.html">Blog Archive</a>
+                    <a {% if page.title == "Archives" %} class="active" {% endif %} href="{{ "/archives.html" | prepend: site.baseurl }}">Blog Archive</a>
                 </li>
+                <!--
                 <li>
-                    <a {% if page.title == "Latest Post" %} class="active" {% endif %} href="{{site.baseurl}}blog/">Latest Post</a>
+                    <a {% if page.title == "Latest Post" %} class="active" {% endif %} href="{{ "/archives.html" | prepend: site.baseurl }}">Latest Post</a>
                 </li>
+                -->
                 <li>
-                    <a href="{{site.baseurl}}feed.xml" rel="alternate" type="application/atom+xml"><i class="fa fa-rss fa-2x"></i></a>
+                    <a href="{{ "/feed.xml" | prepend: site.baseurl }}" rel="alternate" type="application/atom+xml"><i class="fa fa-rss fa-2x"></i></a>
                 </li>
+                <!--
+                <li>
+                    <a href="{{ "/sitemap.xml" | prepend: site.baseurl }}" rel="alternate" type="application/atom+xml"><i class="fa fa-sitemap fa-2x"></i></a>
+                </li>
+                -->
             </ul>
         </div>
         <!-- /.navbar-collapse -->
