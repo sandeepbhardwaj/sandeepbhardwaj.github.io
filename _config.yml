@@ -39,3 +39,10 @@ str_show_all_posts: Show all posts
 #
 # Sitemap Plugin
 #
+
+#
+# Syntax Highliter
+#
+syntax-highlighting:
+  enabled : true
+  css: syntax.css
