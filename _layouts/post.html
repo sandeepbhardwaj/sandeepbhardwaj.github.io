@@ -8,7 +8,9 @@
         <div class="col-md-12">
             <h1 class="post-title">{{ page.title }}</h1>
             <p>
-                <span class="glyphicon glyphicon-time"></span> Posted on {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}
+                <span class="glyphicon glyphicon-time"></span> Posted on {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  
+
+                <a class="pull-right" href="#disqus_thread">Link</a>
             </p>
             <hr>
 
@@ -21,4 +23,16 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = '{{site.disqus_user}}';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
  
