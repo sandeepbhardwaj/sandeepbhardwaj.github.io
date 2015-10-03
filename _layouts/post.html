@@ -8,7 +8,13 @@
         <div class="col-md-12">
             <h1 class="post-title">{{ page.title }}</h1>
             <p>
-                <span class="glyphicon glyphicon-time"></span> Posted on {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  
+                <span class="glyphicon glyphicon-time"></span> Posted on {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  | Tags: 
+
+                {% for tag in page.tags %}
+                <a href="/tags/{{ tag | slugify }}/">
+                {{ tag }}, 
+                </a>
+                {% endfor %}
 
                 <a class="pull-right" href="#disqus_thread"></a>
             </p>

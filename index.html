@@ -12,8 +12,10 @@
 	<span class="glyphicon glyphicon-time"></span> Posted on {{ post.date | date: "%B %d, %Y" }} by {{ site.author_name}}
 </p>
 	
+<p>
+{{ post.content | split:"<!-- more -->" | first | strip_html | truncate:300 }}
+</p>
 
-{{ post.content | split:"<!-- more -->" | first | strip_html | truncate:300 }}</br>
 {% if post.content | size > 300 %}
    
 <a class="btn btn-primary" href="{% unless site.baseurl == "/" %}{{ site.baseurl }}{% endunless %}{{ post.url }}">
