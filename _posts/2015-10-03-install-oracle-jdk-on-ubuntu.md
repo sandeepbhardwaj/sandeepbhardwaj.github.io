@@ -74,4 +74,4 @@ lrwxrwxrwx 1 root root 38 Sep 24 15:06 /etc/alternatives/javaws -> /usr/local/ja
 
 
 <b>Note:</b>
-For Setting Java HOME on Ubuntu follow the [post]({% post_url 2015-10-03-set-java-home-in-ubuntu %})
+For Setting Java HOME on Ubuntu follow the [post]({% post_url 2015-10-03-set-java-home-on-ubuntu %})
