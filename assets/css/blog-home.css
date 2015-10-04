@@ -46,6 +46,13 @@ a:hover {
 	color: #337AB7;
 }
 
+.post{
+	padding-bottom: 20px;
+	-webkit-box-shadow: 0 14px 10px -13px #777;
+	   -moz-box-shadow: 0 14px 10px -13px #777;
+	        box-shadow: 0 14px 10px -13px #777;
+}
+
 /* Css for share-page */
 .share-page a{
 	color: #333;

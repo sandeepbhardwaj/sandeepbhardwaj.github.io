@@ -6,6 +6,7 @@
     <div class="row">
         <!-- Blog Entries Column -->
         <div class="col-md-12">
+        <div class="post">
             <h1 class="post-title">{{ page.title }}</h1>
             <p>
                 <span class="glyphicon glyphicon-time"></span> Posted on {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  | Tags: 
@@ -21,9 +22,9 @@
             <hr>
 
             {{ content }}
+        </div>
 
             <br/>{% include share-page.html %}<br/>
-            <hr>
 
             {% include next-previous-widget.html %}
 
