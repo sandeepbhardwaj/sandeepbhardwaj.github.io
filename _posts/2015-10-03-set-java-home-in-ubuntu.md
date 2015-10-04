@@ -1,6 +1,6 @@
 ---
   layout: post
-  title: Set Java Home On Ubuntu
+  title: Set Java Home In Ubuntu
   published: true
   tags: [Linux , Java]
   date: 2015-10-03 19:00:00 +5:30
