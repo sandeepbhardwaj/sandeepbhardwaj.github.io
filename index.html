@@ -2,9 +2,10 @@
   layout: page
   title: Home
 ---
-{% for post in paginator.posts %}
 
-<h2>
+{% for post in paginator.posts %}
+<div class="post-section">
+<h2 class="post-title" >
 	<a href="{% unless site.baseurl == "/" %}{{ site.baseurl }}{% endunless %}{{ post.url }}">{{ post.title }}</a>
 </h2>
 
@@ -21,16 +22,15 @@
 <a class="btn btn-primary" href="{% unless site.baseurl == "/" %}{{ site.baseurl }}{% endunless %}{{ post.url }}">
 	{{ site.str_read_more }} <span class="glyphicon glyphicon-chevron-right"></span>
 </a>
-<hr>
+
 
 {% else %}
 {% else %}
     {{ post.content }}
 {% endif %}  
-
+</div>
 <!-- end of loop -->    
 {% endfor %}
-
 
 {% include paginator.html %}
                 

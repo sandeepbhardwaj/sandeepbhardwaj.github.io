@@ -1,11 +1,12 @@
 {% if paginator.total_pages > 1 %}
-
 <ul class="pager">
     <li class="previous">
     {% if paginator.previous_page %}
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&laquo; Prev</a>
+        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">
+            &laquo; {{ site.str_prev }}
+        </a>
     {% else %}
-        <span>&laquo; Prev</span>
+        <span>&laquo; {{ site.str_prev }}</span>
     {% endif %}
     </li>
 
@@ -21,11 +22,12 @@
 
     <li class="next">
     {% if paginator.next_page %}
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next &raquo;</a>
+        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">
+            {{ site.str_next }} &raquo;
+        </a>
     {% else %}
-        <span>Next &raquo;</span>
+        <span>{{ site.str_next }} &raquo;</span>
     {% endif %}
     </li>
 </ul>    
-
 {% endif %}
