@@ -45,7 +45,8 @@ str_show_all_posts: Show all posts
 # Sitemap Plugin
 #
 #safe: true
-gems: ["jekyll-sitemap", "jekyll-feed"]
+#gems: ["jekyll-sitemap", "jekyll-feed"]
+gems: ["jekyll-sitemap"]
 
 #
 # Syntax Highliter
