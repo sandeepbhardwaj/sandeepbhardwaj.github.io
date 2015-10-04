@@ -1,7 +1,7 @@
 ---
   layout: post
   title: Starting and Stopping the MySQL Server
-  published: false
+  published: true
   tags: [Linux , MySql]
   date: 2015-10-04 13:30:00 +5:30
 ---
