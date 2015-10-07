@@ -10,7 +10,7 @@ title: Archives
     {% if month != nmonth %}
       {% if forloop.index != 1 %}
     {% endif %}
-      <h3 class="sub-header">{{ post.date | date: '%B %Y' }}</h3>
+      <h2 class="sub-header">{{ post.date | date: '%B %Y' }}</h2>
     {% endif %}
 	 <p>
     	<span class="glyphicon glyphicon-time"> </span> {{ post.date | date: "%d/%m/%Y" }} : <a href="{{ post.url }}">{{ post.title }}</a>
