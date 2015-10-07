@@ -6,7 +6,7 @@
   date: 2015-10-04 13:30:00 +5:30
 ---
 
-The MySQL server is started automatically after installation. You can check/verify the status of the MySQL server with the following command:
+By Default MySQL server is started automatically after installation. Wd can check/verify the status of the MySQL server with the following command:
 
 {% highlight bash %}
 sudo service mysql status

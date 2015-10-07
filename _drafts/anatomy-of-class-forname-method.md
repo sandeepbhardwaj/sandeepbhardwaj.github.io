@@ -1,11 +1,11 @@
 ---
   layout: post
   title: Anatomy of Class.forName() method
-  published: false
+  published: true
   tags: [Ant]
-  date: 
+  date: 2015-10-03 17:44:00 +5:30
 ---
-Class.forName()
+<b><u>Class.forName()</u></b>
 
     Class.forName("XYZ") method dynamically loads the class XYZ (at runtime).
     Class.forName("XYZ") initialized class named XYZ (i.e., JVM executes all its static block after class loading).
@@ -15,7 +15,7 @@ Class.forName("XYZ")loads the class if it not already loaded. The JVM keeps trac
 
 For example,
 
-
+{% highlight java %}
 package com.usebrain.util;
 
 public class LoadClass {
@@ -37,10 +37,11 @@ public class Test {
   }
  }
 }
+{% endhighlight %}
 
 Example that use returned Class to create an instance of LoadClass:
 
-
+{% highlight java %}
 package com.usebrain.util;
 
 public class LoadClass {
@@ -80,13 +81,15 @@ public class Test {
   }
  }
 }
+{% endhighlight %}
 
 Output
 
-
+{% highlight bash %}
 first time calls forName method
 ************LoadClass static block************
 *************LoadClass Constructor************
+{% endhighlight %}
 
 second time calls forName method
 

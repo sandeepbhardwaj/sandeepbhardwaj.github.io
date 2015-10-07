@@ -3,7 +3,7 @@
   title: Installing Apache Ant
   published: false
   tags: [Ant]
-  date: 
+  date: 2015-10-03 17:44:00 +5:30
 ---
 Apache Ant is a Java-based build tool.
 

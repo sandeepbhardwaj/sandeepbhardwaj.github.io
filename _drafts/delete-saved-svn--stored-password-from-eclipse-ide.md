@@ -3,7 +3,7 @@
   title: Enable laptop touch-pad on Elementary OS Freya
   published: false
   tags: [Eclipse]
-  date: 
+  date: 2015-10-03 17:44:00 +5:30
 ---
 If you wanted to delete the stored subversion (svn) password from Eclipse IDE.
 

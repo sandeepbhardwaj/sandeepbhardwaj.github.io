@@ -3,7 +3,7 @@
   title: Hello World using Apache ANT
   published: false
   tags: [Ant]
-  date: 
+  date: 2015-10-03 17:44:00 +5:30
 ---
 Old way of compile a project, making jar and running the jar
 
