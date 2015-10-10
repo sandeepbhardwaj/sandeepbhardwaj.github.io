@@ -9,7 +9,7 @@
         <div class="post">
             <h1 class="post-title">{{ page.title }}</h1>
             <p>
-                <span class="glyphicon glyphicon-time"></span> Posted on {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  | Tags: 
+                <i class="fa fa-calendar"></i> {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  | <i class="fa fa-tags"></i> Tags: 
 
                 {% for tag in page.tags %}
                 <a href="/tags/{{ tag | slugify }}/">
@@ -22,12 +22,13 @@
             <hr>
 
             {{ content }}
+           
         </div>
 
             <br/>{% include share-page.html %}<br/>
 
             {% include next-previous-widget.html %}
-
+            <br/><br/>
             {% include disqus.html %}
         </div>
     </div>
