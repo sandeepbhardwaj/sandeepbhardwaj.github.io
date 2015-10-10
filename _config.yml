@@ -3,6 +3,7 @@ description: Blog for sharing the solution of those problems which i have faced 
 markdown: kramdown
 baseurl: ""
 url: http://sandeepbhardwaj.github.io
+#url: http://localhost:4000
 
 #
 # Jekyll Feed
