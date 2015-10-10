@@ -3,7 +3,7 @@
   title: Delete saved SVN stored password from eclipse
   published: true
   tags: [Eclipse]
-  date: 2015-10-10 00:05:00 +5:30
+  date: 2011-05-25 00:05:00 +5:30
 ---
 If you wanted to delete the stored subversion (svn) password from Eclipse IDE.
 
