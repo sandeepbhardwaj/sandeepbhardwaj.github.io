@@ -1,9 +1,9 @@
 ---
   layout: post
-  title: Enable laptop touch-pad on Elementary OS Freya
-  published: false
+  title: Delete saved SVN stored password from eclipse
+  published: true
   tags: [Eclipse]
-  date: 2015-10-03 17:44:00 +5:30
+  date: 2015-10-10 00:05:00 +5:30
 ---
 If you wanted to delete the stored subversion (svn) password from Eclipse IDE.
 
@@ -13,17 +13,16 @@ SVN stores the authentication in physical files. The easiest way is to delete th
 
 On windows XP, these files are located in the following two folders:
 
-Step 1
-Delete keyring file from the location given below
+<b>Step 1</b> : Delete keyring file from the location given below
 
+{% highlight bash %}
 <Your eclipse installation path>\Eclipse\configuration\org.eclipse.core.runtime\.keyring
+{% endhighlight %}
 
+<b>Step 2</b> : Delete all file from the location given below :-
 
-Step 2
-Delete all file from the location given below:-
-
+{% highlight bash %}
 C:\Documents and Settings\<your user name>\Application Data\Subversion\auth\svn.simple
+{% endhighlight %}
 
-
-Step 3
-Restart your Eclipse IDE, now all saved password will gone and a new prompt dialoge box will open for asking new password.
+<b>Step 3</b> : Restart your Eclipse IDE, now all saved password will gone and a new prompt dialoge box will open for asking new password.
