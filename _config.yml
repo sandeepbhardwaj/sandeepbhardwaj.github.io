@@ -58,3 +58,9 @@ syntax-highlighting:
 
 #tag_page_layout: tagpage
 #tag_page_dir: tag
+
+# Enter your Mailchimp User ID and Campaign ID
+# @TODO: Add in a link for where to find these
+mailchimp:
+  user-id: b9503e1013ab1f92e41c3b562
+  list-id: e0d69ac317
