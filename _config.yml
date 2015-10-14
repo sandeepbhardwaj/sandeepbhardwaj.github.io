@@ -1,3 +1,4 @@
+title: Sandeep Blogging
 name: Sandeep Blogging
 description: Bloggin for sharing my knowledge and contribute to make the web better.
 markdown: kramdown
@@ -26,8 +27,8 @@ paginate_path: "/blog/page:num/"
 #
 # Scripts.
 #
-google_analytics: UA-68409070-1
-disqus_user: sandeepbhardwaj
+google_analytics: #UA-68409070-1
+disqus_user: #sandeepbhardwaj
 
 
 #
