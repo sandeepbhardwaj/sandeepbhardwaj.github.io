@@ -1,5 +1,5 @@
 name: Sandeep Blogging
-description: Blog for sharing the solution of those problems which i have faced in past.
+description: Bloggin for sharing my knowledge and contribute to make the web better.
 markdown: kramdown
 baseurl: ""
 url: http://sandeepbhardwaj.github.io
@@ -8,10 +8,14 @@ url: http://sandeepbhardwaj.github.io
 #
 # Jekyll Feed
 #
-title: Sandeep Blogging
 author:
   name: Sandeep Bhardwaj
   email: sandeepbhardwaj01@gmail.com
+
+#
+# Highliter
+#
+highlighter: pygments #rouge
 
 #
 # Pagination.
@@ -19,14 +23,11 @@ author:
 paginate: 3
 paginate_path: "/blog/page:num/"
 
-
-highlighter: pygments #rouge
-
 #
 # Scripts.
 #
-google_analytics: UA-68409070-1 # e.g. UA-68409070-1
-disqus_user: sandeepbhardwaj # sandeepbhardwaj
+google_analytics: UA-68409070-1
+disqus_user: sandeepbhardwaj
 
 
 #
@@ -43,11 +44,11 @@ str_recent_posts: Recent posts
 str_show_all_posts: Show all posts
 
 #
-# Sitemap Plugin
+# Plugins
 #
 #safe: true
 #gems: ["jekyll-sitemap", "jekyll-feed"]
-gems: ["jekyll-sitemap"]
+gems: ["jekyll-sitemap", "jekyll-feed"]
 
 #
 # Syntax Highliter
@@ -55,7 +56,6 @@ gems: ["jekyll-sitemap"]
 syntax-highlighting:
   enabled : true
   css: syntax.css
-
 
 #
 # Mail Chimp

@@ -1,5 +1,6 @@
 ---
   layout: post
+  author: Sandeep Bhardwaj
   title: Renaming files using terminal on ubuntu
   published: true
   tags: [Ubuntu , Tips & Tricks]
