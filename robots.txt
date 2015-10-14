@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: {{ site.url }}/sitemap.xml
+Sitemap: http://sandeepbhardwaj.github.io/sitemap.xml
