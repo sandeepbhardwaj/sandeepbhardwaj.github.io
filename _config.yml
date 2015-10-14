@@ -48,7 +48,7 @@ str_show_all_posts: Show all posts
 #
 #safe: true
 #gems: ["jekyll-sitemap", "jekyll-feed"]
-gems: ["jekyll-sitemap", "jekyll-feed"]
+gems: ["jekyll-sitemap"]
 
 #
 # Syntax Highliter
