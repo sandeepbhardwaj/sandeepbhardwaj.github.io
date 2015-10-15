@@ -65,7 +65,19 @@ mailchimp:
   user-id: b9503e1013ab1f92e41c3b562
   list-id: e0d69ac317
 
+#
+# Compress
+#
+compress_html:
+  clippings: []
+  comments: []
+  endings: []
+  profile: false
+  ignore:
+    envs: []
+
 
 #tag_page_layout: tagpage
 #tag_page_dir: tag
+
 
