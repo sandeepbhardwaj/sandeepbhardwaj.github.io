@@ -3,7 +3,7 @@ layout: post
 title: How to convert java.util.List to java.util.Set
 date: 2012-05-11 04:31:00 +5:30
 author: Sandeep Bhardwaj
-tags: [Java]
+tags: [Java, Collection]
 ---
 
  
