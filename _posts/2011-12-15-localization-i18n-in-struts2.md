@@ -2,7 +2,7 @@
 layout: post
 title: Localization (i18n) in Struts2
 date: 2011-12-14 22:48:00 +5:30
-author: Sandeep Bhardwaj
+author: rise_mini
 tags: [Struts2]
 ---
 
