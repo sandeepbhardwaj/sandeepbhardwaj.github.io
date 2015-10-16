@@ -16,10 +16,8 @@ author:
 #
 # Highliter
 #
-#highlighter: pygments #rouge
-kramdown:
-  input: GFM
-  syntax_highlighter: rouge
+#highlighter: pygments
+highlighter: rouge
 
 #
 # Pagination.
@@ -50,16 +48,9 @@ str_show_all_posts: Show all posts
 #
 # Plugins
 #
-#safe: true
 #gems: ["jekyll-sitemap", "jekyll-feed"]
-gems: ["jekyll-sitemap", "jekyll-feed"]
+gems: ["jekyll-sitemap"]
 
-#
-# Syntax Highliter
-#
-syntax-highlighting:
-  enabled : true
-  css: syntax.css
 
 #
 # Mail Chimp
