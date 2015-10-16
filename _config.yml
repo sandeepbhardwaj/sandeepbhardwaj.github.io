@@ -16,7 +16,10 @@ author:
 #
 # Highliter
 #
-highlighter: pygments #rouge
+#highlighter: pygments #rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 
 #
 # Pagination.
