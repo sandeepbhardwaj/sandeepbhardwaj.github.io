@@ -9,8 +9,8 @@ title : RSS Feed
     <title>{{ site.name }}</title>
     <link>{{ site.url }}</link>
     <description>{{ site.description }}</description>
-    <lastBuildDate>{{ site.time | date_to_xmlschema }}</lastBuildDate>
-    <pubDate>{{ site.time | date_to_xmlschema }}</pubDate>
+    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+    <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
     <ttl>1800</ttl>
 
     {% for post in site.posts limit:20 %}
