@@ -16,8 +16,7 @@ author:
 #
 # Highliter
 #
-#highlighter: pygments
-highlighter: rouge
+highlighter: pygments
 
 #
 # Pagination.
