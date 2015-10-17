@@ -4,7 +4,7 @@
   title: Jekyll with environment variable and multiple _config.yml files
   published: true
   tags: [Jekyll]
-  date: 2015-10-14 23:15:00 +5:30
+  date: 2015-10-17 22:05:00 +5:30
 ---
 
 Before writing a new post, i first made changes in <code>_config.yml</code> for my local/development environment like :-
