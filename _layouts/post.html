@@ -11,11 +11,11 @@
             <p>
                 <i class="fa fa-calendar"></i> {{ page.date | date: "%B %d, %Y" }} by {{ site.author_name}}  | <i class="fa fa-tags"></i> Tags: 
 
-                {% for tag in page.tags %}
-                <a href="/tags/{{ tag | slugify }}/">
-                {{ tag }}, 
-                </a>
-                {% endfor %}
+               
+                    {% for tag in page.tags %}
+                       <a class="tag" href="/tags/{{ tag | slugify }}/">{{ tag }}</a>
+                    {% endfor %}
+               
 
                 <a class="pull-right" href="{{ post.url }}#disqus_thread"></a>
             </p>

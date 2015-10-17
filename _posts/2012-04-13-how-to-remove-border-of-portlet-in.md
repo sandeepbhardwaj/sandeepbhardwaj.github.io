@@ -7,7 +7,7 @@ tags: [Liferay]
 ---
 
 There are many ways of doing below are the two solutions:  
-Solution 1 : Add the <pre><portlet-prefrences></pre> tag  in portlet.xml  
+Solution 1 : Add the <code><portlet-prefrences></code> tag  in portlet.xml  
 
 {% highlight xml %}  
 <portlet-info>

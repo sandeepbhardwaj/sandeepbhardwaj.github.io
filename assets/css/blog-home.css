@@ -84,3 +84,64 @@ footer {
 .page-navigation .next {
   text-align: right;
 }
+
+/* css for tags */
+.tag {
+	font-size: 12px;
+	background: #0089e0;
+	border-radius: 3px 0 0 3px;
+	color:#fff;
+	display: inline-block;
+	height: 24px;
+	line-height: 24px;
+	padding: 0 5px 0 10px;
+	position: relative;
+	margin: 0 4px 0px 12px;
+	text-decoration: none;
+	-moz-border-radius-bottomright:4px;
+	-webkit-border-bottom-right-radius:4px;	
+	border-bottom-right-radius:4px;
+	-moz-border-radius-topright:4px;
+	-webkit-border-top-right-radius:4px;	
+	border-top-right-radius:4px;	
+}
+
+.tag::before {
+    content:"";
+	position:absolute;
+	top:10px;
+	left:2px;
+	float:left;
+	width:4px;
+	height:4px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	background:#fff;
+	-moz-box-shadow:-1px -1px 2px #004977;
+	-webkit-box-shadow:-1px -1px 2px #004977;
+	box-shadow:-1px -1px 2px #004977;
+}
+
+.tag::after {
+    content:"";
+	float:left;
+	position:absolute;
+	top:0;
+	left:-11px;
+	width:0;
+	height:0;
+	border-color:transparent #0089e0 transparent transparent;
+	border-style:solid;
+	border-width:12px 12px 12px 0;
+}
+
+.tag:hover {
+  background:#555;
+  color: white;
+}
+
+.tag:hover::after {
+   border-color:transparent #555 transparent transparent;
+}
+

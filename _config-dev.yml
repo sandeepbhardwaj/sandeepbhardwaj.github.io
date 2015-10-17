@@ -3,7 +3,7 @@ name: Sandeep Blogging
 description: Bloggin for sharing my knowledge and contribute to make the web better.
 markdown: kramdown
 baseurl: ""
-url: http://sandeepbhardwaj.github.io
+url: http://localhost:4000
 
 #
 # Jekyll Feed
@@ -26,8 +26,9 @@ paginate_path: "/blog/page:num/"
 #
 # Scripts.
 #
-google_analytics: UA-68409070-1
-disqus_user: sandeepbhardwaj
+#google_analytics: UA-68409070-1
+#disqus_user: sandeepbhardwaj
+
 
 #
 # Localizations.
@@ -47,6 +48,7 @@ str_show_all_posts: Show all posts
 #
 #gems: ["jekyll-sitemap", "jekyll-feed"]
 gems: ["jekyll-sitemap"]
+
 
 #
 # Mail Chimp
@@ -69,4 +71,3 @@ compress_html:
 
 #tag_page_layout: tagpage
 #tag_page_dir: tag
-
