@@ -7,7 +7,7 @@
   date: 2015-10-17 22:05:00 +5:30
 ---
 
-Before writing a new post, i first made changes in <code>_config.yml</code> for my local/development environment like :-
+When we write a new post in jekyll we usually made changes in <code>_config.yml</code> for our local/development environment like :-
 
 <h3>Development environment</h3>
 {% highlight bash %}
@@ -27,7 +27,7 @@ google_analytics: UA-68409070-1
 disqus_user: sandeepbhardwaj
 {% endhighlight %}
 
-But doing this every time is pain. Sometimes i forgot to revert the changes when push my changes to github. So i Google it and find out that there is <code>jekyll.environment</code> variable that we can use.
+But doing this every time is pain. Sometimes we forgot to revert the changes when push our changes to github. So i Google it and find out that there is <code>jekyll.environment</code> variable that we can use.
 
 {% highlight bash %}
 <% if jekyll.environment == "production" %>
@@ -35,7 +35,9 @@ But doing this every time is pain. Sometimes i forgot to revert the changes when
 <% endif %>
 {% endhighlight %}
 
-so it means i have to made changes in <code>_layout</code> and <code>_include</code> file. I personally don't like this approach.
+so it means i have to made changes in <code>_layout</code> and <code>_include</code> file. I personally don't like this approach because i dont want to change my existing code. 
+
+Below are the two approaches which i liked most.
 
 <h2>Approach 1</h2>
 <h3>Creating environment specific <code>_config.yml</code> files</h3>
