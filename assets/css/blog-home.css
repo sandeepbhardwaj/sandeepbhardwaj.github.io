@@ -86,6 +86,19 @@ footer {
 }
 
 /* css for tags */
+.post-tag{
+    color: #3e6d8e;
+    font-size: 12px;
+    white-space: nowrap;
+    background: #e4edf4;
+    border: 1px solid #e4edf4;
+    display: inline-block;
+    margin: 2px 2px 2px 0;
+    border-radius: 0;
+    -webkit-transition: color 0.15s ease, background 0.15s ease, border 0.15s ease;
+}
+
+/*
 .post-tag {
 	font-size: 12px;
 	background: #337AB7;
@@ -144,4 +157,6 @@ footer {
 .post-tag:hover::after {
    border-color:transparent #555 transparent transparent;
 }
+*/
+
 
