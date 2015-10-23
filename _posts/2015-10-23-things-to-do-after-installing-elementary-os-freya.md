@@ -4,7 +4,7 @@
   title: Things To Do After Installing Elementary OS Freya
   published: true
   tags: [Elementary OS, Ubuntu]
-  summary: "Enable laptop touchpad click, Enable Canonical Partners repository, Install Restricted Extra, Install Elementary Tweak, Install Google Chrome, Enable minimize button on google-chrome, Install RAR"
+  summary: "Enable laptop touchpad click, Enable Canonical Partners repository, Install Restricted Extra, Install Elementary Tweak, Install Google Chrome, Enable minimize button on google-chrome, Install RAR, Improve Battery Life on linux"
   keywords: "elementary, tweak, google, chrome, rar, usb, indicator, dropbox, libre, office, thunderbird, git, meld, smartgit, jekyll, ruby, nodejs, python"
   date: 2015-10-23 22:05:00 +5:30
 ---
@@ -23,6 +23,7 @@
   <li><a href="#install-libre-office">Install Libre Office</a></li>
   <li><a href="#install-elementary-plus">Install Elementary Plus</a></li>
   <li><a href="#install-thunderbird">Install Thunderbird</a></li>
+  <li><a href="#mprove-battery-life">Improve Battery Life</a></li>
   <li><a href="#install-git">Install Git</a></li>
   <li><a href="#setup-git">Setup Git</a></li>
   <li><a href="#setup-meld-diff-viewer-for-git">Setup Meld Diff Viewer for Git</a></li>
@@ -161,6 +162,14 @@ sudo apt-get upgrade && sudo apt-get install elementaryplus
 sudo add-apt-repository ppa:ubuntu-mozilla-security/ppa
 sudo apt-get update
 sudo apt-get install thunderbird
+{% endhighlight %}
+
+<h3><a name="improve-battery-life">Improve Battery Life</a></h3>
+{% highlight bash %}
+sudo add-apt-repository ppa:linrunner/tlp
+sudo apt-get update
+sudo apt-get install tlp tlp-rdw
+sudo tlp start
 {% endhighlight %}
 
 <h3><a name="install-git">Install Git</a></h3>
