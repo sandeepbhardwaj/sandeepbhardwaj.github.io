@@ -23,7 +23,7 @@
   <li><a href="#install-libre-office">Install Libre Office</a></li>
   <li><a href="#install-elementary-plus">Install Elementary Plus</a></li>
   <li><a href="#install-thunderbird">Install Thunderbird</a></li>
-  <li><a href="#mprove-battery-life">Improve Battery Life</a></li>
+  <li><a href="#improve-battery-life">Improve Battery Life</a></li>
   <li><a href="#install-git">Install Git</a></li>
   <li><a href="#setup-git">Setup Git</a></li>
   <li><a href="#setup-meld-diff-viewer-for-git">Setup Meld Diff Viewer for Git</a></li>
