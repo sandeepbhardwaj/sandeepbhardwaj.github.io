@@ -18,12 +18,14 @@
   <li><a href="#enable-minimize-button-on-google-chrome">Enable minimize button on google-chrome</a></li>
   <li><a href="#install-rar">Install RAR</a></li>
   <li><a href="#install-usb-indicator">Install Usb indicator</a></li>
+  <li><a href="#install-gnome-system-monitor">Install Gnome System Monitor</a></li>
   <li><a href="#install-dropbox">Install DropBox</a></li>
   <li><a href="#install-oracle-jdk">Install Oracle JDK</a></li>
   <li><a href="#install-libre-office">Install Libre Office</a></li>
   <li><a href="#install-elementary-plus">Install Elementary Plus</a></li>
   <li><a href="#install-thunderbird">Install Thunderbird</a></li>
   <li><a href="#improve-battery-life">Improve Battery Life</a></li>
+  <li><a href="#enable-colors-in-terminal">Enable Colors In Terminal</a></li>
   <li><a href="#install-git">Install Git</a></li>
   <li><a href="#setup-git">Setup Git</a></li>
   <li><a href="#setup-meld-diff-viewer-for-git">Setup Meld Diff Viewer for Git</a></li>
@@ -124,7 +126,7 @@ sudo apt-get update
 sudo apt-get install indicator-usb
 {% endhighlight %}
 
-<h3>Gnome System Monitor</h3>
+<h3><a name="install-gnome-system-monitor">Install Gnome System Monitor</a></h3>
 {% highlight bash %}
 sudo apt-get install gnome-system-monitor
 {% endhighlight %}
@@ -170,6 +172,12 @@ sudo add-apt-repository ppa:linrunner/tlp
 sudo apt-get update
 sudo apt-get install tlp tlp-rdw
 sudo tlp start
+{% endhighlight %}
+
+<h3><a name="enable-colors-in-terminal">Enable Colors In Terminal</a></h3>
+Go to home directory and make hidden files visible and then un-comment the below line in <code>.bashrc</code> file.
+{% highlight bash %}
+force_color_prompt=yes
 {% endhighlight %}
 
 <h3><a name="install-git">Install Git</a></h3>
