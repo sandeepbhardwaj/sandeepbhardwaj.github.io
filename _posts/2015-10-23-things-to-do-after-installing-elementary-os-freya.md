@@ -4,8 +4,8 @@
   title: Things To Do After Installing Elementary OS Freya
   published: true
   tags: [Elementary OS, Ubuntu]
-  summary: "Enable laptop touchpad click, Enable Canonical Partners repository, Install Restricted Extra, Install Elementary Tweak, Install Google Chrome, Enable minimize button on google-chrome, Install RAR, Improve Battery Life on linux"
-  keywords: "elementary, tweak, google, chrome, rar, usb, indicator, dropbox, libre, office, thunderbird, git, meld, smartgit, jekyll, ruby, nodejs, python"
+  keywords: "Elementary Tweak, Google Chrome, RAR, Usb Indicator, Gnome, DropBox, Oracle JDK, Libre Office, Elementary, Plus, Thunderbird, Git, SmartGit, Meld, Jekyll, Ruby, NodeJS, Python, Ubuntu, Elementary OS"
+  summary: "Enable laptop touchpad click, Enable Canonical Partners repository, Install Restricted Extra, Install Elementary Tweak, Install Google Chrome, Enable minimize button on google-chrome, Install RAR, Install Usb indicator on Elementary OS Freaya, Install Gnome System Monitor, Install DropBox on Elementary OS Freya, Install Oracle JDK on Ubuntu, Install Libre Office on Ubuntu, Install Elementary Plus on elementary os freya, Install Thunderbird on ubuntu using terminal, Improve Battery Life on ubunutu, Enable Colors In Terminal on ubuntu, Install Git on ubuntu, Setup Git on ubuntu, Setup Meld Diff Viewer for Git on ubuntu, Install SmartGit on ubuntu, Install Jekyll on ubuntu, Install Ruby on ubuntu, Install NodeJS on ubuntu, Install Python on ubuntu"
   date: 2015-10-23 22:05:00 +5:30
 ---
 
