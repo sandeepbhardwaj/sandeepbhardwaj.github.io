@@ -3,13 +3,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 {% if page.summary %}
-<meta name="description" content="{{ page.summary | escape }}">
+    <meta name="description" content="{{ page.summary | escape }}">
 {% else %}
-<meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+    <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
 {% endif %}
 
 {% if page.keywords %}
-<meta name="keywords" content="{{ page.keywords }}" />
+    <meta name="keywords" content="{{ page.keywords }}" />
 {% else %}
-<meta name="keywords" content="java, concurrency, spring, hibernate, jekyll, ubuntu, elementary os, jekyll, linux" />
+    <meta name="keywords" content="java, concurrency, spring, hibernate, jekyll, ubuntu, elementary os, jekyll, linux" />
 {% endif %}
+<link rel="author" href="https://plus.google.com/+SandeepBhardwaj20111985"/>

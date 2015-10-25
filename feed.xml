@@ -8,6 +8,7 @@ title : RSS Feed
     <atom:link href="{{ site.url }}/feed.xml" rel="self" type="application/rss+xml" />
     <title>{{ site.name }}</title>
     <link>{{ site.url }}</link>
+    <webMaster>{{ site.author.email }}</webMaster>
     <description>{{ site.description }}</description>
     <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
     <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
@@ -15,6 +16,7 @@ title : RSS Feed
 
     {% for post in site.posts limit:20 %}
       <item>
+        <author>{{ site.author.name }}</author>
         <title>{{ post.title }}</title>
         <link>{{ site.url }}{{ post.url }}</link>
         <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
