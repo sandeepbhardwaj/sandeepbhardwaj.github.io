@@ -5,6 +5,8 @@
   date: 2010-12-03 22:00:00 +5:30
   author: Sandeep Bhardwaj
   tags: [Ant]
+  keywords: "Ant, ANT_HOME, JAVA_HOME, CLASSPATH, PATH"
+  summary: "How to install apache ant, How to set java home, install apache ant"
 ---
 
 Apache Ant is a Java-based build tool.  
