@@ -72,7 +72,7 @@ sudo modprobe psmouse proto=imps
 Now touchpad click start working. The above two commands makes the touchpad working only for current session. To make it permanent create a file with below command you can use your favorite editor.
 
 {% highlight bash %}
-sudo scratch-text-editor /etc/modprobe.d/psmouse.conf
+sudo gedit /etc/modprobe.d/psmouse.conf
 {% endhighlight %}
 
 add this line to file <code>options psmouse proto=imps</code> and save the changes.
