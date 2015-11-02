@@ -136,10 +136,6 @@ sudo apt-get install gnome-system-monitor
 
 Follow this link [https://github.com/nathandyer/elementary-dropbox-mods](https://github.com/nathandyer/elementary-dropbox-mods) for installing the dropbox.
 
-<b>Note</b>:- You may found out that after reboot there is no dropbox icon on wingpanel and no icon on slingshot as well at least in my case i faced this issue.
-
-To fix this just download the dropbox for ubuntu from dropbox site and install it and then every thing start working fine.
-
 <h3><a id="install-oracle-jdk">Install Oracle JDK</a></h3>
 For Installing Java on follow the [post]({% post_url 2015-10-03-install-oracle-jdk-on-ubuntu %}).
 
