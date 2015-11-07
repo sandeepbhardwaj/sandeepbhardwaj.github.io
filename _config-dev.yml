@@ -47,7 +47,7 @@ str_show_all_posts: Show all posts
 # Plugins
 #
 #gems: ["jekyll-sitemap", "jekyll-feed"]
-gems: ["jekyll-sitemap"]
+gems: ["jekyll-sitemap", "jekyll-paginate"]
 
 
 #

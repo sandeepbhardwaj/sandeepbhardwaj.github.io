@@ -4,8 +4,8 @@
   title: Things To Do After Installing Elementary OS Freya
   published: true
   tags: [Elementary OS, Ubuntu]
-  keywords: "Elementary Tweak, Google Chrome, RAR, Usb Indicator, Gnome, DropBox, Oracle JDK, Libre Office, Elementary, Plus, Thunderbird, Git, SmartGit, Meld, Jekyll, Ruby, NodeJS, Python, Ubuntu, Elementary OS"
-  summary: "Enable laptop touchpad click, Enable Canonical Partners repository, Install Restricted Extra, Install Elementary Tweak, Install Google Chrome, Enable minimize button on google-chrome, Install RAR, Install Usb indicator on Elementary OS Freaya, Install Gnome System Monitor, Install DropBox on Elementary OS Freya, Install Oracle JDK on Ubuntu, Install Libre Office on Ubuntu, Install Elementary Plus on elementary os freya, Install Thunderbird on ubuntu using terminal, Improve Battery Life on ubunutu, Enable Colors In Terminal on ubuntu, Install Git on ubuntu, Setup Git on ubuntu, Setup Meld Diff Viewer for Git on ubuntu, Install SmartGit on ubuntu, Install Jekyll on ubuntu, Install Ruby on ubuntu, Install NodeJS on ubuntu, Install Python on ubuntu"
+  keywords: "Elementary Tweak, Google Chrome, RAR, uGet, Usb Indicator, Gnome, DropBox, Oracle JDK, Libre Office, Elementary, Plus, Thunderbird, Git, SmartGit, Meld, Jekyll, Ruby, NodeJS, Python, Ubuntu, Elementary OS"
+  summary: "Enable laptop touchpad click, Enable Canonical Partners repository, Install Restricted Extra, Install Elementary Tweak, Install Google Chrome, Enable minimize button on google-chrome, Install RAR,Install uGet on Elementary Freya, Install Usb indicator on Elementary OS Freaya, Install Gnome System Monitor, Install DropBox on Elementary OS Freya, Install Oracle JDK on Ubuntu, Install Libre Office on Ubuntu, Install Elementary Plus on elementary os freya, Install Thunderbird on ubuntu using terminal, Improve Battery Life on ubunutu, Enable Colors In Terminal on ubuntu, Install Git on ubuntu, Setup Git on ubuntu, Setup Meld Diff Viewer for Git on ubuntu, Install SmartGit on ubuntu, Install Jekyll on ubuntu, Install Ruby on ubuntu, Install NodeJS on ubuntu, Install Python on ubuntu"
   date: 2015-10-23 22:05:00 +5:30
 ---
 
@@ -17,6 +17,7 @@
   <li><a href="#install-google-chrome">Install Google Chrome</a></li>
   <li><a href="#enable-minimize-button-on-google-chrome">Enable minimize button on google-chrome</a></li>
   <li><a href="#install-rar">Install RAR</a></li>
+  <li><a href="#install-uget-on-elementary-freya">Install uGet on Elementary Freya</a></li>
   <li><a href="#install-usb-indicator">Install Usb indicator</a></li>
   <li><a href="#install-gnome-system-monitor">Install Gnome System Monitor</a></li>
   <li><a href="#install-dropbox">Install DropBox</a></li>
@@ -117,6 +118,14 @@ gconftool-2 --set /apps/metacity/general/button_layout --type string ":minimize:
 <h3><a id="install-rar">Install RAR</a></h3>
 {% highlight bash %}
 sudo apt-get install rar
+{% endhighlight %}
+
+<h3><a id="install-uget-on-elementary-freya">Install uGet</a></h3>
+As per my knowledge uGet is the best download manager.
+{% highlight bash %}
+sudo add-apt-repository ppa:plushuang-tw/uget-stable
+sudo apt update
+sudo apt install uget
 {% endhighlight %}
 
 <h3><a id="install-usb-indicator">Install Usb indicator</a></h3>
