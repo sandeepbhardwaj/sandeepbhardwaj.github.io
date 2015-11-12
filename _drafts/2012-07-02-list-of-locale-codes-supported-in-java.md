@@ -10,4 +10,176 @@ blogger_id: tag:blogger.com,1999:blog-5017545194807719960.post-53763333872335349
 blogger_orig_url: http://refcard.blogspot.com/2012/07/list-of-locale-codes-supported-in-java.html
 ---
 
-There are 152 locales are supported in java (jdk1.6.0_20).<br/> Code for getting the list of locale codes and list of countries.  <pre class="brush: java"><br />public class LocaleCodes<br />{<br /> public static void main(String[] args)<br /> {  <br />  Locale[] localeCodes= Locale.getAvailableLocales();<br />  for(Locale locale:localeCodes)<br />  {<br />   System.out.println(locale.getLanguage() +"          "+locale.getDisplayLanguage());<br />  }<br /> }<br />}<br /></pre> <u><b>Output</b></u><pre class="brush: java"><br />ja          Japanese<br />es          Spanish<br />en          English<br />ja          Japanese<br />es          Spanish<br />sr          Serbian<br />mk          Macedonian<br />es          Spanish<br />ar          Arabic<br />no          Norwegian<br />sq          Albanian<br />bg          Bulgarian<br />ar          Arabic<br />ar          Arabic<br />hu          Hungarian<br />pt          Portuguese<br />el          Greek<br />ar          Arabic<br />mk          Macedonian<br />sv          Swedish<br />de          German<br />en          English<br />fi          Finnish<br />is          Icelandic<br />cs          Czech<br />en          English<br />sl          Slovenian<br />sk          Slovak<br />it          Italian<br />tr          Turkish<br />zh          Chinese<br />th          Thai<br />ar          Arabic<br />no          Norwegian<br />en          English<br />sr          Serbian<br />lt          Lithuanian<br />ro          Romanian<br />en          English<br />no          Norwegian<br />lt          Lithuanian<br />es          Spanish<br />nl          Dutch<br />ga          Irish<br />fr          French<br />es          Spanish<br />ar          Arabic<br />ko          Korean<br />fr          French<br />et          Estonian<br />ar          Arabic<br />sr          Serbian<br />es          Spanish<br />es          Spanish<br />ar          Arabic<br />in          Indonesian<br />ru          Russian<br />lv          Latvian<br />es          Spanish<br />lv          Latvian<br />iw          Hebrew<br />pt          Portuguese<br />ar          Arabic<br />hr          Croatian<br />et          Estonian<br />es          Spanish<br />fr          French<br />hi          Hindi<br />es          Spanish<br />ar          Arabic<br />en          English<br />ar          Arabic<br />fi          Finnish<br />de          German<br />es          Spanish<br />nl          Dutch<br />es          Spanish<br />zh          Chinese<br />ar          Arabic<br />be          Belarusian<br />is          Icelandic<br />es          Spanish<br />es          Spanish<br />es          Spanish<br />ar          Arabic<br />en          English<br />th          Thai<br />el          Greek<br />it          Italian<br />ca          Catalan<br />hu          Hungarian<br />fr          French<br />en          English<br />uk          Ukrainian<br />pl          Polish<br />fr          French<br />nl          Dutch<br />en          English<br />ca          Catalan<br />ar          Arabic<br />es          Spanish<br />en          English<br />sr          Serbian<br />zh          Chinese<br />pt          Portuguese<br />uk          Ukrainian<br />es          Spanish<br />ru          Russian<br />ko          Korean<br />vi          Vietnamese<br />ar          Arabic<br />vi          Vietnamese<br />sr          Serbian<br />sq          Albanian<br />ar          Arabic<br />ar          Arabic<br />zh          Chinese<br />be          Belarusian<br />zh          Chinese<br />ja          Japanese<br />iw          Hebrew<br />bg          Bulgarian<br />in          Indonesian<br />mt          Maltese<br />es          Spanish<br />sl          Slovenian<br />fr          French<br />cs          Czech<br />it          Italian<br />ro          Romanian<br />es          Spanish<br />en          English<br />de          German<br />ga          Irish<br />de          German<br />de          German<br />es          Spanish<br />sk          Slovak<br />ms          Malay<br />hr          Croatian<br />en          English<br />da          Danish<br />mt          Maltese<br />pl          Polish<br />ar          Arabic<br />tr          Turkish<br />th          Thai<br />el          Greek<br />ms          Malay<br />sv          Swedish<br />da          Danish<br />es          Spanish<br /></pre>
+There are 152 locales are supported in java (jdk1.6.0_20).  
+Code for getting the list of locale codes and list of countries.
+
+<pre class="brush: java">  
+public class LocaleCodes  
+{  
+ public static void main(String[] args)  
+ {    
+  Locale[] localeCodes= Locale.getAvailableLocales();  
+  for(Locale locale:localeCodes)  
+  {  
+   System.out.println(locale.getLanguage() +"          "+locale.getDisplayLanguage());  
+  }  
+ }  
+}  
+</pre>
+
+<u>**Output**</u>
+
+<pre class="brush: java">  
+ja          Japanese  
+es          Spanish  
+en          English  
+ja          Japanese  
+es          Spanish  
+sr          Serbian  
+mk          Macedonian  
+es          Spanish  
+ar          Arabic  
+no          Norwegian  
+sq          Albanian  
+bg          Bulgarian  
+ar          Arabic  
+ar          Arabic  
+hu          Hungarian  
+pt          Portuguese  
+el          Greek  
+ar          Arabic  
+mk          Macedonian  
+sv          Swedish  
+de          German  
+en          English  
+fi          Finnish  
+is          Icelandic  
+cs          Czech  
+en          English  
+sl          Slovenian  
+sk          Slovak  
+it          Italian  
+tr          Turkish  
+zh          Chinese  
+th          Thai  
+ar          Arabic  
+no          Norwegian  
+en          English  
+sr          Serbian  
+lt          Lithuanian  
+ro          Romanian  
+en          English  
+no          Norwegian  
+lt          Lithuanian  
+es          Spanish  
+nl          Dutch  
+ga          Irish  
+fr          French  
+es          Spanish  
+ar          Arabic  
+ko          Korean  
+fr          French  
+et          Estonian  
+ar          Arabic  
+sr          Serbian  
+es          Spanish  
+es          Spanish  
+ar          Arabic  
+in          Indonesian  
+ru          Russian  
+lv          Latvian  
+es          Spanish  
+lv          Latvian  
+iw          Hebrew  
+pt          Portuguese  
+ar          Arabic  
+hr          Croatian  
+et          Estonian  
+es          Spanish  
+fr          French  
+hi          Hindi  
+es          Spanish  
+ar          Arabic  
+en          English  
+ar          Arabic  
+fi          Finnish  
+de          German  
+es          Spanish  
+nl          Dutch  
+es          Spanish  
+zh          Chinese  
+ar          Arabic  
+be          Belarusian  
+is          Icelandic  
+es          Spanish  
+es          Spanish  
+es          Spanish  
+ar          Arabic  
+en          English  
+th          Thai  
+el          Greek  
+it          Italian  
+ca          Catalan  
+hu          Hungarian  
+fr          French  
+en          English  
+uk          Ukrainian  
+pl          Polish  
+fr          French  
+nl          Dutch  
+en          English  
+ca          Catalan  
+ar          Arabic  
+es          Spanish  
+en          English  
+sr          Serbian  
+zh          Chinese  
+pt          Portuguese  
+uk          Ukrainian  
+es          Spanish  
+ru          Russian  
+ko          Korean  
+vi          Vietnamese  
+ar          Arabic  
+vi          Vietnamese  
+sr          Serbian  
+sq          Albanian  
+ar          Arabic  
+ar          Arabic  
+zh          Chinese  
+be          Belarusian  
+zh          Chinese  
+ja          Japanese  
+iw          Hebrew  
+bg          Bulgarian  
+in          Indonesian  
+mt          Maltese  
+es          Spanish  
+sl          Slovenian  
+fr          French  
+cs          Czech  
+it          Italian  
+ro          Romanian  
+es          Spanish  
+en          English  
+de          German  
+ga          Irish  
+de          German  
+de          German  
+es          Spanish  
+sk          Slovak  
+ms          Malay  
+hr          Croatian  
+en          English  
+da          Danish  
+mt          Maltese  
+pl          Polish  
+ar          Arabic  
+tr          Turkish  
+th          Thai  
+el          Greek  
+ms          Malay  
+sv          Swedish  
+da          Danish  
+es          Spanish  
+</pre>

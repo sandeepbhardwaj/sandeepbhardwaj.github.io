@@ -10,4 +10,50 @@ blogger_id: tag:blogger.com,1999:blog-5017545194807719960.post-44051729524011139
 blogger_orig_url: http://refcard.blogspot.com/2013/01/inversion-of-control-ioc-and-dependency.html
 ---
 
-<p>Originally, Dependency Injection(DI) was known by another name : <b>Inversion Of Control(IOC)</b>. In <b>2004 Martin Fowler</b> suggest a new phrase Dependency Injection as better term than IOC. </p>  <h4><u>Definition</u></h4><p><b>Dependency Injection :-</b> Dependecy injection invloves giving or providing an object all its dependencies.Object does not need to acquire all its dependencies by its own.  <br/> <h4><u>Problem without DI</u></h4>Traditionally, each object in an application is responsible for obtaining all its dependencies by its own. This can lead to highly coupled and hard-to-test code.<br/> <h4><u>Benefit of DI</u></h4>The key benefit of DI is loose coupling. If an object only knows about its dependencies by their interface (not their implementation or how they were instantiated) then the dependency can be swapped out with a different implementation without the depending object knowing the difference.<br/> <h3>Dependency Injection/IOC in Spring </h3> <p>Spring Framework implementation of the Inversion of Control (IoC) principle. IoC is also known as dependency injection (DI). </p> <p>The IOC container manages java objects – from instantiation to destruction – through its BeanFactory.  <br/> <ul><li>Java components that are instantiated by the IoC container are called beans.</li><li>IoC container manages a bean's scope     <ul>     <li>lifecycle events</li>      <li>and any AOP features for which it has been configured and coded.</li>    </ul></li></ul> <br/><b>Dependency Injection :-</b> A process where object define their dependencies/relationship with other objects. Through  <ul><li>Constructor argument</li><li>arguments to a factory method</li><li>properties that are set on the object instance after it is constructed or returned from a factory method</li></ul>is known as Inversion of Control (IoC).<b>IOC </b>is also known as <b>dependency injection (DI)</b>.  </p> <p>DI exists in <b>two </b>major variants  <ul><li>Constructor-based dependency injection</li><li> and Setter-based dependency injection.</li></ul></p> <p><b>org.springframework.beans</b> and <b>org.springframework.context</b> packages are the basis for Spring Framework's IoC container.<br/><br/><a href="http://static.springsource.org/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/BeanFactory.html">BeanFactory </a>interface provides the configuration framework and basic functionality.<br/> <a href="http://static.springsource.org/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationContext.html">ApplicationContext </a>is a sub-interface of BeanFactory. <br/>It adds easier integration with Spring's AOP features; message resource handling (for use in internationalization), event publication; and application-layer specific contexts such as the WebApplicationContext for use in web applications.  </p>  <b>References:-</b><ul><li><a href="http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html">Spring Reference</a></li></ul>   
+Originally, Dependency Injection(DI) was known by another name : **Inversion Of Control(IOC)**. In **2004 Martin Fowler** suggest a new phrase Dependency Injection as better term than IOC.
+
+#### <u>Definition</u>
+
+**Dependency Injection :-** Dependecy injection invloves giving or providing an object all its dependencies.Object does not need to acquire all its dependencies by its own.  
+
+#### <u>Problem without DI</u>
+
+Traditionally, each object in an application is responsible for obtaining all its dependencies by its own. This can lead to highly coupled and hard-to-test code.  
+
+#### <u>Benefit of DI</u>
+
+The key benefit of DI is loose coupling. If an object only knows about its dependencies by their interface (not their implementation or how they were instantiated) then the dependency can be swapped out with a different implementation without the depending object knowing the difference.  
+
+### Dependency Injection/IOC in Spring
+
+Spring Framework implementation of the Inversion of Control (IoC) principle. IoC is also known as dependency injection (DI).
+
+The IOC container manages java objects – from instantiation to destruction – through its BeanFactory.  
+
+*   Java components that are instantiated by the IoC container are called beans.
+*   IoC container manages a bean's scope
+    *   lifecycle events
+    *   and any AOP features for which it has been configured and coded.
+
+**Dependency Injection :-** A process where object define their dependencies/relationship with other objects. Through
+
+*   Constructor argument
+*   arguments to a factory method
+*   properties that are set on the object instance after it is constructed or returned from a factory method
+
+is known as Inversion of Control (IoC).**IOC** is also known as **dependency injection (DI)**.
+
+DI exists in **two** major variants
+
+*   Constructor-based dependency injection
+*   and Setter-based dependency injection.
+
+**org.springframework.beans** and **org.springframework.context** packages are the basis for Spring Framework's IoC container.  
+
+[BeanFactory](http://static.springsource.org/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/BeanFactory.html) interface provides the configuration framework and basic functionality.  
+[ApplicationContext](http://static.springsource.org/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationContext.html) is a sub-interface of BeanFactory.  
+It adds easier integration with Spring's AOP features; message resource handling (for use in internationalization), event publication; and application-layer specific contexts such as the WebApplicationContext for use in web applications.
+
+**References:-**
+
+*   [Spring Reference](http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html)

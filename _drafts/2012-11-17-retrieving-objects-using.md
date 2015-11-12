@@ -14,4 +14,141 @@ blogger_id: tag:blogger.com,1999:blog-5017545194807719960.post-55374002512549146
 blogger_orig_url: http://refcard.blogspot.com/2012/11/retrieving-objects-using.html
 ---
 
-<div dir="ltr" style="text-align: left;" trbidi="on"><br />In previous tutorial <a href="http://www.2bloggers.com/2012/11/part-i-first-hibernate-application.html">Saving object using hibernate</a> we have created a Book object and save that object in database using the session.save() method.<br />Now in this tutorial we will fetch this object form the database using the session.get method.<br /><h3>get(Class entityClass, Serializable id) throws HibernateException</h3><br /><pre class="brush: java">Object get(String entityName,<br />           Serializable id)<br />           throws HibernateException<br /></pre><br />Return the persistent instance of the given named entity with the given identifier, or null if there is no such persistent instance. (If the instance is already associated with the session, return that instance. This method never returns an uninitialized instance.)  <br /><a name='more'></a><br /><b>Parameters:</b><br /><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityName -</b> the entity name.<br /><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id - </b>an identifier.<br /><b>Returns:</b><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a persistent <b>instance</b> or <b>null</b><br /><b>Throws:</b><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HibernateException<br /><br /><h3>Usage</h3>Add a new method <b>getBook</b> in HibernateTest  class for retrieving the object from the database.<br /><h3>getBook method</h3><b>Parameters:</b><b>bookId- </b>an identifier <br /><b> Returns:</b>a persistent <b>instance</b> of Book class or <b>null</b><br /><pre class="brush: java">public Book getBook(int bookId)<br /> {<br />  SessionFactory sessionFactory = HibernateUtil.getSessionFactory();<br />  Session session = sessionFactory.openSession();<br />  session.beginTransaction();<br /><br />  // retrieving the book object from database<br />  Book book = (Book) session.get(Book.class, bookId);<br />  session.getTransaction().commit();<br /><br />  return book;<br /> }<br /><br /></pre><h4>Complete class</h4><pre class="brush: java">package com.bloggers;<br /><br />import java.util.Date;<br /><br />import org.hibernate.Session;<br />import org.hibernate.SessionFactory;<br /><br />import com.bloggers.model.Book;<br />import com.bloggers.util.HibernateUtil;<br /><br />public class HibernateTest<br />{<br /><br /> public static void main(String[] args)<br /> {<br />  HibernateTest hibernateTest = new HibernateTest();<br /><br />  // creating a new book object<br />  Book book = new Book();<br />  book.setBookId(1);<br />  book.setDate(new Date());<br />  book.setBookName("Hibernate in action");<br /><br />  // saving the book object<br />  hibernateTest.saveBook(book);<br /><br />  /*<br />   * below line is not required this is just for demonstrate. setting book<br />   * to null to make sure that the object returns by the getBook method is<br />   * from database<br />   */<br />  book = null;<br /><br />  book = hibernateTest.getBook(1);<br /><br />  System.out.println("Book [bookId=" + book.getBookId() + ", bookName="<br />    + book.getBookName() + ", publishDate=" + book.getDate() + "]");<br /><br /> }<br /><br /> public void saveBook(Book book)<br /> {<br />  SessionFactory sessionFactory = HibernateUtil.getSessionFactory();<br />  Session session = sessionFactory.openSession();<br />  session.beginTransaction();<br /><br />  // saving the book object here<br />  session.save(book);<br />  session.getTransaction().commit();<br /> }<br /><br /> public Book getBook(int bookId)<br /> {<br />  SessionFactory sessionFactory = HibernateUtil.getSessionFactory();<br />  Session session = sessionFactory.openSession();<br />  session.beginTransaction();<br /><br />  // retrieving  the book object from database <br />  Book book = (Book) session.get(Book.class, bookId);<br />  session.getTransaction().commit();<br /><br />  return book;<br /> }<br /><br />}<br /></pre><br /><h4>Output</h4>Output on eclipse console<br /><br /><div style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-eMa57dmShZI/UKdrNyacgGI/AAAAAAAAASQ/JpbcQrtOZ70/s1600/eclipse_console_output.bmp" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://1.bp.blogspot.com/-eMa57dmShZI/UKdrNyacgGI/AAAAAAAAASQ/JpbcQrtOZ70/s1600/eclipse_console_output.bmp" /></a></div><br />In above pic you can easily see there are two queries run . <br /><ol><li>First query is a insert query which is run by <b>session.save </b>method and inset the data in book table.</li><li>And second query a select query with a where condition run by <b>session.get </b> method and retrieves the book object from the book table.</li></ol><h3>Source Code Download</h3><br /><h4>HibernateExample_001.zip (8.0 kb)</h4>Download the from here <a href="http://2bloggers.googlecode.com/files/HibernateExample_002.zip">http://2bloggers.googlecode.com/files/HibernateExample_002.zip</a>. <br /><br />Please post <b>comments</b> with your suggestion if you like this tutorial.<br /><br /><h3>References</h3><ul><li><a href="http://docs.jboss.org/hibernate/orm/3.5/api/org/hibernate/Session.html#get%28java.lang.Class,%20java.io.Serializable%29">Session (Hibernate JavaDocs)</a></li></ul><br /><br /><br /><br /></div>
+<div dir="ltr" style="text-align: left;" trbidi="on">  
+In previous tutorial [Saving object using hibernate](http://www.2bloggers.com/2012/11/part-i-first-hibernate-application.html) we have created a Book object and save that object in database using the session.save() method.  
+Now in this tutorial we will fetch this object form the database using the session.get method.  
+
+### get(Class entityClass, Serializable id) throws HibernateException
+
+<pre class="brush: java">Object get(String entityName,  
+           Serializable id)  
+           throws HibernateException  
+</pre>
+
+Return the persistent instance of the given named entity with the given identifier, or null if there is no such persistent instance. (If the instance is already associated with the session, return that instance. This method never returns an uninitialized instance.)  
+<a name="more"></a>  
+**Parameters:**  
+**                entityName -** the entity name.  
+**                id -** an identifier.  
+**Returns:**  
+           a persistent **instance** or **null**  
+**Throws:**  
+            HibernateException  
+
+### Usage
+
+Add a new method **getBook** in HibernateTest class for retrieving the object from the database.  
+
+### getBook method
+
+**Parameters:****bookId-** an identifier  
+**Returns:**a persistent **instance** of Book class or **null**  
+
+<pre class="brush: java">public Book getBook(int bookId)  
+ {  
+  SessionFactory sessionFactory = HibernateUtil.getSessionFactory();  
+  Session session = sessionFactory.openSession();  
+  session.beginTransaction();  
+
+  // retrieving the book object from database  
+  Book book = (Book) session.get(Book.class, bookId);  
+  session.getTransaction().commit();  
+
+  return book;  
+ }  
+
+</pre>
+
+#### Complete class
+
+<pre class="brush: java">package com.bloggers;  
+
+import java.util.Date;  
+
+import org.hibernate.Session;  
+import org.hibernate.SessionFactory;  
+
+import com.bloggers.model.Book;  
+import com.bloggers.util.HibernateUtil;  
+
+public class HibernateTest  
+{  
+
+ public static void main(String[] args)  
+ {  
+  HibernateTest hibernateTest = new HibernateTest();  
+
+  // creating a new book object  
+  Book book = new Book();  
+  book.setBookId(1);  
+  book.setDate(new Date());  
+  book.setBookName("Hibernate in action");  
+
+  // saving the book object  
+  hibernateTest.saveBook(book);  
+
+  /*  
+   * below line is not required this is just for demonstrate. setting book  
+   * to null to make sure that the object returns by the getBook method is  
+   * from database  
+   */  
+  book = null;  
+
+  book = hibernateTest.getBook(1);  
+
+  System.out.println("Book [bookId=" + book.getBookId() + ", bookName="  
+    + book.getBookName() + ", publishDate=" + book.getDate() + "]");  
+
+ }  
+
+ public void saveBook(Book book)  
+ {  
+  SessionFactory sessionFactory = HibernateUtil.getSessionFactory();  
+  Session session = sessionFactory.openSession();  
+  session.beginTransaction();  
+
+  // saving the book object here  
+  session.save(book);  
+  session.getTransaction().commit();  
+ }  
+
+ public Book getBook(int bookId)  
+ {  
+  SessionFactory sessionFactory = HibernateUtil.getSessionFactory();  
+  Session session = sessionFactory.openSession();  
+  session.beginTransaction();  
+
+  // retrieving  the book object from database   
+  Book book = (Book) session.get(Book.class, bookId);  
+  session.getTransaction().commit();  
+
+  return book;  
+ }  
+
+}  
+</pre>
+
+#### Output
+
+Output on eclipse console  
+
+<div style="clear: both; text-align: center;">[![](http://1.bp.blogspot.com/-eMa57dmShZI/UKdrNyacgGI/AAAAAAAAASQ/JpbcQrtOZ70/s1600/eclipse_console_output.bmp)](http://1.bp.blogspot.com/-eMa57dmShZI/UKdrNyacgGI/AAAAAAAAASQ/JpbcQrtOZ70/s1600/eclipse_console_output.bmp)</div>
+
+In above pic you can easily see there are two queries run .  
+
+1.  First query is a insert query which is run by **session.save** method and inset the data in book table.
+2.  And second query a select query with a where condition run by **session.get** method and retrieves the book object from the book table.
+
+### Source Code Download
+
+#### HibernateExample_001.zip (8.0 kb)
+
+Download the from here [http://2bloggers.googlecode.com/files/HibernateExample_002.zip](http://2bloggers.googlecode.com/files/HibernateExample_002.zip).  
+
+Please post **comments** with your suggestion if you like this tutorial.  
+
+### References
+
+*   [Session (Hibernate JavaDocs)](http://docs.jboss.org/hibernate/orm/3.5/api/org/hibernate/Session.html#get%28java.lang.Class,%20java.io.Serializable%29)
+
+</div>

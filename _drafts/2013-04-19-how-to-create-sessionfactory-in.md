@@ -11,4 +11,40 @@ blogger_id: tag:blogger.com,1999:blog-5017545194807719960.post-89224195441940947
 blogger_orig_url: http://refcard.blogspot.com/2013/04/how-to-create-sessionfactory-in.html
 ---
 
-<pre class="brush: java"><br />import org.hibernate.HibernateException;<br />import org.hibernate.SessionFactory;<br />import org.hibernate.cfg.Configuration;<br />import org.hibernate.service.ServiceRegistry;<br />import org.hibernate.service.ServiceRegistryBuilder;<br /><br />public class Hibernate4Util {<br /> private static SessionFactory sessionFactory;<br /> private static ServiceRegistry serviceRegistry;<br /><br /> static<br /> {<br />  try<br />  {<br />   Configuration configuration = new Configuration().configure();<br /><br />   serviceRegistry = new ServiceRegistryBuilder().applySettings(<br />     configuration.getProperties()).buildServiceRegistry();<br />   <br />   //pass ServiceRegistry in buildSessionFactory method.<br />   //buildSessionFactory() method without any argument is deprecated<br />   sessionFactory = configuration.buildSessionFactory(serviceRegistry);<br />  }<br />  catch (HibernateException e)<br />  {<br />   System.err.println("Error creating Session: " + e);<br />   throw new ExceptionInInitializerError(e);<br />  }<br /> }<br /><br /> public static SessionFactory getSessionFactory()<br /> {<br />  return sessionFactory;<br /> }<br />}<br /></pre>
+<pre class="brush: java">  
+import org.hibernate.HibernateException;  
+import org.hibernate.SessionFactory;  
+import org.hibernate.cfg.Configuration;  
+import org.hibernate.service.ServiceRegistry;  
+import org.hibernate.service.ServiceRegistryBuilder;  
+
+public class Hibernate4Util {  
+ private static SessionFactory sessionFactory;  
+ private static ServiceRegistry serviceRegistry;  
+
+ static  
+ {  
+  try  
+  {  
+   Configuration configuration = new Configuration().configure();  
+
+   serviceRegistry = new ServiceRegistryBuilder().applySettings(  
+     configuration.getProperties()).buildServiceRegistry();  
+
+   //pass ServiceRegistry in buildSessionFactory method.  
+   //buildSessionFactory() method without any argument is deprecated  
+   sessionFactory = configuration.buildSessionFactory(serviceRegistry);  
+  }  
+  catch (HibernateException e)  
+  {  
+   System.err.println("Error creating Session: " + e);  
+   throw new ExceptionInInitializerError(e);  
+  }  
+ }  
+
+ public static SessionFactory getSessionFactory()  
+ {  
+  return sessionFactory;  
+ }  
+}  
+</pre>
