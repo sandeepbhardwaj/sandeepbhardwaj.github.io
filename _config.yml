@@ -20,7 +20,7 @@ highlighter: pygments
 #
 # Pagination.
 #
-paginate: 3
+paginate: 5
 paginate_path: "/blog/page:num/"
 
 #
