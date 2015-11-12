@@ -27,7 +27,7 @@ get(PortletConfig portletConfig, Locale locale, String key, String defaultValue)
 {% highlight html %}  
 <%@page import="com.liferay.portal.kernel.language.LanguageUtil"%>  
 <%  
-sString propertyValue=LanguageUtil.get(pageContext, "property_name", new String("NOT_FOUND"));  
+String propertyValue=LanguageUtil.get(pageContext, "property_name", new String("NOT_FOUND"));  
 %>  
 {% endhighlight %}
 
