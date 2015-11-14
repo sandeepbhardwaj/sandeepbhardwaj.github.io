@@ -75,7 +75,5 @@ public class Test {
   System.out.println("Employee Name :"+employee.getName());  
 
  }  
-
 }  
-
 </pre>
