@@ -143,7 +143,7 @@ sudo apt-get install gnome-system-monitor
 
 <h3><a id="install-dropbox">Install DropBox</a></h3>
 
-Follow this link [https://github.com/nathandyer/elementary-dropbox-mods](https://github.com/nathandyer/elementary-dropbox-mods) for installing the dropbox.
+Follow this link [https://github.com/zant95/elementary-dropbox](https://github.com/zant95/elementary-dropbox) for installing the dropbox.
 
 <h3><a id="install-oracle-jdk">Install Oracle JDK</a></h3>
 For Installing Java on follow the [post]({% post_url 2015-10-03-install-oracle-jdk-on-ubuntu %}).
