@@ -8,7 +8,7 @@
 
 <b>DelayQueueExample.java</b>
 
-<script src="http://gist-it.appspot.com/https://github.com/RefCard/java.util.concurrent/blob/master/java-util-concurrent/src/org/refcard/blog/councurrency/delayqueue/DelayQueueExample.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/java-util-concurrent/src/com/blog/councurrency/delayqueue/DelayQueueExample.java"></script>
 
 <b>Output</b>
 {% highlight bash %}
