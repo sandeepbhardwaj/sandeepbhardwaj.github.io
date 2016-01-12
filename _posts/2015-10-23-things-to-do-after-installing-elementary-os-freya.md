@@ -17,7 +17,12 @@
   <li><a href="#install-google-chrome">Install Google Chrome</a></li>
   <li><a href="#enable-minimize-button-on-google-chrome">Enable minimize button on google-chrome</a></li>
   <li><a href="#install-rar">Install RAR</a></li>
+  <li><a href="#install-gimp">Install GIMP</a></li>
   <li><a href="#install-uget-on-elementary-freya">Install uGet on Elementary Freya</a></li>
+  <li><a href="#install-transmission">Install Transmission</a></li>
+  <li><a href="#clip-grab-for-youtube">Clip Grab for YouTube</a></li>
+  <li><a href="#install-banshee-music-player">Install Banshee Music Player</a></li>
+  <li><a href="#install-covergloobus">Install Covergloobus</a></li>
   <li><a href="#install-usb-indicator">Install Usb indicator</a></li>
   <li><a href="#install-gnome-system-monitor">Install Gnome System Monitor</a></li>
   <li><a href="#install-dropbox">Install DropBox</a></li>
@@ -26,18 +31,19 @@
   <li><a href="#install-elementary-plus">Install Elementary Plus</a></li>
   <li><a href="#install-thunderbird">Install Thunderbird</a></li>
   <li><a href="#improve-battery-life">Improve Battery Life</a></li>
+  <li><a href="#install-samba">Install Samba</a></li>
   <li><a href="#enable-colors-in-terminal">Enable Colors In Terminal</a></li>
   <li><a href="#install-git">Install Git</a></li>
   <li><a href="#setup-git">Setup Git</a></li>
   <li><a href="#setup-meld-diff-viewer-for-git">Setup Meld Diff Viewer for Git</a></li>
   <li><a href="#install-smartgit">Install SmartGit</a></li>
   <li><a href="#install-jekyll">Install Jekyll</a>
-	  <ul>
-		  <li><a href="#install-ruby">Install Ruby</a></li>
-		  <li><a href="#install-nodejs">Install NodeJS</a></li>
-		  <li><a href="#install-python">Install Python</a></li>
-		  <li><a href="#install-jekyll">Install Jekyll</a></li>
-	  </ul>
+    <ul>
+      <li><a href="#install-ruby">Install Ruby</a></li>
+      <li><a href="#install-nodejs">Install NodeJS</a></li>
+      <li><a href="#install-python">Install Python</a></li>
+      <li><a href="#install-jekyll">Install Jekyll</a></li>
+    </ul>
   </li>
 </ul>  
 
@@ -120,12 +126,47 @@ gconftool-2 --set /apps/metacity/general/button_layout --type string ":minimize:
 sudo apt-get install rar
 {% endhighlight %}
 
+<h3><a id="install-gimp">Install GIMP</a></h3>
+{% highlight bash %}
+susudo add-apt-repository ppa:otto-kesselgulasch/gimp
+sudo apt-get update
+sudo apt-get install gimp
+{% endhighlight %}
+
 <h3><a id="install-uget-on-elementary-freya">Install uGet</a></h3>
 As per my knowledge uGet is the best download manager.
 {% highlight bash %}
 sudo add-apt-repository ppa:plushuang-tw/uget-stable
 sudo apt update
 sudo apt install uget
+{% endhighlight %}
+
+<h3><a id="install-transmission">Install Transmission</a></h3>
+{% highlight bash %}
+sudo add-apt-repository ppa:transmissionbt/ppa
+sudo apt-get update 
+sudo apt-get install transmission
+{% endhighlight %}
+
+<h3><a id="clip-grab-for-youtube">Clip Grab for YouTube</a></h3>
+{% highlight bash %}
+sudo add-apt-repository ppa:clipgrab-team/ppa
+sudo apt-get update 
+sudo apt-get install clipgrab
+{% endhighlight %}
+
+<h3><a id="install-banshee-music-player">Install Banshee Music Player</a></h3>
+{% highlight bash %}
+sudo add-apt-repository ppa:clipgrab-team/ppa
+sudo apt-get update 
+sudo apt-get install clipgrab
+{% endhighlight %}
+
+<h3><a id="install-covergloobus">Install-Covergloobus</a></h3>
+{% highlight bash %}
+sudo add-apt-repository ppa:gloobus-dev/covergloobus
+sudo apt-get update
+sudo apt-get install covergloobus
 {% endhighlight %}
 
 <h3><a id="install-usb-indicator">Install Usb indicator</a></h3>
@@ -177,6 +218,11 @@ sudo add-apt-repository ppa:linrunner/tlp
 sudo apt-get update
 sudo apt-get install tlp tlp-rdw
 sudo tlp start
+{% endhighlight %}
+
+<h3><a id="install-samba">Install Samba</a></h3>
+{% highlight bash %}
+sudo apt-get install samba samba-common system-config-samba python-glade2 gksu
 {% endhighlight %}
 
 <h3><a id="enable-colors-in-terminal">Enable Colors In Terminal</a></h3>
@@ -254,6 +300,3 @@ sudo gem install jekyll-sitemap
 
 <br/>
 I hope you like this post and i will be helpful for you. Please share your view and thoughts in comment as well. so that i can make this post more useful and more better.
-
-
-
