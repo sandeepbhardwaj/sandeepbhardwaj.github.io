@@ -162,7 +162,7 @@ sudo apt-get update
 sudo apt-get install clipgrab
 {% endhighlight %}
 
-<h3><a id="install-covergloobus">Install-Covergloobus</a></h3>
+<h3><a id="install-covergloobus">Install Covergloobus</a></h3>
 {% highlight bash %}
 sudo add-apt-repository ppa:gloobus-dev/covergloobus
 sudo apt-get update
