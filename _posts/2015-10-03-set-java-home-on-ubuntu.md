@@ -2,7 +2,7 @@
   layout: post
   title: Set Java Home on Ubuntu
   published: true
-  tags: [Linux , Java]
+  tags: [Ubuntu , Java]
   date: 2015-10-03 19:00:00 +5:30
 ---
 
@@ -17,7 +17,7 @@ sudo gedit /etc/profile
 Add following lines in end
 
 {% highlight bash %}
-JAVA_HOME=/usr/local/java/java/jdk1.8.0_60
+JAVA_HOME=/usr/local/java/jdk1.8.0_60
 PATH=$PATH:$HOME/bin:$JAVA_HOME/bin
 export JAVA_HOME
 export JRE_HOME

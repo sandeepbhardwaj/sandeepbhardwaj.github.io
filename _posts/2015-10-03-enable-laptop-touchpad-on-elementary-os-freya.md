@@ -2,7 +2,7 @@
   layout: post
   title: Enable laptop touch-pad on Elementary OS Freya
   published: true
-  tags: [Linux , Elementary OS]
+  tags: [Elementary OS]
   date: 2015-10-03 17:44:00 +5:30
 ---
 

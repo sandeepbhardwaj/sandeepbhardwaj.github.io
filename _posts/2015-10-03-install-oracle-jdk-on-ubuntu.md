@@ -2,7 +2,7 @@
   layout: post
   title: Install Oracle JDK on Ubuntu
   published: true
-  tags: [Linux , Java]
+  tags: [Ubuntu , Java]
   date: 2015-10-03 18:08:00 +5:30
 ---
 
