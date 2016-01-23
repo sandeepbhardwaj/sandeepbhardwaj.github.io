@@ -299,4 +299,4 @@ sudo gem install jekyll-sitemap
 {% endhighlight %}
 
 <br/>
-I hope you like this post and i will be helpful for you. Please share your view and thoughts in comment as well. so that i can make this post more useful and more better.
+I hope you like this post and it will be helpful for you. Please share your view and thoughts in comment as well. so that i can make this post more useful and more better.
