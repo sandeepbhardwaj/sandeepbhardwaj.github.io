@@ -128,7 +128,7 @@ sudo apt-get install rar
 
 <h3><a id="install-gimp">Install GIMP</a></h3>
 {% highlight bash %}
-susudo add-apt-repository ppa:otto-kesselgulasch/gimp
+sudo add-apt-repository ppa:otto-kesselgulasch/gimp
 sudo apt-get update
 sudo apt-get install gimp
 {% endhighlight %}
