@@ -34,7 +34,7 @@ export PATH
 
 <b>Verify the GRADLE_HOME</b> 
 {% highlight bash %}
-echo $M2_HOME
+echo $GRADLE_HOME
 {% endhighlight %}
 
 <b>Verify the Gradle version</b>
