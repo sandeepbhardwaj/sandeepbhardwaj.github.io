@@ -18,7 +18,7 @@ Add following lines in end
 
 {% highlight bash %}
 JAVA_HOME=/usr/local/java/jdk1.8.0_60
-PATH=$PATH:$HOME/bin:$JAVA_HOME/bin
+PATH=$PATH:$JAVA_HOME/bin
 export JAVA_HOME
 export JRE_HOME
 export PATH

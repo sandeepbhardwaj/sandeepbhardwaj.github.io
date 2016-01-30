@@ -18,7 +18,7 @@ Add following lines in end
 
 {% highlight bash %}
 M2_HOME=/data/dev/tools/apache-maven-3.3.9
-PATH=$PATH:$HOME/bin:$M2_HOME/bin
+PATH=$PATH:$M2_HOME/bin
 export M2_HOME
 export PATH
 {% endhighlight %}
