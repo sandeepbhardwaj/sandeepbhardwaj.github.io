@@ -157,9 +157,9 @@ sudo apt-get install clipgrab
 
 <h3><a id="install-banshee-music-player">Install Banshee Music Player</a></h3>
 {% highlight bash %}
-sudo add-apt-repository ppa:clipgrab-team/ppa
-sudo apt-get update 
-sudo apt-get install clipgrab
+sudo add-apt-repository ppa:banshee-team/ppa
+sudo apt-get update
+sudo apt-get install banshee
 {% endhighlight %}
 
 <h3><a id="install-covergloobus">Install Covergloobus</a></h3>
@@ -202,7 +202,7 @@ For additional icons for libreoffice, sublime text, vlc etc etc.
 {% highlight bash %}
 sudo add-apt-repository ppa:cybre/elementaryplus
 sudo apt-get update
-sudo apt-get upgrade && sudo apt-get install elementaryplus
+sudo apt-get install elementaryplus
 {% endhighlight %}
 
 <h3><a id="install-thunderbird">Install Thunderbird</a></h3>
