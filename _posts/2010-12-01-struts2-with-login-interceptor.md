@@ -35,57 +35,57 @@ It’s an application of Struts 2 with LoginInterceptor this will perform these 
 
 web.xml with struts2 configuration and defining session time out 1 min.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/WebContent/WEB-INF/web.xml"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/WebContent/WEB-INF/web.xml"></script>
 
 <h3>struts.xml</h3>
 
 Here we configure our custom interceptor named LoginInterceptor defining loginStack as default stack.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/src/struts.xml"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/struts.xml"></script>
 
 
 <h3>LoginInterceptor.java</h3>
 
 LoginInterceptor class extends AbstractInterceptor and checking user present in session or not.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/src/org/refcard/blog/struts/interceptor/LoginInterceptor.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/interceptor/LoginInterceptor.java"></script>
 
 
 <h3>LoginAction.java</h3>
 
 LoginAction class with simple bussiness logic you can login with any username and password but cannot left blank the mandatory fields.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/LoginAction.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/LoginAction.java"></script>
 
 
 <h3>LogoutAction.java</h3>
 
 LogutAction class calls when user click on logout link.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/LogoutAction.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/LogoutAction.java"></script>
 
 <h3>ProfileAction.java</h3>
 
 ProfileAction executes when we click on profile link on welcome page. If we tried to call the profile action without login then login interceptor redirect user to login page. This is the whole purpose of using the login interceptor.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/ProfileAction.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/ProfileAction.java"></script>
 
 
 <h3>Login.jsp</h3>
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/WebContent/login.jsp"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/WebContent/login.jsp"></script>
 
 <h3>welcome.jsp</h3>
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/WebContent/WEB-INF/pages/welcome.jsp"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/WebContent/WEB-INF/pages/welcome.jsp"></script>
 
 <h3>profile.jsp</h3>
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/WebContent/WEB-INF/pages/profile.jsp"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/WebContent/WEB-INF/pages/profile.jsp"></script>
 
 <h3>style.css</h3>
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj01/code-repo/blob/master/login-app/WebContent/css/style.css"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/WebContent/css/style.css"></script>
 
 Now paste these files according to package structure and run it by typing [http://localhost:8080/LoginApp](http://localhost:8080/LoginApp).
 
