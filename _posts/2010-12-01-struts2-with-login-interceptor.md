@@ -48,27 +48,27 @@ Here we configure our custom interceptor named LoginInterceptor defining loginSt
 
 LoginInterceptor class extends AbstractInterceptor and checking user present in session or not.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/interceptor/LoginInterceptor.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/com/blog/struts/interceptor/LoginInterceptor.java"></script>
 
 
 <h3>LoginAction.java</h3>
 
 LoginAction class with simple bussiness logic you can login with any username and password but cannot left blank the mandatory fields.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/LoginAction.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/com/blog/struts/action/LoginAction.java"></script>
 
 
 <h3>LogoutAction.java</h3>
 
 LogutAction class calls when user click on logout link.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/LogoutAction.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/com/blog/struts/action/LogoutAction.java"></script>
 
 <h3>ProfileAction.java</h3>
 
 ProfileAction executes when we click on profile link on welcome page. If we tried to call the profile action without login then login interceptor redirect user to login page. This is the whole purpose of using the login interceptor.
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/org/refcard/blog/struts/action/ProfileAction.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/login-app/src/com/blog/struts/action/ProfileAction.java"></script>
 
 
 <h3>Login.jsp</h3>
