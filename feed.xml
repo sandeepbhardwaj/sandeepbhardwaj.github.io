@@ -16,7 +16,7 @@ title : RSS Feed
 
     {% for post in site.posts limit:20 %}
       <item>
-        <author>{{ site.author.name }}</author>
+        <author>Sachin Tomar</author>
         <title>{{ post.title }}</title>
         <link>{{ site.url }}{{ post.url }}</link>
         <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
