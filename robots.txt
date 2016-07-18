@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: http://sandeepbhardwaj.github.io/sitemap.xml
+Sitemap: http://sachintomar.github.io/sitemap.xml
