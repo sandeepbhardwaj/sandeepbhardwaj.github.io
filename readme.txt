@@ -18,7 +18,7 @@ Template
 ---
 layout: post
 title: Install Gradle on Ubuntu
-author: Sandeep Bhardwaj
+author: Sachin Tomar
 published: true
 date: 2016-01-22 12:00:00 +5:30
 tags: [Ubuntu , Java]
