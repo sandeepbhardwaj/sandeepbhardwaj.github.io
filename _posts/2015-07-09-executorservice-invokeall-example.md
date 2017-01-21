@@ -9,4 +9,4 @@
 <b>ExecutorInvokeAllExample.java</b>
 <br />
 
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/java-util-concurrent/src/com/blog/councurrency/executer/ExecutorInvokeAllExample.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/java-concurrency/src/com/concurrency/executer/ExecutorInvokeAllExample.java"></script>
