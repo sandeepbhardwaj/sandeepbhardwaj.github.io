@@ -15,7 +15,7 @@ Thread T1 prints then Threads T2 print and then .... Thread Tn and so on....<br 
 T1 -> T2 -> ... -> Tn; and then again T1 -> T2 -> ... -> Tn
 <br />
 
-<u><b>CyclicExecutionOfThreads.java</b></u><br />
+<h3>CyclicExecutionOfThreads.java</h3>
 <script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/java-concurrency/src/com/concurrency/CyclicExecutionOfThreads.java"></script>
 
 <u><b>Output</b></u>
