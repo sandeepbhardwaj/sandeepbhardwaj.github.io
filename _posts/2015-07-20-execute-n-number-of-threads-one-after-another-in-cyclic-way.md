@@ -16,7 +16,7 @@ T1 -> T2 -> ... -> Tn; and then again T1 -> T2 -> ... -> Tn
 <br />
 
 <u><b>CyclicExecutionOfThreads.java</b></u><br />
-<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/java-concurrency/src/com/concurrency/samples/CyclicExecutionOfThreads.java"></script>
+<script src="http://gist-it.appspot.com/https://github.com/sandeepbhardwaj/code-repo/blob/master/java-concurrency/src/com/concurrency/CyclicExecutionOfThreads.java"></script>
 
 <u><b>Output</b></u>
 
