@@ -1,0 +1,4 @@
+---
+  slug: JavaScript
+  tag: JavaScript
+---

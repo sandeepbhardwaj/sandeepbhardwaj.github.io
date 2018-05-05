@@ -67,6 +67,20 @@ compress_html:
     envs: []
 
 
+collections:
+  my_categories:
+    output: true
+    permalink: /blog/category/:name/
+  my_tags:
+    output: true
+    permalink: /tags/:name/
+
+defaults:
+  -
+    scope:
+      path: ""
+      type: my_tags
+    values:
+      layout: tag_page
 #tag_page_layout: tagpage
 #tag_page_dir: tag
-
