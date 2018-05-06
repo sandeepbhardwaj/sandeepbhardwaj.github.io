@@ -4,6 +4,7 @@ description: Bloggin for sharing my knowledge and contribute to make the web bet
 markdown: kramdown
 baseurl: ""
 url: http://sandeepbhardwaj.github.io
+permalink: /:year/:month/:day/:title:output_ext
 
 #
 # Jekyll Feed
