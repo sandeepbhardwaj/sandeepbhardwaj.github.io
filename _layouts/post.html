@@ -19,13 +19,22 @@
                     {% for tag in page.tags %}
                        <a class="post-tag" href="/tags/{{ tag | slugify }}/">{{ tag }}</a>
                     {% endfor %}
-                    
+
                 <a class="pull-right" href="{{ post.url }}#disqus_thread"></a>
             </p>
             <hr>
-
             {{ content }}
-           
+
+
+            {% assign category = site.my_categories | where: "slug", post.category %}
+            {% assign category = category[0] %}
+            {% if category %}
+              {% capture category_content %}<a class="label" href="{{ category.url }}" style="background-color:{{ category.color }}">{{ category.name }}</a>{% endcapture %}
+            {% endif %}
+
+             <p>
+               Posted{% if category_content %} in {{ category_content }}{% endif %}
+             </p>
         </div>
 
             <br/>{% include share-page.html %}<br/>
@@ -37,4 +46,3 @@
         </div>
     </div>
 </div>
- 
