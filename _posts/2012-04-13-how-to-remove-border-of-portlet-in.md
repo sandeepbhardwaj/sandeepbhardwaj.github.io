@@ -9,7 +9,7 @@ tags: [Liferay]
 There are many ways of doing below are the two solutions:  
 Solution 1 : Add the <code><portlet-prefrences></code> tag  in portlet.xml  
 
-{% highlight xml %}  
+``` xml  
 <portlet-info>
   <title>xyz</title>
   <short-title>xyz</short-title>
@@ -24,11 +24,11 @@ Solution 1 : Add the <code><portlet-prefrences></code> tag  in portlet.xml
 <security-role-ref>
   <role-name>administrator</role-name>
 </security-role-ref>     
-{% endhighlight %} 
+``` 
 
 Solution 2 : Second solution add the <use-default-template/> with false value in liferay-portlet.xml  
 
-{% highlight xml %}   
+``` xml   
 <portlet>
   <portlet-name>xyz</portlet-name>
   <icon>/icon.png</icon>
@@ -39,6 +39,6 @@ Solution 2 : Second solution add the <use-default-template/> with false value in
   <css-class-wrapper>xyz-portlet</css-class-wrapper>
   <add-default-resource>true</add-default-resource>
 </portlet>  
-{% endhighlight %} 
+``` 
 
 Hope this solution will help you.

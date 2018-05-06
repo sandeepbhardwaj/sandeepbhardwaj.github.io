@@ -20,9 +20,9 @@ If we had 10 field on a form then we need to create 10 variables and we have to 
 
 Also another problem then we have to cast the filed values according to our need like  
 
-{% highlight java %}  
+``` java  
 int age=Integer.parseInt(request.getParameter(“age”));  
-{% endhighlight %} 
+``` 
 
 <h3>About application</h3>  
 This application contains a simple form a Java Bean and a Servlet to display the form values submitted by user using Common BeanUtils jar.
@@ -41,7 +41,7 @@ This application contains a simple form a Java Bean and a Servlet to display the
 <h3>index.jsp</h3>  
 index.jsp containing a form with username and password textboxes and a submit button. When user clicked on submit button LoginActionServlet called.
 
-{% highlight html %}  
+``` html  
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Insert title here</title>
@@ -68,12 +68,12 @@ index.jsp containing a form with username and password textboxes and a submit bu
       </tbody>
    </table>
 </form>
-{% endhighlight %} 
+``` 
 
 <h3>LoginForm.java</h3>  
 LoginForm class with setters and getters of userName and password these fields names are same as form fields in jsp.
 
-{% highlight java %}  
+``` java  
 package form;
 
 public class LoginForm {
@@ -97,13 +97,13 @@ public class LoginForm {
 		this.password = password;
 	}
 } 
-{% endhighlight %} 
+``` 
 
 <h3>FormUtil.java</h3>  
 FormUtil class used BeanUtils class populate method for setting the form values in Java beans. I made this class a generic class so that we do not need to write same lines again and again in each servlet, just we need to pass the class of java bean and request in populate method of FormUtil.  
 **LoginForm loginForm = FormUtil.populate(LoginForm.class, request);**
 
-{% highlight java %}  
+``` java  
 package util;
 
 import java.lang.reflect.InvocationTargetException;
@@ -129,12 +129,12 @@ public class FormUtil {
 		return object;
 	}
 }  
-{% endhighlight %}
+```
 
 <h3>LoginActionServlet.java</h3>  
 LoginActionServlet used to process the values of LoginForm and display the values.
 
-{% highlight java %}  
+``` java  
 package action;
 
 import java.io.IOException;
@@ -163,12 +163,12 @@ public class LoginActionServlet extends HttpServlet {
 
 	}
 } 
-{% endhighlight %}
+```
 
 <h3>web.xml</h3>  
 web.xml with LoginActionServlet  servlet mapping.
 
-{% highlight xml %}  
+``` xml  
 <web-app id="WebApp_ID" version="2.4"
 	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemalocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
@@ -186,6 +186,6 @@ web.xml with LoginActionServlet  servlet mapping.
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 </web-app> 
-{% endhighlight %}
+```
 
 Now paste these files according to package structure and run it by typing [http://localhost:8080/DemoApp](http://localhost:8080/DemoApp).

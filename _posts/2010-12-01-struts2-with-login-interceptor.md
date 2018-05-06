@@ -35,7 +35,7 @@ It’s an application of Struts 2 with LoginInterceptor this will perform these 
 
 web.xml with struts2 configuration and defining session time out 1 min.
 
-{% highlight xml %}
+``` xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>login-app</display-name>
@@ -54,12 +54,12 @@ web.xml with struts2 configuration and defining session time out 1 min.
     <welcome-file>login.jsp</welcome-file>
   </welcome-file-list>
 </web-app>  
-{% endhighlight %}
+```
 
 <h3>struts.xml</h3>
 Here we configure our custom interceptor named LoginInterceptor defining loginStack as default stack.
 
-{% highlight xml %}  
+``` xml  
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE struts PUBLIC
    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
@@ -101,13 +101,13 @@ Here we configure our custom interceptor named LoginInterceptor defining loginSt
 
 	</package>
 </struts>
-{% endhighlight %}
+```
 
 <h3>LoginInterceptor.java</h3>
 
 LoginInterceptor class extends AbstractInterceptor and checking user present in session or not.
 
-{% highlight java %}
+``` java
 package com.blog.struts.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -159,13 +159,13 @@ public class LoginInterceptor extends AbstractInterceptor implements
 	}
 
 }
-{% endhighlight %}
+```
 
 <h3>LoginAction.java</h3>
 
 LoginAction class with simple bussiness logic you can login with any username and password but cannot left blank the mandatory fields.
 
-{% highlight java %}  
+``` java  
 package com.blog.struts.action;
 
 import org.apache.commons.lang.xwork.StringUtils;
@@ -213,13 +213,13 @@ public class LoginAction extends ActionSupport {
 
 	}
 }
-{% endhighlight %}
+```
 
 <h3>LogoutAction.java</h3>
 
 LogutAction class calls when user click on logout link.
 
-{% highlight java %}
+``` java
 package com.blog.struts.action;
 
 import org.apache.struts2.ServletActionContext;
@@ -237,13 +237,13 @@ public class LogoutAction extends ActionSupport {
 
 	}
 }
-{% endhighlight %}
+```
 
 <h3>ProfileAction.java</h3>
 
 ProfileAction executes when we click on profile link on welcome page. If we tried to call the profile action without login then login interceptor redirect user to login page. This is the whole purpose of using the login interceptor.
 
-{% highlight java %}
+``` java
 package com.blog.struts.action;
 
 import com.opensymphony.xwork2.ActionSupport;
@@ -257,12 +257,12 @@ public class ProfileAction extends ActionSupport {
 
 	}
 }  
-{% endhighlight %}
+```
 
 
 <h3>Login.jsp</h3>
 
-{% highlight html %}  
+``` html  
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
@@ -296,11 +296,11 @@ public class ProfileAction extends ActionSupport {
 	</s:form>
 </body>
 </html>
-{% endhighlight %}
+```
 
 <h3>welcome.jsp</h3>
 
-{% highlight html %}  
+``` html  
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
@@ -338,11 +338,11 @@ public class ProfileAction extends ActionSupport {
 
 </body>
 </html>
-{% endhighlight %}
+```
 
 <h3>profile.jsp</h3>
 
-{% highlight html %}  
+``` html  
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -371,11 +371,11 @@ public class ProfileAction extends ActionSupport {
 	</div>
 </body>
 </html>
-{% endhighlight %}
+```
 
 <h3>style.css</h3>
 
-{% highlight css %}  
+``` css
 .errors {
  background-color: #FFCCCC;
  border: 1px solid #CC0000;
@@ -403,7 +403,7 @@ public class ProfileAction extends ActionSupport {
 
  border: 2px solid #d0d1d0;
 }
-{% endhighlight %}
+```
 
 Now paste these files according to package structure and run it by typing [http://localhost:8080/LoginApp](http://localhost:8080/LoginApp).
 

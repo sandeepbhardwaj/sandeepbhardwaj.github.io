@@ -12,6 +12,6 @@ If we want to rename all the files in directory in one shot then we can use ren 
 
 <b>Example</b>:- If we want to rename all html files to jsp files of directory D:\pages\ then executes the command.
 
-{% highlight bash %}
+``` bash
 D:\pages>ren *.html *.jsp
-{% endhighlight %}
+```

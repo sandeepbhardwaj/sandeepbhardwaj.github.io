@@ -12,30 +12,30 @@
 When we write a new post in jekyll we usually made changes in <code>_config.yml</code> for our local/development environment like :-
 
 <h3>Development environment</h3>
-{% highlight bash %}
+``` bash
 #url: http://sandeepbhardwaj.github.io
 url: http://localhost:4000
 
 google_analytics: #UA-68409070-1
 disqus_user: #sandeepbhardwaj
-{% endhighlight %}
+```
 
 <h3>Production environment</h3>
-{% highlight bash %}
+``` bash
 url: http://sandeepbhardwaj.github.io
 #url: http://localhost:4000
 
 google_analytics: UA-68409070-1
 disqus_user: sandeepbhardwaj
-{% endhighlight %}
+```
 
 But doing this every time is pain. Sometimes we forgot to revert the changes when push our changes to github. So i Google it and find out that there is <code>jekyll.environment</code> variable that we can use.
 
-{% highlight bash %}
+``` bash
 <% if jekyll.environment == "production" %>
    <% include disqus.html %>
 <% endif %>
-{% endhighlight %}
+```
 
 so it means i have to made changes in <code>_layout</code> and <code>_include</code> file. I personally don't like this approach because i dont want to change my existing code. 
 
@@ -47,25 +47,25 @@ Finally, i find out a best way of doing this and just copy paste the existing <c
 
 Jekyll provide a best way of providing the config file explicitly using the command line like:-
 
-{% highlight bash %}
+``` bash
 jekyll serve -w --config _config-dev.yml
-{% endhighlight %}
+```
 
 <h2>Approach 2</h2>
 <h3>Overridding the default values</h3>
 There is also a alternative approach for overriding the exiting properties with default one if you do not want to add unnecessary config in new _config-dev.yml
 
-{% highlight bash %}
+``` bash
 jekyll serve -w --config _config.yml,_config-dev.yml
-{% endhighlight %}
+```
 
 <b>Note</b> :-Make sure in that case just add those config those need to be override only.
 Example:-
-{% highlight bash %}
+``` bash
 url: http://localhost:4000
 
 google_analytics: #UA-68409070-1
 disqus_user: #sandeepbhardwaj
-{% endhighlight %}
+```
 
 and when i push my site to github it automatically pick the default config file <code>_config.yml</code> and build the site using default one.

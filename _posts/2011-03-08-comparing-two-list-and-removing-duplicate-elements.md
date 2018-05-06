@@ -7,7 +7,7 @@
 ---
 <h3>Comparing two list and removing duplicate elements.</h3>
 
-{% highlight java %}
+``` java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,4 +35,4 @@ public class CheckList
   }
  }
 }
-{% endhighlight %}
+```

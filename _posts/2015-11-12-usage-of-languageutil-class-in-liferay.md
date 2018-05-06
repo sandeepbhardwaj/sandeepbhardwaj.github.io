@@ -13,23 +13,23 @@ For fetching properties based on locale from <code>properties</code> file in lif
 
 There are 6 overloaded get methods in **LanguageUtil** class.  
 
-{% highlight java %}
+``` java
 get(Locale locale, String key): String – LanguageUtil  
 get(Locale locale, String key, String defaultValue) String – LanguageUtil  
 get(PageContext pageContext, String key) String – LanguageUtil  
 get(PageContext pageContext, String key, String defaultValue) String – LanguageUtil  
 get(PortletConfig portletConfig, Locale locale, String key) String – LanguageUtil  
 get(PortletConfig portletConfig, Locale locale, String key, String defaultValue) String – LanguageUtil
-{% endhighlight %}
+```
 
 <h3>Usage</h3> 
 
-{% highlight html %}  
+``` html  
 <%@page import="com.liferay.portal.kernel.language.LanguageUtil"%>  
 <%  
 String propertyValue=LanguageUtil.get(pageContext, "property_name", new String("NOT_FOUND"));  
 %>  
-{% endhighlight %}
+```
 
 Argument of get method :- 
 

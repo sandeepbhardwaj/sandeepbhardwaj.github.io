@@ -12,65 +12,65 @@
 2) If you have root access then install java system-wide inside <b>/usr/local</b> directory.
 
 First create a directory named java inside <b>/usr/local</b>
-{% highlight bash %}
+``` bash
 sandeep@vivan:~$ sudo mkdir /usr/local/java/
-{% endhighlight %}
+```
 
 after that change directory
 
-{% highlight bash %}
+``` bash
 sandeep@vivan:~$ cd /usr/local/java/
-{% endhighlight %}
+```
 
 
 <b>Note:</b> If you do not have access to root then install java inside your home directory.
 
 
 3) Unpack the tarball and install Java
-{% highlight bash %}
+``` bash
 sandeep@vivan:/usr/local/java$ sudo tar zxvf ~download/jdk-8u60-linux-x64.tar.gz
-{% endhighlight %}
+```
 
 The Java files are installed in a directory /usr/local/java/jdk1.8.0_60/
 
 4) Install the new Java source in system:
 
-{% highlight bash %}
+``` bash
 sudo update-alternatives --install /usr/bin/javac javac /usr/local/java/jdk1.8.0_60/bin/javac 1
 sudo update-alternatives --install /usr/bin/java java /usr/local/java/jdk1.8.0_60/bin/java 1
 sudo update-alternatives --install /usr/bin/javaws javaws /usr/local/java/jdk1.8.0_60/bin/javaws 1
-{% endhighlight %}
+```
 
 5) Choose default Java:
-{% highlight bash %}
+``` bash
 sudo update-alternatives --config javac
 sudo update-alternatives --config java
 sudo update-alternatives --config javaws
-{% endhighlight %}
+```
 
 6) Check the Java version:
-{% highlight bash %}
+``` bash
 java -version
-{% endhighlight %}
+```
 
 <b>Output</b>
-{% highlight bash %}
+``` bash
 java version "1.8.0_60"
 Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
 Java HotSpot(TM) 64-Bit Server VM (build 25.60-b23, mixed mode)
-{% endhighlight %}
+```
 
 7) Verify the symlinks all point to the new Java location:
-{% highlight bash %}
+``` bash
 ls -la /etc/alternatives/java*
-{% endhighlight %}
+```
 
 <b>Output</b>
-{% highlight bash %}
+``` bash
 lrwxrwxrwx 1 root root 36 Sep 24 19:27 /etc/alternatives/java -> /usr/local/java/jdk1.8.0_60/bin/java
 lrwxrwxrwx 1 root root 37 Sep 24 15:00 /etc/alternatives/javac -> /usr/local/java/jdk1.8.0_60/bin/javac
 lrwxrwxrwx 1 root root 38 Sep 24 15:06 /etc/alternatives/javaws -> /usr/local/java/jdk1.8.0_60/bin/javaws
-{% endhighlight %}
+```
 
 
 <b>Note:</b>

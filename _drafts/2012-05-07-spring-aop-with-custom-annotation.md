@@ -10,7 +10,7 @@ I am going to use the custom annotaion and spring AOP for checking the method ar
 Scenario :- I have a method save(Employee employee) in my service class which takes employee object as an argument. If any field of employee is null then i do not want to execute save method.  
 <h3>Annotation</h3>  
 
-{% highlight java %}   
+``` java   
 package com.bloggers.annotation;  
 
 import java.lang.annotation.ElementType;  
@@ -23,11 +23,11 @@ import java.lang.annotation.Target;
 public @interface NotNullAndNotEmpty {  
 
 }  
-{% endhighlight %}
+```
 
 <h3>Model</h3>  
 
-{% highlight java %}   
+``` java   
 package com.bloggers.model;  
 
 public class Employee  
@@ -68,11 +68,11 @@ public class Employee
  }  
 
 }  
-{% endhighlight %}
+```
 
 <h3>EmployeeService</h3>  
 
-{% highlight java %}   
+``` java   
 package com.bloggers.service;  
 
 import com.bloggers.annotation.NotNullAndNotEmpty;  
@@ -87,11 +87,11 @@ public class EmployeeService
   System.out.println("EmployeeService.save() successfully");  
  }  
 }  
-{% endhighlight %}
+```
 
 <h3>BeanMethodValidator</h3>  
 
-{% highlight java %}   
+``` java   
 package com.bloggers.validate;  
 
 import com.bloggers.annotation.NotNullAndNotEmpty;  
@@ -155,11 +155,11 @@ public class BeanMethodValidator implements MethodInterceptor
   }  
  }  
 }  
-{% endhighlight %}
+```
 
 <h3>Configuration:- employee.xml</h3>  
 
-{% highlight xml %}  
+``` xml  
  <beans xmlns="http://www.springframework.org/schema/beans" <br="">xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
  xsi:schemaLocation="http://www.springframework.org/schema/beans  
 http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">  
@@ -172,11 +172,11 @@ http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
  <bean id="bloggerProxy" class="org.springframework.aop.framework.ProxyFactoryBean">  
   <property name="target" ref="employeeService"><property name="interceptorNames"><list><value>beanMethodValidator</value></list></property></property> </bean></beans>  
-{% endhighlight %}
+```
 
 <h3>Run application :- Test class</h3>  
 
-{% highlight java %}   
+``` java   
 package com.bloggers.common;  
 
 import com.bloggers.model.Employee;  
@@ -200,11 +200,11 @@ public class Test
   employeeService.save(employee);  
  }  
 }  
-{% endhighlight %}
+```
 
 <h3>pom.xml</h3>  
 
-{% highlight xml %}  
+``` xml  
  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" <br="">xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">  
  <modelversion>4.0.0</modelversion>  
  <groupid>com.bloggers.common</groupid>  
@@ -225,4 +225,4 @@ public class Test
   <dependency><groupid>cglib</groupid>  
    <artifactid>cglib</artifactid>  
    <version>2.2.2</version></dependency></dependencies></project>  
-{% endhighlight %}
+```

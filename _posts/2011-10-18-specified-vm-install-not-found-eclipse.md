@@ -16,9 +16,9 @@ There is a simple solution for this just delete the launch file of that project.
 
 Delete the file from the location given below
 
-{% highlight bash %}
+``` bash
 "<Your eclipse workspace location>\.metadata\.plugins\org.eclipse.debug.core\.launches\<projectname>.xml.launch"
-{% endhighlight %}
+```
 
 Finally restart your eclipse.
 

@@ -19,31 +19,31 @@ Setting the environment variable in Ubuntu in really easy, just need to edit the
 
 Open the /etc/profile file in your favorite editor.
 
-{% highlight bash %}
+``` bash
 sudo gedit /etc/profile
-{% endhighlight %}
+```
 
 Add below lines in end.
 
-{% highlight bash %}
+``` bash
 GRADLE_HOME=/data/dev/tools/gradle-2.10
 PATH=$PATH:$GRADLE_HOME/bin
 export GRADLE_HOME
 export PATH
-{% endhighlight %}
+```
 
 <b>Verify the GRADLE_HOME</b> 
-{% highlight bash %}
+``` bash
 echo $GRADLE_HOME
-{% endhighlight %}
+```
 
 <b>Verify the Gradle version</b>
-{% highlight bash %}
+``` bash
 gradle -v
-{% endhighlight %}
+```
 
 <b>Output</b>
-{% highlight bash %}
+``` bash
 ------------------------------------------------------------
 Gradle 2.10
 ------------------------------------------------------------
@@ -56,13 +56,13 @@ Groovy:       2.4.4
 Ant:          Apache Ant(TM) version 1.9.3 compiled on December 23 2013
 JVM:          1.8.0_60 (Oracle Corporation 25.60-b23)
 OS:           Linux 3.19.0-47-generic amd64
-{% endhighlight %}
+```
 
 <h2>Set <code>GRADLE_USER_HOME</code> on Ubuntu</h2>
 Next if you wants to override the default location of gradle local repository.
 
 Again edit the  <b>/etc/profile</b> like we did it above and add below line in the end.
 
-{% highlight bash %}
+``` bash
 export GRADLE_USER_HOME=/data/dev/repository/gradle
-{% endhighlight %}
+```

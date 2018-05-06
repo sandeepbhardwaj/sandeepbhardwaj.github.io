@@ -9,9 +9,9 @@ keywords: "BlockingQueue, Concurrency"
 summary: "BlockingQueue in java"
 ---
 
-{% highlight java %}  
+``` java  
 public interface BlockingQueue extends Queue
-{% endhighlight %}
+```
 
 A BlockingQueue provides additionally functionality
 

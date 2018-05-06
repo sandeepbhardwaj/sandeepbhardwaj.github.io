@@ -11,15 +11,15 @@ summary: "Integrate Thunderbird on Elementary OS Loki, Thunderbird notification 
 
 Install Thunderbird using below command.
 
-{% highlight bash %}
+``` bash
 sandeep@koko:~$ sudo apt install thunderbird 
-{% endhighlight %}
+```
 
 then install 
 
-{% highlight bash %}
+``` bash
 sandeep@koko:~$ sudo apt install thunderbird-gnome-support  ttf-lyx
-{% endhighlight %}
+```
 
 After successful installation of thunderbird install below add-ons to make Thunderbird more integrated and beautiful.
 

@@ -11,7 +11,7 @@ Yesterday, i installed fresh copy of <b>Elementary OS Freya</b> on my Samsung la
 So, i search on Google and find out so many solution but only the below one works for me. 
 
 
-{% highlight bash %}
+``` bash
 
 sudo add-apt-repository ppa:hanipouspilot/focaltech-dkms
 sudo apt-get update
@@ -19,14 +19,14 @@ sudo apt-get install focaltech-dkms
 sudo modprobe -r psmouse 
 sudo modprobe psmouse
 
-{% endhighlight %}
+```
 
 I hope this will work for you as well if you are also facing the same issue.
 
 To make it permanent create a file with below command you can use your favorite editor.
 
-{% highlight bash %}
+``` bash
 sudo gedit /etc/modprobe.d/psmouse.conf
-{% endhighlight %}
+```
 
 add this line to file <code>options psmouse proto=imps</code> and save the changes.

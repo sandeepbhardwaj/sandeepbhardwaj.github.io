@@ -11,7 +11,7 @@ summary: "How to create SessionFactory in Hibernate 4.x, How to create SessionFa
 
 <h3>Hibernate SessionFactory in 4.x</h3>
 
-{% highlight java %}  
+``` java  
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -42,11 +42,11 @@ public class Hibernate4Util {
     return sessionFactory;
   }
 }
-{% endhighlight %}
+```
 
 <h3>Hibernate SessionFactory in 3.x</h3>
 
-{% highlight java %} 
+``` java 
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -68,4 +68,4 @@ public class Hibernate3Util {
     return sessionFactory;
   }
 }
-{% endhighlight %}
+```

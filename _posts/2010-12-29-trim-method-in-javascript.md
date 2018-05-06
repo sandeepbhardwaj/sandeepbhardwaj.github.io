@@ -7,7 +7,7 @@ tags: [JavaScript]
 ---
 We can use String.replace method to trim a string in javascript.  
 
-{% highlight javascript %}   
+``` javascript  
 //method for trim a complete string like "  Hello World   "  
 function trim(str) {  
  return str.replace(/^\s+|\s+$/g,"");  
@@ -22,4 +22,4 @@ function leftTrim(str) {
 function rightTrim(str) {  
  return str.replace(/\s+$/,"");  
 }  
-{% endhighlight %}
+```

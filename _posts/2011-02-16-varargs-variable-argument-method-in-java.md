@@ -9,13 +9,13 @@ Varargs enables to write methods which can takes variable length of arguments.Va
 
 <h3>Syntax</h3>
 
-{% highlight java %}
+``` java
 public void showDepartmentEmp(int deptCode, String... deptEmp){}
-{% endhighlight %}
+```
 
 <b>Example</b>
 
-{% highlight java %}
+``` java
 public class Department {
  
     public static void main(String args[]) {
@@ -30,4 +30,4 @@ public class Department {
         }
     }
 }
-{% endhighlight %}
+```

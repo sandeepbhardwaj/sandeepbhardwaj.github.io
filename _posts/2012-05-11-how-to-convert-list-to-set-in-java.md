@@ -11,13 +11,13 @@ Removing duplicate items from a list is pretty simple in java just convert the l
 
 <h3>Syntax</h3>  
 
-{% highlight java %}
+``` java
 Set<E> alphaSet  = new HashSet<E>(<your List>);  
-{% endhighlight %}
+```
 
 <h3>Example</h3>  
 
-{% highlight java %}
+``` java
 import java.util.ArrayList;  
 import java.util.HashSet;  
 import java.util.List;  
@@ -46,4 +46,4 @@ public class ListToSet
   }  
  }  
 }  
-{% endhighlight %}
+```

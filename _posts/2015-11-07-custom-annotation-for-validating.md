@@ -12,7 +12,7 @@ Custom annotation for validating all the field of a class. If fields are null th
 
 <h3>Annotation</h3>
 
-{% highlight java %}  
+``` java  
 package com;  
 
 import java.lang.annotation.ElementType;
@@ -25,11 +25,11 @@ import java.lang.annotation.Target;
 public @interface NotNullAndNotEmpty {
 
 } 
-{% endhighlight %}
+```
 
 <h3>Validator class</h3>
 
-{% highlight java %}  
+``` java  
 package com;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -59,11 +59,11 @@ public class NotNullAndNotEmptyValidator {
     return errors;
   }
 }  
-{% endhighlight %}
+```
 
 <h3>Usage :- Model</h3>
 
-{% highlight java %}  
+``` java  
 package com;
 
 @NotNullAndNotEmpty
@@ -98,11 +98,11 @@ public class Employee {
   }
 
 }
-{% endhighlight %}
+```
 
 <h3>Run the test</h3>
 
-{% highlight java %}  
+``` java  
 package com;
 
 import java.util.List;
@@ -120,11 +120,11 @@ public class Test {
 
   }
 }
-{% endhighlight %}
+```
 
 <h3>Output</h3> 
 
-{% highlight java %}  
+``` java  
 address is null or empty  
-{% endhighlight %}
+```
 

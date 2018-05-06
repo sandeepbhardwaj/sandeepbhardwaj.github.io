@@ -14,7 +14,7 @@ Class.forName("XYZ")loads the class if it not already loaded. The JVM keeps trac
 
 <b>For example</b>
 
-{% highlight java %}
+``` java
 package com.usebrain.util;
 
 public class LoadClass {
@@ -36,11 +36,11 @@ public class Test {
   }
  }
 }
-{% endhighlight %}
+```
 
 Example that use returned Class to create an instance of LoadClass:
 
-{% highlight java %}
+``` java
 package com.usebrain.util;
 
 public class LoadClass {
@@ -80,17 +80,17 @@ public class Test {
   }
  }
 }
-{% endhighlight %}
+```
 
 
 <b>Output</b>
 
-{% highlight bash %}
+``` bash
 first time calls forName method
 ************LoadClass static block************
 *************LoadClass Constructor************
 
 second time calls forName method
-{% endhighlight %}
+```
 
 Class already loaded when Class.forName() execute first time so at second time when Class.forName() execute not loads the class again.

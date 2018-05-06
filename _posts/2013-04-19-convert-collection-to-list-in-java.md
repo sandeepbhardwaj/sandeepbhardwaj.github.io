@@ -6,7 +6,7 @@ author: Sandeep Bhardwaj
 tags: [Java, Collection]
 ---
 
-{% highlight java %}  
+``` java  
 List list;  
 if (collection instanceof List)  
 {  
@@ -16,11 +16,11 @@ else
 {  
   list = new ArrayList(collection);  
 }  
-{% endhighlight %}
+```
 
 <h3>Generic way (java 1.5<=)</h3>
 
-{% highlight java %}
+``` java
 public <E> List<E> collectionToList(Collection<E> collection)  
  {  
   List<E> list;  
@@ -34,11 +34,11 @@ public <E> List<E> collectionToList(Collection<E> collection)
   }  
   return list;  
  }  
-{% endhighlight %}
+```
 
 <h3>Without Generics (java 1.4>=)</h3>
 
-{% highlight java %}  
+``` java  
 public List collectionToList(Collection collection)  
  {  
   List list;  
@@ -52,4 +52,4 @@ public List collectionToList(Collection collection)
   }  
   return list;  
  }  
-{% endhighlight %}
+```

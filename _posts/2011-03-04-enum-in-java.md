@@ -9,7 +9,7 @@ tags: [Java]
 
 <h2>Enum: Get value using enum</h2> 
 
-{% highlight javascript %}  
+``` javascript 
 enum Day {  
     SUNDAY(1), MONDAY(2), TUESDAY(3), WEDNESDAY(4), THURSDAY(5), FRIDAY(6), SATURDAY(7);  
     private final int dayCode;  
@@ -27,11 +27,11 @@ public class EnumValueOfDay {
         System.out.println("Day = " + day.getCode());            
     }  
 }  
-{% endhighlight %} 
+``` 
 
 also you can use enum in this way to get the value of enum . Here is one more example to print the names by using toString method.  
 
-{% highlight javascript %}  
+``` javascript 
 enum Name {  
  S("Sandeep"),   
  A("Aditya") ,   
@@ -56,4 +56,4 @@ public class NameDisplay {
   System.out.println("Name = " + name);  
  }  
 }  
-{% endhighlight %} 
+``` 

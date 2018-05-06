@@ -10,7 +10,7 @@ tags: [Liferay]
 
 Un deployment of ext plugin in liferay is a tricky task, so i found a simple solution for doing this instead of deleting all the ext files from tomcat. I made a bat file for this this bat file remove all the ext plugin related files from your tomcat directory.  
 
-{% highlight bash %}
+``` bash
 @echo off  
 set app_name=%1  
 if "%app_name%" == "" goto end   
@@ -29,11 +29,11 @@ del /S /Q %tomcat_home%\webapps\ROOT\WEB-INF\ext-%app_name%-ext.xml
 del /S /Q %tomcat_home%\webapps\ROOT\WEB-INF\tiles-defs-ext.xml   
 
 :end   
-{% endhighlight %} 
+``` 
 
 just change the tomcat_home with your tomcat home directory and paste the code in a notepad and save as undeployment.bat .  
 For running the bat pass your ext application name (with our ext) as command line argument.  
 
-{% highlight bash %}
+``` bash
 C:/>undeployment.bat <application name>  
-{% endhighlight %}
+```

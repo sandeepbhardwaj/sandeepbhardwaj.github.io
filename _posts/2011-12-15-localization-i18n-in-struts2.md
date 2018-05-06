@@ -49,7 +49,7 @@ If a com.mycomp.action.LoginAction want to get a message via resource bundle, it
 
 <h3>web.xml</h3>  
 
-{% highlight xml %}  
+``` xml  
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app id="WebApp_ID" version="2.4"
   xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -65,11 +65,11 @@ If a com.mycomp.action.LoginAction want to get a message via resource bundle, it
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 </web-app>   
-{% endhighlight %} 
+``` 
 
 <h3>struts.xml</h3>  
 
-{% highlight xml %}  
+``` xml  
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE struts PUBLIC
    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
@@ -89,7 +89,7 @@ If a com.mycomp.action.LoginAction want to get a message via resource bundle, it
     </action>
   </package>
 </struts>  
-{% endhighlight %} 
+``` 
 
 <h3>helloworld.jsp</h3>  
 In the commands section of the page has 2 links:-  
@@ -102,7 +102,7 @@ and Languages section has 2 links for language:-
 1.  English
 2.  German
 
-{% highlight html %}   
+``` html   
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>  
 <%@ taglib prefix="s" uri="/struts-tags" %>  
 <html>  
@@ -133,7 +133,7 @@ and Languages section has 2 links for language:-
   </ul>  
     </body>  
 </html>  
-{% endhighlight %} 
+``` 
 
 Struts2 provide the <s:url/> tag to create links.  
 helloworld.jsp demonstrate the 2 different ways to use the tag :-  
@@ -141,16 +141,16 @@ helloworld.jsp demonstrate the 2 different ways to use the tag :-
 When the link is rendered, the tag will automatically append the appropriate extension.  
 The tag will also URL-encode the link with the Java session ID, if needed, so that the Java session can be retained across requests.  
 
-{% highlight html %}   
+``` html   
 <s:url id="url" action="Welcome">   
  <s:param name="request_locale">en</s:param> </s:url>   
 <s:a href="%{url}">English</s:a>  
-{% endhighlight %} 
+``` 
 
 The param tag will add the parameter "?request_locale=en" to the Welcome Action URL, and store it under the name "url". The tag then injects the "url" reference into the hyperlink.  
 <h3>HelloWorld.java</h3>  
 
-{% highlight java %}  
+``` java  
 package com.mycomp.action;  
 
 import com.opensymphony.xwork2.ActionSupport;  
@@ -174,11 +174,11 @@ public class HelloWorld extends ActionSupport{
   this.message = message;  
  }   
 }  
-{% endhighlight %} 
+``` 
 
 <h3>login.jsp</h3>  
 
-{% highlight html %}   
+``` html   
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>  
 <%@ taglib prefix="s" uri="/struts-tags"%>  
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">  
@@ -195,7 +195,7 @@ public class HelloWorld extends ActionSupport{
 </s:form>  
 </body>  
 </html>  
-{% endhighlight %} 
+``` 
 
 In Struts 2 “key” attribute can be used in the [textfield](http://struts.apache.org/2.2.1/docs/textfield.html) tag to instruct the framework what value to use for the textfield's name and label attributes.  
 Instead of providing those attributes and their values directly, you can just use the key attribute.  
@@ -205,7 +205,7 @@ Instead of specifying the name and label attributes you can just use the key att
 To enable the key attribute to find the properties file, the display of the view page must be the result of executing a Struts 2 Action class.  
 So, let see the LoginAction.java.
 
-{% highlight java %}  
+``` java  
 package com.mycomp.action;  
 import com.opensymphony.xwork2.ActionSupport;  
 
@@ -236,30 +236,30 @@ public class LoginAction extends ActionSupport{
  }  
 
 }  
-{% endhighlight %} 
+``` 
 
 Make sure the properties file are named as country specified code.  
 <h3>LoginAction.properties</h3>  
 
-{% highlight java %}  
+``` java  
 # LoginAction : english language  
 login.username = Username  
 login.password = Password  
 login.submit = Submit  
-{% endhighlight %} 
+``` 
 
 <h3>LoginAction_de.properties</h3>  
 
-{% highlight java %}  
+``` java  
 # Login action : German language   
 login.username = Benutzername  
 login.password = Kennwort  
 login.submit = Einreichen  
-{% endhighlight %} 
+``` 
 
 <h3>userRegistration.jsp</h3>  
 
-{% highlight html %}   
+``` html   
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>  
 <%@ taglib prefix="s" uri="/struts-tags" %>      
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">  
@@ -277,11 +277,11 @@ login.submit = Einreichen
 </s:form>  
 </body>  
 </html>  
-{% endhighlight %} 
+``` 
 
 <h3>UserRegistrationAction.java</h3>  
 
-{% highlight java %}  
+``` java  
 package com.mycomp.action;  
 
 import com.opensymphony.xwork2.ActionSupport;  
@@ -292,25 +292,25 @@ public class UserRegisterAction extends ActionSupport {
   return "success";  
  }  
 }  
-{% endhighlight %} 
+``` 
 
 <h3>Global.properties</h3>  
 
-{% highlight java %}  
+``` java  
 #Global messages  
 global.username = Username  
 global.password = Password  
 global.conpassword = Confirm Password  
 global.submit = Submit  
-{% endhighlight %} 
+``` 
 
 The keys and values defined in that property file will be available to all the view pages that are rendered after executing an Action class.</div>
 
 To inform the Struts 2 framework about the global.properties file add the follow node to struts.xml after the constant name="struts.devmode" node.  
 
-{% highlight xml %}   
+``` xml   
 <constant name="struts.custom.i18n.resources" value="global" />  
-{% endhighlight %} 
+``` 
 
 Now run the application:  
 [http://localhost:8081/Struts2Practice/helloworld.action](http://localhost:8081/Struts2Practice/helloworld.action)

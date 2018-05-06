@@ -63,24 +63,24 @@ For stable and better desktop environment i followed below steps whenever i inst
 <h3><a id="enable-laptop-touchpad-click">Enable laptop touchpad click</a></h3>
 <b>Note:</b> Follow only if your laptop touchpad not working (Click not working).
 
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:hanipouspilot/focaltech-dkms
 sudo apt-get update
 sudo apt-get install focaltech-dkms
-{% endhighlight %}
+```
 
 then enter the below two command.
 
-{% highlight bash %}
+``` bash
 sudo modprobe -r psmouse
 sudo modprobe psmouse proto=imps
-{% endhighlight %}
+```
 
 Now touchpad click start working. The above two commands makes the touchpad working only for current session. To make it permanent create a file with below command you can use your favorite editor.
 
-{% highlight bash %}
+``` bash
 sudo gedit /etc/modprobe.d/psmouse.conf
-{% endhighlight %}
+```
 
 add this line to file <code>options psmouse proto=imps</code> and save the changes.
 
@@ -89,24 +89,24 @@ add this line to file <code>options psmouse proto=imps</code> and save the chang
 <code> Software & Updates > Other Softwares > Canonical Partners </code>
 
 <h3>Update the system</h3>
-{% highlight bash %}
+``` bash
 sudo apt-get update
 sudo apt-get dist-upgrade
-{% endhighlight %}
+```
 
 Difference between <code>sudo apt-get upgrade</code> and <code>sudo apt-get dist-upgrade</code> [here](http://askubuntu.com/questions/81585/what-is-dist-upgrade-and-why-does-it-upgrade-more-than-upgrade).
 
 <h3><a id="install-restricted-extra">Install Restricted Extra</a></h3>
-{% highlight bash %}
+``` bash
 sudo apt-get install ubuntu-restricted-extras
-{% endhighlight %}
+```
 
 <h3><a id="install-elementary-tweak">Install Elementary Tweak</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:mpstark/elementary-tweaks-daily
 sudo apt-get update
 sudo apt-get install elementary-tweaks
-{% endhighlight %}
+```
 
 After installing elementary tweak enable minimize button
 
@@ -117,69 +117,69 @@ After installing elementary tweak enable minimize button
 Download [Google Chrome]( https://www.google.com/intl/en-US/chrome/browser/) <code>64 bit .deb (For Debian/Ubuntu)</code> and install it. After installation you found that there is no minimize button on chrome so follow below step.
 
 <h3><a id="enable-minimize-button-on-google-chrome">Enable minimize button on google-chrome</a></h3>
-{% highlight bash %}
+``` bash
 gconftool-2 --set /apps/metacity/general/button_layout --type string ":minimize:maximize:close"
-{% endhighlight %}
+```
 
 <h3><a id="install-rar">Install RAR</a></h3>
-{% highlight bash %}
+``` bash
 sudo apt-get install rar
-{% endhighlight %}
+```
 
 <h3><a id="install-gimp">Install GIMP</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:otto-kesselgulasch/gimp
 sudo apt-get update
 sudo apt-get install gimp
-{% endhighlight %}
+```
 
 <h3><a id="install-uget-on-elementary-freya">Install uGet</a></h3>
 As per my knowledge uGet is the best download manager.
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:plushuang-tw/uget-stable
 sudo apt update
 sudo apt install uget
-{% endhighlight %}
+```
 
 <h3><a id="install-transmission">Install Transmission</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:transmissionbt/ppa
 sudo apt-get update 
 sudo apt-get install transmission
-{% endhighlight %}
+```
 
 <h3><a id="clip-grab-for-youtube">Clip Grab for YouTube</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:clipgrab-team/ppa
 sudo apt-get update 
 sudo apt-get install clipgrab
-{% endhighlight %}
+```
 
 <h3><a id="install-banshee-music-player">Install Banshee Music Player</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:banshee-team/ppa
 sudo apt-get update
 sudo apt-get install banshee
-{% endhighlight %}
+```
 
 <h3><a id="install-covergloobus">Install Covergloobus</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:gloobus-dev/covergloobus
 sudo apt-get update
 sudo apt-get install covergloobus
-{% endhighlight %}
+```
 
 <h3><a id="install-usb-indicator">Install Usb indicator</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:yunnxx/gnome3
 sudo apt-get update
 sudo apt-get install indicator-usb
-{% endhighlight %}
+```
 
 <h3><a id="install-gnome-system-monitor">Install Gnome System Monitor</a></h3>
-{% highlight bash %}
+``` bash
 sudo apt-get install gnome-system-monitor
-{% endhighlight %}
+```
 
 
 <h3><a id="install-dropbox">Install DropBox</a></h3>
@@ -192,60 +192,60 @@ For Installing Java on follow the [post]({% post_url 2015-10-03-install-oracle-j
 <h3><a id="install-libre-office">Install Libre Office</a></h3>
 
 This will install latest libre office <code>(current version:- Libre Office 5)</code>.
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:libreoffice/ppa  &&  sudo apt-get update  &&  sudo apt-get install libreoffice 
-{% endhighlight %}
+```
 
 <h3><a id="install-elementary-plus">Install Elementary Plus</a></h3>
 For additional icons for libreoffice, sublime text, vlc etc etc. 
 
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:cybre/elementaryplus
 sudo apt-get update
 sudo apt-get install elementaryplus
-{% endhighlight %}
+```
 
 <h3><a id="install-thunderbird">Install Thunderbird</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:ubuntu-mozilla-security/ppa
 sudo apt-get update
 sudo apt-get install thunderbird
-{% endhighlight %}
+```
 
 <h3><a id="improve-battery-life">Improve Battery Life</a></h3>
-{% highlight bash %}
+``` bash
 sudo add-apt-repository ppa:linrunner/tlp
 sudo apt-get update
 sudo apt-get install tlp tlp-rdw
 sudo tlp start
-{% endhighlight %}
+```
 
 <h3><a id="install-samba">Install Samba</a></h3>
-{% highlight bash %}
+``` bash
 sudo apt-get install samba samba-common system-config-samba python-glade2 gksu
-{% endhighlight %}
+```
 
 <h3><a id="enable-colors-in-terminal">Enable Colors In Terminal</a></h3>
 Go to home directory and make hidden files visible and then un-comment the below line in <code>.bashrc</code> file.
-{% highlight bash %}
+``` bash
 force_color_prompt=yes
-{% endhighlight %}
+```
 
 <h3><a id="install-git">Install Git</a></h3>
-{% highlight bash %}
+``` bash
 sudo apt-get install git
-{% endhighlight %}
+```
 
 <h3><a id="setup-git">Setup Git</a></h3>
-{% highlight bash %}
+``` bash
 git config --global user.name "Your Name"
 git config --global user.email "youremail@domain.com"
-{% endhighlight %}
+```
 
 See all of the git configuration items:
-{% highlight bash %}
+``` bash
 git config --list
-{% endhighlight %}
+```
 
 <h3><a id="setup-meld-diff-viewer-for-git">Setup Meld Diff Viewer for Git</a></h3>
 Follow the [link](http://www.wiredforcode.com/blog/2011/06/04/git-with-meld-diff-viewer-on-ubuntu).
@@ -260,43 +260,43 @@ Download the [SmartGit](http://www.syntevo.com/smartgit/download) deb package an
 Pre-requisites for jekyll are ruby, ruby gems, nodejs and python.
 
 <h4><a id="install-ruby">Install Ruby</a></h4>
-{% highlight bash %}
+``` bash
 sudo apt-get install ruby-full
-{% endhighlight %}
+```
 
 <h4><a id="install-ruby">Install RubyGems</h4>
-{% highlight bash %}
+``` bash
 sudo gem update --system
 sudo gem install rubygems-update
 sudo update_rubygems
-{% endhighlight %}
+```
 
 <h4><a id="install-nodejs">Install NodeJS</a></h4>
-{% highlight bash %}
+``` bash
 sudo apt-get install nodejs
-{% endhighlight %}
+```
 
 <h4><a id="install-python">Install Python</a></h4>
 Check python version. I hope its already installed on your system.
 
-{% highlight bash %}
+``` bash
 python --version
-{% endhighlight %}
+```
 
 On my machine the version is <code>Python 2.7.6</code>
 
 <h4><a id="install-jekyll">Install Jekyll</a></h4>
 Now, Finally install jekyll.
 
-{% highlight bash %}
+``` bash
 sudo gem install jekyll
-{% endhighlight %}
+```
 
 Install Jekyll Sitemap plugin.
 
-{% highlight bash %}
+``` bash
 sudo gem install jekyll-sitemap
-{% endhighlight %}
+```
 
 <br/>
 I hope you like this post and it will be helpful for you. Please share your view and thoughts in comment as well. so that i can make this post more useful and more better.

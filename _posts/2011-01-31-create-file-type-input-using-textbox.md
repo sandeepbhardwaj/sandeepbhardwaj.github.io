@@ -11,8 +11,8 @@ Some times we have requirement to create a file type input in HTML with using si
 
 Then i used a simple trick to achieve this.  
 
-{% highlight html %}   
+``` html   
 <input name="browse" style="display: none;" type="file">                                                   
 <input name="fileInput" maxlength="255" type="text">  
 <input onclick="browse.click();fileInput.value=browse.value;" value="Browse.." type="button">  
-{% endhighlight %}
+```

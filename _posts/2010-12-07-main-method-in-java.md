@@ -10,12 +10,12 @@
 
 In Java we write public static void main (String args[]) instead of just main because:  
 
-{% highlight java %} 
+``` java 
 public static void main(String arg[])   
       {  
 
       }  
-{% endhighlight %}
+```
 
 <h3>public</h3>  
 The main method must be public because it is call from outside the class. It is called by jvm.

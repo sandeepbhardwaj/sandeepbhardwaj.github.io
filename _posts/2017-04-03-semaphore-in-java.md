@@ -11,7 +11,7 @@ summary: "Semaphore In Java, How Semaphore works in Java"
 
 <h3>SemaphoreExample.java</h3>
 
-{% highlight java %}
+``` java
 import java.util.concurrent.Semaphore;
 
 public class SemaphoreExample {
@@ -50,10 +50,10 @@ class Task implements Runnable {
 		}
 	}
 }
-{% endhighlight %}
+```
 
 <h3>Output</h3>
-{% highlight bash %}
+``` bash
 Thread-0 acquired
 Thread-1 acquired
 Thread-1 released
@@ -62,4 +62,4 @@ Thread-2 acquired
 Thread-3 acquired
 Thread-2 released
 Thread-3 released
-{% endhighlight %}
+```

@@ -13,15 +13,15 @@ After installing the Dropbox on latest <code>Elementary OS Loki</code> icons of 
 
 For fixing this issue you just need modify dropbox.desktop file.Open the <code>dropbox.desktop</code> file in your favourite editor.
 
-{% highlight bash %}
+``` bash
 sandeep@koko:~$ sudo gedit /usr/share/applications/dropbox.desktop 
-{% endhighlight %}
+```
 
 then replace the line with <code>Exec</code> with below line and then restart you machine.
 
-{% highlight bash %}
+``` bash
 Exec=env XDG_CURRENT_DESKTOP=Unity QT_STYLE_OVERRIDE='' dropbox start -i
-{% endhighlight %}
+```
 
 This solution worked for me and i hope it will work for you as well.
 

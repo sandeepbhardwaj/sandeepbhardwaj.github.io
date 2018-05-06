@@ -15,14 +15,14 @@ On windows XP, these files are located in the following two folders:
 
 <b>Step 1</b> : Delete keyring file from the location given below
 
-{% highlight bash %}
+``` bash
 <Your eclipse installation path>\Eclipse\configuration\org.eclipse.core.runtime\.keyring
-{% endhighlight %}
+```
 
 <b>Step 2</b> : Delete all file from the location given below :-
 
-{% highlight bash %}
+``` bash
 C:\Documents and Settings\<your user name>\Application Data\Subversion\auth\svn.simple
-{% endhighlight %}
+```
 
 <b>Step 3</b> : Restart your Eclipse IDE, now all saved password will gone and a new prompt dialoge box will open for asking new password.

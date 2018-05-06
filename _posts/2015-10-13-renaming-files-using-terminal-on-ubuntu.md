@@ -13,8 +13,8 @@ If we want to rename all the files in directory in one shot then we can use belo
 
 <b>Example</b>:- Renaming all file with extension html to md.
 
-{% highlight bash %}
+``` bash
 find -L . -type f -name "*.html" -print0 | while IFS= read -r -d '' File_Name; do
     mv -- "$File_Name" "${File_Name%.html}.md"
 done
-{% endhighlight %}
+```
