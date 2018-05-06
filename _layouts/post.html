@@ -25,7 +25,7 @@
             <hr>
             {{ content }}
 
-
+            {% assign post = page %}
             {% assign category = site.my_categories | where: "slug", post.category %}
             {% assign category = category[0] %}
             {% if category %}
