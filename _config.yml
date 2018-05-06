@@ -45,8 +45,7 @@ str_show_all_posts: Show all posts
 #
 # Plugins
 #
-#gems: ["jekyll-sitemap", "jekyll-feed"]
-gems: ["jekyll-sitemap", "jekyll-paginate"]
+plugins: ["jekyll-sitemap", "jekyll-paginate"]
 
 #
 # Mail Chimp

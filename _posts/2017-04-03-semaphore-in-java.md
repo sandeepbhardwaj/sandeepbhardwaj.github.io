@@ -4,6 +4,7 @@ title: Semaphore In Java
 author: Sandeep Bhardwaj
 published: true
 date: 2017-04-03 12:00:00 +5:30
+category: Java
 tags: [Java , Concurrency ]
 keywords: "Semaphore , Java, Concurrency"
 summary: "Semaphore In Java, How Semaphore works in Java"

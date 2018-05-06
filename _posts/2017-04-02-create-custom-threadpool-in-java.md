@@ -4,6 +4,7 @@ title: Create Custom ThreadPool In Java
 author: Sandeep Bhardwaj
 published: true
 date: 2017-04-02 12:15:00 +5:30
+category: Java
 tags: [Java , Concurrency ]
 keywords: "ThreadPool , CustomThreadPool, Java, Concurrency"
 summary: "How to create Custom ThreadPool In Java, How ThreadPool works in Java"

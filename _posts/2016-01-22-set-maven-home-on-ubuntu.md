@@ -2,6 +2,7 @@
   layout: post
   title: Set Maven Home on Ubuntu
   published: true
+  category: Java
   tags: [Ubuntu , Java]
   date: 2016-01-22 12:00:00 +5:30
 ---
@@ -23,7 +24,7 @@ export M2_HOME
 export PATH
 ```
 
-Verify the M2_HOME 
+Verify the M2_HOME
 ``` bash
 echo $M2_HOME
 ```
@@ -42,4 +43,3 @@ Java home: /usr/local/java/jdk1.8.0_60/jre
 Default locale: en_US, platform encoding: UTF-8
 OS name: "linux", version: "3.19.0-47-generic", arch: "amd64", family: "unix"
 ```
-
