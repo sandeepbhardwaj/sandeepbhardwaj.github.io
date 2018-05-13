@@ -4,6 +4,7 @@ title: BlockingQueue In Java
 author: Sandeep Bhardwaj
 published: true
 date: 2015-11-13 10:00:00 +5:30
+category: Java
 tags: [Concurrency]
 keywords: "BlockingQueue, Concurrency"
 summary: "BlockingQueue in java"

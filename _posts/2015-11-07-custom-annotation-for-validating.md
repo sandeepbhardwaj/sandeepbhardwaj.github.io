@@ -4,6 +4,7 @@
   author: Sandeep Bhardwaj
   published: true
   date: 2015-11-07 14:00:00 +5:30
+  category: Java
   tags: [Java]
   keywords: "Annotation, Validation"
   summary: "How to create custom annotation for validation, Create custom annotation for validating a bean/pojo"
@@ -24,7 +25,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NotNullAndNotEmpty {
 
-} 
+}
 ```
 
 <h3>Validator class</h3>
@@ -122,9 +123,8 @@ public class Test {
 }
 ```
 
-<h3>Output</h3> 
+<h3>Output</h3>
 
 ``` java  
 address is null or empty  
 ```
-

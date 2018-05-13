@@ -3,6 +3,7 @@ layout: post
 title: Convert java.util.Collection to java.util.List
 date: 2013-04-19 03:15:00 +5:30
 author: Sandeep Bhardwaj
+category: Java
 tags: [Java, Collection]
 ---
 

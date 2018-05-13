@@ -2,6 +2,7 @@
   layout: post
   title: ExecutorService InvokeAll Example
   published: true
+  category: Java
   tags: [Java , Concurrency ]
   date: 2015-07-09 17:44:00 +5:30
 ---

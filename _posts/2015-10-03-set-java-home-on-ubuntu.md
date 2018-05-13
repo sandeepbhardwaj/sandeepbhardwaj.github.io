@@ -2,6 +2,7 @@
   layout: post
   title: Set Java Home on Ubuntu
   published: true
+  category: Java
   tags: [Ubuntu , Java]
   date: 2015-10-03 19:00:00 +5:30
 ---
