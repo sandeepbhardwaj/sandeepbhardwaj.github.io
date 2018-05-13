@@ -46,7 +46,7 @@ str_show_all_posts: Show all posts
 #
 # Plugins
 #
-plugins: ["jekyll-sitemap", "jekyll-paginate"]
+plugins: ["jekyll-sitemap", "jekyll-paginate","jekyll-seo-tag"]
 
 #
 # Mail Chimp
