@@ -34,8 +34,8 @@ public class Lock {
 ``` java
 lock.lock();
 try {
- 	// ... method body
+  // ... method body
 } finally {
-	lock.unlock();
+  lock.unlock();
 }
 ```
