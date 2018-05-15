@@ -31,10 +31,11 @@
             {% if category %}
               {% capture category_content %}<a class="label" href="{{ category.url }}" style="background-color:{{ category.color }}">{{ category.name }}</a>{% endcapture %}
             {% endif %}
-
+            <!--
              <p>
                Posted{% if category_content %} in category {{ category_content }}{% endif %}
              </p>
+             -->
         </div>
 
             <br/>{% include share-page.html %}<br/>
