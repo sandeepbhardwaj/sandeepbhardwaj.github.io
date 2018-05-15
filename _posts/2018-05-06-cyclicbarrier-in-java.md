@@ -4,7 +4,7 @@ title: CyclicBarrier In Java
 author: Sandeep Bhardwaj
 published: true
 date: 2018-05-06 12:00:00 +5:30
-category: Java
+category: Concurrency
 tags: [Java, Concurrency]
 keywords: "CyclicBarrier , Java, Concurrency, BarrierAction, BrokenBarrierException"
 summary: "CyclicBarrier In Java, How CyclicBarrier works in Java, Reset CyclicBarrier"

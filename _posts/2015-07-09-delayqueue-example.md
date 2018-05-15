@@ -2,7 +2,7 @@
   layout: post
   title: DelayQueueExample Example
   published: true
-  category: Java
+  category: Concurrency
   tags: [Java , Concurrency ]
   date: 2015-07-09 17:44:00 +5:30
 ---
