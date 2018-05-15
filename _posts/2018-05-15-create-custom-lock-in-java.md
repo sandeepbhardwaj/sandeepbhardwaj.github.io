@@ -32,10 +32,10 @@ public class Lock {
 ```
 <h3>Usage</h3>
 ``` java
-	lock.lock();
-	try {
-	 	// ... method body
-	} finally {
-		lock.unlock();
-	}
+lock.lock();
+try {
+ 	// ... method body
+} finally {
+	lock.unlock();
+}
 ```
