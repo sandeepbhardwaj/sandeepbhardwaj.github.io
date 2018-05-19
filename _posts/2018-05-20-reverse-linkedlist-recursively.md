@@ -3,7 +3,7 @@ layout: post
 title: Reverse LinkedList Recursively
 author: Sandeep Bhardwaj
 published: true
-date: 2018-05-20 00:01:00 +5:30
+date: 2018-05-20 01:01:00 +5:30
 category: Datastructure & Algorithms
 tags: [Datastructure & Algorithms]
 keywords: "LinkedList, Reverse"
