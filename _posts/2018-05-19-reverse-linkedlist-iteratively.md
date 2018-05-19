@@ -53,25 +53,15 @@ public class LinkedList<E> {
 	}
 
 	public Node<E> reverseIteratively(Node<E> head) {
-
-		if (head == null) {
-			return null;
-		}
-		if (head.next == null) {
-			return head;
-		}
-
 		Node<E> prev = null;
 		Node<E> current = head;
-		Node<E> next = null;
 
 		while (current != null) {
-			next = current.next; // getting the next Node
+			Node<E> next = current.next; // getting the next Node
 			current.next = prev; // reverse the list
 			prev = current; // prev holds the reversed list
 			current = next;
 		}
-
 		return prev;
 	}
 
