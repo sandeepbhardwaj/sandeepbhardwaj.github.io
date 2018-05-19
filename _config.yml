@@ -55,6 +55,11 @@ mailchimp:
   user-id: b9503e1013ab1f92e41c3b562
   list-id: e0d69ac317
 
+#
+# to publish future date posts
+#
+future: false
+
 sass:
   sass_dir: _sass
   style: compressed
