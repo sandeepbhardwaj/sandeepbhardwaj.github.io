@@ -10,6 +10,7 @@ keywords: "LinkedList, Reverse"
 summary: "Reverse LinkedList Recursively"
 ---
 
+Reverse a linked list recursively.
 <h3>LinkedList.java</h3>
 
 ``` java
