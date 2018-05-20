@@ -3,7 +3,7 @@ layout: post
 title: Detect a loop in LinkedList
 author: Sandeep Bhardwaj
 published: true
-date: 2018-05-20 11:35:00 +5:30
+date: 2018-05-21 11:35:00 +5:30
 category: Datastructure & Algorithms
 tags: [Datastructure & Algorithms]
 keywords: "LinkedList, Detect a loop"
@@ -69,6 +69,17 @@ public class LinkedList<E> {
 		return false;
 	}
 
+	/**
+	 * <pre>
+	 * 1 > 2 > 3 > 4
+	 *     ^       ^
+	 *     |_______|
+	 *
+	 * </pre>
+	 *
+	 * @author sandeep
+	 *
+	 */
 	public static void main(String[] arg) {
 		LinkedList<Integer> list = new LinkedList<>();
 		list.add(1);
@@ -78,11 +89,6 @@ public class LinkedList<E> {
 		Node<Integer> head = list.getHead();
 		//create loop
 		head.next.next.next = head.next;
-		/*
-		  1 > 2 > 3 > 4
-		     ^       ^
-	 			|_______|
-	  */
 		list.display(head);
 	}
 }
