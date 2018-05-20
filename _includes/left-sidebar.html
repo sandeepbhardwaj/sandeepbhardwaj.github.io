@@ -4,5 +4,8 @@
 {% include subscribe.html %}
 
 <hr>
-{% include ad-sidebar-left.html %} 
-
+{% if site.environment == 'development' %}
+  <code>Running in development environment</code>
+{% else %}
+  {% include ad-sidebar-left.html %}
+{% endif %}

@@ -6,7 +6,9 @@
     <div class="row">
 
         <div class="col-md-12">
-            {% include ad-leaderboard.html %}
+          {% if site.environment == 'production' %}
+              {% include ad-leaderboard.html %}
+          {% endif %}
         </div>
 
         <!-- Blog Entries Column -->
@@ -42,8 +44,10 @@
 
             {% include next-previous-widget.html %}
             <br/><br/>
-            {% include ad-footer-leaderboard.html %}
-            {% include disqus.html %}
+            {% if site.environment == 'production' %}
+              {% include ad-footer-leaderboard.html %}
+              {% include disqus.html %}
+            {% endif %}            
         </div>
     </div>
 </div>
