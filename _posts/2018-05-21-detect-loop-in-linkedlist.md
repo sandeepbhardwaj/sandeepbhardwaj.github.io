@@ -77,7 +77,7 @@ public class LinkedList<E> {
 	 *
 	 * </pre>
 	 *
-	 * @author sandeep
+	 * @author Sandeep Bhardwaj
 	 *
 	 */
 	public static void main(String[] arg) {
