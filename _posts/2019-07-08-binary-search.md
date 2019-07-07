@@ -2,7 +2,7 @@
 layout: post
 title: Binary Search
 author: Sandeep Bhardwaj
-published: false
+published: true
 date: 2019-07-08 00:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
