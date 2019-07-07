@@ -2,7 +2,7 @@
 layout: post
 title: Remove Linked List Elements
 author: Sandeep Bhardwaj
-published: false
+published: true
 date: 2019-07-11 00:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
