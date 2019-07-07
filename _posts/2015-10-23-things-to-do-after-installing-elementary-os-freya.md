@@ -264,7 +264,7 @@ Pre-requisites for jekyll are ruby, ruby gems, nodejs and python.
 sudo apt-get install ruby-full
 ```
 
-<h4><a id="install-ruby">Install RubyGems</h4>
+<h4><a id="install-ruby">Install RubyGems</a></h4>
 ``` bash
 sudo gem update --system
 sudo gem install rubygems-update
