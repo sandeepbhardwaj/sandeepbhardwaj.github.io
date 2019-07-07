@@ -59,7 +59,7 @@ public class LinkedList<E> {
 	public boolean detectLoop(Node<E> head) {
 		Node<E> slowPtr = head;
 		Node<E> fastPtr = head;
-		while (slowPtr != null || fastPtr != null || fastPtr.next != null) {
+		while (fastPtr != null && fastPtr.next != null) {
 			slowPtr = slowPtr.next;
 			fastPtr = fastPtr.next.next;
 			if (slowPtr == fastPtr) {
