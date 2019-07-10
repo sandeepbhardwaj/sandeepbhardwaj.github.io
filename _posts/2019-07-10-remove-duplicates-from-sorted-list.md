@@ -3,7 +3,7 @@ layout: post
 title: Remove Duplicates from Sorted List
 author: Sandeep Bhardwaj
 published: true
-date: 2019-07-10 00:00:00 +5:30
+date: 2019-07-10 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
 keywords: "Linked List, Sorted List"
