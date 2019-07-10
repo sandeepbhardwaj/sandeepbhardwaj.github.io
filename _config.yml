@@ -6,6 +6,7 @@ baseurl: ""
 url: http://sandeepbhardwaj.github.io
 permalink: /:year/:month/:day/:title:output_ext
 environment: production
+timezone: Asia/Calcutta
 
 #
 # Jekyll Feed
