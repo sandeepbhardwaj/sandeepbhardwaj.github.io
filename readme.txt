@@ -26,4 +26,3 @@ keywords: "Javadcript, Blogger , Blogspot, Blogspot Template"
 summary: "The entity name must immediately follow the '&amp;' in the entity reference. Blogspot
 template"
 ---
-
