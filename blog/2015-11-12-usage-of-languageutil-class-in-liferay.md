@@ -5,7 +5,7 @@ author: Sandeep Bhardwaj
 published: true
 date: 2015-11-12 13:00:00 +5:30
 tags: [Liferay]
-keywords: "LanguageUtil, Liferay"
+keywords: [LanguageUtil, Liferay]
 summary: "How to read property file in Liferay, Usage of LanguageUtil class in Liferay"
 ---
 

@@ -6,8 +6,8 @@ published: true
 date: 2018-05-15 12:00:00 +5:30
 category: Concurrency
 tags: [Java, Concurrency]
-keywords: "lock , unlock"
-summary: "How to create custom lock in java"
+keywords: [lock , unlock]
+summary: [How to create custom lock in java]
 ---
 
 <h3>Lock.java</h3>

@@ -6,7 +6,7 @@ published: true
 date: 2019-07-23 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "XOR, Array, Duplicates"
+keywords: [XOR, Array, Duplicates]
 summary: "Single Number"
 ---
 

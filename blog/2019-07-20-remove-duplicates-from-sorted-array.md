@@ -6,7 +6,7 @@ published: true
 date: 2019-07-20 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Remove Duplicates from Sorted Array, Sorted Array"
+keywords: [Remove Duplicates from Sorted Array, Sorted Array]
 summary: "Remove Duplicates from Sorted Array"
 ---
 

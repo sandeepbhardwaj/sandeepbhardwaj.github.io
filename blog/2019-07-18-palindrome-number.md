@@ -6,7 +6,7 @@ published: true
 date: 2019-07-18 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Palindrome"
+keywords: [Palindrome]
 summary: "Palindrome Number"
 ---
 

@@ -6,7 +6,7 @@ published: true
 date: 2018-05-21 11:35:00 +5:30
 category: Datastructure & Algorithms
 tags: [Datastructure & Algorithms]
-keywords: "LinkedList, Detect a loop"
+keywords: [LinkedList, Detect a loop]
 summary: "Detect a loop in LinkedList"
 ---
 

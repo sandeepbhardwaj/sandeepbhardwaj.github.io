@@ -5,7 +5,7 @@ author: Sandeep Bhardwaj
 published: true
 date: 2015-11-14 23:00:00 +5:30
 tags: [Hibernate]
-keywords: "Hibernate, ORM"
+keywords: [Hibernate, ORM]
 summary: "How to create SessionFactory in Hibernate 4.x, How to create SessionFactory in Hibernate 3.x, Create SessionFactory in Hibernate"
 ---
 

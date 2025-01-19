@@ -6,7 +6,7 @@ published: true
 date: 2018-05-13 12:00:00 +5:30
 category: Java
 tags: [Java]
-keywords: "Singleton, Double Checked Locking"
+keywords: [Singleton, Double Checked Locking]
 summary: "How to create thread safe Singleton class, Double Checked Locking, Singleton in java"
 ---
 

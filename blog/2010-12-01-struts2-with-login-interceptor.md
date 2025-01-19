@@ -4,7 +4,7 @@
   published: true
   tags: [Java , Struts2 ]
   date: 2010-12-01 19:55:00 +5:30
-  keywords: "Struts2, Interceptor, login application"
+  keywords: [Struts2, Interceptor, login application]
   summary: "Example of Struts2 Interceptor, Complete example of Struts2 Interceptor, Download Struts2 Interceptor example, How to use interceptor in login application, How to create complete login application using struts2"
 ---
 

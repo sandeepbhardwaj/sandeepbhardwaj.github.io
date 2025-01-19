@@ -6,7 +6,7 @@ published: true
 date: 2019-07-24 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Array, Zeroes"
+keywords: [Array, Zeroes]
 summary: "write a function to move all 0's to the end of it while maintaining the relative order of the non-zero elements"
 ---
 

@@ -6,7 +6,7 @@ published: true
 date: 2019-07-08 08:36:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Array, Binary Search"
+keywords: [Array, Binary Search"
 summary: "Iterative binary search, Recursive binary search"
 ---
 

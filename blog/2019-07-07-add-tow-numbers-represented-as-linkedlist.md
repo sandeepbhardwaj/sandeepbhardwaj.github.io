@@ -6,7 +6,7 @@ published: true
 date: 2019-07-07 05:50:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "LinkedList"
+keywords: [LinkedList]
 summary: "Add two numbers represented as LinkedList"
 ---
 

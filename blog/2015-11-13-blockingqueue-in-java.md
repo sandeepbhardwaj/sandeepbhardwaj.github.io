@@ -6,7 +6,7 @@ published: true
 date: 2015-11-13 10:00:00 +5:30
 category: Concurrency
 tags: [Concurrency]
-keywords: "BlockingQueue, Concurrency"
+keywords: [BlockingQueue, Concurrency]
 summary: "BlockingQueue in java"
 ---
 
