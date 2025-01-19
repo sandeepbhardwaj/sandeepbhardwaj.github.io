@@ -13,7 +13,7 @@ summary: "write a function to move all 0's to the end of it while maintaining th
 <h3>Move Zeroes</h3>
 
 
-``` java
+```java
 /**
  * 283. Move Zeroes
  * <p>
