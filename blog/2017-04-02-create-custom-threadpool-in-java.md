@@ -6,7 +6,7 @@ published: true
 date: 2017-04-02 12:15:00 +5:30
 category: Concurrency
 tags: [Java , Concurrency ]
-keywords: "ThreadPool , CustomThreadPool, Java, Concurrency"
+keywords: [ThreadPool , CustomThreadPool, Java, Concurrency]
 summary: "How to create Custom ThreadPool In Java, How ThreadPool works in Java"
 ---
 

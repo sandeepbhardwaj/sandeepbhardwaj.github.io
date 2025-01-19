@@ -6,7 +6,7 @@ author: Sandeep Bhardwaj
 published: true
 date: 2015-11-14 23:00:00 +5:30
 tags: [JavaScript]
-keywords: "Javadcript, Blogger , Blogspot, Blogspot Template"
+keywords: [Javadcript, Blogger , Blogspot, Blogspot Template]
 summary: "The entity name must immediately follow the '&amp;' in the entity reference. Blogspot
   template"
 ---

@@ -5,7 +5,7 @@ author: Sandeep Bhardwaj
 published: true
 date: 2016-11-13 13:00:00 +5:30
 tags: [Elementary OS]
-keywords: "Elementary OS, Loki , Dropbox, Missing Icon, Wingpanel"
+keywords: [Elementary OS, Loki , Dropbox, Missing Icon, Wingpanel]
 summary: "Install Dropbox on Elementary OS Loki, Dropbox icon missing on elementary loki, How to install dropbox on Elementary OS loki official way"
 ---
 

@@ -5,7 +5,7 @@ author: Sandeep Bhardwaj
 published: true
 date: 2016-01-30 17:00:00 +5:30
 tags: [Ubuntu , Java]
-keywords: "Ubuntu, Gradle , GRADLE_HOME, GRADLE_USER_HOME"
+keywords: [Ubuntu, Gradle , GRADLE_HOME, GRADLE_USER_HOME]
 summary: "Install Gradle on Ubuntu, How to set GRADLE_HOME on Ubuntu, How to set GRADLE_USER_HOME on Ubuntu, Change default location of Gradle repository on Ubuntu"
 ---
 

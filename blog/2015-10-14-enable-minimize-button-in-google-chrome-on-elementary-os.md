@@ -5,7 +5,7 @@
   published: true
   tags: [Elementary OS, Ubuntu]
   date: 2015-10-14 23:15:00 +5:30
-  keywords: "Google Chrome , minimize button, Elementary OS, Ubuntu"
+  keywords: [Google Chrome , minimize button, Elementary OS, Ubuntu]
   summary: "Enable minimize button in Google chrome on Elementary OS, Enable minimize button in Google chrome on Ubuntu, Configure button layout in Ubuntu"
 ---
 

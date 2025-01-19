@@ -5,7 +5,7 @@ author: Sandeep Bhardwaj
 published: true
 date: 2016-11-15 19:30:00 +5:30
 tags: [Elementary OS]
-keywords: "Elementary OS Loki , GNotifier, MinimizeToTray, Stylish, enabling auto-hide"
+keywords: [Elementary OS Loki , GNotifier, MinimizeToTray, Stylish, enabling auto-hide]
 summary: "Integrate Thunderbird on Elementary OS Loki, Thunderbird notification with Elementary OS loki, GNotifier, Thunderbird theme for Elementary OS"
 ---
 

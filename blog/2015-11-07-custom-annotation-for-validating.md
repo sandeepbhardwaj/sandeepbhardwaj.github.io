@@ -6,7 +6,7 @@
   date: 2015-11-07 14:00:00 +5:30
   category: Java
   tags: [Java]
-  keywords: "Annotation, Validation"
+  keywords: [Annotation, Validation]
   summary: "How to create custom annotation for validation, Create custom annotation for validating a bean/pojo"
 ---
 Custom annotation for validating all the field of a class. If fields are null then display a message containing field name with error message.  

@@ -6,7 +6,7 @@ published: true
 date: 2019-07-13 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Array, Sorted Array, Binary Search"
+keywords: [Array, Sorted Array, Binary Search]
 summary: "Find First and Last Position of Element in Sorted Array"
 ---
 

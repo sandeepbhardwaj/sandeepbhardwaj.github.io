@@ -7,7 +7,7 @@ category: Java
 tags: [Java, Collection]
 ---
 
-``` java  
+```java  
 List list;  
 if (collection instanceof List)  
 {  
@@ -19,9 +19,9 @@ else
 }  
 ```
 
-<h3>Generic way (java 1.5<=)</h3>
+<h3>Generic way `(java 1.5<=)`</h3>
 
-``` java
+```java
 public <E> List<E> collectionToList(Collection<E> collection)  
  {  
   List<E> list;  

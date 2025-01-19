@@ -6,7 +6,7 @@ published: true
 date: 2019-07-09 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Array, leetcode"
+keywords: [Array, leetcode]
 summary: "Container With Most Water"
 ---
 

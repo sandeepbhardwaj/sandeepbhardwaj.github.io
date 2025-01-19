@@ -6,7 +6,7 @@ published: true
 date: 2018-05-19 17:50:00 +5:30
 category: Datastructure & Algorithms
 tags: [Datastructure & Algorithms]
-keywords: "LinkedList , Reverse"
+keywords: [LinkedList , Reverse]
 summary: "Reverse LinkedList Iteratively"
 ---
 

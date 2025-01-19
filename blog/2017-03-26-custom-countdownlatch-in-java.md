@@ -6,7 +6,7 @@ published: true
 date: 2017-03-26 17:50:00 +5:30
 category: Concurrency
 tags: [Java , Concurrency ]
-keywords: "CountDownLatch , CustomCountDownLatch, Java, Concurrency"
+keywords: [CountDownLatch , CustomCountDownLatch, Java, Concurrency]
 summary: "How to create Custom CountDownLatch In Java, How CountDownLatch works in Java"
 ---
 

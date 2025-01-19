@@ -5,7 +5,7 @@
   published: true
   tags: [Jekyll]
   date: 2015-10-17 22:05:00 +5:30
-  keywords: "jekyll , _config.yml, environment variable"
+  keywords: [jekyll , _config.yml, environment variable]
   summary: "How to use jekyll environment variable, How to use multiple _config.yml files"
 ---
 

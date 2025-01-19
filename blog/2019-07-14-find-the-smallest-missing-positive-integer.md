@@ -6,7 +6,7 @@ published: true
 date: 2019-07-14 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Array, Unsorted Array"
+keywords: [Array, Unsorted Array]
 summary: "Find the smallest missing positive integer in Unsorted Array"
 ---
 

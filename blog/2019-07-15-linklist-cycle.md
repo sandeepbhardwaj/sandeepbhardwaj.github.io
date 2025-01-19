@@ -6,7 +6,7 @@ published: true
 date: 2019-07-15 01:00:00 +5:30
 category: Datastructure & Algorithms
 tags: [Leetcode, Datastructure & Algorithms]
-keywords: "Linked List, Loop"
+keywords: [Linked List, Loop]
 summary: "Detect loop in linked list"
 ---
 

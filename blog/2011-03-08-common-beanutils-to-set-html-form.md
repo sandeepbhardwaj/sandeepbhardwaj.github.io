@@ -33,10 +33,10 @@ This application contains a simple form a Java Bean and a Servlet to display the
 4.  LoginActionServlet to process from values.
 
 <h3>Package Structure</h3>
-![Package Structure]({{ site.url }}/assets/post-images/2011-03-08/folder-structure.jpg)
+
 
 <h3>jar needed</h3>
-![Package Structure]({{ site.url }}/assets/post-images/2011-03-08/jar-needed.jpg)
+
 
 <h3>index.jsp</h3>  
 index.jsp containing a form with username and password textboxes and a submit button. When user clicked on submit button LoginActionServlet called.

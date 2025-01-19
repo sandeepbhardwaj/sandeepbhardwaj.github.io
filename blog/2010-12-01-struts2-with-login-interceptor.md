@@ -4,7 +4,7 @@
   published: true
   tags: [Java , Struts2 ]
   date: 2010-12-01 19:55:00 +5:30
-  keywords: "Struts2, Interceptor, login application"
+  keywords: [Struts2, Interceptor, login application]
   summary: "Example of Struts2 Interceptor, Complete example of Struts2 Interceptor, Download Struts2 Interceptor example, How to use interceptor in login application, How to create complete login application using struts2"
 ---
 
@@ -25,17 +25,17 @@ It’s an application of Struts 2 with LoginInterceptor this will perform these 
 
 <h3>Package Structure</h3>
 
-![Package Structure]({{ site.url }}/assets/post-images/FolderStrucure.PNG)
+
 
 <h3>jar required</h3>
 
-![Package Structure]({{ site.url }}/assets/post-images/JarNeeded.PNG)
+
 
 <h3>web.xml</h3>
 
 web.xml with struts2 configuration and defining session time out 1 min.
 
-``` xml
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>login-app</display-name>
