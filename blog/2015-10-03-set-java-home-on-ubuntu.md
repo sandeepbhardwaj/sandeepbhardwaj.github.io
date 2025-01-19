@@ -26,4 +26,4 @@ export PATH
 ```
 
 <b>Note:</b>
-For Installing Java on Ubuntu follow the [post]({2015-10-03-install-oracle-jdk-on-ubuntu})
+For Installing Java on Ubuntu follow the 
