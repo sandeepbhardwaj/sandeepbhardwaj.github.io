@@ -1,0 +1,111 @@
+title: "Sandeep Bhardwaj"
+name: "Sandeep Bhardwaj"
+description: "Technical deep dives on backend systems and SaaS architecture."
+url: "https://sandeepbhardwaj.github.io"
+baseurl: ""
+repository: "sandeepbhardwaj/sandeepbhardwaj.github.io"
+
+theme: minimal-mistakes-jekyll
+minimal_mistakes_skin: "default"
+
+locale: "en-US"
+timezone: "America/Los_Angeles"
+search: true
+
+sass:
+  style: compressed
+  sourcemap: never
+
+author:
+  name: "Sandeep Bhardwaj"
+  bio: "Backend Engineer | SaaS Builder"
+  location: "United States"
+  links:
+    - label: "Email"
+      icon: "fas fa-fw fa-envelope-square"
+      url: "mailto:hello@sandeepbhardwaj.dev"
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/sandeepbhardwaj"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/"
+
+footer:
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/sandeepbhardwaj"
+    - label: "RSS"
+      icon: "fas fa-fw fa-rss-square"
+      url: "/feed.xml"
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-include-cache
+  - jekyll-seo-tag
+
+paginate: 5
+paginate_path: /page:num/
+
+permalink: /:categories/:title/
+category_dir: topics
+tag_dir: labels
+
+include:
+  - _pages
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - README.md
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: false
+      share: true
+      related: true
+      toc: true
+      toc_sticky: true
+  - scope:
+      path: "_pages"
+      type: pages
+    values:
+      layout: single
+      author_profile: false
+
+category_archive:
+  type: liquid
+  path: /categories/
+
+tag_archive:
+  type: liquid
+  path: /tags/
+
+social:
+  type: Person
+  name: "Sandeep Bhardwaj"
+  links:
+    - "https://github.com/sandeepbhardwaj"
+
+seo:
+  type: Blog
+  name: "Sandeep Bhardwaj Technical Blog"
+
+analytics:
+  provider: "google-gtag"
+  google:
+    tracking_id: "G-XXXXXXXXXX" # Replace with your GA4 Measurement ID
+    anonymize_ip: true
+
+og_image: /assets/images/site-og-image.png
