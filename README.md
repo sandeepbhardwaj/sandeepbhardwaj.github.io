@@ -13,6 +13,8 @@ Production-ready Jekyll blog using **minimal-mistakes-jekyll**, built for techni
 
 ```text
 .
+├── .github/dependabot.yml
+├── .github/workflows/ci.yml
 ├── .github/workflows/deploy-pages.yml
 ├── .ruby-version
 ├── Gemfile
@@ -25,9 +27,13 @@ Production-ready Jekyll blog using **minimal-mistakes-jekyll**, built for techni
 │   ├── contact.md
 │   └── tags.md
 ├── _posts/
-│   └── 2026-02-27-spring-boot-saas-observability-stack.md
+│   ├── 2026-02-27-java-8-lambdas-practical-guide.md
+│   └── 2026-02-28-default-methods-java8-blog.md
 ├── assets/
 │   ├── css/main.scss
+│   ├── css/main-dark.scss
+│   ├── images/java-lambdas-banner.png
+│   ├── images/java-default-methods-banner.svg
 │   └── js/theme-toggle.js
 ├── index.html
 └── README.md
@@ -60,9 +66,9 @@ bundle exec jekyll serve
 
 ## GitHub deployment (Pages)
 
-1. Push repository to `sandeepbhardwaj.github.io` on `main`.
-2. In GitHub: **Settings > Pages > Source = GitHub Actions**.
-3. Push triggers `.github/workflows/deploy-pages.yml`.
+1. Open a PR to run `.github/workflows/ci.yml` (build + strict front matter checks).
+2. Merge to `main` after CI passes.
+3. Successful CI on `main` triggers `.github/workflows/deploy-pages.yml`.
 4. Site is published to `https://sandeepbhardwaj.github.io`.
 
 ## Production notes
@@ -73,9 +79,10 @@ bundle exec jekyll serve
 - Pagination, sitemap, feed, and SEO tag enabled.
 - Categories/tags archive pages configured.
 - Author profile sidebar enabled for posts.
-- Dark mode auto-enabled using OS preference.
+- Header theme toggle supports light/dark, with system preference as default.
 - Google Analytics placeholder configured in `_config.yml`.
 - Google AdSense placeholder included but commented in `_includes/head/custom.html`.
+- Dependabot updates GitHub Actions and Bundler dependencies weekly.
 
 ## If you see `tainted?` or `faraday-retry` errors
 
