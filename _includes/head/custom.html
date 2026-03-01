@@ -35,7 +35,7 @@
     --brand-grad-start: #fb923c;
     --brand-grad-end: #22d3ee;
     --brand-subtitle-bg: rgba(226, 232, 240, 0.08);
-    --brand-subtitle-fg: #e2e8f0;
+    --brand-subtitle-fg: #f8fafc;
     --brand-subtitle-border: rgba(226, 232, 240, 0.18);
   }
 
@@ -125,9 +125,11 @@
     background: transparent;
     color: var(--brand-subtitle-fg);
     -webkit-text-fill-color: initial;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
+    font-size: 0.76rem;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    letter-spacing: 0.03em;
     text-transform: none;
     line-height: 1.2;
     white-space: normal;
@@ -136,15 +138,28 @@
     text-wrap: pretty;
   }
 
+  [data-theme="dark"] .masthead .site-title .site-subtitle {
+    opacity: 1;
+    text-shadow: 0 1px 0 rgba(15, 23, 42, 0.45);
+  }
+
   .masthead .site-title .site-subtitle::before {
-    content: "";
-    display: inline-block;
-    width: 2.2rem;
-    height: 2px;
+    content: "</>";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.2rem;
+    height: 1.15rem;
     margin-right: 0.5rem;
     vertical-align: middle;
-    border-radius: 999px;
+    border-radius: 0.35rem;
     background: linear-gradient(90deg, var(--brand-grad-start), var(--brand-grad-end));
+    color: #ffffff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1;
   }
 
   @media (max-width: 920px) {
@@ -153,14 +168,16 @@
     }
 
     .masthead .site-title .site-subtitle {
-      font-size: 0.62rem;
+      font-size: 0.66rem;
       padding: 0.14rem 0;
       max-width: min(40ch, 78vw);
     }
 
     .masthead .site-title .site-subtitle::before {
-      width: 1.5rem;
+      min-width: 1.72rem;
+      height: 0.98rem;
       margin-right: 0.35rem;
+      font-size: 0.54rem;
     }
   }
 </style>
