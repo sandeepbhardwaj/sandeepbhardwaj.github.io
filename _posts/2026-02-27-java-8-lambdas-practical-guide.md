@@ -20,7 +20,7 @@ toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-lambdas-banner.png
+  overlay_image: /assets/images/java-lambdas-banner.svg
   overlay_filter: 0.4
   caption: "Modern Backend Development with Java 8"
 ---

@@ -14,6 +14,11 @@
     --theme-toggle-bg-hover: #ffffff;
     --theme-toggle-fg: #0f172a;
     --theme-toggle-mobile-hover: rgba(148, 163, 184, 0.15);
+    --brand-grad-start: #f97316;
+    --brand-grad-end: #06b6d4;
+    --brand-subtitle-bg: rgba(15, 23, 42, 0.08);
+    --brand-subtitle-fg: #0f172a;
+    --brand-subtitle-border: rgba(15, 23, 42, 0.12);
   }
 
   [data-theme="dark"] {
@@ -23,6 +28,11 @@
     --theme-toggle-bg-hover: rgba(30, 41, 59, 0.95);
     --theme-toggle-fg: #f8fafc;
     --theme-toggle-mobile-hover: rgba(148, 163, 184, 0.2);
+    --brand-grad-start: #fb923c;
+    --brand-grad-end: #22d3ee;
+    --brand-subtitle-bg: rgba(226, 232, 240, 0.08);
+    --brand-subtitle-fg: #e2e8f0;
+    --brand-subtitle-border: rgba(226, 232, 240, 0.18);
   }
 
   .theme-toggle {
@@ -81,6 +91,73 @@
   .greedy-nav .hidden-links .masthead__menu-item--theme-toggle .theme-toggle:hover {
     background: var(--theme-toggle-mobile-hover);
     border-color: transparent;
+  }
+
+  /* Brand styling */
+  .masthead .site-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    font-weight: 800;
+    font-size: 1.26rem;
+    text-wrap: balance;
+    background-image: linear-gradient(90deg, var(--brand-grad-start), var(--brand-grad-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .masthead .site-title .site-subtitle {
+    display: inline-block;
+    width: fit-content;
+    max-width: min(52ch, 92vw);
+    margin-top: 0.22rem;
+    padding: 0.16rem 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--brand-subtitle-fg);
+    -webkit-text-fill-color: initial;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: none;
+    line-height: 1.2;
+    white-space: normal;
+    opacity: 0.9;
+    position: relative;
+    text-wrap: pretty;
+  }
+
+  .masthead .site-title .site-subtitle::before {
+    content: "";
+    display: inline-block;
+    width: 2.2rem;
+    height: 2px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand-grad-start), var(--brand-grad-end));
+  }
+
+  @media (max-width: 920px) {
+    .masthead .site-title {
+      font-size: 1.06rem;
+    }
+
+    .masthead .site-title .site-subtitle {
+      font-size: 0.62rem;
+      padding: 0.14rem 0;
+      max-width: min(40ch, 78vw);
+    }
+
+    .masthead .site-title .site-subtitle::before {
+      width: 1.5rem;
+      margin-right: 0.35rem;
+    }
   }
 </style>
 

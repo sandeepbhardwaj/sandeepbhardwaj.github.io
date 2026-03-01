@@ -293,13 +293,13 @@ Implementations should override if behavior is context-specific.
 
 ## Default Methods vs Abstract Classes
 
-  Feature                  Default Method   Abstract Class
-  ------------------------ ---------------- ----------------
-  Multiple inheritance     Yes              No
-  Can hold state           No               Yes
-  Constructors             No               Yes
-  Fields                   No               Yes
-  Backward compatibility   Excellent        Limited
+| Feature | Default Method | Abstract Class |
+| --- | --- | --- |
+| Multiple inheritance | Yes | No |
+| Can hold state | No | Yes |
+| Constructors | No | Yes |
+| Fields | No | Yes |
+| Backward compatibility | Excellent | Limited |
 
 ------------------------------------------------------------------------
 

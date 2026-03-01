@@ -4,12 +4,18 @@ permalink: /about/
 author_profile: true
 ---
 
-I am **Sandeep Bhardwaj**, a Backend Engineer and SaaS Builder.
+## Sandeep Bhardwaj
+*Backend Engineering Consultant | Platform and Architecture*
 
-This blog focuses on practical engineering patterns for:
+I work with engineering teams to design and modernize backend platforms that must perform reliably at scale. My focus is on translating business goals into architecture decisions that improve delivery speed, operational resilience, and long-term maintainability.
 
-- Spring Boot service design and operations
-- PostgreSQL performance and reliability
-- Docker and container delivery workflows
-- OCI and AWS deployment architecture
-- Observability, reliability, and production hardening
+My core strengths include:
+
+- Designing distributed service architectures for high-throughput workloads
+- Building event-driven and integration-heavy backend systems
+- Defining cloud and platform operating models for production environments
+- Improving system reliability, observability, and incident readiness
+- Leading performance optimization and architecture simplification initiatives
+- Establishing engineering standards for scalable, maintainable delivery
+
+This blog shares practical architecture patterns, implementation trade-offs, and production lessons for teams building mission-critical backend systems.
