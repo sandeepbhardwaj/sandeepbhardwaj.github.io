@@ -1,4 +1,5 @@
 title: "Sandeep Bhardwaj"
+subtitle: "Backend Engineering Notes on Java, Cloud, and SaaS Architecture"
 name: "Sandeep Bhardwaj"
 description: "Technical deep dives on backend systems and SaaS architecture."
 url: "https://sandeepbhardwaj.github.io"
@@ -18,6 +19,7 @@ sass:
 
 author:
   name: "Sandeep Bhardwaj"
+  avatar: "/assets/images/author-avatar.svg"
   bio: "Backend Engineer | SaaS Builder"
   location: "United States"
   links:
