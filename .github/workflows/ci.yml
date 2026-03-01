@@ -19,4 +19,6 @@ jobs:
           bundler-cache: true
 
       - name: Build site (strict front matter)
+        env:
+          JEKYLL_ENV: production
         run: bundle exec jekyll build --strict_front_matter
