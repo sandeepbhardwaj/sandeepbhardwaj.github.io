@@ -1,100 +1,89 @@
-# Sandeep Bhardwaj Technical Blog
+# Sandeep Bhardwaj Blog
 
-Production-ready Jekyll blog using **minimal-mistakes-jekyll**, built for technical deep dives and SaaS architecture content.
+Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` theme.
 
-## Tech profile
+## Stack
 
-- Name: Sandeep Bhardwaj
-- Role: Backend Engineer | SaaS Builder
-- Focus: Technical deep dives and SaaS architecture
-- Stack: Spring Boot, PostgreSQL, Docker, OCI, AWS
+- Jekyll `4.4.1`
+- Theme: `minimal-mistakes-jekyll` `4.27.3`
+- Ruby version pinned in `.ruby-version` (`4.0.1`)
+- GitHub Pages deployment via GitHub Actions
 
-## Folder structure
+## Run Locally
 
-```text
-.
-├── .github/dependabot.yml
-├── .github/workflows/ci.yml
-├── .github/workflows/deploy-pages.yml
-├── .ruby-version
-├── Gemfile
-├── _config.yml
-├── _data/navigation.yml
-├── _includes/head/custom.html
-├── _pages/
-│   ├── about.md
-│   ├── categories.md
-│   ├── contact.md
-│   └── tags.md
-├── _posts/
-│   ├── 2026-02-27-java-8-lambdas-practical-guide.md
-│   └── 2026-02-28-default-methods-java8-blog.md
-├── assets/
-│   ├── css/main.scss
-│   ├── css/main-dark.scss
-│   ├── images/java-lambdas-banner.png
-│   ├── images/java-default-methods-banner.svg
-│   └── js/theme-toggle.js
-├── index.html
-└── README.md
-```
-
-## Local setup (macOS)
-
-1. Ensure Ruby and Bundler versions:
-
-```bash
-ruby -v    # should be 4.0.1
-bundle -v  # should be 4.0.7
-```
-
-2. Install dependencies fresh:
+1. Install Ruby using the version in `.ruby-version`.
+2. Install dependencies:
 
 ```bash
 bundle install
 ```
 
-3. Run locally:
+3. Start the site:
 
 ```bash
 bundle exec jekyll serve
 ```
 
-4. Open:
+4. Open `http://127.0.0.1:4000`.
 
-- http://127.0.0.1:4000
+## Common Commands
 
-## GitHub deployment (Pages)
-
-1. Open a PR to run `.github/workflows/ci.yml` (build + strict front matter checks).
-2. Merge to `main` after CI passes.
-3. Successful CI on `main` triggers `.github/workflows/deploy-pages.yml`.
-4. Site is published to `https://sandeepbhardwaj.github.io`.
-
-## Production notes
-
-- Uses Jekyll `4.4.1`.
-- Uses Ruby `4.0.1` and Bundler `4.0.7`.
-- Uses `minimal-mistakes-jekyll` theme.
-- Pagination, sitemap, feed, and SEO tag enabled.
-- Categories/tags archive pages configured.
-- Author profile sidebar enabled for posts.
-- Header theme toggle supports light/dark, with system preference as default.
-- Google Analytics placeholder configured in `_config.yml`.
-- Google AdSense placeholder included but commented in `_includes/head/custom.html`.
-- Dependabot updates GitHub Actions and Bundler dependencies weekly.
-
-## If you see `tainted?` or `faraday-retry` errors
+Build static site:
 
 ```bash
-rm -rf .bundle vendor/bundle Gemfile.lock
-bundle update liquid faraday-retry
+bundle exec jekyll build
+```
+
+Build with strict front matter checks:
+
+```bash
+bundle exec jekyll build --strict_front_matter
+```
+
+## Write a New Post
+
+1. Create a file in `_posts/` named:
+   `YYYY-MM-DD-your-title.md`
+2. Add front matter with at least:
+   `title`, `date`, `categories`, `tags`, `excerpt`
+3. Add a cover image in `assets/images/` if needed and reference it in front matter.
+
+## Project Structure
+
+```text
+.
+├── _config.yml                  # Site configuration
+├── _posts/                      # Blog posts
+├── _pages/                      # Static pages (about, tags, categories, contact)
+├── _data/navigation.yml         # Header navigation links
+├── _includes/head/custom.html   # Custom head tags/snippets
+├── assets/
+│   ├── css/                     # Custom styles
+│   ├── images/                  # Images and banners
+│   └── js/theme-toggle.js       # Light/dark theme toggle logic
+├── .github/workflows/ci.yml     # PR/main build checks
+└── .github/workflows/deploy-pages.yml # GitHub Pages deploy pipeline
+```
+
+## Deployment
+
+- `CI` workflow runs on pull requests and on pushes to `main`.
+- On successful CI for `main`, `Deploy Jekyll site to Pages` builds and deploys `_site` to GitHub Pages.
+- Live URL: `https://sandeepbhardwaj.github.io`
+
+## Configuration Notes
+
+- Update GA4 ID in `_config.yml` under:
+  `analytics.google.tracking_id`
+- Update author/contact links in `_config.yml`.
+- `README.md` is excluded from Jekyll build output.
+
+## Troubleshooting
+
+If gems become inconsistent:
+
+```bash
+rm -rf .bundle vendor Gemfile.lock
 bundle install
 bundle exec jekyll serve --trace
 ```
-
-## Configure before launch
-
-- Replace `analytics.google.tracking_id` in `_config.yml`.
-- Update contact links if needed.
-- Add social preview image at `assets/images/site-og-image.png`.
