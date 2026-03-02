@@ -38,9 +38,21 @@ footer:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/sandeepbhardwaj"
-    - label: "RSS"
+    - label: "RSS Feed"
       icon: "fas fa-fw fa-rss-square"
       url: "/feed.xml"
+    - label: "Privacy"
+      icon: "fas fa-fw fa-shield-alt"
+      url: "/privacy-policy/"
+    - label: "Terms"
+      icon: "fas fa-fw fa-file-contract"
+      url: "/terms/"
+    - label: "Disclaimer"
+      icon: "fas fa-fw fa-exclamation-circle"
+      url: "/disclaimer/"
+    - label: "Cookies"
+      icon: "fas fa-fw fa-cookie-bite"
+      url: "/cookie-policy/"
 
 plugins:
   - jekyll-paginate
@@ -48,6 +60,9 @@ plugins:
   - jekyll-feed
   - jekyll-include-cache
   - jekyll-seo-tag
+
+atom_feed:
+  hide: true
 
 paginate: 5
 paginate_path: /page:num/
