@@ -40,18 +40,6 @@ Build with strict front matter checks:
 bundle exec jekyll build --strict_front_matter
 ```
 
-Validate post front matter quality gate:
-
-```bash
-ruby scripts/validate_front_matter.rb
-```
-
-Check publishing schedule summary:
-
-```bash
-ruby scripts/check_post_schedule.rb
-```
-
 ## Write a New Post
 
 1. Create a file in `_posts/` named:
@@ -89,14 +77,6 @@ ruby scripts/check_post_schedule.rb
   `analytics.google.tracking_id`
 - Update author/contact links in `_config.yml`.
 - `README.md` is excluded from Jekyll build output.
-
-## CI Quality Gates
-
-- Strict Jekyll build with front matter parsing enabled
-- Post schedule check (upcoming/published summary)
-- Front matter schema validation for `_posts/*`
-- Internal link validation on generated `_site`
-- External link validation (advisory)
 
 ## Troubleshooting
 
