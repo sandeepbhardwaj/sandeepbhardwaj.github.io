@@ -34,7 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: --offline --no-progress --verbose _site
+          args: --offline --no-progress --verbose --root-dir _site _site
           fail: true
 
       - name: Check external links (advisory)
@@ -43,5 +43,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: --no-progress --accept 200,429 --exclude-mail --verbose _site
+          args: --no-progress --accept 200,429 --exclude-mail --verbose --root-dir _site _site
           fail: true
