@@ -31,7 +31,7 @@ author:
       url: "https://github.com/sandeepbhardwaj"
     - label: "LinkedIn"
       icon: "fab fa-fw fa-linkedin"
-      url: "https://www.linkedin.com/"
+      url: "https://www.linkedin.com/in/sandeepbhardwaj/"
 
 footer:
   links:
@@ -107,7 +107,7 @@ seo:
 analytics:
   provider: "google-gtag"
   google:
-    tracking_id: "G-XXXXXXXXXX" # Replace with your GA4 Measurement ID
+    tracking_id: "G-B895SGXR6X"
     anonymize_ip: true
 
-og_image: /assets/images/site-og-image.png
+og_image: /assets/images/site-og-image.svg
