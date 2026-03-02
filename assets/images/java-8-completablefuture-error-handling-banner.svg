@@ -1,21 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">CompletableFuture Error Handling Banner</title>
-  <desc id="desc">Minimal abstract banner with timeout and fallback example line.</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1f2937"/>
-      <stop offset="100%" stop-color="#334155"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#f87171"/>
-      <stop offset="100%" stop-color="#ef4444"/>
-    </linearGradient>
-  </defs>
-  <rect width="1600" height="900" fill="url(#bg)"/>
-  <circle cx="1320" cy="150" r="220" fill="#f87171" opacity="0.16"/>
-  <circle cx="250" cy="760" r="280" fill="#38bdf8" opacity="0.10"/>
-  <rect x="120" y="160" width="980" height="14" rx="7" fill="url(#accent)" opacity="0.88"/>
-  <rect x="120" y="200" width="530" height="8" rx="4" fill="#cbd5e1" opacity="0.45"/>
-  <rect x="120" y="225" width="410" height="8" rx="4" fill="#cbd5e1" opacity="0.28"/>
-  <text x="120" y="305" fill="#e2e8f0" font-family="Courier New, monospace" font-size="31">withTimeout(fetchAsync(id), 300, scheduler).exceptionally(ex -&gt; fallback())</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="CompletableFuture error handling banner">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0b1220"/><stop offset="60%" stop-color="#172554"/><stop offset="100%" stop-color="#0e1a33"/></linearGradient><pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#dbeafe" stroke-opacity="0.08" stroke-width="1"/></pattern></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1280" cy="160" r="260" fill="#38bdf8" fill-opacity="0.14"/><circle cx="260" cy="760" r="220" fill="#22d3ee" fill-opacity="0.12"/>
+  <g stroke="#a5f3fc" stroke-width="8" fill="none" stroke-linecap="round"><path d="M340 450H560"/><path d="M680 450H900"/><path d="M1020 450H1240"/><path d="M560 450L680 340"/><path d="M560 450L680 560"/><path d="M680 560L900 560"/><path d="M900 560L1020 450"/></g>
+  <g fill="#22d3ee" fill-opacity="0.78"><circle cx="340" cy="450" r="22"/><circle cx="560" cy="450" r="22"/><circle cx="680" cy="340" r="20"/><circle cx="680" cy="560" r="20"/><circle cx="900" cy="450" r="22"/><circle cx="1020" cy="450" r="22"/><circle cx="1240" cy="450" r="22"/></g>
+  <path d="M780 470L830 560H730Z" fill="#fde047"/>
 </svg>

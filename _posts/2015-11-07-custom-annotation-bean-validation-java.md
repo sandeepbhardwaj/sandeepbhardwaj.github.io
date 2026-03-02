@@ -17,6 +17,7 @@ header:
   overlay_image: "/assets/images/default-post-banner.svg"
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
+  show_overlay_excerpt: false
 ---
 
 # Custom Annotation for Validating a Bean in Java

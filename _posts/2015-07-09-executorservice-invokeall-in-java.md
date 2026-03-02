@@ -20,6 +20,7 @@ header:
   overlay_image: "/assets/images/default-post-banner.svg"
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
+  show_overlay_excerpt: false
 ---
 
 # ExecutorService `invokeAll` in Java

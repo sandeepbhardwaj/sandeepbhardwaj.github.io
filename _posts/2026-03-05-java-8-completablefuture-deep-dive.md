@@ -10,6 +10,7 @@ seo_description: "Design production-grade async backend flows using CompletableF
 header:
   overlay_image: /assets/images/java-8-completablefuture-deep-dive-banner.svg
   overlay_filter: 0.4
+  show_overlay_excerpt: false
 canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-completablefuture-deep-dive/"
 ---
 

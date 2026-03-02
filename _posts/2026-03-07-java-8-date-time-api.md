@@ -10,6 +10,7 @@ seo_description: "Practical Java 8 Date-Time API guide for backend systems: Inst
 header:
   overlay_image: /assets/images/java-8-date-time-api-banner.svg
   overlay_filter: 0.4
+  show_overlay_excerpt: false
 canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-date-time-api/"
 ---
 

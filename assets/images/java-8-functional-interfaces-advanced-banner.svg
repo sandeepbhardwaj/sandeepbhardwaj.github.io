@@ -1,21 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">Functional Interfaces Banner</title>
-  <desc id="desc">Minimal abstract banner with predicate composition example.</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1f2937"/>
-      <stop offset="100%" stop-color="#334155"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#2dd4bf"/>
-      <stop offset="100%" stop-color="#14b8a6"/>
-    </linearGradient>
-  </defs>
-  <rect width="1600" height="900" fill="url(#bg)"/>
-  <circle cx="1330" cy="150" r="225" fill="#2dd4bf" opacity="0.16"/>
-  <circle cx="240" cy="760" r="290" fill="#38bdf8" opacity="0.10"/>
-  <rect x="120" y="160" width="870" height="14" rx="7" fill="url(#accent)" opacity="0.88"/>
-  <rect x="120" y="200" width="500" height="8" rx="4" fill="#cbd5e1" opacity="0.45"/>
-  <rect x="120" y="225" width="350" height="8" rx="4" fill="#cbd5e1" opacity="0.28"/>
-  <text x="120" y="305" fill="#e2e8f0" font-family="Courier New, monospace" font-size="33">Predicate&lt;User&gt; premium = active.and(User::isEmailVerified)</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Functional interfaces banner">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0b1220"/><stop offset="60%" stop-color="#172554"/><stop offset="100%" stop-color="#0e1a33"/></linearGradient><pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#dbeafe" stroke-opacity="0.08" stroke-width="1"/></pattern></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1280" cy="160" r="260" fill="#38bdf8" fill-opacity="0.14"/><circle cx="260" cy="760" r="220" fill="#22d3ee" fill-opacity="0.12"/>
+  <rect x="460" y="290" width="680" height="320" rx="28" fill="none" stroke="#7dd3fc" stroke-width="9"/>
+  <g fill="#22d3ee" fill-opacity="0.76">
+    <rect x="530" y="360" width="540" height="54" rx="12"/>
+    <rect x="530" y="450" width="240" height="40" rx="10"/>
+    <rect x="830" y="450" width="240" height="40" rx="10"/>
+  </g>
+  <circle cx="800" cy="387" r="10" fill="#fde047"/>
 </svg>

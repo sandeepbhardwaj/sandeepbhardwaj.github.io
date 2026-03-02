@@ -22,6 +22,7 @@ header:
   overlay_image: /assets/images/java-default-methods-banner.svg
   overlay_filter: 0.2
   caption: "Modern Backend Development with Java 8"
+  show_overlay_excerpt: false
 ---
 
 

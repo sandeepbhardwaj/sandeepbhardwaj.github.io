@@ -10,6 +10,7 @@ seo_description: "Advanced backend patterns with Java 8 functional interfaces: c
 header:
   overlay_image: /assets/images/java-8-functional-interfaces-advanced-banner.svg
   overlay_filter: 0.4
+  show_overlay_excerpt: false
 canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-functional-interfaces-advanced/"
 ---
 
