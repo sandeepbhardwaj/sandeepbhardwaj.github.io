@@ -1,21 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">CompletableFuture Deep Dive Banner</title>
-  <desc id="desc">Minimal abstract banner with thenCombine example line.</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1f2937"/>
-      <stop offset="100%" stop-color="#334155"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#6366f1"/>
-    </linearGradient>
-  </defs>
-  <rect width="1600" height="900" fill="url(#bg)"/>
-  <circle cx="1325" cy="150" r="220" fill="#818cf8" opacity="0.16"/>
-  <circle cx="260" cy="770" r="270" fill="#22d3ee" opacity="0.10"/>
-  <rect x="120" y="160" width="910" height="14" rx="7" fill="url(#accent)" opacity="0.88"/>
-  <rect x="120" y="200" width="520" height="8" rx="4" fill="#cbd5e1" opacity="0.45"/>
-  <rect x="120" y="225" width="390" height="8" rx="4" fill="#cbd5e1" opacity="0.28"/>
-  <text x="120" y="305" fill="#e2e8f0" font-family="Courier New, monospace" font-size="32">userFuture.thenCombine(orderFuture, mapper::toResponse).join()</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="CompletableFuture deep dive banner">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0b1220"/><stop offset="60%" stop-color="#172554"/><stop offset="100%" stop-color="#0e1a33"/></linearGradient><pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#dbeafe" stroke-opacity="0.08" stroke-width="1"/></pattern></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1280" cy="160" r="260" fill="#38bdf8" fill-opacity="0.14"/><circle cx="260" cy="760" r="220" fill="#22d3ee" fill-opacity="0.12"/>
+  <g stroke="#a5f3fc" stroke-width="8" fill="none" stroke-linecap="round"><path d="M360 450H520"/><path d="M620 450H780"/><path d="M880 450H1040"/><path d="M1140 450H1240"/><path d="M520 450L620 340"/><path d="M520 450L620 560"/><path d="M780 450L880 450"/></g>
+  <g fill="#22d3ee" fill-opacity="0.8"><circle cx="360" cy="450" r="22"/><circle cx="520" cy="450" r="22"/><circle cx="620" cy="340" r="20"/><circle cx="620" cy="560" r="20"/><circle cx="780" cy="450" r="22"/><circle cx="880" cy="450" r="22"/><circle cx="1040" cy="450" r="22"/><circle cx="1240" cy="450" r="22"/></g>
 </svg>

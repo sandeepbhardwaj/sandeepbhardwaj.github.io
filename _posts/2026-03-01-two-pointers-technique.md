@@ -13,7 +13,7 @@ tags:
 - algorithms
 - interview-preparation
 - backend-engineering
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/two-pointers-technique-java/
+canonical_url: https://sandeepbhardwaj.github.io/dsa/java/two-pointers-technique/
 title: Two Pointers Technique in Java — A Practical Guide for Serious Engineers
 toc: true
 toc_icon: cog

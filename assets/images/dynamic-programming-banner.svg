@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0b1220"/><stop offset="60%" stop-color="#172554"/><stop offset="100%" stop-color="#0e1a33"/></linearGradient><pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#dbeafe" stroke-opacity="0.08" stroke-width="1"/></pattern></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1280" cy="160" r="260" fill="#38bdf8" fill-opacity="0.14"/><circle cx="260" cy="760" r="220" fill="#22d3ee" fill-opacity="0.12"/>
+  <g stroke="#7dd3fc" stroke-width="3" opacity="0.48"><path d="M360 250H1240"/><path d="M360 340H1240"/><path d="M360 430H1240"/><path d="M360 520H1240"/><path d="M360 610H1240"/><path d="M360 250V610"/><path d="M520 250V610"/><path d="M680 250V610"/><path d="M840 250V610"/><path d="M1000 250V610"/><path d="M1160 250V610"/><path d="M1240 250V610"/></g>
+  <path d="M440 560L600 500L760 440L920 370L1080 300" stroke="#a5f3fc" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g fill="#22d3ee" fill-opacity="0.78"><circle cx="440" cy="560" r="12"/><circle cx="600" cy="500" r="12"/><circle cx="760" cy="440" r="12"/><circle cx="920" cy="370" r="12"/><circle cx="1080" cy="300" r="12"/></g>
+</svg>
