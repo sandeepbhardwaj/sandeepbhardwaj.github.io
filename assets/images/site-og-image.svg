@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Code to Architecture</title>
+  <desc id="desc">Technical deep dives on backend systems and SaaS architecture</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g opacity="0.22">
+    <rect x="72" y="64" width="1056" height="502" rx="24" fill="none" stroke="#38bdf8" stroke-width="2"/>
+    <path d="M72 184h1056M72 304h1056M72 424h1056" stroke="#38bdf8" stroke-width="1"/>
+    <path d="M252 64v502M432 64v502M612 64v502M792 64v502M972 64v502" stroke="#38bdf8" stroke-width="1"/>
+  </g>
+  <rect x="96" y="90" width="196" height="54" rx="10" fill="url(#accent)"/>
+  <text x="120" y="124" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="24" font-weight="700">&lt;/&gt; Blog</text>
+  <text x="96" y="258" fill="#f8fafc" font-family="'Avenir Next', 'Segoe UI', sans-serif" font-size="72" font-weight="800">Code to Architecture</text>
+  <text x="96" y="324" fill="#cbd5e1" font-family="'Avenir Next', 'Segoe UI', sans-serif" font-size="34" font-weight="500">Designing Systems That Scale Beyond Code</text>
+  <text x="96" y="410" fill="#93c5fd" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="24">Backend • Java • Architecture • SaaS</text>
+  <rect x="96" y="450" width="440" height="8" rx="4" fill="url(#accent)"/>
+</svg>

@@ -22,3 +22,26 @@ jobs:
         env:
           JEKYLL_ENV: production
         run: bundle exec jekyll build --strict_front_matter
+
+      - name: Check post schedule
+        run: ruby scripts/check_post_schedule.rb
+
+      - name: Validate post front matter schema
+        run: ruby scripts/validate_front_matter.rb
+
+      - name: Check internal links in generated site
+        uses: lycheeverse/lychee-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --offline --no-progress --verbose _site
+          fail: true
+
+      - name: Check external links (advisory)
+        continue-on-error: true
+        uses: lycheeverse/lychee-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --no-progress --accept 200,429 --exclude-mail --verbose _site
+          fail: true
