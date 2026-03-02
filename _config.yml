@@ -10,7 +10,7 @@ theme: minimal-mistakes-jekyll
 minimal_mistakes_skin: "default"
 
 locale: "en-US"
-timezone: "America/Los_Angeles"
+timezone: "Asia/Kolkata"
 search: true
 
 sass:
@@ -21,7 +21,7 @@ author:
   name: "Sandeep Bhardwaj"
   avatar: "/assets/images/author-avatar.svg"
   bio: "Backend Engineer • SaaS Builder"
-  location: "United States"
+  location: "India"
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
