@@ -6,6 +6,9 @@ on:
     types: [completed]
     branches: ["main"]
   workflow_dispatch:
+  schedule:
+    # GitHub Actions cron uses UTC. 18:35 UTC = 00:05 IST (next day).
+    - cron: "35 18 * * *"
 
 permissions:
   contents: read
@@ -18,7 +21,7 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
