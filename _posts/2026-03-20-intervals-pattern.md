@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/intervals-banner.svg
   overlay_filter: 0.35
   caption: "Sorting and Sweep Logic for Range Problems"
+  show_overlay_excerpt: false
 ---
 
 # Intervals Pattern in Java — A Detailed Guide

@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/graph-traversal-banner.svg
   overlay_filter: 0.35
   caption: "Systematic Exploration of Networked Data"
+  show_overlay_excerpt: false
 ---
 
 # Graph Traversal Pattern in Java — A Detailed Guide

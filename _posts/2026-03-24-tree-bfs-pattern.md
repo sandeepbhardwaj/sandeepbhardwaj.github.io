@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/tree-bfs-banner.svg
   overlay_filter: 0.35
   caption: "Level-Order Exploration with Queues"
+  show_overlay_excerpt: false
 ---
 
 # Tree BFS Pattern in Java — A Detailed Guide

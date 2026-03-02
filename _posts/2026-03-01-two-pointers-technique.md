@@ -22,6 +22,7 @@ header:
   overlay_image: /assets/images/two-pointers-banner.svg
   overlay_filter: 0.35
   caption: "Structured Problem Solving for Backend Engineers"
+  show_overlay_excerpt: false
 ---
 
 # Two Pointers Technique in Java — A Practical Guide for Serious Engineers

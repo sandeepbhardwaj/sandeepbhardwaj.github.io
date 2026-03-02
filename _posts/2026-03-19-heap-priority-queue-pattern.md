@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/heap-priority-queue-banner.svg
   overlay_filter: 0.35
   caption: "Efficient Access to Extreme Elements"
+  show_overlay_excerpt: false
 ---
 
 # Heap and Priority Queue Pattern in Java — A Detailed Guide

@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/monotonic-stack-banner.svg
   overlay_filter: 0.35
   caption: "Linear-Time Neighbor Discovery"
+  show_overlay_excerpt: false
 ---
 
 # Monotonic Stack Pattern in Java — A Detailed Guide

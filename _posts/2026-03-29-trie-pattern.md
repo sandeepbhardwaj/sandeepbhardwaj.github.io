@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/trie-banner.svg
   overlay_filter: 0.35
   caption: "Efficient Prefix-Based String Search"
+  show_overlay_excerpt: false
 ---
 
 # Trie Pattern in Java — A Detailed Guide

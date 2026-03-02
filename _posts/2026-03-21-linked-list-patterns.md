@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/linked-list-banner.svg
   overlay_filter: 0.35
   caption: "Pointer Discipline and In-Place Transformations"
+  show_overlay_excerpt: false
 ---
 
 # Linked List Patterns in Java — A Detailed Guide

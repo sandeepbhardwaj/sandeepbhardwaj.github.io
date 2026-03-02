@@ -13,6 +13,7 @@ header:
   overlay_image: /assets/images/default-post-banner.svg
   overlay_filter: 0.4
   caption: "Java 17 LTS for Modern Backend Systems"
+  show_overlay_excerpt: false
 canonical_url: "https://sandeepbhardwaj.github.io/java/java-17-new-features-with-examples/"
 ---
 

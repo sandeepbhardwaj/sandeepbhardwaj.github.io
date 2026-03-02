@@ -22,6 +22,7 @@ header:
   overlay_image: /assets/images/hashmap-hashset-banner.svg
   overlay_filter: 0.35
   caption: "Constant-Time Lookups for Linear-Time Solutions"
+  show_overlay_excerpt: false
 ---
 
 # HashMap and HashSet Frequency Pattern in Java — A Detailed Guide

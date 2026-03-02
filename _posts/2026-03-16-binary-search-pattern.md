@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/binary-search-banner.svg
   overlay_filter: 0.35
   caption: "Log-Time Decisions on Monotonic Spaces"
+  show_overlay_excerpt: false
 ---
 
 # Binary Search Pattern in Java — A Detailed Guide

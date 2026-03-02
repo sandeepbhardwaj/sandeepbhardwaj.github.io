@@ -23,6 +23,7 @@ header:
   overlay_image: /assets/images/java-lambdas-banner.svg
   overlay_filter: 0.4
   caption: "Modern Backend Development with Java 8"
+  show_overlay_excerpt: false
 ---
 
 

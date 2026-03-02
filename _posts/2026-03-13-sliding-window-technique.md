@@ -22,6 +22,7 @@ header:
   overlay_image: /assets/images/sliding-window-banner.svg
   overlay_filter: 0.35
   caption: "From Two Pointers to Window Invariants"
+  show_overlay_excerpt: false
 ---
 
 # Sliding Window Technique in Java — A Detailed Guide for Serious Engineers

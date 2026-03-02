@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/tree-dfs-banner.svg
   overlay_filter: 0.35
   caption: "Depth-First Reasoning on Hierarchical Data"
+  show_overlay_excerpt: false
 ---
 
 # Tree DFS Pattern in Java — A Detailed Guide

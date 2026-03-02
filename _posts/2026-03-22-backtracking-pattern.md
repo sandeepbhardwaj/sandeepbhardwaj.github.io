@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/backtracking-banner.svg
   overlay_filter: 0.35
   caption: "Search Trees with Pruning"
+  show_overlay_excerpt: false
 ---
 
 # Backtracking Pattern in Java — A Detailed Guide

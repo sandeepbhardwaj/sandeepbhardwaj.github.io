@@ -20,6 +20,7 @@ toc_label: In This Article
 header:
   overlay_image: /assets/images/dynamic-programming-banner.svg
   overlay_filter: 0.35
+  show_overlay_excerpt: false
   caption: "State Transitions for Optimal Substructure"
 ---
 

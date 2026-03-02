@@ -10,6 +10,7 @@ seo_description: "When parallel streams help and when they hurt in backend servi
 header:
   overlay_image: /assets/images/java-8-parallel-streams-performance-banner.svg
   overlay_filter: 0.4
+  show_overlay_excerpt: false
 canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-parallel-streams-performance/"
 ---
 

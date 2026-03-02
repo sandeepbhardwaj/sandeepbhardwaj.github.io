@@ -22,6 +22,7 @@ header:
   overlay_image: /assets/images/prefix-sum-banner.svg
   overlay_filter: 0.35
   caption: "Cumulative Thinking for Linear-Time Range Queries"
+  show_overlay_excerpt: false
 ---
 
 # Prefix Sum Pattern in Java — A Detailed Guide for Serious Engineers

@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/union-find-banner.svg
   overlay_filter: 0.35
   caption: "Dynamic Connectivity with Near-Constant Operations"
+  show_overlay_excerpt: false
 ---
 
 # Union-Find (Disjoint Set) Pattern in Java — A Detailed Guide

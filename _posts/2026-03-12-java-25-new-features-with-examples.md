@@ -13,6 +13,7 @@ header:
   overlay_image: /assets/images/default-post-banner.svg
   overlay_filter: 0.4
   caption: "Java 25 LTS: Language, Runtime, and Tooling Updates"
+  show_overlay_excerpt: false
 canonical_url: "https://sandeepbhardwaj.github.io/java/java-25-new-features-with-examples/"
 ---
 

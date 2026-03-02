@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/shortest-path-banner.svg
   overlay_filter: 0.35
   caption: "Optimal Route Computation Across Graphs"
+  show_overlay_excerpt: false
 ---
 
 # Shortest Path Pattern in Java — A Detailed Guide

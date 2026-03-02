@@ -21,6 +21,7 @@ header:
   overlay_image: /assets/images/monotonic-queue-banner.svg
   overlay_filter: 0.35
   caption: "Window Extremes in Amortized O(1)"
+  show_overlay_excerpt: false
 ---
 
 # Monotonic Queue (Deque) Pattern in Java — A Detailed Guide
