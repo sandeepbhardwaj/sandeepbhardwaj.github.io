@@ -5,11 +5,11 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-25
-seo_title: "Kafka partition strategy for ordering and hotspot mitigation (Part 3) - Advanced Guide"
-seo_description: "Advanced practical guide on kafka partition strategy for ordering and hotspot mitigation (part 3) with architecture decisions, trade-offs, and production patterns."
-tags: [java, kafka, streaming, distributed-systems, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-06-25-kafka-partition-strategy-ordering-hotspots-part-3/"
-title: "Kafka partition strategy for ordering and hotspot mitigation (Part 3)"
+seo_title: "Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 3)"
+seo_description: "Hands-on guide: Kafka Partition Strategy for Ordering and Hotspot Mitigation. Operational migration runbook."
+tags: [java, kafka, distributed-systems, streaming, backend]
+canonical_url: "https://sandeepbhardwaj.github.io/kafka-partition-strategy-ordering-hotspots-part-3/"
+title: "Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 3)"
 toc: true
 toc_icon: cog
 toc_label: "In This Article"
@@ -17,100 +17,93 @@ header:
   overlay_image: /assets/images/java-advanced-generic-banner.svg
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Kafka and Event Streaming Architecture"
+  caption: "June Kafka Hands-On Series"
 ---
 
-# Kafka partition strategy for ordering and hotspot mitigation (Part 3)
+# Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 3)
 
-This post covers production-focused design decisions for **Kafka partition strategy for ordering and hotspot mitigation (Part 3)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
-
----
-
-## Why This Topic Matters
-
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+Part goal: **Operational migration runbook**.
 
 ---
 
-## Architecture Model
+## Real-World Scenario
 
-Use this structure while implementing the design:
-
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+A single high-volume tenant overloads one partition, creating lag spikes and delayed processing for that key.
 
 ---
 
-## Practical Implementation Pattern
+## Run It Locally
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+### Prerequisites
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
+- Docker Desktop
+- Java 21
+- Kafka CLI tools
 
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
+### Local Stack
 
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
-    }
-}
+~~~yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on: [zookeeper]
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+~~~
+
+~~~bash
+docker compose up -d
 ~~~
 
 ---
 
-## Dry Run Scenario
+## Lab Steps
 
-Example rollout checklist:
-
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+1. Dual-write old/new key strategy.
+2. Compare ordering/lag metrics.
+3. Cut consumers to new topic.
+4. Remove old topic after retention window.
 
 ---
 
-## Common Pitfalls
+## Runnable Code Block
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
-
----
-
-## Production Checklist
-
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+~~~text
+Metrics to gate cutover:
+- max partition lag
+- skew ratio (max/avg)
+- ordering violation count
+~~~
 
 ---
 
-## Key Takeaways
+## Verify
 
-- Kafka partition strategy for ordering and hotspot mitigation (Part 3) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+~~~bash
+# snapshot lag before cutover
+kafka-consumer-groups --bootstrap-server localhost:9092 --all-groups --describe
+~~~
+
+---
+
+## Failure Drill
+
+Force producer restart during dual-write and verify no data gap in either topic.
+
+---
+
+## What You Should Learn
+
+- where this pattern fails under load or restart conditions
+- which metrics prove correctness and stability
+- how to convert this into a production runbook

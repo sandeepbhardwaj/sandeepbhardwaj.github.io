@@ -5,11 +5,11 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-05
-seo_title: "Retry topics, DLQ design, and poison message governance - Advanced Guide"
-seo_description: "Advanced practical guide on retry topics, dlq design, and poison message governance with architecture decisions, trade-offs, and production patterns."
-tags: [java, kafka, streaming, distributed-systems, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-06-05-kafka-retry-dlq-poison-message-patterns-part-1/"
-title: "Retry topics, DLQ design, and poison message governance"
+seo_title: "Retry Topics DLQ Design and Poison Message Governance (Part 1)"
+seo_description: "Hands-on guide: Retry Topics DLQ Design and Poison Message Governance. Build retry topology."
+tags: [java, kafka, distributed-systems, streaming, backend]
+canonical_url: "https://sandeepbhardwaj.github.io/kafka-retry-dlq-poison-message-patterns-part-1/"
+title: "Retry Topics DLQ Design and Poison Message Governance (Part 1)"
 toc: true
 toc_icon: cog
 toc_label: "In This Article"
@@ -17,100 +17,94 @@ header:
   overlay_image: /assets/images/java-advanced-generic-banner.svg
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Kafka and Event Streaming Architecture"
+  caption: "June Kafka Hands-On Series"
 ---
 
-# Retry topics, DLQ design, and poison message governance
+# Retry Topics DLQ Design and Poison Message Governance (Part 1)
 
-This post covers production-focused design decisions for **Retry topics, DLQ design, and poison message governance**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
-
----
-
-## Why This Topic Matters
-
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+Part goal: **Build retry topology**.
 
 ---
 
-## Architecture Model
+## Real-World Scenario
 
-Use this structure while implementing the design:
-
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+A poison event can block partition progress unless retries and DLQ are bounded and policy-driven.
 
 ---
 
-## Practical Implementation Pattern
+## Run It Locally
+
+### Prerequisites
+
+- Docker Desktop
+- Java 21
+- Kafka CLI tools
+
+### Local Stack
+
+~~~yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on: [zookeeper]
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+~~~
+
+~~~bash
+docker compose up -d
+~~~
+
+---
+
+## Lab Steps
+
+1. Create main/retry/dlq topics.
+2. Route transient errors to retry topics with attempt count.
+3. Route permanent errors to DLQ.
+
+---
+
+## Runnable Code Block
 
 ~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
-
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
-
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
-
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
-    }
+try {
+    process(event);
+} catch (TimeoutException e) {
+    publish("orders.retry.1m", event.withAttempt(attempt + 1));
+} catch (Exception fatal) {
+    publish("orders.dlq", event.withError("PERMANENT"));
 }
 ~~~
 
 ---
 
-## Dry Run Scenario
+## Verify
 
-Example rollout checklist:
-
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+~~~bash
+kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.dlq --from-beginning
+~~~
 
 ---
 
-## Common Pitfalls
+## Failure Drill
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Send one malformed payload + many valid events; verify only bad event reaches DLQ.
 
 ---
 
-## Production Checklist
+## What You Should Learn
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
-
----
-
-## Key Takeaways
-
-- Retry topics, DLQ design, and poison message governance should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- where this pattern fails under load or restart conditions
+- which metrics prove correctness and stability
+- how to convert this into a production runbook

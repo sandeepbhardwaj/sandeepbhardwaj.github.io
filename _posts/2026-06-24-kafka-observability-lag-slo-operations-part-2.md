@@ -5,11 +5,11 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-24
-seo_title: "Kafka observability: lag, saturation, and SLO-driven operations (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on kafka observability: lag, saturation, and slo-driven operations (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, kafka, streaming, distributed-systems, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-06-24-kafka-observability-lag-slo-operations-part-2/"
-title: "Kafka observability: lag, saturation, and SLO-driven operations (Part 2)"
+seo_title: "Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)"
+seo_description: "Hands-on guide: Kafka Observability Lag Saturation and SLO Driven Operations. Burn-rate alerting and runbook."
+tags: [java, kafka, distributed-systems, streaming, backend]
+canonical_url: "https://sandeepbhardwaj.github.io/kafka-observability-lag-slo-operations-part-2/"
+title: "Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)"
 toc: true
 toc_icon: cog
 toc_label: "In This Article"
@@ -17,100 +17,91 @@ header:
   overlay_image: /assets/images/java-advanced-generic-banner.svg
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Kafka and Event Streaming Architecture"
+  caption: "June Kafka Hands-On Series"
 ---
 
-# Kafka observability: lag, saturation, and SLO-driven operations (Part 2)
+# Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)
 
-This post covers production-focused design decisions for **Kafka observability: lag, saturation, and SLO-driven operations (Part 2)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
-
----
-
-## Why This Topic Matters
-
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+Part goal: **Burn-rate alerting and runbook**.
 
 ---
 
-## Architecture Model
+## Real-World Scenario
 
-Use this structure while implementing the design:
-
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+Average metrics hide partition-level pain; operations must be SLO-driven and per-partition aware.
 
 ---
 
-## Practical Implementation Pattern
+## Run It Locally
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+### Prerequisites
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
+- Docker Desktop
+- Java 21
+- Kafka CLI tools
 
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
+### Local Stack
 
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
-    }
-}
+~~~yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on: [zookeeper]
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+~~~
+
+~~~bash
+docker compose up -d
 ~~~
 
 ---
 
-## Dry Run Scenario
+## Lab Steps
 
-Example rollout checklist:
-
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+1. Configure burn-rate alerts for SLO breach risk.
+2. Attach runbook steps to alert.
+3. Validate response time.
 
 ---
 
-## Common Pitfalls
+## Runnable Code Block
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
-
----
-
-## Production Checklist
-
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+~~~text
+Alert tiers:
+P1: breach imminent
+P2: sustained lag growth
+P3: localized anomaly
+~~~
 
 ---
 
-## Key Takeaways
+## Verify
 
-- Kafka observability: lag, saturation, and SLO-driven operations (Part 2) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+~~~bash
+# trigger synthetic lag and verify alert path
+~~~
+
+---
+
+## Failure Drill
+
+Inject slow handler and confirm burn-rate alert fires before user-visible breach.
+
+---
+
+## What You Should Learn
+
+- where this pattern fails under load or restart conditions
+- which metrics prove correctness and stability
+- how to convert this into a production runbook

@@ -5,11 +5,11 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-06
-seo_title: "Schema evolution with Avro/Protobuf compatibility contracts - Advanced Guide"
-seo_description: "Advanced practical guide on schema evolution with avro/protobuf compatibility contracts with architecture decisions, trade-offs, and production patterns."
-tags: [java, kafka, streaming, distributed-systems, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-06-06-kafka-schema-evolution-compatibility-part-1/"
-title: "Schema evolution with Avro/Protobuf compatibility contracts"
+seo_title: "Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 1)"
+seo_description: "Hands-on guide: Schema Evolution with Avro and Protobuf Compatibility Contracts. Baseline compatibility workflow."
+tags: [java, kafka, distributed-systems, streaming, backend]
+canonical_url: "https://sandeepbhardwaj.github.io/kafka-schema-evolution-compatibility-part-1/"
+title: "Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 1)"
 toc: true
 toc_icon: cog
 toc_label: "In This Article"
@@ -17,100 +17,94 @@ header:
   overlay_image: /assets/images/java-advanced-generic-banner.svg
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Kafka and Event Streaming Architecture"
+  caption: "June Kafka Hands-On Series"
 ---
 
-# Schema evolution with Avro/Protobuf compatibility contracts
+# Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 1)
 
-This post covers production-focused design decisions for **Schema evolution with Avro/Protobuf compatibility contracts**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
-
----
-
-## Why This Topic Matters
-
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+Part goal: **Baseline compatibility workflow**.
 
 ---
 
-## Architecture Model
+## Real-World Scenario
 
-Use this structure while implementing the design:
-
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+Schema changes can break consumers unless compatibility is enforced in registry and CI.
 
 ---
 
-## Practical Implementation Pattern
+## Run It Locally
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+### Prerequisites
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
+- Docker Desktop
+- Java 21
+- Kafka CLI tools
 
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
+### Local Stack
 
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
-    }
+~~~yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on: [zookeeper]
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+~~~
+
+~~~bash
+docker compose up -d
+~~~
+
+---
+
+## Lab Steps
+
+1. Register v1 schema.
+2. Produce and consume v1.
+3. Add compatible v2 optional field.
+4. Validate mixed-version consumers.
+
+---
+
+## Runnable Code Block
+
+~~~proto
+message PaymentCreated {
+  string payment_id = 1;
+  int64 amount_minor = 2;
+  string currency = 3;
+  string merchant_id = 4; // compatible add
 }
 ~~~
 
 ---
 
-## Dry Run Scenario
+## Verify
 
-Example rollout checklist:
-
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+~~~bash
+curl -s http://localhost:8081/subjects/payment-value/versions/latest
+~~~
 
 ---
 
-## Common Pitfalls
+## Failure Drill
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Attempt remove/renumber field; confirm compatibility check fails.
 
 ---
 
-## Production Checklist
+## What You Should Learn
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
-
----
-
-## Key Takeaways
-
-- Schema evolution with Avro/Protobuf compatibility contracts should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- where this pattern fails under load or restart conditions
+- which metrics prove correctness and stability
+- how to convert this into a production runbook

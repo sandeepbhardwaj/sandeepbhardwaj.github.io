@@ -5,11 +5,11 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-15
-seo_title: "Outbox + CDC with Debezium for reliable event publishing (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on outbox + cdc with debezium for reliable event publishing (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, kafka, streaming, distributed-systems, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-06-15-kafka-outbox-cdc-debezium-pattern-part-2/"
-title: "Outbox + CDC with Debezium for reliable event publishing (Part 2)"
+seo_title: "Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)"
+seo_description: "Hands-on guide: Outbox Plus CDC with Debezium for Reliable Event Publishing. Envelope + EventRouter hardening."
+tags: [java, kafka, distributed-systems, streaming, backend]
+canonical_url: "https://sandeepbhardwaj.github.io/kafka-outbox-cdc-debezium-pattern-part-2/"
+title: "Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)"
 toc: true
 toc_icon: cog
 toc_label: "In This Article"
@@ -17,100 +17,94 @@ header:
   overlay_image: /assets/images/java-advanced-generic-banner.svg
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Kafka and Event Streaming Architecture"
+  caption: "June Kafka Hands-On Series"
 ---
 
-# Outbox + CDC with Debezium for reliable event publishing (Part 2)
+# Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)
 
-This post covers production-focused design decisions for **Outbox + CDC with Debezium for reliable event publishing (Part 2)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
-
----
-
-## Why This Topic Matters
-
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+Part goal: **Envelope + EventRouter hardening**.
 
 ---
 
-## Architecture Model
+## Real-World Scenario
 
-Use this structure while implementing the design:
-
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+An order write succeeds, but app crashes before publish; outbox+CDC is needed to close this dual-write gap.
 
 ---
 
-## Practical Implementation Pattern
+## Run It Locally
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+### Prerequisites
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
+- Docker Desktop
+- Java 21
+- Kafka CLI tools
 
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
+### Local Stack
 
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
-    }
+~~~yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on: [zookeeper]
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+~~~
+
+~~~bash
+docker compose up -d
+~~~
+
+---
+
+## Lab Steps
+
+1. Add `event_version` and `partition_key` columns.
+2. Use Debezium EventRouter SMT.
+3. Route by event_type and key by partition_key.
+4. Add idempotent consumer table.
+
+---
+
+## Runnable Code Block
+
+~~~json
+{
+  "transforms": "outbox",
+  "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+  "transforms.outbox.route.by.field": "event_type",
+  "transforms.outbox.table.field.event.key": "partition_key"
 }
 ~~~
 
 ---
 
-## Dry Run Scenario
+## Verify
 
-Example rollout checklist:
-
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+~~~bash
+kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.event.OrderCreated --from-beginning --property print.key=true
+~~~
 
 ---
 
-## Common Pitfalls
+## Failure Drill
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Restart connector and replay event; dedupe table should prevent duplicate side effects.
 
 ---
 
-## Production Checklist
+## What You Should Learn
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
-
----
-
-## Key Takeaways
-
-- Outbox + CDC with Debezium for reliable event publishing (Part 2) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- where this pattern fails under load or restart conditions
+- which metrics prove correctness and stability
+- how to convert this into a production runbook
