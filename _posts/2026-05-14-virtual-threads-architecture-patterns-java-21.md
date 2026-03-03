@@ -21,64 +21,115 @@ header:
 
 # Virtual Threads Architecture Patterns (Java 21+) Guide
 
-Virtual threads let you keep straightforward blocking code while scaling concurrency dramatically.
-They simplify architecture when used with explicit resource limits.
+Virtual threads let you keep a simple blocking style while scaling to much higher concurrency for I/O-heavy services.
+The key is to combine them with explicit resource budgets.
 
 ---
 
-## Best-Fit Workloads
+## Where Virtual Threads Fit
 
-- I/O-heavy services with many concurrent waiting operations
-- request fan-out patterns (multiple downstream calls)
-- legacy blocking libraries that are hard to rewrite to reactive style
+- request fan-out to multiple downstream services
+- high-concurrency APIs that mostly wait on network/disk
+- migration from complex callback/reactive code where readability suffered
 
-Not ideal for CPU-bound parallel compute loops.
-
----
-
-## Architecture Pattern
-
-- one virtual thread per request/task
-- bounded pools for scarce resources (DB connections, outbound HTTP limits)
-- cancellation timeouts per task group
-- structured logging with request context
+Less suitable for CPU-bound workloads where thread count is not the bottleneck.
 
 ---
 
-## Java Example
+## Core Architecture Pattern
+
+- one virtual thread per request or subtask
+- explicit limits for scarce dependencies (DB pool, third-party APIs)
+- bounded timeouts and cancellation budgets
+- per-request correlation IDs in logs and metrics
+
+Virtual threads remove thread scarcity, not dependency scarcity.
+
+---
+
+## Example: Fan-Out Endpoint with Timeouts
 
 ```java
 try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-    Future<User> user = executor.submit(() -> userClient.fetch(userId));
-    Future<List<Order>> orders = executor.submit(() -> orderClient.fetchByUser(userId));
+    Future<User> userFuture = executor.submit(() -> userClient.fetch(userId));
+    Future<List<Order>> ordersFuture = executor.submit(() -> orderClient.fetchByUser(userId));
 
-    User u = user.get(500, TimeUnit.MILLISECONDS);
-    List<Order> o = orders.get(500, TimeUnit.MILLISECONDS);
-    return new Dashboard(u, o);
+    User user = userFuture.get(400, TimeUnit.MILLISECONDS);
+    List<Order> orders = ordersFuture.get(400, TimeUnit.MILLISECONDS);
+    return new Dashboard(user, orders);
 }
 ```
 
----
-
-## Operational Caveats
-
-- virtual threads are cheap, downstream capacity is not.
-- still enforce backpressure at ingress and outbound boundaries.
-- detect thread pinning scenarios and long synchronized blocks.
+This keeps concurrency readable without callback nesting.
 
 ---
 
-## Migration Strategy
+## Dependency Budgeting Example
 
-1. start with one endpoint with blocking I/O fan-out.
-2. preserve existing business logic; change execution model only.
-3. measure p95/p99 latency and thread counts before/after.
-4. expand gradually after stability window.
+Protect downstream capacity with semaphores or rate limits.
+
+```java
+Semaphore inventoryBudget = new Semaphore(120);
+
+public Inventory fetchInventory(String sku) throws Exception {
+    inventoryBudget.acquire();
+    try {
+        return inventoryClient.fetch(sku);
+    } finally {
+        inventoryBudget.release();
+    }
+}
+```
+
+Without this, thousands of virtual threads can overwhelm a finite dependency.
+
+---
+
+## Pinning Risks and Detection
+
+Virtual threads can be pinned to carrier threads in some blocking sections.
+Common causes:
+
+- long-running `synchronized` blocks around blocking I/O
+- native calls that do not unmount
+- legacy libraries with monitor-heavy hot paths
+
+Validation steps:
+
+1. run load test with virtual-thread configuration.
+2. capture JFR and inspect virtual thread pinning events.
+3. replace broad synchronized regions with finer locks where possible.
+
+---
+
+## Dry Run: Incremental Migration
+
+Current service: fixed thread pool (200 threads), p95 latency 380ms at peak.
+
+1. migrate one read-heavy endpoint to virtual thread executor.
+2. keep same downstream clients and same timeouts.
+3. add semaphore budget for each dependency.
+4. compare p95/p99 latency, error rate, and dependency saturation.
+5. roll out gradually per endpoint.
+
+Expected result:
+
+- improved concurrency and simpler code
+- stable downstream load because budgets remain enforced
+
+---
+
+## Common Mistakes
+
+- assuming virtual threads remove need for backpressure
+- migrating all endpoints at once without per-endpoint validation
+- ignoring dependency pool limits (DB/HTTP connection pools)
+- keeping unbounded retries that multiply load under failure
 
 ---
 
 ## Key Takeaways
 
-- virtual threads improve concurrency ergonomics for I/O-bound services.
-- pair them with explicit bulkheads and timeouts.
-- treat downstream limits as first-class architecture constraints.
+- virtual threads simplify concurrency for blocking I/O services.
+- combine them with strict resource limits and timeout budgets.
+- validate with load testing and pinning diagnostics before broad rollout.

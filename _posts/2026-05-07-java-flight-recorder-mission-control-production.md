@@ -81,3 +81,60 @@ jfr print --events jdk.GCPhasePause app.jfr
 - JFR gives production-grade, low-overhead JVM visibility.
 - pair runtime recordings with request metrics for root-cause speed.
 - keep a repeatable recording/analysis workflow in your runbook.
+
+---
+
+## High-Signal JFR Workflow
+
+For incident analysis, keep recordings targeted:
+
+- short high-detail window during active incident
+- long low-overhead rolling recording for historical context
+- event filters focused on allocations, locks, and I/O latency
+
+```bash
+jcmd <pid> JFR.start name=incident settings=profile duration=5m filename=incident.jfr
+jcmd <pid> JFR.stop name=incident
+```
+
+Correlate spike timestamps with thread states before changing code.
+
+---
+
+## Case Study: CPU Spike With No Obvious Error
+
+JFR helps when dashboards show CPU saturation but no error spikes.
+In these cases, lock contention, allocation storms, or tight loops are typical causes.
+
+Fast triage flow:
+
+1. capture short profile recording during spike
+2. inspect hottest methods and thread states
+3. correlate allocation events with request endpoints
+4. convert one finding into a small, testable code change
+
+Treat JFR analysis as hypothesis generation, not immediate flag tweaking.
+
+---
+
+## Dry Correlation Example
+
+Timeline snapshot:
+
+- `10:03:15` latency spike starts
+- `10:03:16` allocation rate doubles (JFR allocation events)
+- `10:03:18` GC pauses increase
+- `10:03:20` blocked threads rise on one lock
+
+This chain suggests allocation + contention interaction, not pure CPU compute saturation.
+Use these event alignments to prioritize fixes.
+
+---
+
+## Recording Hygiene Checklist
+
+- include app version/build id in filename or metadata
+- keep wall-clock synchronized across app metrics and JFR host
+- store baseline recording for healthy period comparison
+
+Good metadata makes JFR useful for regression analysis, not just one-off debugging.

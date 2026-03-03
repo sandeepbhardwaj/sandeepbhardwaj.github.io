@@ -68,6 +68,49 @@ int searchRec(int[] nums, int target, int left, int right) {
 }
 ```
 
+## Invariant You Should Track
+
+Maintain this invariant through every loop:
+
+- if target exists, it is always inside `[left, right]`
+
+When `nums[mid] < target`, discard left half by moving `left = mid + 1`.
+When `nums[mid] > target`, discard right half by moving `right = mid - 1`.
+
+This invariant is the reason binary search is correct.
+
+## Dry Run
+
+Array: `[1, 3, 5, 7, 9, 11]`, target: `7`
+
+1. `left=0`, `right=5`, `mid=2` (`5`) -> move `left=3`
+2. `left=3`, `right=5`, `mid=4` (`9`) -> move `right=3`
+3. `left=3`, `right=3`, `mid=3` (`7`) -> found
+
+## Common Variants
+
+- first occurrence of target (lower bound)
+- last occurrence of target (upper bound - 1)
+- insertion position for target
+- binary search on answer space (minimum feasible value)
+
+Master these variants by adjusting boundary updates, not by rewriting from scratch.
+
+## Common Mistakes
+
+1. Using `while (left < right)` with wrong boundary updates.
+2. Mid overflow in languages with fixed int range (`(l + r) / 2` risk).
+3. Returning wrong pointer when target is absent in bound variants.
+4. Applying binary search to unsorted data.
+
+## Testing Checklist
+
+- empty array
+- one-element present and absent cases
+- target at first and last index
+- absent target between existing values
+- duplicate-heavy arrays for first/last occurrence variants
+
 ## Complexity
 
 - Time: `O(log n)`
@@ -75,6 +118,6 @@ int searchRec(int[] nums, int target, int left, int right) {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- binary search correctness comes from maintaining a valid search interval invariant.
+- boundary updates (`left = mid + 1`, `right = mid - 1`) must match loop condition to avoid off-by-one bugs.
+- master lower/upper bound variants by changing interval rules, not by rewriting the entire algorithm.

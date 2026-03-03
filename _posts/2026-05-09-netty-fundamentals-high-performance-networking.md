@@ -21,49 +21,136 @@ header:
 
 # Netty Fundamentals for High-Performance Networking
 
-Netty is designed for high-concurrency, low-overhead network services with explicit pipeline control.
-It shines when thread-per-connection models no longer scale.
+Netty helps Java services handle large numbers of concurrent network connections with predictable latency.
+Its performance comes from two disciplines:
+
+- event loops must stay non-blocking
+- memory (`ByteBuf`) must be managed correctly
 
 ---
 
 ## Mental Model
 
-- EventLoop: single-threaded task/IO loop per channel group
-- ChannelPipeline: ordered handlers for decode/process/encode
-- ByteBuf: pooled buffers for low-GC networking
+- `EventLoop`: single-thread loop that handles I/O and tasks for assigned channels
+- `ChannelPipeline`: ordered handlers (decode -> business routing -> encode)
+- `ByteBuf`: pooled, reference-counted buffer abstraction
+- `ChannelFuture`: async result for bind/write/connect operations
+
+If you block the `EventLoop`, throughput collapses even on powerful hardware.
 
 ---
 
-## Bootstrap Shape
+## Minimal Server Bootstrap
 
 ```java
 EventLoopGroup boss = new NioEventLoopGroup(1);
-EventLoopGroup worker = new NioEventLoopGroup();
-// ServerBootstrap + pipeline handlers + bind(port)
+EventLoopGroup workers = new NioEventLoopGroup();
+
+ServerBootstrap bootstrap = new ServerBootstrap()
+    .group(boss, workers)
+    .channel(NioServerSocketChannel.class)
+    .childHandler(new ChannelInitializer<SocketChannel>() {
+        @Override
+        protected void initChannel(SocketChannel ch) {
+            ch.pipeline()
+                .addLast(new LengthFieldBasedFrameDecoder(1_048_576, 0, 4, 0, 4))
+                .addLast(new LengthFieldPrepender(4))
+                .addLast(new RequestDecoder())
+                .addLast(new ResponseEncoder())
+                .addLast(new RequestHandler());
+        }
+    });
+
+ChannelFuture bindFuture = bootstrap.bind(8080).sync();
+bindFuture.channel().closeFuture().sync();
 ```
 
 ---
 
-## Handler Design Rules
+## Handler Rule: Offload Blocking Work
 
-- keep handlers non-blocking; offload blocking work to dedicated executors.
-- avoid heavy allocations per message.
-- release buffers properly in custom decode flows.
-- bound inbound message size to prevent memory abuse.
+Do not call blocking DB/HTTP code in `channelRead` on the event loop thread.
+
+```java
+public final class RequestHandler extends SimpleChannelInboundHandler<Request> {
+
+    private final ExecutorService businessPool = Executors.newFixedThreadPool(32);
+    private final BusinessService service = new BusinessService();
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, Request req) {
+        businessPool.submit(() -> {
+            Response response = service.process(req); // may block
+            ctx.executor().execute(() -> ctx.writeAndFlush(response));
+        });
+    }
+}
+```
+
+`ctx.executor().execute(...)` hops back to the channel's event loop before touching channel state.
 
 ---
 
-## Production Risks
+## ByteBuf Lifecycle Checklist
 
-1. blocking calls in event loop handlers.
-2. ByteBuf leaks from missing release paths.
-3. unbounded outbound queues under slow clients.
-4. no backpressure strategy in upstream business logic.
+If you use custom decoder/encoder logic, reference counting matters.
+
+- if extending `SimpleChannelInboundHandler<T>`, inbound message is auto-released after `channelRead0`.
+- if using `ChannelInboundHandlerAdapter`, release manually with `ReferenceCountUtil.release(msg)`.
+- retain buffer (`retain()`) only when passing it beyond current handler lifecycle.
+- use Netty leak detection in test/staging (`-Dio.netty.leakDetection.level=paranoid`).
+
+---
+
+## Backpressure Strategy
+
+Slow downstream consumers can build unbounded outbound buffers.
+Use writability signals and bounded queues.
+
+```java
+@Override
+public void channelWritabilityChanged(ChannelHandlerContext ctx) {
+    if (!ctx.channel().isWritable()) {
+        intakeController.pause();
+    } else {
+        intakeController.resume();
+    }
+    ctx.fireChannelWritabilityChanged();
+}
+```
+
+Operationally, pair this with queue limits and rejection/timeout policy.
+
+---
+
+## Dry Run: Request Under Load
+
+Scenario: 20k concurrent clients, downstream inventory API slows from 20ms to 600ms.
+
+1. bytes arrive, frame decoder slices complete request frame.
+2. request decoded on event loop thread.
+3. business task submitted to bounded worker pool.
+4. worker pool starts queuing as inventory latency rises.
+5. channel turns non-writable; intake is paused.
+6. timeout policy fails old queued requests quickly.
+7. event loops remain responsive for heartbeats and fast-fail responses.
+
+Without steps 5-6, latency spikes into timeouts and memory pressure grows until OOM.
+
+---
+
+## Production Metrics to Watch
+
+- event loop pending task count
+- event loop task execution delay (queue lag)
+- outbound buffer size and writable ratio
+- worker pool queue depth and rejection count
+- decode errors and dropped connections
 
 ---
 
 ## Key Takeaways
 
-- Netty performance comes from event-loop discipline and memory control.
-- handler correctness + backpressure strategy define system stability.
-- monitor event loop lag and buffer pressure continuously.
+- Netty performance is mostly execution-model correctness, not magic socket flags.
+- keep event loops non-blocking and treat backpressure as first-class.
+- define explicit memory and queue limits before load testing.

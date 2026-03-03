@@ -21,47 +21,116 @@ header:
 
 # Pattern Matching for switch in Java 21+ Production Guide
 
-Pattern matching switch improves readability and type safety for branching-heavy logic.
-It is especially effective for event routers and domain outcome mapping.
+Pattern matching for `switch` in Java 21 removes casting-heavy branch logic and makes transformation code safer.
+It is most valuable in mappers, routers, and decision layers.
 
 ---
 
-## Production Use Cases
+## Best-Fit Use Cases
 
-- mapping polymorphic command/event objects
-- translating domain errors to API responses
-- structured parsing flows
+- mapping domain outcomes to HTTP responses
+- routing polymorphic commands/events to handler categories
+- extracting typed values without `instanceof` + manual casts
+
+Avoid putting heavy side effects directly inside switch branches.
 
 ---
 
-## Example
+## Example: Domain Result to API Response
 
 ```java
-static ApiResponse mapResult(Object result) {
+sealed interface Result permits Success, ValidationError, NotFound, Conflict {}
+record Success(String payload) implements Result {}
+record ValidationError(String field, String message) implements Result {}
+record NotFound(String resourceId) implements Result {}
+record Conflict(String reason) implements Result {}
+
+static ApiResponse toResponse(Result result) {
     return switch (result) {
-        case Success s -> ApiResponse.ok(s.value());
-        case ValidationError e when e.field() != null -> ApiResponse.badRequest(e.message());
-        case ValidationError e -> ApiResponse.badRequest("invalid input");
-        case NotFound nf -> ApiResponse.notFound(nf.id());
-        case null -> ApiResponse.serverError("unexpected null");
-        default -> ApiResponse.serverError("unhandled type");
+        case Success s -> ApiResponse.ok(s.payload());
+        case ValidationError e when e.field() != null -> ApiResponse.badRequest(e.field() + ": " + e.message());
+        case ValidationError e -> ApiResponse.badRequest(e.message());
+        case NotFound nf -> ApiResponse.notFound(nf.resourceId());
+        case Conflict c -> ApiResponse.conflict(c.reason());
     };
 }
 ```
 
+Because `Result` is sealed, the switch is exhaustive with no `default` required.
+
 ---
 
-## Engineering Guidelines
+## Guarded Patterns for Business Nuance
 
-- keep switch branches side-effect minimal.
-- use guards for domain nuance, not business workflow execution.
-- isolate mapping switches from core mutation logic.
-- maintain explicit default behavior for forward compatibility.
+Guards (`when`) keep rules close to type checks.
+
+```java
+String classify(Command command) {
+    return switch (command) {
+        case Transfer t when t.amountMinor() > 1_000_000 -> "MANUAL_REVIEW";
+        case Transfer t -> "AUTO_APPROVE";
+        case Refund r when r.reason().toLowerCase().contains("fraud") -> "SECURITY_REVIEW";
+        case Refund r -> "STANDARD_REFUND";
+    };
+}
+```
+
+Prefer this over nested `if` trees when auditability matters.
+
+---
+
+## Null Handling Guidance
+
+By default, switching on `null` throws `NullPointerException`.
+Handle null explicitly if required by integration boundary.
+
+```java
+String stateLabel(Object state) {
+    return switch (state) {
+        case null -> "UNKNOWN";
+        case PaymentState.Pending ignored -> "PENDING";
+        case PaymentState.Captured ignored -> "CAPTURED";
+        default -> "OTHER";
+    };
+}
+```
+
+For internal code, prefer non-null contracts and avoid null branch unless needed.
+
+---
+
+## Dry Run: Refactoring instanceof Chain
+
+Before:
+
+- 70-line method with repeated `instanceof`, casts, and fallback return paths
+
+After:
+
+1. create a sealed base type for outcomes.
+2. replace chain with `switch` expression.
+3. move side effects out to dedicated methods.
+4. add one test per switch branch.
+
+Result:
+
+- fewer branch bugs
+- easier code review (all cases visible in one block)
+- compiler prompts updates when new subtype is introduced
+
+---
+
+## Common Mistakes
+
+- adding a broad `default` branch with sealed hierarchies (hides missing handling)
+- performing blocking I/O directly in each branch
+- mixing mutation logic with mapping logic in one large switch
+- using guards for unrelated side effects instead of pure classification
 
 ---
 
 ## Key Takeaways
 
-- switch patterns reduce casting boilerplate and branch bugs.
-- they work best for transformation/mapping layers.
-- combine with sealed classes for compile-time exhaustiveness strength.
+- pattern matching switch improves type safety and readability for branching-heavy code.
+- pairing with sealed hierarchies gives compile-time exhaustiveness.
+- keep switch branches focused on classification/transformation and delegate side effects.

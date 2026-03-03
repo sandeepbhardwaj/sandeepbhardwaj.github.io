@@ -126,6 +126,59 @@ For simple strategy cases, this replaces many one-method classes.
 
 ---
 
+# Dependency Injection Friendly Pattern
+
+In Spring Boot, inject functional policies as beans for runtime flexibility.
+
+```java
+@Bean
+Predicate<User> premiumAccessPolicy() {
+    return User::isActive;
+}
+```
+
+Then compose in service:
+
+```java
+public UserService(Predicate<User> premiumAccessPolicy) {
+    this.premiumAccessPolicy = premiumAccessPolicy;
+}
+```
+
+This keeps policy wiring explicit and testable.
+
+---
+
+# Testing Functional Policies
+
+Treat predicates/functions as first-class units in tests:
+
+- test rule truth table (true/false cases)
+- test composition order (`compose` vs `andThen`)
+- test edge inputs (`null`, empty strings, boundary values)
+
+Small focused tests catch policy regressions early.
+
+---
+
+# `UnaryOperator` and `BinaryOperator` (Often Overlooked)
+
+When input/output types are same, prefer:
+
+- `UnaryOperator<T>` over `Function<T, T>`
+- `BinaryOperator<T>` over `BiFunction<T, T, T>`
+
+Example:
+
+```java
+UnaryOperator<String> normalize = s -> s.trim().toLowerCase();
+BinaryOperator<BigDecimal> add = BigDecimal::add;
+```
+
+This improves API intent and readability.
+
+---
+
 # Production Cautions
 
 - do not hide complex logic in giant lambdas

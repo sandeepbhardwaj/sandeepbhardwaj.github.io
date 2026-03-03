@@ -21,61 +21,111 @@ header:
 
 # Event-Driven Architecture with Kafka and Java
 
-Kafka-based event architecture improves decoupling and scalability, but only when contracts and ownership boundaries are explicit.
+Kafka enables scalable asynchronous integration, but reliability depends on contract and consumer design.
+Treat topics as product interfaces, not internal implementation details.
 
 ---
 
-## Event Design Principles
+## Topic Contract Basics
 
-- event name reflects business fact (`OrderCreated`)
-- payload is immutable and versioned
-- producer owns schema evolution policy
-- consumers remain backward compatible
+For each topic, define and version:
 
----
+- event name and meaning (`OrderCreated` means order is persisted and visible)
+- schema and compatibility policy
+- key strategy and ordering guarantees
+- retention and replay expectations
 
-## Partitioning Strategy
-
-- choose key by ordering requirement (e.g., `orderId`, `userId`)
-- avoid hot partitions from skewed keys
-- monitor partition lag, not only consumer throughput
+Without explicit contract ownership, event systems drift quickly.
 
 ---
 
-## Producer Example
+## Partition Key Strategy
+
+Choose key by business ordering requirement.
+
+- key by `orderId` for per-order ordering
+- key by `customerId` for per-customer ordering
+- avoid random keys when ordering matters
+
+Watch for hot partitions if key cardinality is low or skewed.
+
+---
+
+## Producer Reliability Pattern
 
 ```java
 ProducerRecord<String, byte[]> record =
-        new ProducerRecord<>("orders.events.v1", orderId, payloadBytes);
-producer.send(record, (meta, ex) -> {
+    new ProducerRecord<>("orders.events.v1", orderId, payloadBytes);
+
+producer.send(record, (metadata, ex) -> {
     if (ex != null) {
-        // retry / DLQ / alert pipeline
+        // persist failure signal, trigger retry pipeline or alert
     }
 });
 ```
 
----
-
-## Consumer Engineering Rules
-
-- idempotent handlers
-- explicit retry vs DLQ policy
-- bounded processing time per record
-- observability per topic, partition, and consumer group
+For critical flows, combine with outbox pattern to avoid dual-write inconsistency.
 
 ---
 
-## Failure Handling
+## Consumer Processing Pattern
 
-1. transient downstream failure -> retry with bounds
-2. poison message -> route to DLQ with metadata
-3. schema mismatch -> fail fast + alert
-4. long lag -> autoscale consumers or optimize handler
+- poll batch
+- process each record idempotently
+- commit offset only after durable side effect
+- route poison records to DLQ with failure context
+
+Consumer idempotency is required even with Kafka ordering.
+
+```java
+if (processedEventStore.exists(eventId)) {
+    return; // duplicate replay
+}
+applyBusinessUpdate(event);
+processedEventStore.markProcessed(eventId);
+```
+
+---
+
+## Retry vs DLQ Policy
+
+- transient dependency issue: bounded retries with backoff
+- schema/payload violation: fail fast to DLQ
+- repeated business-rule failure: DLQ + alert
+
+Never infinite-retry poison messages on hot partitions.
+
+---
+
+## Dry Run: Order Pipeline Incident
+
+Scenario: downstream inventory service becomes slow.
+
+1. consumer lag starts rising on `orders.events.v1`.
+2. transient errors trigger bounded retry policy.
+3. retry budget exhausted for some records.
+4. failed records are published to DLQ with correlation IDs.
+5. main partition continues processing healthy records.
+6. ops team replays DLQ after dependency recovers.
+
+This avoids total pipeline stall during partial outage.
+
+---
+
+## Metrics That Matter
+
+- consumer lag by topic/partition
+- processing latency and retry count
+- DLQ rate and top error classes
+- producer error rate and publish latency
+- rebalance frequency and processing interruption time
+
+Throughput alone hides correctness failures.
 
 ---
 
 ## Key Takeaways
 
-- event-driven systems are contract and operations heavy.
-- correctness requires schema discipline and idempotent consumers.
-- throughput wins mean little without lag and failure visibility.
+- Kafka architecture success depends on strong contracts and idempotent consumers.
+- partition-key choice defines your ordering guarantees and scaling limits.
+- explicit retry/DLQ/replay strategy is essential for production reliability.

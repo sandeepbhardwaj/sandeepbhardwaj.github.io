@@ -26,29 +26,36 @@ header:
 
 # Container With Most Water in Java
 
-This guide explains the intuition, optimized approach, and Java implementation for container with most water in java, with practical tips for interviews and production coding standards.
+Given an array `height`, pick two indices `i` and `j` to form a container.
+Maximize area:
 
-## Problem
+`area = min(height[i], height[j]) * (j - i)`
 
-Given heights of vertical lines, find two lines forming a container with maximum water.
+---
 
-## Brute Force vs Optimal
+## Two-Pointer Insight
 
-- Brute force: check all pairs -> `O(n^2)`
-- Optimal: two pointers from both ends -> `O(n)`
+Start with widest container:
 
-## Key Insight
+- `left = 0`
+- `right = n - 1`
 
-Area = `min(height[left], height[right]) * (right - left)`.
+At each step:
 
-Move the pointer with smaller height, because moving the taller one cannot increase the limiting height.
+- compute area
+- move pointer at shorter height
+
+Why: shorter side limits area. Moving taller side cannot improve limiting height and always reduces width.
+
+---
 
 ## Java Solution
 
 ```java
 class Solution {
     public int maxArea(int[] height) {
-        int left = 0, right = height.length - 1;
+        int left = 0;
+        int right = height.length - 1;
         int best = 0;
 
         while (left < right) {
@@ -68,13 +75,39 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `[1,8,6,2,5,4,8,3,7]`
+
+1. `left=0 (1)`, `right=8 (7)` -> area `1*8=8`, move `left`
+2. `left=1 (8)`, `right=8 (7)` -> area `7*7=49`, best `49`, move `right`
+3. `left=1 (8)`, `right=7 (3)` -> area `3*6=18`, move `right`
+4. keep moving inward by shorter side; no area beats `49`
+
+Answer: `49`
+
+---
+
+## Common Mistakes
+
+1. moving both pointers each iteration
+2. moving taller side by default
+3. using `while (left <= right)` and processing zero width
+4. not considering integer overflow in larger constraints (`long` if needed)
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- width shrinks every step, so pointer movement must target potential height gain.
+- moving the shorter boundary is the only rational move.
+- this is a classic example of two-pointers guided by a monotonic argument.

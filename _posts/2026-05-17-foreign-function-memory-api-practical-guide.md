@@ -21,49 +21,122 @@ header:
 
 # Foreign Function and Memory API — Practical Java Guide
 
-FFM gives Java a modern native interop model with safer memory handling and better performance potential than raw JNI-heavy approaches.
+The Foreign Function and Memory (FFM) API lets Java call native code and manage off-heap memory without writing JNI glue.
+Its main advantage is explicit, safer memory lifetime management.
 
 ---
 
-## Why Teams Care
+## When FFM Is a Good Fit
 
-- call native libraries without manual JNI glue for each method
-- control off-heap memory explicitly
-- reduce serialization/copy overhead in compute-heavy native bridges
+- you need to call a small native C API surface from Java
+- JNI glue code is becoming hard to maintain
+- you need off-heap buffers with explicit ownership
+
+If you do not need native interop, stay with pure Java APIs.
 
 ---
 
-## Practical Usage Shape
+## Core Building Blocks
+
+- `Linker`: creates downcall handles to native functions
+- `SymbolLookup`: resolves symbols (`strlen`, custom library functions)
+- `FunctionDescriptor`: describes native function signature
+- `Arena`: defines memory lifetime scope
+- `MemorySegment`: off-heap memory handle with bounds and scope checks
+
+---
+
+## Example: Calling Native `strlen`
 
 ```java
-// API evolves by release; conceptual usage pattern:
-// 1) Create arena for memory lifecycle
-// 2) Resolve native symbol via linker
-// 3) Build method handle from function descriptor
-// 4) Invoke with typed arguments
+import java.lang.foreign.*;
+import java.lang.invoke.MethodHandle;
+import static java.lang.foreign.ValueLayout.*;
+
+public final class NativeStringLength {
+
+    private static final Linker LINKER = Linker.nativeLinker();
+    private static final SymbolLookup LOOKUP = LINKER.defaultLookup();
+
+    private static final MethodHandle STRLEN;
+
+    static {
+        try {
+            MemorySegment symbol = LOOKUP.find("strlen")
+                .orElseThrow(() -> new IllegalStateException("strlen symbol not found"));
+
+            STRLEN = LINKER.downcallHandle(
+                symbol,
+                FunctionDescriptor.of(JAVA_LONG, ADDRESS)
+            );
+        } catch (Throwable t) {
+            throw new ExceptionInInitializerError(t);
+        }
+    }
+
+    public static long length(String s) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment cString = arena.allocateUtf8String(s);
+            return (long) STRLEN.invokeExact(cString);
+        }
+    }
+}
 ```
 
----
-
-## Memory Lifecycle Rules
-
-- tie allocated memory to explicit scope (`Arena`) boundaries.
-- avoid long-lived native segments without ownership policy.
-- never expose raw segments across unclear thread/lifecycle boundaries.
+Important: `cString` is valid only inside the `Arena` scope.
 
 ---
 
-## Integration Checklist
+## Memory Ownership Rules
 
-1. isolate native calls behind small Java gateway interfaces.
-2. validate native error contracts and map to domain exceptions.
-3. benchmark call overhead and memory-copy behavior.
-4. test crash/failure fallback paths in staging.
+- allocate native memory in the smallest practical scope.
+- never return `MemorySegment` tied to a closed arena.
+- avoid sharing confined arena segments across threads.
+- wrap native buffers in high-level Java abstractions to avoid misuse.
+
+Most bugs are ownership/lifetime bugs, not call-signature bugs.
+
+---
+
+## JNI to FFM Migration Pattern
+
+1. isolate current JNI calls behind a Java interface.
+2. add FFM implementation with same interface contract.
+3. run compatibility tests (inputs, outputs, error cases).
+4. benchmark JNI vs FFM path under real load.
+5. switch gradually with feature flag.
+
+This keeps rollback simple and reduces migration risk.
+
+---
+
+## Dry Run: Native Compression Gateway
+
+Scenario: service compresses payload via native library.
+
+1. request arrives with `byte[]` payload.
+2. gateway allocates input/output `MemorySegment` inside arena.
+3. downcall invokes native `compress(...)`.
+4. return code checked and mapped to typed Java exception.
+5. compressed bytes copied to JVM heap for response.
+6. arena closes, native buffers released deterministically.
+
+If error occurs at step 4, scope still closes and memory is reclaimed.
+
+---
+
+## Production Checklist
+
+- keep native boundary narrow and well-documented.
+- validate all lengths and buffer sizes before downcall.
+- map error codes to domain exceptions with context.
+- add stress tests for repeated allocate/invoke/free cycles.
+- monitor native crash signals and fallback behavior.
 
 ---
 
 ## Key Takeaways
 
-- FFM is the future-facing native interop model for Java.
-- explicit memory ownership is the main correctness lever.
-- wrap native boundaries with clear contracts and observability.
+- FFM modernizes Java native interop with explicit memory scope control.
+- correctness depends on signature mapping and strict ownership boundaries.
+- migrate incrementally from JNI with interface-level compatibility tests.

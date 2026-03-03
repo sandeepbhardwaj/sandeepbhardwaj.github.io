@@ -116,3 +116,82 @@ final class ConfigHolder {
 - JMM is a correctness contract, not optional theory.
 - Correct publication and happens-before edges are mandatory in concurrent Java code.
 - Most reliability wins come from reducing shared mutation and making visibility explicit.
+
+---
+
+## Publication Pattern for Shared State
+
+A practical way to reduce JMM bugs is to avoid sharing mutable objects directly.
+Publish immutable snapshots and replace references atomically.
+
+```java
+final class RoutingTable {
+    private final AtomicReference<Map<String, Route>> table =
+            new AtomicReference<>(Map.of());
+
+    void reload(Map<String, Route> latest) {
+        table.set(Map.copyOf(latest));
+    }
+
+    Route find(String key) {
+        return table.get().get(key);
+    }
+}
+```
+
+This pattern removes lock contention on reads and gives a clear happens-before edge via atomic publication.
+
+---
+
+## Real Incident Pattern: Stale Config Under Load
+
+A common incident shape is stale configuration during rolling reload.
+One thread updates config while request threads read mixed old and new state.
+
+Use immutable config snapshots and versioned swaps:
+
+1. parse config into immutable object graph
+2. validate invariants before publication
+3. atomically swap reference
+4. emit metric with config version and timestamp
+
+This model gives deterministic visibility and avoids partial publication bugs.
+
+---
+
+## Dry Run: Non-Volatile Stop Flag Bug
+
+```java
+class Worker {
+    boolean running = true; // bug: no visibility guarantee
+
+    void loop() {
+        while (running) {
+            // work
+        }
+    }
+}
+```
+
+Thread A sets `running = false`, but Thread B may keep reading cached `true` and never stop.
+
+Fix:
+
+```java
+volatile boolean running = true;
+```
+
+Now write in Thread A happens-before subsequent read in Thread B.
+
+---
+
+## Code Review Checklist (JMM)
+
+When reviewing concurrent code, ask:
+
+1. where is shared mutable state?
+2. what exact happens-before edge protects it?
+3. can readers observe partially constructed objects?
+4. are stop/cancel flags volatile or lock-protected?
+
+These checks catch most high-severity JMM issues early.

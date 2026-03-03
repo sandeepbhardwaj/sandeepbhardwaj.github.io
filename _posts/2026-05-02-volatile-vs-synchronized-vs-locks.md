@@ -77,6 +77,16 @@ class SafeCounter {
 }
 ```
 
+Dry interleaving:
+
+- `count=0`
+- Thread A reads `0`
+- Thread B reads `0`
+- A writes `1`
+- B writes `1`
+
+Expected `2`, actual `1` (lost update).
+
 ---
 
 ## Advanced Lock Example
@@ -115,3 +125,46 @@ class Inventory {
 - `volatile` is visibility/order, not compound atomicity.
 - `synchronized` is the safest default for simple critical sections.
 - explicit locks are for advanced coordination, not premature optimization.
+
+---
+
+## Practical Decision Checklist
+
+Use this quick checklist during design reviews:
+
+- if writes are independent and single-variable, start with `volatile`
+- if operations update multiple fields together, use `synchronized`
+- if you need timeout, interruptible waits, or multiple conditions, use `ReentrantLock`
+- if contention is high, optimize critical section length before changing primitives
+
+```java
+if (!lock.tryLock(50, TimeUnit.MILLISECONDS)) {
+    throw new ServiceUnavailableException("inventory subsystem busy");
+}
+```
+
+---
+
+## Case Study: Inventory Reservation Consistency
+
+If `available`, `reserved`, and `sold` move together, you need one atomic update boundary.
+`volatile` fields cannot preserve this invariant.
+
+A practical approach:
+
+1. guard all state transitions under one lock
+2. expose read-only snapshots outside lock
+3. track lock hold time and contention metrics
+4. move expensive I/O outside critical section
+
+Correctness first, then contention optimization.
+
+---
+
+## Fast Selection Heuristic
+
+- Need only visibility flag? `volatile`
+- Need atomic read-modify-write? `synchronized` or lock
+- Need timed/interruptible acquisition or multiple conditions? `ReentrantLock`
+
+Use the simplest primitive that preserves correctness; complexity should be justified by coordination requirements.

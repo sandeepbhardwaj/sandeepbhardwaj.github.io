@@ -50,6 +50,49 @@ for (int mask = 0; mask < N; mask++) {
 
 ---
 
+## Dry Run (Tiny Assignment-Style)
+
+`n=3` => masks from `000` to `111`
+
+- `dp[000]=0`
+- choose item `0` -> `dp[001]`
+- choose item `1` -> `dp[010]`
+- ...
+- transitions keep improving `dp[newMask]` from smaller subsets
+
+Final answer is `dp[111]` (all elements included).
+
+This subset-growth order is the core invariant.
+
+---
+
+## Useful Bit Operations
+
+- check bit: `(mask & (1 << i)) != 0`
+- set bit: `mask | (1 << i)`
+- remove bit: `mask & ~(1 << i)`
+- iterate set bits:
+
+```java
+for (int sub = mask; sub > 0; sub &= (sub - 1)) {
+    int bit = Integer.numberOfTrailingZeros(sub);
+    // process bit
+}
+```
+
+Efficient bit iteration matters in tight DP loops.
+
+---
+
+## Feasibility Rule of Thumb
+
+Bitmask DP is usually practical for `n <= 20` (sometimes up to ~22 with optimizations).
+Beyond that, state space `2^n` often becomes too large.
+
+Always check `2^n` memory/time before choosing this pattern.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

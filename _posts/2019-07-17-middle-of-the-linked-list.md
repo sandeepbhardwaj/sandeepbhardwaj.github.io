@@ -26,18 +26,20 @@ header:
 
 # Middle of the Linked List in Java
 
-This guide explains the intuition, optimized approach, and Java implementation for middle of the linked list in java, with practical tips for interviews and production coding standards.
+Given the head of a singly linked list, return its middle node.
+If the list has two middle nodes, return the second middle.
 
-## Problem
+---
 
-Return middle node of a linked list. If two middles exist, return second one.
+## Fast and Slow Pointer Idea
 
-## Approach
+- `slow` moves 1 step each iteration
+- `fast` moves 2 steps each iteration
 
-- `slow` moves 1 step
-- `fast` moves 2 steps
+When `fast` reaches the end, `slow` is at middle.
+For even-length lists, this naturally lands on the second middle.
 
-When `fast` reaches end, `slow` is at middle.
+---
 
 ## Java Solution
 
@@ -57,17 +59,58 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `1 -> 2 -> 3 -> 4 -> 5`
+
+- start: `slow=1`, `fast=1`
+- step 1: `slow=2`, `fast=3`
+- step 2: `slow=3`, `fast=5`
+- next move not possible (`fast.next == null`), stop
+
+Answer: node `3`
+
+Input: `1 -> 2 -> 3 -> 4 -> 5 -> 6`
+
+- start: `slow=1`, `fast=1`
+- step 1: `slow=2`, `fast=3`
+- step 2: `slow=3`, `fast=5`
+- step 3: `slow=4`, `fast=null`
+
+Answer: node `4` (second middle)
+
+---
+
+## Why This Is Correct
+
+After `k` iterations:
+
+- `slow` has moved `k` nodes
+- `fast` has moved `2k` nodes
+
+So when `fast` has traversed the full list, `slow` is at half distance.
+
+---
+
+## Common Mistakes
+
+1. using `while (fast.next != null)` and causing `NullPointerException`
+2. moving `fast` by one step accidentally
+3. returning first middle when problem asks for second middle
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
-## Note
-
-This same pointer pattern is reused in cycle detection and palindrome linked list checks.
+---
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- fast/slow pointers give one-pass middle detection.
+- the loop guard `fast != null && fast.next != null` is critical.
+- this pattern is reused in cycle detection and linked-list palindrome checks.

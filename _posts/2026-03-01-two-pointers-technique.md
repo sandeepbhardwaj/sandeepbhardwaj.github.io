@@ -259,6 +259,50 @@ Try it first when:
 
 ---
 
+## Debugging Template (Practical)
+
+When pointer logic fails, instrument one dry-run trace with:
+
+- `left`, `right` (or `slow`, `fast`)
+- values at pointers
+- decision taken (`left++`, `right--`, swap, skip)
+- invariant check result
+
+Example trace log format:
+
+```text
+left=2 (5), right=7 (11), sum=16 -> sum<target => left++
+```
+
+This quickly reveals wrong movement rules and off-by-one conditions.
+
+---
+
+## Reusable Java Skeletons
+
+Opposite direction:
+
+```java
+int left = 0, right = arr.length - 1;
+while (left < right) {
+    // evaluate(arr[left], arr[right])
+    // move exactly one pointer based on rule
+}
+```
+
+Fast/slow compaction:
+
+```java
+int slow = 0;
+for (int fast = 0; fast < arr.length; fast++) {
+    if (keep(arr[fast])) arr[slow++] = arr[fast];
+}
+```
+
+Use these skeletons to reduce implementation mistakes under interview/production pressure.
+
+---
+
 ## Top Two-Pointer Problems to Master (with External Links)
 
 These problems cover the most useful two-pointer variants:

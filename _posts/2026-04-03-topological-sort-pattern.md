@@ -57,6 +57,48 @@ public List<Integer> topoSort(int n, int[][] edges) {
 
 ---
 
+## Dry Run (Kahn’s Algorithm)
+
+`n=4`, edges: `0->1`, `0->2`, `1->3`, `2->3`
+
+Initial indegree:
+
+- `0:0, 1:1, 2:1, 3:2`
+
+Queue starts with `[0]`.
+
+1. pop `0`, order `[0]`, indegree of `1,2` becomes `0` -> enqueue `1,2`
+2. pop `1`, order `[0,1]`, indegree of `3` becomes `1`
+3. pop `2`, order `[0,1,2]`, indegree of `3` becomes `0` -> enqueue `3`
+4. pop `3`, order `[0,1,2,3]`
+
+All nodes processed => DAG and valid topological ordering.
+
+---
+
+## Cycle Detection Rule
+
+Kahn’s method detects cycle by count:
+
+- if `order.size() < n`, graph has at least one cycle
+- if equal, ordering exists
+
+Always include this check in dependency-resolution problems.
+
+---
+
+## DFS Topological Sort (Alternative)
+
+DFS post-order + reverse gives topological order (for DAG):
+
+1. run DFS from each unvisited node
+2. push node after exploring neighbors
+3. reverse finish order
+
+For cycle detection in DFS, track recursion stack (`visiting` state).
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

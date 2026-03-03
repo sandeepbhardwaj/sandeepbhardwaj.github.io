@@ -68,6 +68,17 @@ public class SimpleThreadPool {
 }
 ```
 
+## Why Custom Pools Fail in Production
+
+Learning pools are useful to understand mechanics, but real systems need more controls:
+
+- graceful shutdown and drain behavior
+- task rejection policy under saturation
+- uncaught exception handling
+- metrics for queue length and active workers
+
+Without these, failure behavior becomes unpredictable under load.
+
 ## Java 8 vs JDK 11 vs Java 17 vs Java 21+
 
 - Java 8: fixed pools are common and effective.
@@ -95,6 +106,40 @@ public class PoolConfig {
 }
 ```
 
+## Rejection Policy Matters
+
+When queue and workers are full, your policy defines system behavior:
+
+- `AbortPolicy`: fail fast with exception
+- `CallerRunsPolicy`: pushes back on caller thread
+- `DiscardPolicy`: drops work silently (usually risky)
+- custom handler: route to dead-letter or fallback path
+
+Pick policy based on business criticality, not convenience.
+
+## Sizing Heuristic (Starting Point)
+
+- CPU-bound tasks: worker count near CPU cores
+- I/O-bound tasks: larger pool possible, but monitor context switching
+- queue capacity: bounded, sized from acceptable buffering delay
+
+Then tune with telemetry:
+
+- queue wait time
+- task execution time
+- rejection count
+
+## Graceful Shutdown Pattern
+
+```java
+EXECUTOR.shutdown();
+if (!EXECUTOR.awaitTermination(30, TimeUnit.SECONDS)) {
+    EXECUTOR.shutdownNow();
+}
+```
+
+Always define shutdown path in service stop hooks to prevent task loss during deploy.
+
 For Java 21+ IO-heavy workloads:
 
 ```java
@@ -107,8 +152,17 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 
 Thread pool fundamentals stay relevant. The improvement focus is observability, rejection policies, and workload isolation.
 
+## Monitoring Checklist
+
+- active thread count
+- queue depth and queue wait time
+- task success/failure count
+- rejection rate
+- shutdown drain duration
+
 ## Key Takeaways
 
 - Use custom pools only for learning.
 - In production prefer `ThreadPoolExecutor` or virtual-thread executors.
 - Always define queue capacity and rejection behavior.
+- Tune pools from metrics, not guesswork.

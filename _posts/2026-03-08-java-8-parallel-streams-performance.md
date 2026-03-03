@@ -82,6 +82,19 @@ Always benchmark with representative data and production-like hardware.
 
 ---
 
+# Hidden Cost: Splitting and Combining
+
+Parallel streams spend time in:
+
+- splitting source into subtasks
+- scheduling work in fork-join pool
+- combining partial results
+
+For lightweight operations, this overhead can outweigh compute savings.
+Parallelism pays off only when per-element work is substantial.
+
+---
+
 # Quick Benchmark Pattern (JMH Recommended)
 
 For reliable results, use JMH.
@@ -99,6 +112,30 @@ System.out.println("seq=" + (t2 - t1) + "ns, par=" + (t3 - t2) + "ns");
 ```
 
 Never decide based on one local run.
+
+---
+
+# Data Source Matters
+
+Parallel efficiency depends on source splittability:
+
+- arrays / `ArrayList`: good split characteristics
+- linked structures / iterators: often poor split characteristics
+- custom `Spliterator` quality can make or break performance
+
+Do not assume identical speedup across collection types.
+
+---
+
+# Safety Checklist Before Enabling `parallelStream()`
+
+1. operation is CPU-bound and side-effect free
+2. input size is large enough to amortize overhead
+3. no blocking calls in pipeline
+4. benchmark shows p95/p99 improvement, not just average
+5. common pool contention risk is acceptable
+
+If any of these is false, stay sequential or move to explicit executors.
 
 ---
 

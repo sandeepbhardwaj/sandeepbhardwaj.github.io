@@ -63,6 +63,48 @@ class Solution {
 }
 ```
 
+## Dry Run (`"abcabcbb"`)
+
+Window evolution:
+
+1. `a` -> best `1`
+2. `ab` -> best `2`
+3. `abc` -> best `3`
+4. next `a` repeats, move `left` to after previous `a`
+5. continue similarly; max stays `3`
+
+Answer: `3`
+
+## Why `Math.max(left, lastSeen + 1)` Is Required
+
+When a repeated character was seen before the current window, `left` must not move backward.
+`Math.max` preserves monotonic left movement and avoids invalid window expansion.
+
+## Common Mistakes
+
+1. Setting `left = lastSeen.get(c) + 1` without `Math.max`.
+2. Forgetting to update `lastSeen` for every character.
+3. Using substring reconstruction each step (extra `O(n)` overhead).
+
+## ASCII Optimization Variant
+
+For ASCII-only input, use `int[128]` instead of `HashMap` for faster constant factors.
+
+```java
+int[] last = new int[128];
+Arrays.fill(last, -1);
+```
+
+This keeps same complexity but improves runtime in many cases.
+
+## Testing Checklist
+
+- empty string
+- all unique chars
+- all same chars
+- repeated blocks (`abcabcbb`)
+- tricky case (`abba`) where `left` must not move backward
+
 ## Complexity
 
 - Time: `O(n)`
@@ -70,6 +112,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- sliding window keeps a no-duplicate substring in linear time.
+- update left boundary carefully when a repeated character is seen.
+- use index map for O(1) duplicate-position lookup and stable performance.

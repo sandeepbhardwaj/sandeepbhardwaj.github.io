@@ -265,6 +265,41 @@ If migrating from Java 8, check module dependencies before upgrading.
 
 ---
 
+# Practical Adoption Order
+
+When upgrading teams/codebases, introduce features in this order:
+
+1. low-risk API wins (`isBlank`, `readString`, `writeString`, `Optional.isEmpty`)
+2. `HttpClient` for new integrations
+3. observability upgrades (JFR operational playbooks)
+4. GC/runtime tuning after baseline metrics
+
+This keeps migration incremental and easier to validate.
+
+---
+
+# Common Upgrade Pitfalls
+
+1. assuming old Java EE classes still ship with JDK 11
+2. switching HTTP stack without timeout/retry parity checks
+3. enabling experimental GC flags in production without benchmarking
+4. missing TLS/cipher compatibility tests with legacy downstream services
+
+Treat JDK upgrade like a platform migration, not just syntax refresh.
+
+---
+
+# Verification Checklist in CI/CD
+
+- run unit/integration tests on JDK 11 runtime
+- run dependency scan for removed modules
+- execute smoke tests for external HTTP and TLS connectivity
+- capture baseline JFR profile before and after upgrade
+
+These checks catch most migration surprises early.
+
+---
+
 # Key Takeaways
 
 - Java 11 adds practical API improvements (`String`, `Files`, `Optional`, `HttpClient`).

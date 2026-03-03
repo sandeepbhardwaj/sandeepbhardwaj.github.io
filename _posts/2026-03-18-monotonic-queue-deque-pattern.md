@@ -47,6 +47,8 @@ For window maximum:
 
 ```java
 public int[] maxSlidingWindow(int[] nums, int k) {
+    if (nums == null || nums.length == 0 || k <= 0) return new int[0];
+    if (k == 1) return Arrays.copyOf(nums, nums.length);
     int n = nums.length;
     int[] ans = new int[n - k + 1];
     Deque<Integer> dq = new ArrayDeque<>();
@@ -126,6 +128,24 @@ public int shortestSubarray(int[] nums, int k) {
 2. Not removing out-of-window indices first
 3. Wrong inequality direction when maintaining monotonicity
 4. Treating deque operations as arbitrary instead of invariant-driven
+
+---
+
+## Debugging Deque State
+
+When output is wrong, print deque as `(index:value)` at each step:
+
+```text
+r=5 in=9 dq=[3:7,4:8] -> popBack 4, popBack 3, push 5
+```
+
+Verify three operations happen in order:
+
+1. remove expired front indices
+2. enforce monotonicity at back
+3. append current index
+
+This order is crucial for correctness.
 
 ---
 

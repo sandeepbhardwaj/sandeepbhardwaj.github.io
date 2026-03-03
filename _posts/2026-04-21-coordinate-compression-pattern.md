@@ -43,6 +43,42 @@ for (int i = 0; i < vals.length; i++) idx.put(vals[i], i);
 
 ---
 
+## Dry Run
+
+Coordinates: `[100, 1000, 50, 100]`
+
+1. unique + sorted values: `[50, 100, 1000]`
+2. compressed mapping:
+   - `50 -> 0`
+   - `100 -> 1`
+   - `1000 -> 2`
+3. transformed sequence: `[1, 2, 0, 1]`
+
+Relative order is preserved, but value gaps are removed.
+
+---
+
+## Reverse Mapping (When Needed)
+
+If queries/results need original coordinate values, keep reverse array:
+
+```java
+int originalValueAtCompressedIndex(int compressed, int[] vals) {
+    return vals[compressed];
+}
+```
+
+Compression is often used internally; output may still require original coordinates.
+
+---
+
+## Inclusive Range Boundary Tip
+
+For interval problems, include all relevant boundaries before compression (for example `l`, `r`, and sometimes `r+1` for difference-array style logic).
+Missing a boundary causes subtle off-by-one errors after compression.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

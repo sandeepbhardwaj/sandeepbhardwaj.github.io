@@ -71,6 +71,68 @@ class SolutionBfs {
 }
 ```
 
+## DFS vs BFS: When to Prefer Which
+
+- DFS recursion: concise and easy to reason about.
+- BFS: avoids deep recursion stack on skewed trees.
+
+For very deep/skewed trees, iterative BFS (or iterative DFS with stack) is safer in Java.
+
+## Dry Run
+
+Tree:
+
+```text
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+Depth levels:
+
+1. `[3]`
+2. `[9,20]`
+3. `[15,7]`
+
+Answer: `3`
+
+## Common Mistakes
+
+1. Counting edges instead of nodes (off by one).
+2. Forgetting base case `root == null`.
+3. Using recursive DFS on huge skewed trees without considering stack overflow.
+
+## Iterative DFS Variant
+
+```java
+int maxDepthIterative(TreeNode root) {
+    if (root == null) return 0;
+    record NodeDepth(TreeNode node, int depth) {}
+    Deque<NodeDepth> st = new ArrayDeque<>();
+    st.push(new NodeDepth(root, 1));
+    int best = 0;
+    while (!st.isEmpty()) {
+        NodeDepth p = st.pop();
+        TreeNode node = p.node();
+        int d = p.depth();
+        best = Math.max(best, d);
+        if (node.left != null) st.push(new NodeDepth(node.left, d + 1));
+        if (node.right != null) st.push(new NodeDepth(node.right, d + 1));
+    }
+    return best;
+}
+```
+
+## Testing Checklist
+
+- empty tree
+- single-node tree
+- balanced tree
+- completely skewed tree
+- random large tree
+
 ## Complexity
 
 - Time: `O(n)`
@@ -78,6 +140,6 @@ class SolutionBfs {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- tree depth can be solved via DFS recursion with `1 + max(leftDepth, rightDepth)`.
+- base case (`null -> 0`) is the core that keeps recurrence correct.
+- for very deep trees, iterative BFS/DFS avoids recursion stack overflow.

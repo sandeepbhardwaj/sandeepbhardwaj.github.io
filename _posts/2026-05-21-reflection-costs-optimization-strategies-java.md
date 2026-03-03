@@ -21,41 +21,105 @@ header:
 
 # Reflection Costs and Optimization Strategies in Java
 
-Reflection adds flexibility but can hurt startup and hot-path performance if overused.
-Optimization starts with measuring where reflection is truly expensive.
+Reflection is useful for extensibility and framework infrastructure, but expensive when used repeatedly in hot paths.
+The right strategy is selective optimization, not blanket removal.
 
 ---
 
-## Major Cost Areas
+## Where Reflection Usually Hurts
 
-- repeated lookup of fields/methods
-- reflective invocation overhead in tight loops
-- inaccessible member checks and module boundaries
-- metadata scanning at startup
+- repeated method/field lookup per request
+- per-request annotation scanning
+- reflective invocation inside tight loops
+- startup classpath scanning without caching
+
+Most overhead comes from repeated metadata work, not one-time setup.
 
 ---
 
-## Optimization Pattern
+## Step 1: Cache Metadata Once
 
 ```java
-MethodHandles.Lookup lookup = MethodHandles.lookup();
-MethodHandle mh = lookup.findVirtual(Service.class, "compute", MethodType.methodType(int.class, int.class));
-int result = (int) mh.invokeExact(service, 10);
+public final class AccessorCache {
+
+    private final ConcurrentMap<Class<?>, MethodHandle> idGetters = new ConcurrentHashMap<>();
+
+    public String readId(Object target) {
+        try {
+            MethodHandle mh = idGetters.computeIfAbsent(target.getClass(), this::buildGetter);
+            return (String) mh.invoke(target);
+        } catch (Throwable t) {
+            throw new RuntimeException("Failed to read id", t);
+        }
+    }
+
+    private MethodHandle buildGetter(Class<?> type) {
+        try {
+            Method m = type.getMethod("id");
+            return MethodHandles.lookup().unreflect(m);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("No id() on " + type.getName(), e);
+        }
+    }
+}
 ```
+
+Lookup cost is paid once per class, not once per request.
 
 ---
 
-## Practical Guidance
+## Step 2: Move Hot Reflection to MethodHandles or Codegen
 
-- cache reflective metadata once.
-- avoid reflection in request hot paths.
-- prefer generated code / direct calls where stable contracts exist.
-- measure cold-start vs steady-state separately.
+If reflection remains in p95 path after caching:
+
+- use precomputed `MethodHandle` where signatures are stable
+- move to generated codecs/mappers for ultra-hot serialization/deserialization paths
+
+Generated direct calls generally beat reflective dispatch for stable contracts.
+
+---
+
+## Step 3: Separate Startup and Runtime Optimizations
+
+Startup-heavy apps care about scanning cost.
+Throughput-heavy apps care about per-request dispatch cost.
+Measure separately:
+
+- cold start initialization time
+- steady-state CPU and allocation rate
+
+Different bottlenecks need different fixes.
+
+---
+
+## Dry Run: Controller Argument Binder Optimization
+
+Before:
+
+- every request scans annotations and resolves parameter accessors reflectively
+
+After:
+
+1. precompute controller metadata at startup.
+2. cache parameter resolvers per endpoint method.
+3. replace reflective invoke with bound method handle.
+4. re-run load test and compare p95 latency + CPU.
+
+Typical result: lower CPU and fewer allocations with no API behavior change.
+
+---
+
+## Common Mistakes
+
+- micro-optimizing reflection before profiling
+- replacing reflection everywhere and losing framework flexibility
+- caching without bounds in dynamic plugin environments
+- ignoring module encapsulation rules when accessing non-public members
 
 ---
 
 ## Key Takeaways
 
-- reflection overhead is often manageable when localized and cached.
-- use reflection for extensibility boundaries, not core loops.
-- method handles and code generation are strong optimization options.
+- reflection is acceptable when localized and cached.
+- optimize only measured hotspots.
+- use method handles or code generation when reflective dispatch dominates critical paths.

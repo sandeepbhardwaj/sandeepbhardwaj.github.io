@@ -21,55 +21,105 @@ header:
 
 # Distributed Locking Patterns in Java (Redis ZooKeeper)
 
-Distributed locks coordinate cross-node critical sections, but correctness depends on lease semantics and failure handling.
-Never treat them like local JVM locks.
+Distributed locks coordinate critical sections across service instances.
+They are lease-based coordination primitives, not equivalent to in-process `synchronized`.
 
 ---
 
-## When to Use Distributed Locks
+## Use Cases That Justify Locking
 
-- singleton job execution across nodes
-- critical section over shared external resource
-- leader-like coordination for bounded scope tasks
+- singleton scheduled job across nodes
+- serialized operation on shared external resource
+- short critical section where duplicate execution is harmful
 
-Do not use for every write path if idempotent design can avoid locking.
+If you can design idempotent or partitioned processing, prefer that over global locks.
 
 ---
 
-## Redis Lease Pattern (Conceptual)
+## Redis Lease Lock Pattern
+
+Acquire with unique owner token and TTL.
+Release only if token still matches owner.
 
 ```java
-boolean acquired = redis.setnx(lockKey, token, ttl);
+String token = UUID.randomUUID().toString();
+boolean acquired = redis.set(lockKey, token, SetArgs.Builder.nx().px(10_000));
+
+if (!acquired) {
+    return;
+}
+
 try {
-    if (!acquired) return;
     doCriticalWork();
 } finally {
-    releaseIfOwner(lockKey, token);
+    // Lua script: delete only if value == token
+    redis.eval(RELEASE_SCRIPT, List.of(lockKey), List.of(token));
 }
 ```
 
----
-
-## Correctness Requirements
-
-- unique lock token per owner
-- lease expiry with conservative TTL
-- owner-check on release
-- idempotent critical operation if lease expires mid-flight
+Never `DEL` lock key blindly.
 
 ---
 
-## Operational Concerns
+## TTL and Lease Renewal
 
-- clock skew assumptions
-- network partitions
-- lock starvation and fairness
-- orphaned lock cleanup and alerting
+TTL must exceed expected critical section duration plus jitter buffer.
+If work can run long:
+
+- renew lease periodically while owner is healthy
+- stop work immediately if renewal fails
+
+Lock-loss handling is part of correctness, not optional enhancement.
+
+---
+
+## ZooKeeper/Curator Alternative
+
+ZooKeeper-style ephemeral nodes give stronger session semantics for coordination and leader election.
+Use when you need:
+
+- stronger coordination guarantees
+- watch-based failover signaling
+- richer election patterns than simple key lease
+
+Cost: more operational complexity than single Redis lock key.
+
+---
+
+## Dry Run: Scheduler Lock Loss Scenario
+
+1. node A acquires lock and starts job.
+2. GC pause/network issue prevents lease renewal.
+3. lease expires; node B acquires same lock.
+4. node A resumes and tries to continue work.
+5. lock-check detects ownership loss; node A aborts.
+
+Without step 5, duplicate execution happens.
+
+---
+
+## Safety Checklist
+
+- unique token per lock owner
+- compare-and-delete release
+- bounded critical section duration
+- lock renewal with health checks
+- idempotent job actions in case of split execution window
+- metrics for acquire latency, contention, renewal failure, lock loss
+
+---
+
+## Common Mistakes
+
+- assuming distributed lock gives exactly-once side effects
+- using long unbounded lock TTLs
+- forgetting owner check on unlock
+- running large business workflows under one coarse global lock
 
 ---
 
 ## Key Takeaways
 
-- distributed locks are failure-prone coordination tools, not simple mutexes.
-- lease ownership and idempotency are core safety requirements.
-- prefer lock-free/idempotent workflows where possible.
+- distributed locking is a failure-sensitive coordination mechanism.
+- lease ownership checks and lock-loss handling are mandatory.
+- use partitioned/idempotent designs first; lock only where truly required.

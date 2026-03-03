@@ -81,6 +81,24 @@ private void backtrack(int idx, int[] nums, List<Integer> path, List<List<Intege
 
 ---
 
+## Dry Run (Subsets of `[1,2]`)
+
+Decision tree:
+
+- start `[]`
+  - include `1` -> `[1]`
+    - include `2` -> `[1,2]`
+    - exclude `2` -> `[1]`
+  - exclude `1` -> `[]`
+    - include `2` -> `[2]`
+    - exclude `2` -> `[]`
+
+Collected subsets: `[]`, `[1]`, `[1,2]`, `[2]`
+
+This shows why every level must rollback before exploring sibling branches.
+
+---
+
 ## Problem 2: Permutations
 
 ```java
@@ -141,6 +159,20 @@ private void dfs(int i, int remain, int[] c, List<Integer> path, List<List<Integ
 2. Reusing mutable path without copying
 3. Missing duplicate-skip logic in duplicate-input problems
 4. No pruning where obvious bounds exist
+
+---
+
+## Pruning Heuristic
+
+Before recursing, ask: “Can this branch still reach a valid solution?”
+
+Examples:
+
+- combination sum: stop when `remain < 0`
+- fixed-length combinations: stop when remaining elements are insufficient
+- N-Queens: stop when row/diag constraints fail immediately
+
+Effective pruning reduces exponential search significantly in practice.
 
 ---
 

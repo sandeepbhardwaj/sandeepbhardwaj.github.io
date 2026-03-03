@@ -21,50 +21,106 @@ header:
 
 # Building a Custom Java Agent (Instrumentation API)
 
-Java agents let you instrument code at JVM startup or attach time for profiling, tracing, or policy checks.
-They are powerful and should be introduced with strict scope control.
+Java agents let you instrument classes without modifying application source code.
+They are powerful for tracing, profiling, and policy enforcement, but they run at platform-critical boundaries.
 
 ---
 
-## Agent Entry Points
+## Entry Modes
 
-- `premain`: startup instrumentation
-- `agentmain`: dynamic attach instrumentation
+- `premain(String, Instrumentation)`: loaded at JVM startup via `-javaagent`
+- `agentmain(String, Instrumentation)`: attached to running JVM (dynamic attach)
+
+Use `premain` for predictable startup instrumentation.
+Use `agentmain` for diagnostics and emergency attach workflows.
 
 ---
 
-## Minimal Agent
+## Minimal, Targeted Transformer
 
 ```java
-public class Agent {
+public final class Agent {
+
     public static void premain(String args, Instrumentation inst) {
-        inst.addTransformer((loader, name, cls, domain, bytes) -> bytes);
+        ClassFileTransformer transformer = (loader, className, classBeingRedefined, domain, bytes) -> {
+            if (className == null || !className.startsWith("com/company/service/")) {
+                return null; // no change
+            }
+            return transformClass(className, bytes);
+        };
+
+        inst.addTransformer(transformer, true);
+    }
+
+    private static byte[] transformClass(String className, byte[] original) {
+        // Apply bytecode transformation with ASM/ByteBuddy and return modified bytes.
+        return original;
     }
 }
 ```
 
----
-
-## Production Considerations
-
-- instrument only target packages/classes.
-- keep transformation deterministic and reversible.
-- track instrumentation overhead by endpoint/class.
-- maintain compatibility tests across JDK upgrades.
+Return `null` when no transformation is needed to reduce overhead.
 
 ---
 
-## Risk Controls
+## Manifest Requirements
 
-1. feature-flag agent activation.
-2. keep safe fallback to no-op transform.
-3. isolate configuration from business deployment config.
-4. log transformation decisions for forensic debugging.
+Agent JAR manifest typically includes:
+
+- `Premain-Class: com.company.agent.Agent`
+- `Agent-Class: com.company.agent.Agent` (if dynamic attach supported)
+- `Can-Redefine-Classes: true` (only if needed)
+- `Can-Retransform-Classes: true` (only if needed)
+
+Enable capabilities only when required.
+
+---
+
+## Safe Transformation Rules
+
+- instrument only explicit package/method targets
+- avoid transforming JDK/core framework classes unless absolutely necessary
+- keep transformation deterministic and idempotent
+- fail closed to no-op on transform errors (do not crash app by default)
+
+Agent bugs can break application startup; treat code with platform-level rigor.
+
+---
+
+## Dry Run: Request Timing Instrumentation
+
+1. canary deploy with `-javaagent:agent.jar=mode=observe,packages=com.company.api`.
+2. transformer adds timing hooks to controller methods only.
+3. measure startup delta, p95 latency delta, and CPU overhead.
+4. compare canary vs control cluster.
+5. expand scope gradually if overhead stays within budget.
+
+Keep kill switch in agent args to disable instrumentation instantly.
+
+---
+
+## Testing Strategy
+
+- bytecode golden tests for transformed classes
+- integration tests on target JDK versions
+- startup tests with agent enabled/disabled
+- stress tests for retransformation and classloader interactions
+
+Agents must be tested against the same runtime matrix as production.
+
+---
+
+## Common Mistakes
+
+- broad instrumentation patterns (`com/.*`) in first rollout
+- mutating method semantics instead of adding orthogonal telemetry
+- unbounded logging from transformer path
+- ignoring classloader-specific behavior in app servers/plugins
 
 ---
 
 ## Key Takeaways
 
-- agents are ideal for cross-cutting runtime instrumentation.
-- narrow transformation scope avoids instability.
-- treat agent rollout like platform-level change management.
+- Java agents are best for cross-cutting runtime instrumentation with strict scope.
+- prioritize deterministic transforms, feature flags, and rollback safety.
+- roll out like an infrastructure change, not a normal library upgrade.

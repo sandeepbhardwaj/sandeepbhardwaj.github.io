@@ -52,6 +52,50 @@ public int[][] floydWarshall(int[][] dist) {
 
 ---
 
+## Initialization Rules
+
+Before running transitions:
+
+- `dist[i][i] = 0`
+- direct edge weight for connected pairs
+- `INF` for no direct edge
+
+Use large finite `INF` (for example `1_000_000_000`) to reduce overflow risk in additions.
+
+---
+
+## Dry Run (3 Nodes)
+
+Edges:
+
+- `0 -> 1 = 4`
+- `1 -> 2 = 3`
+- `0 -> 2 = 10`
+
+At `k=1`, path `0 -> 1 -> 2` gives `4 + 3 = 7`, improving `dist[0][2]` from `10` to `7`.
+
+This is the core DP recurrence in action:
+
+`dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])`
+
+---
+
+## Negative Cycle Detection
+
+After algorithm:
+
+```java
+for (int i = 0; i < n; i++) {
+    if (dist[i][i] < 0) {
+        // negative cycle reachable from i
+    }
+}
+```
+
+A negative diagonal entry indicates a negative cycle.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -62,6 +62,61 @@ class Solution {
 }
 ```
 
+## Extension: Find Cycle Start Node
+
+After `slow` and `fast` meet, move one pointer to head.
+Then move both one step at a time; meeting point is cycle start.
+
+```java
+ListNode detectCycleStart(ListNode head) {
+    ListNode slow = head, fast = head;
+
+    while (fast != null && fast.next != null) {
+        slow = slow.next;
+        fast = fast.next.next;
+        if (slow == fast) {
+            ListNode p1 = head, p2 = slow;
+            while (p1 != p2) {
+                p1 = p1.next;
+                p2 = p2.next;
+            }
+            return p1;
+        }
+    }
+    return null;
+}
+```
+
+## Extension: Cycle Length
+
+Once a meeting point is found, loop once around cycle to count length.
+
+```java
+int cycleLength(ListNode meet) {
+    int len = 1;
+    ListNode curr = meet.next;
+    while (curr != meet) {
+        len++;
+        curr = curr.next;
+    }
+    return len;
+}
+```
+
+## Common Mistakes
+
+1. Advancing `fast = fast.next.next` without `fast.next` null check.
+2. Comparing node values instead of node references.
+3. Returning true for single-node non-cycle lists.
+
+## Testing Checklist
+
+- empty list
+- one node without cycle
+- one node with self-cycle
+- cycle in middle (`1->2->3->4->2`)
+- long acyclic list
+
 ## Complexity
 
 - Time: `O(n)`
@@ -73,6 +128,6 @@ HashSet approach works but uses extra memory `O(n)`. Floyd’s algorithm gives c
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- Floyd's fast/slow pointers detect cycles without extra memory.
+- meeting of pointers proves cycle existence, not just chance overlap.
+- always include empty and single-node cases in cycle tests.

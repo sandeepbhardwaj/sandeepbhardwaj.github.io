@@ -47,6 +47,46 @@ public int mergeSortCount(int[] a, int l, int r) {
 
 ---
 
+## Dry Run (Merge Sort Split/Merge)
+
+Array: `[5,2,4,1]`
+
+Split:
+
+- `[5,2]` and `[4,1]`
+- further to single elements
+
+Merge:
+
+- `[5] + [2] -> [2,5]`
+- `[4] + [1] -> [1,4]`
+- `[2,5] + [1,4] -> [1,2,4,5]`
+
+Key invariant: each recursive call returns sorted subarray before parent merge.
+
+---
+
+## Typical Divide-and-Conquer Families
+
+- merge sort / inversion counting
+- quicksort / quickselect
+- binary search recursion
+- closest pair / geometric split merges
+
+Look for independent subproblems plus a deterministic merge/combine phase.
+
+---
+
+## Recurrence Mindset
+
+Express complexity as recurrence:
+
+`T(n) = aT(n/b) + f(n)`
+
+This helps decide whether divide-and-conquer is actually beneficial versus iterative alternatives.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

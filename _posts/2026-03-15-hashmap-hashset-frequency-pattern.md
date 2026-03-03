@@ -159,6 +159,31 @@ public List<List<String>> groupAnagrams(String[] strs) {
 
 ---
 
+## API Tips: `merge` and `computeIfAbsent`
+
+These APIs reduce boilerplate and edge bugs:
+
+```java
+freq.merge(c, 1, Integer::sum);
+groups.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+```
+
+Prefer them over repeated `containsKey` checks when possible.
+
+---
+
+## Determinism Note for Tests
+
+`HashMap`/`HashSet` iteration order is not guaranteed.
+If test output comparison depends on order:
+
+- sort inner/outer collections before assert, or
+- use `LinkedHashMap` when insertion order matters by design
+
+This avoids flaky tests and hidden order coupling.
+
+---
+
 ## Common Mistakes
 
 1. Using mutable objects as map keys without stable `equals/hashCode`

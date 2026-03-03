@@ -43,6 +43,67 @@ int[] p = new int[t.length()];
 
 ---
 
+## Full Longest Palindrome Extraction
+
+```java
+public String longestPalindrome(String s) {
+    if (s == null || s.isEmpty()) return "";
+
+    StringBuilder t = new StringBuilder("^");
+    for (char c : s.toCharArray()) t.append('#').append(c);
+    t.append("#$");
+
+    int n = t.length();
+    int[] p = new int[n];
+    int center = 0, right = 0;
+    int bestLen = 0, bestCenter = 0;
+
+    for (int i = 1; i < n - 1; i++) {
+        int mirror = 2 * center - i;
+        if (i < right) p[i] = Math.min(right - i, p[mirror]);
+
+        while (t.charAt(i + 1 + p[i]) == t.charAt(i - 1 - p[i])) p[i]++;
+
+        if (i + p[i] > right) {
+            center = i;
+            right = i + p[i];
+        }
+        if (p[i] > bestLen) {
+            bestLen = p[i];
+            bestCenter = i;
+        }
+    }
+
+    int start = (bestCenter - bestLen) / 2;
+    return s.substring(start, start + bestLen);
+}
+```
+
+---
+
+## Dry Run (Conceptual)
+
+Input: `"babad"`
+
+Transformed string allows odd/even palindromes to be handled uniformly.
+Largest radius center corresponds to `"bab"` or `"aba"` (both valid).
+
+Mapping back:
+
+- start index in original string = `(center - radius) / 2`
+- length = `radius`
+
+---
+
+## Center-Mirror Invariant
+
+Maintain current best palindrome window `[center - p[center], center + p[center]]`.
+For index `i` inside this window, use mirror index to initialize radius before expansion.
+
+This reuse prevents repeated expansion work and yields linear time.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

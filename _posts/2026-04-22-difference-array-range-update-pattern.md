@@ -46,6 +46,44 @@ for (int i = 1; i < n; i++) diff[i] += diff[i - 1];
 
 ---
 
+## Dry Run
+
+`n=5`, updates:
+
+- add `+2` on `[1..3]`
+- add `+1` on `[0..2]`
+
+Diff marking:
+
+- after first: `[0,2,0,0,-2,0]`
+- after second: `[1,2,0,-1,-2,0]`
+
+Prefix reconstruction (`0..4`):
+
+- `[1,3,3,2,0]`
+
+Same result as applying both range updates naively, but faster for many updates.
+
+---
+
+## Base Array Variant
+
+If updates apply on existing array `arr`, first build diff from `arr`, apply range marks, then reconstruct final array.
+Do not assume initial zeros unless problem states so.
+
+---
+
+## Boundary Rule
+
+For inclusive update `[l..r] += v`:
+
+- `diff[l] += v`
+- `diff[r + 1] -= v` (if in bounds)
+
+Most bugs in this pattern are boundary and indexing mistakes.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

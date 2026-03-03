@@ -21,55 +21,155 @@ header:
 
 # Java NIO.2 File System and Path API Deep Dive
 
-NIO.2 should be your default for modern file handling in backend services.
-It improves safety, clarity, and cross-platform behavior compared to legacy `File` APIs.
+`java.nio.file` is the production baseline for file workflows in Java.
+Compared to legacy `java.io.File`, it gives better path safety, clearer APIs, and stronger behavior around moves, links, and attributes.
 
 ---
 
-## Core Capabilities
+## Why NIO.2 Matters in Real Systems
 
-- `Path` for normalized path operations
-- `Files` for atomic-like convenience operations
-- directory walking and stream-based traversal
-- file attributes and symbolic link handling
+Backend services often depend on file I/O for imports, exports, checkpoints, and recovery markers.
+Most incidents are not about reading bytes, they are about edge cases:
 
----
+- partial writes after process crash
+- path traversal through user input
+- cross-filesystem move surprises
+- silent overwrites and missing recovery metadata
 
-## Typical Backend Use Cases
-
-- ingestion pipelines reading batch files
-- service-side export/import workflows
-- secure temporary file handling
-- recursive cleanup and archival tasks
+NIO.2 gives enough primitives to handle these explicitly.
 
 ---
 
-## Example Pattern
+## Core Building Blocks
+
+- `Path`: normalized, composable path abstraction
+- `Files`: high-level operations (read/write/move/walk/attributes)
+- `StandardOpenOption`: explicit write/append/create semantics
+- `StandardCopyOption`: replace/atomic move behavior
+- `FileVisitor`: controlled recursive traversal
+
+---
+
+## Example 1: Safe Path Resolution (Traversal Defense)
+
+When a path fragment comes from request payload or job metadata, never directly join and trust it.
 
 ```java
-Path root = Path.of("/data", "imports");
-Files.createDirectories(root);
+Path root = Path.of("/srv/imports").toAbsolutePath().normalize();
+String userRelative = "tenantA/../tenantA/orders.csv"; // untrusted
 
-try (Stream<Path> paths = Files.walk(root, 2)) {
-    paths.filter(Files::isRegularFile)
-         .filter(p -> p.toString().endsWith(".json"))
-         .forEach(this::processFile);
+Path resolved = root.resolve(userRelative).normalize();
+if (!resolved.startsWith(root)) {
+    throw new SecurityException("Path traversal attempt: " + userRelative);
 }
 ```
 
+This small check prevents writing or reading outside the allowed directory tree.
+
 ---
 
-## Safety Checklist
+## Example 2: Crash-Safe File Replace (Temp + Atomic Move)
 
-- validate path traversal inputs.
-- avoid loading huge files fully into memory.
-- handle partial writes with temp-file + move strategy.
-- use charset-explicit read/write methods.
+Use this for config/state files that must never be half-written.
+
+```java
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+
+public final class AtomicFileWriter {
+
+    public static void writeAtomically(Path target, String content) throws IOException {
+        Path parent = target.toAbsolutePath().getParent();
+        Files.createDirectories(parent);
+
+        Path temp = Files.createTempFile(parent, target.getFileName().toString(), ".tmp");
+        try {
+            Files.writeString(
+                temp,
+                content,
+                StandardCharsets.UTF_8,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+
+            Files.move(
+                temp,
+                target,
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING
+            );
+        } finally {
+            Files.deleteIfExists(temp);
+        }
+    }
+}
+```
+
+Notes:
+
+- `ATOMIC_MOVE` is strongest when source and target are on same filesystem.
+- keep temp file in same directory as target to maximize atomic move support.
+
+---
+
+## Example 3: Large Directory Scan with Bounded Depth
+
+```java
+Path root = Path.of("/data/imports");
+try (var stream = Files.find(root, 3,
+        (p, attr) -> attr.isRegularFile() && p.toString().endsWith(".json"))) {
+    stream.forEach(this::processJsonFile);
+}
+```
+
+Why `Files.find` over manual recursion:
+
+- depth limit is explicit
+- access to attributes without extra calls
+- avoids accidental unbounded scans
+
+---
+
+## Dry Run: Import Pipeline with Recovery
+
+Assume `/data/inbox/orders-2026-05-08.csv` arrives.
+
+1. service reads from inbox as stream (does not load full file).
+2. transformed output is written to `/data/stage/orders-2026-05-08.csv.tmp`.
+3. checksum/row-count validation is performed.
+4. output is moved atomically to `/data/processed/orders-2026-05-08.csv`.
+5. checkpoint file `/data/checkpoints/orders-2026-05-08.done` is created.
+
+Crash cases:
+
+- crash before step 4: only `.tmp` exists, job is safe to retry.
+- crash after step 4 but before step 5: final file exists without checkpoint; restart logic can detect and reconcile.
+
+This is the difference between "works locally" and "operationally recoverable".
+
+---
+
+## Common Mistakes
+
+- using `Path.of(base + "/" + userInput)` string concatenation everywhere
+- reading large files with `readAllBytes`/`readString` by default
+- moving files across mount points and assuming atomicity
+- ignoring symbolic links in cleanup logic
+
+---
+
+## Production Checklist
+
+- normalize and boundary-check any externally influenced path.
+- choose explicit open options (`CREATE_NEW`, `TRUNCATE_EXISTING`, `APPEND`) instead of defaults.
+- prefer stream/chunk processing for large files.
+- use temp + atomic move for durable updates.
+- include restart semantics (checkpoint marker + idempotent processing).
 
 ---
 
 ## Key Takeaways
 
-- NIO.2 is safer and more expressive for production file workflows.
-- treat file operations as failure-prone I/O with explicit recovery paths.
-- stream and chunk data for large file scalability.
+- NIO.2 is not just a nicer API; it enables safer failure handling patterns.
+- treat file operations like distributed systems boundaries: explicit contracts, retries, and recovery.
+- correctness comes from path validation + atomic replace + predictable restart behavior.

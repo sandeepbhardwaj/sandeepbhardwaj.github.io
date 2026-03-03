@@ -21,51 +21,110 @@ header:
 
 # Profiling and Performance Benchmarking with JMH
 
-JMH is the reliable way to benchmark JVM code. Naive microbenchmarks are often invalid due to JIT, dead-code elimination, and warmup effects.
+JMH is the correct tool for JVM microbenchmarks.
+Without it, results are usually distorted by JIT warmup, dead-code elimination, and measurement noise.
 
 ---
 
-## Benchmarking Principles
+## Benchmarking and Profiling Are Different
 
-- isolate target operation
-- warm up JIT before measurement
-- run multiple forks for process-level variance
-- consume outputs to avoid DCE
+- benchmarking answers: "which implementation is faster for this isolated operation?"
+- profiling answers: "where does production time/CPU/allocation go?"
+
+Use both. One without the other creates bad optimization decisions.
 
 ---
 
-## Minimal JMH Example
+## Minimal but Correct JMH Setup
 
 ```java
-@Benchmark
-public int sumLoop() {
-    int s = 0;
-    for (int i = 0; i < 1000; i++) s += i;
-    return s;
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Warmup(iterations = 5, time = 1)
+@Measurement(iterations = 10, time = 1)
+@Fork(2)
+public class HashBench {
+
+    @Benchmark
+    public int hash() {
+        return Objects.hash("user", 42, true);
+    }
 }
 ```
 
----
-
-## Correct Experiment Design
-
-- benchmark alternatives under identical input distributions.
-- measure allocation rate and GC alongside raw throughput.
-- keep CPU scaling/governor consistent across runs.
-- separate microbenchmark findings from end-to-end system latency.
+Use warmup, measurement, and multiple forks for stable results.
 
 ---
 
-## Integration With Profiling
+## Parameterized Inputs Matter
 
-- use JMH for controlled micro comparisons.
-- use JFR/profilers for whole-service bottleneck attribution.
-- validate that local wins translate to production endpoints.
+```java
+@State(Scope.Thread)
+public static class Input {
+    @Param({"128", "1024", "8192"})
+    int size;
+
+    int[] data;
+
+    @Setup
+    public void setup() {
+        data = ThreadLocalRandom.current().ints(size).toArray();
+    }
+}
+```
+
+Benchmarks with only one tiny input size often produce misleading conclusions.
+
+---
+
+## Common Benchmark Pitfalls
+
+- benchmarking code that JIT optimizes away
+- measuring setup cost accidentally inside benchmark method
+- comparing implementations with different input distributions
+- running on unstable CPU frequency/governor settings
+- reporting only average, ignoring p95/p99 variation
+
+Methodology quality matters more than headline numbers.
+
+---
+
+## Dry Run: Optimization Validation Workflow
+
+1. profiler (JFR) shows JSON encoding hotspot at 18% CPU.
+2. create JMH benchmark for current vs candidate encoder.
+3. verify candidate wins on throughput and allocation rate.
+4. deploy canary with feature flag.
+5. compare endpoint p95 latency and service CPU in production.
+6. keep change only if user-visible SLO improves.
+
+Micro win without endpoint win is not a successful optimization.
+
+---
+
+## Profiling Stack for Production Correlation
+
+- JFR for low-overhead continuous profiling
+- async-profiler/flame graphs for deep CPU/allocation hotspots
+- metrics for p95 latency, GC pauses, CPU saturation
+
+Always confirm benchmark improvement appears at real call sites.
+
+---
+
+## CI Strategy for Performance Regressions
+
+- run stable benchmark suite on dedicated runners
+- compare against baseline with statistical thresholds
+- alert on significant regressions, not random noise
+- store historical benchmark trends per commit/release
+
+Performance tests should be repeatable and versioned like functional tests.
 
 ---
 
 ## Key Takeaways
 
-- JMH is mandatory for credible JVM microbenchmarking.
-- methodology quality matters more than one headline number.
-- combine benchmark and production profiling for trustworthy optimization decisions.
+- JMH is required for credible JVM microbenchmarking.
+- profile first, benchmark targeted hotspots, then validate in production.
+- optimization is complete only when service-level SLOs improve.

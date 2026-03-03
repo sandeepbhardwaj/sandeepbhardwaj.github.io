@@ -64,6 +64,44 @@ class Solution {
 }
 ```
 
+## Why Phase 2 Finds Cycle Start (Intuition)
+
+Let:
+
+- `a` = distance from head to cycle start
+- `b` = distance from cycle start to meeting point
+- `c` = remaining cycle distance (`cycleLen - b`)
+
+At meeting:
+
+- slow distance = `a + b`
+- fast distance = `a + b + k * cycleLen`
+
+Since fast moves twice as fast, `a + b` is a multiple of cycle length offset, which implies moving one pointer from head and one from meeting point one step at a time makes them meet at cycle start.
+
+## Dry Run Pattern
+
+For list: `3 -> 2 -> 0 -> -4 -> (back to 2)`
+
+1. slow/fast meet inside cycle
+2. reset pointer `p1=head`, keep `p2=meeting`
+3. move both one step each
+4. first node where `p1==p2` is node `2` (cycle start)
+
+## Common Mistakes
+
+1. Returning first meeting point directly (it is not always cycle start).
+2. Comparing node values instead of node references.
+3. Missing null checks for `fast` and `fast.next`.
+
+## Testing Checklist
+
+- no cycle
+- cycle starts at head
+- cycle starts in middle
+- single-node self-cycle
+- two-node cycle
+
 ## Complexity
 
 - Time: `O(n)`
@@ -75,6 +113,6 @@ This is one of the best examples of math + pointer invariants in linked lists.
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- after fast/slow meet, resetting one pointer to head finds cycle entry.
+- this works because distances traveled by pointers satisfy a modular relation in cycle length.
+- handle no-cycle lists early to avoid null dereference paths.

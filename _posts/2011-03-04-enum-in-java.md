@@ -49,6 +49,31 @@ enum Day {
 }
 ```
 
+## Behavior per Enum Constant
+
+Enums can encapsulate behavior, not just values. This helps remove scattered `if/switch` logic.
+
+```java
+enum BillingPlan {
+    FREE {
+        @Override
+        int monthlyCostInCents(int seats) { return 0; }
+    },
+    PRO {
+        @Override
+        int monthlyCostInCents(int seats) { return seats * 2_000; }
+    },
+    ENTERPRISE {
+        @Override
+        int monthlyCostInCents(int seats) { return seats * 4_500; }
+    };
+
+    abstract int monthlyCostInCents(int seats);
+}
+```
+
+This pattern keeps domain rules close to the domain type.
+
 ## Java 21+ Improvement Pattern
 
 Use modern switch expressions for enum-driven behavior:
@@ -68,8 +93,53 @@ Java 17 also supports this clean style (switch expressions became standard befor
 
 Enum fundamentals are stable and still recommended for closed sets of values.
 
+## Parsing and Validation Pattern
+
+`Enum.valueOf(...)` throws when input is unknown. For external input (API/query/header), use safe parsing.
+
+```java
+static Optional<Day> parseDay(String raw) {
+    if (raw == null || raw.isBlank()) return Optional.empty();
+    try {
+        return Optional.of(Day.valueOf(raw.trim().toUpperCase(Locale.ROOT)));
+    } catch (IllegalArgumentException ex) {
+        return Optional.empty();
+    }
+}
+```
+
+This avoids leaking parsing exceptions into business flow.
+
+## Persistence and API Design Guidance
+
+- For database persistence with JPA, prefer `@Enumerated(EnumType.STRING)` over ordinal.
+- Avoid persisting enum ordinal values because reordering constants breaks old data.
+- For JSON contracts, keep stable external names if enum names may change.
+
+Example with explicit wire value:
+
+```java
+enum PaymentStatus {
+    PENDING("pending"),
+    SETTLED("settled"),
+    FAILED("failed");
+
+    private final String wire;
+    PaymentStatus(String wire) { this.wire = wire; }
+    public String wire() { return wire; }
+}
+```
+
+## Common Mistakes
+
+1. Using enum ordinals in DB or API payloads.
+2. Putting large mutable state inside enums.
+3. Duplicating enum logic in many switches across services.
+4. Treating unknown external values as impossible.
+
 ## Key Takeaways
 
 - Enums are safer than `String`/`int` constants.
 - Keep enum behavior close to enum values.
 - Use modern switch expressions for cleaner enum branching.
+- Prefer stable string representation for persistence and APIs.

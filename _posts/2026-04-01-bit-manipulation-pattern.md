@@ -45,6 +45,67 @@ public int singleNumber(int[] nums) {
 
 ---
 
+## Core Bit Operations (Quick Reference)
+
+- check kth bit: `(x & (1 << k)) != 0`
+- set kth bit: `x |= (1 << k)`
+- clear kth bit: `x &= ~(1 << k)`
+- toggle kth bit: `x ^= (1 << k)`
+- remove lowest set bit: `x &= (x - 1)`
+
+These are building blocks for most bit-manipulation problems.
+
+---
+
+## Dry Run (Single Number via XOR)
+
+Input: `[4, 1, 2, 1, 2]`
+
+```text
+x=0
+x^=4 -> 4
+x^=1 -> 5
+x^=2 -> 7
+x^=1 -> 6
+x^=2 -> 4
+```
+
+Pairs cancel because `a ^ a = 0`, leaving unique value `4`.
+
+---
+
+## Common Advanced Patterns
+
+1. subset enumeration with bitmask loops
+2. parity and power-of-two checks
+3. counting set bits with `n &= (n - 1)`
+4. two-unique-elements split by rightmost set bit
+
+Power-of-two check:
+
+```java
+boolean isPowerOfTwo(int n) {
+    return n > 0 && (n & (n - 1)) == 0;
+}
+```
+
+---
+
+## Signed Integer Caution in Java
+
+Java `int` is signed 32-bit two's complement.
+For unsigned right shift, use `>>>` (not `>>`).
+
+```java
+int x = -8;
+System.out.println(x >> 1);  // keeps sign bit
+System.out.println(x >>> 1); // zero-fills from left
+```
+
+Use `long` where shifts or additions can overflow `int`.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

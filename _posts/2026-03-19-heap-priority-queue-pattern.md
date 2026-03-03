@@ -41,6 +41,12 @@ PriorityQueue<Integer> minHeap = new PriorityQueue<>();
 PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Comparator.reverseOrder());
 ```
 
+Core operation costs:
+
+- `offer`: `O(log n)`
+- `poll`: `O(log n)`
+- `peek`: `O(1)`
+
 ---
 
 ## Pattern 1: Top K Elements
@@ -129,6 +135,37 @@ public ListNode mergeKLists(ListNode[] lists) {
 2. Comparator bugs for custom objects
 3. Forgetting to cap heap size in top-k problems
 4. Assuming heap gives sorted iteration order
+
+---
+
+## Comparator Safety Note
+
+Avoid subtraction-based comparators due to overflow risk:
+
+Bad:
+
+```java
+(a, b) -> a.val - b.val
+```
+
+Better:
+
+```java
+Comparator.comparingInt(node -> node.val)
+```
+
+---
+
+## Debug Checklist
+
+When heap results are wrong:
+
+1. print heap size changes after each offer/poll
+2. verify comparator direction matches problem goal
+3. verify cap logic (`if (pq.size() > k) pq.poll()`) executes correctly
+4. assert non-empty heap before `peek/poll` in edge cases
+
+Heaps fail silently when comparator semantics are inverted.
 
 ---
 

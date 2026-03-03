@@ -26,20 +26,22 @@ header:
 
 # Remove All Adjacent Duplicates in String (Java)
 
-This guide explains the intuition, optimized approach, and Java implementation for remove all adjacent duplicates in string (java), with practical tips for interviews and production coding standards.
+Given a string, repeatedly remove adjacent equal characters until no such pair remains.
 
-## Problem
+Example: `"abbaca" -> "ca"`
 
-Repeatedly remove adjacent equal characters until no such pair exists.
+---
 
-## Approach
+## Stack Simulation Idea
 
-Use stack behavior:
+Process characters left to right using stack behavior:
 
-- If current char equals stack top, pop
-- Otherwise push
+- if current char equals stack top, pop top (remove pair)
+- otherwise push current char
 
-This naturally handles repeated chain removals.
+A `StringBuilder` works as efficient mutable stack.
+
+---
 
 ## Java Solution
 
@@ -62,13 +64,52 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `"abbaca"`
+
+- read `a` -> stack: `a`
+- read `b` -> stack: `ab`
+- read `b` -> top `b` matches, pop -> `a`
+- read `a` -> top `a` matches, pop -> ``
+- read `c` -> `c`
+- read `a` -> `ca`
+
+Result: `"ca"`
+
+---
+
+## Why One Pass Works
+
+Each character is:
+
+- pushed at most once
+- popped at most once
+
+So total operations are linear.
+No repeated rescans are needed.
+
+---
+
+## Common Mistakes
+
+1. repeatedly using `replace` in loops (`O(n^2)` behavior)
+2. using immutable string concatenation inside loop
+3. missing chain reactions after a pop
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(n)`
 
+---
+
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- adjacency + chain reaction naturally maps to stack pattern.
+- `StringBuilder` gives efficient push/pop by end operations.
+- this same idea extends to "remove adjacent duplicates in groups of k" using `(char, count)` pairs.

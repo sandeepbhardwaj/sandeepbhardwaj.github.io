@@ -26,17 +26,20 @@ header:
 
 # Valid Parentheses in Java
 
-This guide explains the intuition, optimized approach, and Java implementation for valid parentheses in java, with practical tips for interviews and production coding standards.
+Given a string containing only `()[]{}`, return `true` if brackets are valid.
+A valid string must close in correct order and with correct bracket type.
 
-## Problem
+---
 
-Validate whether brackets in string are properly opened and closed in order.
+## Stack Invariant
 
-## Stack Approach
+Use stack to track what closing bracket is expected next.
 
-- Push expected closing bracket when opening bracket appears.
-- On closing bracket, it must match top of stack.
-- End with empty stack.
+- on opening bracket, push expected closer
+- on closing bracket, it must equal stack top
+- after full scan, stack must be empty
+
+---
 
 ## Java Solution
 
@@ -46,11 +49,16 @@ class Solution {
         Deque<Character> stack = new ArrayDeque<>();
 
         for (char c : s.toCharArray()) {
-            if (c == '(') stack.push(')');
-            else if (c == '{') stack.push('}');
-            else if (c == '[') stack.push(']');
-            else {
-                if (stack.isEmpty() || stack.pop() != c) return false;
+            if (c == '(') {
+                stack.push(')');
+            } else if (c == '[') {
+                stack.push(']');
+            } else if (c == '{') {
+                stack.push('}');
+            } else {
+                if (stack.isEmpty() || stack.pop() != c) {
+                    return false;
+                }
             }
         }
 
@@ -59,13 +67,53 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `"{[()]}"`
+
+- `{` -> push `}`
+- `[` -> push `]`
+- `(` -> push `)`
+- `)` -> pop `)` match
+- `]` -> pop `]` match
+- `}` -> pop `}` match
+
+Stack ends empty -> valid.
+
+Input: `"([)]"`
+
+- `(` -> push `)`
+- `[` -> push `]`
+- `)` -> top is `]`, mismatch -> invalid
+
+---
+
+## Why Push Expected Closers
+
+This avoids mapping logic during closing phase.
+At close bracket, one check is enough: `stack.pop() == currentChar`.
+
+---
+
+## Common Mistakes
+
+1. popping without checking empty stack
+2. returning true without checking stack is empty at end
+3. using legacy `Stack` instead of `ArrayDeque`
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(n)`
 
+---
+
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- valid parentheses is a strict LIFO matching problem.
+- pushing expected closers keeps code concise and less error-prone.
+- mismatched closer or leftover expected closers both mean invalid string.

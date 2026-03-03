@@ -26,19 +26,28 @@ header:
 
 # Single Number in Java Using XOR
 
-This guide explains the intuition, optimized approach, and Java implementation for single number in java using xor, with practical tips for interviews and production coding standards.
+Given an integer array where every value appears exactly twice except one value, return the value that appears once.
 
-## Problem
+---
 
-Every element appears twice except one. Find that one.
+## Problem Example
 
-## Why XOR Works
+Input: `[4, 1, 2, 1, 2]`  
+Output: `4`
+
+---
+
+## Why XOR Solves It
+
+XOR properties:
 
 - `a ^ a = 0`
 - `a ^ 0 = a`
-- XOR is commutative and associative
+- XOR is associative and commutative
 
-Pair values cancel out, unique value remains.
+So all duplicate pairs cancel out, and only the unique number remains.
+
+---
 
 ## Java Solution
 
@@ -54,13 +63,55 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `[4, 1, 2, 1, 2]`
+
+- start: `result = 0`
+- `result ^= 4` -> `4`
+- `result ^= 1` -> `5`
+- `result ^= 2` -> `7`
+- `result ^= 1` -> `6`
+- `result ^= 2` -> `4`
+
+Final answer: `4`
+
+---
+
+## Why Order Does Not Matter
+
+Because XOR is commutative and associative, duplicates cancel regardless of position.
+That is why we can solve in one pass without sorting.
+
+---
+
+## Edge Cases
+
+- single element array: `[x]` returns `x`
+- negative numbers are handled correctly (XOR works on bit patterns)
+- `0` values are also safe (`0 ^ x = x`)
+
+---
+
+## Common Mistakes
+
+1. Sorting first (`O(n log n)`), which is unnecessary.
+2. Using frequency map (`O(n)` extra space) when `O(1)` is possible.
+3. Applying this approach to wrong variant (for "appears three times" use bit counting).
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- XOR cancellation is the full invariant behind the solution.
+- this is one of the cleanest examples of bit manipulation removing extra memory.
+- always verify problem variant before applying this pattern.

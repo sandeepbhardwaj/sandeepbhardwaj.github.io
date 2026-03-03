@@ -70,6 +70,39 @@ class Solution {
 }
 ```
 
+## Difference from LeetCode 83
+
+- LeetCode 83 keeps one copy of duplicates.
+- LeetCode 82 removes all duplicate-valued nodes entirely.
+
+That is why this solution needs `prev` + dummy node and duplicate-block detection.
+
+## Dry Run
+
+Input: `1->2->3->3->4->4->5`
+
+1. `1` unique -> keep (`prev` moves)
+2. `2` unique -> keep
+3. detect duplicate block `3->3` -> skip all 3s
+4. detect duplicate block `4->4` -> skip all 4s
+5. `5` unique -> keep
+
+Result: `1->2->5`
+
+## Common Mistakes
+
+1. Advancing `prev` even when duplicate block detected.
+2. Missing dummy node and failing when head value is duplicated.
+3. Confusing this with “keep one duplicate” variant.
+
+## Testing Checklist
+
+- all unique list
+- duplicates only at head
+- duplicates only at tail
+- all nodes duplicated (result should be empty)
+- mixed blocks of duplicates and uniques
+
 ## Complexity
 
 - Time: `O(n)`
@@ -77,6 +110,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- unlike LeetCode 83, this variant removes all values that appear more than once.
+- dummy node is essential because duplicates may include the original head.
+- keep prev pointer at last confirmed-unique node while scanning duplicate runs.

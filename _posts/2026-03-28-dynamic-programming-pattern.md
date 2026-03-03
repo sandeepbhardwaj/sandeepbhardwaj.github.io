@@ -57,6 +57,27 @@ public int rob(int[] nums) {
 
 ---
 
+## Dry Run (House Robber)
+
+Input: `[2,7,9,3,1]`
+
+State:
+
+- `prev1` = best up to previous house
+- `prev2` = best up to house before previous
+
+Steps:
+
+1. x=2 -> cur=max(0,0+2)=2
+2. x=7 -> cur=max(2,0+7)=7
+3. x=9 -> cur=max(7,2+9)=11
+4. x=3 -> cur=max(11,7+3)=11
+5. x=1 -> cur=max(11,11+1)=12
+
+Answer: `12`
+
+---
+
 ## Pattern 2: 2D DP (LCS)
 
 ```java
@@ -104,6 +125,26 @@ private int solve(int n, int[] memo) {
 2. Transition using uncomputed states
 3. Incorrect base cases
 4. Exponential recursion without memoization
+
+---
+
+## Top-Down vs Bottom-Up Heuristic
+
+- use top-down when recurrence is easier to express recursively
+- use bottom-up when dependency order is clear and iterative performance matters
+
+For interview speed, start with top-down to prove recurrence, then convert to tabulation if needed.
+
+---
+
+## DP Debug Checklist
+
+1. print first few DP states/tables
+2. verify base row/column initialization
+3. validate transition with a tiny handcrafted example
+4. ensure answer cell/index matches problem definition
+
+DP bugs are often indexing/base-case bugs, not formula bugs.
 
 ---
 

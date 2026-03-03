@@ -21,50 +21,136 @@ header:
 
 # Java Serialization Alternatives (JSON Protobuf Avro Kryo)
 
-Format selection is a system design decision, not just a coding detail.
-It affects latency, payload size, schema evolution, and cross-language compatibility.
+Serialization format choice is an architecture decision.
+It directly impacts latency, payload size, schema evolution safety, and cross-language support.
 
 ---
 
-## Selection Framework
+## Quick Decision Matrix
 
-- JSON: human-readable, easy debugging, larger payloads
-- Protobuf: compact, fast, schema-first, strong interoperability
-- Avro: schema evolution friendly in data pipelines
-- Kryo: very fast JVM-to-JVM scenarios, tighter ecosystem coupling
-
----
-
-## Practical Comparison Criteria
-
-- p95 serialization + deserialization latency
-- bytes over network/storage
-- backward/forward compatibility guarantees
-- tooling maturity in your runtime stack
+- JSON: best for external APIs and debugging, larger payloads, slower parse.
+- Protobuf: best for low-latency service-to-service contracts, strict schema IDs.
+- Avro: best for event/data pipelines with schema registry and evolution.
+- Kryo: best for JVM-internal high-throughput flows where cross-language is not required.
 
 ---
 
-## JSON Example
+## What to Evaluate Before Choosing
+
+- p95 encode and decode latency with real payload shapes
+- payload size over network/storage at production scale
+- backward and forward compatibility guarantees
+- tooling maturity in your runtime and observability stack
+- security posture for untrusted input
+
+---
+
+## JSON Baseline Example
 
 ```java
 ObjectMapper mapper = new ObjectMapper();
-byte[] bytes = mapper.writeValueAsBytes(event);
-OrderEvent copy = mapper.readValue(bytes, OrderEvent.class);
+
+byte[] bytes = mapper.writeValueAsBytes(orderEvent);
+OrderEvent restored = mapper.readValue(bytes, OrderEvent.class);
 ```
+
+JSON is easy to inspect and log, but overhead can be significant under high QPS.
 
 ---
 
-## Production Guidance
+## Protobuf Evolution Example
 
-- enforce explicit schema versioning for binary formats.
-- avoid ad-hoc polymorphic payloads without contracts.
-- benchmark with production-like payloads, not toy objects.
-- secure deserialization paths against untrusted input.
+```proto
+syntax = "proto3";
+
+message PaymentCreated {
+  string payment_id = 1;
+  int64 amount_minor = 2;
+  string currency = 3;
+  string merchant_id = 4; // added in v2
+
+  reserved 10, 11;
+}
+```
+
+Rules that prevent breakage:
+
+- never reuse field numbers
+- reserve removed fields
+- add fields with safe defaults
+
+---
+
+## Avro Example with Schema Registry Pattern
+
+In event pipelines, keep writer schema and reader schema compatibility checks in CI.
+Typical flow:
+
+- producer registers/updates schema
+- broker stores schema ID with message
+- consumer resolves ID to schema and reads safely
+
+This prevents "works in one service, breaks in another" drift.
+
+---
+
+## Kryo Usage Caveat
+
+Kryo can be fast, but class evolution and registration discipline matter.
+Use it only when:
+
+- all participants are JVM services
+- deployment/version control is tight
+- compatibility tests run on mixed old/new nodes
+
+---
+
+## Dry Run: v1 to v2 Contract Migration
+
+Assume current message version:
+
+- v1 fields: `payment_id`, `amount_minor`, `currency`
+
+Planned v2 adds `merchant_id`.
+
+1. update schema with new field and defaults (compatible add).
+2. deploy consumers first so they can read both v1 and v2.
+3. deploy producers to start sending v2.
+4. monitor decode failures and unknown-field metrics.
+5. after full rollout, block new producers from emitting v1.
+
+Rollback safety:
+
+- if producer rollback happens, v1 is still readable by updated consumers.
+- if consumer rollback happens, compatibility gate in CI should have already prevented unsafe schema.
+
+---
+
+## Security Checklist
+
+- treat serialized payload as untrusted input by default.
+- enforce max message size at transport and decoder layers.
+- avoid polymorphic deserialization from external clients unless strictly controlled.
+- validate semantic constraints after decoding (not only schema shape).
+
+---
+
+## Benchmarking Checklist
+
+Do not benchmark with toy objects.
+Use production-like distributions:
+
+- small/medium/large payload mixes
+- optional fields present/absent ratios
+- realistic string lengths and nested collections
+- warm JVM and stable GC settings
+
+Report at least p50, p95, p99 latency and bytes per message.
 
 ---
 
 ## Key Takeaways
 
-- choose format by contract and operational needs, not trend.
-- schema strategy is more important than codec API details.
-- benchmark with realistic payload shape and scale.
+- pick format based on contract and evolution model first, raw speed second.
+- most production failures come from schema governance gaps, not codec APIs.
+- compatibility tests in CI are mandatory for multi-service systems.

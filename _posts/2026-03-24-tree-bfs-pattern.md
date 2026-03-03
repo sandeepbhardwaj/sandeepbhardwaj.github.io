@@ -118,12 +118,50 @@ public List<Integer> rightSideView(TreeNode root) {
 
 ---
 
+## Dry Run (Level Order)
+
+Tree:
+
+```text
+    1
+   / \
+  2   3
+ /     \
+4       5
+```
+
+Queue/levels:
+
+1. start `[1]` -> level `[1]`, enqueue `2,3`
+2. queue `[2,3]` -> level `[2,3]`, enqueue `4,5`
+3. queue `[4,5]` -> level `[4,5]`
+
+Result: `[[1],[2,3],[4,5]]`
+
+The level-size snapshot is what cleanly separates each layer.
+
+---
+
 ## Common Mistakes
 
 1. Not snapshotting level size before loop
 2. Mixing current-level and next-level processing
 3. Using DFS where BFS gives direct shortest-level answer
 4. Forgetting null root edge case
+
+---
+
+## BFS vs DFS Heuristic
+
+Use BFS when question asks:
+
+- minimum/first level satisfying a condition
+- per-level grouping/output
+- nearest node in unweighted tree levels
+
+Use DFS when question is naturally subtree/path-recursive.
+
+Choosing correct traversal first usually simplifies implementation drastically.
 
 ---
 

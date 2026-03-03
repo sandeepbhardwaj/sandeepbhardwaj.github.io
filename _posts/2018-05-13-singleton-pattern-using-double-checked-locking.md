@@ -63,6 +63,26 @@ public enum AppSingleton {
 
 Use enum singleton when possible.
 
+## Another Strong Alternative: Initialization-on-Demand Holder
+
+This is lazy, thread-safe, and avoids explicit synchronization code.
+
+```java
+public final class HolderSingleton {
+    private HolderSingleton() {}
+
+    private static class Holder {
+        private static final HolderSingleton INSTANCE = new HolderSingleton();
+    }
+
+    public static HolderSingleton getInstance() {
+        return Holder.INSTANCE;
+    }
+}
+```
+
+For many cases, this is clearer than double-checked locking.
+
 ## Production API Equivalent (Dependency Injection Singleton)
 
 In most backend applications, prefer framework-managed singletons over hand-written singleton patterns.
@@ -82,6 +102,23 @@ public class CurrencyRateService {
 
 `@Service` beans are singleton-scoped by default, test-friendly, and easier to evolve than static/global singleton holders.
 
+## Common Pitfalls
+
+1. Missing `volatile` in double-checked locking implementation.
+2. Hiding expensive I/O in singleton constructor (slow startup surprises).
+3. Using static singleton in code that should be dependency-injected.
+4. Assuming one singleton instance across isolated classloaders.
+
+In plugin/container environments, each classloader can have its own singleton copy.
+
+## Testing Guidance
+
+- avoid global mutable singleton state where possible
+- if singleton keeps cache/config, expose explicit reset hooks for tests only
+- prefer constructor injection and DI singletons for easier mocking
+
+This reduces hidden coupling across test cases.
+
 ## Java 8/11/17/21/25 Notes
 
 - Java 8+: double-checked locking is safe with `volatile`.
@@ -94,3 +131,4 @@ public class CurrencyRateService {
 - `volatile` is mandatory in double-checked locking.
 - Prefer enum singleton for simplicity and serialization safety.
 - Use lazy singleton only when initialization cost justifies it.
+- In modern services, DI-managed singleton scope is usually the best default.

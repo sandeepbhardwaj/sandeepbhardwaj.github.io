@@ -55,6 +55,14 @@ class WalletService {
 }
 ```
 
+Timeout variant for backpressure-friendly APIs:
+
+```java
+if (!lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+    return false; // or explicit busy response
+}
+```
+
 ---
 
 ## ReadWriteLock Pattern
@@ -93,3 +101,56 @@ class ConfigStore {
 - explicit locks are valuable for advanced coordination semantics.
 - start simple; use read-write split only when real read dominance exists.
 - prioritize deadlock-free design and observability over clever locking.
+
+---
+
+## Lock Striping Pattern
+
+When one lock becomes a bottleneck, stripe state by key hash.
+You reduce contention without giving up explicit lock control.
+
+```java
+final class StripedCounter {
+    private final ReentrantLock[] locks = IntStream.range(0, 16)
+            .mapToObj(i -> new ReentrantLock())
+            .toArray(ReentrantLock[]::new);
+    private final long[] buckets = new long[16];
+
+    void inc(String key) {
+        int idx = key.hashCode() & 15;
+        ReentrantLock l = locks[idx];
+        l.lock();
+        try { buckets[idx]++; } finally { l.unlock(); }
+    }
+}
+```
+
+---
+
+## Case Study: Metadata Service With Heavy Reads
+
+For metadata services (95% reads, 5% writes), `ReadWriteLock` can reduce writer-safe read contention.
+But it only helps when read sections are short and write frequency stays low.
+
+Rollout checklist:
+
+- benchmark with production-like read/write ratio
+- measure write wait time after migration
+- verify no lock upgrade anti-patterns
+- keep fallback to plain `ReentrantLock` if writer starvation appears
+
+---
+
+## Dry Scenario: Write Starvation Risk
+
+If read traffic is continuous, non-fair `ReadWriteLock` can delay writers significantly:
+
+1. many readers acquire read lock
+2. writer waits
+3. new readers keep entering before writer gets turn
+
+Mitigations:
+
+- fair lock mode where needed
+- shorter read critical sections
+- periodic write-priority design at higher layer

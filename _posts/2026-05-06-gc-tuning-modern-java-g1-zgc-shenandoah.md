@@ -89,3 +89,58 @@ java -XX:+UseZGC -Xms4g -Xmx4g -jar app.jar
 - GC tuning is an observability problem first, configuration problem second.
 - choose collector by latency vs throughput priorities.
 - application allocation behavior dominates long-term GC stability.
+
+---
+
+## GC Tuning Runbook Template
+
+Create a repeatable runbook so tuning is measurable:
+
+1. fix load shape (RPS, payload size, think time)
+2. capture baseline: p99 latency, allocation rate, GC pause histogram
+3. apply one collector/flag change
+4. compare confidence interval, not just one run
+5. keep a rollback command for each experiment
+
+```bash
+jcmd <pid> GC.heap_info
+jcmd <pid> GC.class_histogram
+jcmd <pid> VM.native_memory summary
+```
+
+---
+
+## Case Study: Latency Regression After Traffic Spike
+
+When traffic doubles, allocation rate often rises faster than heap budget.
+Teams tune collector flags first, but root cause is usually allocation pattern drift.
+
+Stabilization pattern:
+
+- cap burst concurrency to protect heap
+- remove temporary allocations in top hot paths
+- only then tune pause goals and heap sizing
+- compare p99 latency and GC pause histograms side-by-side
+
+Collector tuning cannot compensate for uncontrolled allocation behavior.
+
+---
+
+## Fast Triage Flow (Dry Run Style)
+
+Symptom: p99 jumps from `180ms` to `420ms`.
+
+1. check GC log/JFR timeline: do spikes align with long pauses?
+2. if yes, inspect allocation rate and old-gen occupancy trend
+3. if occupancy climbs continuously, likely allocation/promotion pressure
+4. reduce allocation hotspots, then retest before deep flag changes
+
+This sequence prevents random flag churn and shortens incident resolution.
+
+---
+
+## Practical Collector Selection Heuristic
+
+- strict low-latency SLO + large heap: start with ZGC/Shenandoah trial
+- balanced throughput + moderate heap: start with G1
+- always validate with real workload; collector choice is empirical, not ideological

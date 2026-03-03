@@ -234,6 +234,83 @@ Used in:
 
 ---
 
+## Variable Capture and Side Effects
+
+Lambdas can capture local variables, but captured locals must be effectively final.
+
+```java
+int threshold = 10; // effectively final
+List<Integer> filtered = values.stream()
+        .filter(v -> v > threshold)
+        .toList();
+```
+
+This prevents accidental shared mutable state.
+
+Avoid this pattern:
+
+```java
+List<Integer> out = new ArrayList<>();
+values.forEach(v -> out.add(v * 2)); // side-effect style
+```
+
+Prefer transformation pipelines:
+
+```java
+List<Integer> out = values.stream()
+        .map(v -> v * 2)
+        .toList();
+```
+
+---
+
+## Exception Handling Pattern
+
+Checked exceptions do not fit cleanly in standard functional interfaces.
+Use one of these approaches:
+
+1. wrap checked exception into domain/runtime exception
+2. create custom functional interface that declares `throws`
+3. move exception-producing code outside lambda chain
+
+Pragmatic wrapper:
+
+```java
+Function<Path, String> readSafe = path -> {
+    try {
+        return Files.readString(path);
+    } catch (IOException e) {
+        throw new UncheckedIOException(e);
+    }
+};
+```
+
+---
+
+## Performance Notes for Backend Services
+
+- prefer `mapToInt/mapToLong/mapToDouble` to avoid boxing
+- do not allocate heavy objects inside hot-loop lambdas
+- avoid parallel streams for request-scoped work unless benchmarked
+- for very hot code paths, compare stream vs loop using JMH before deciding
+
+Streams and lambdas improve readability, but performance should still be validated under realistic load.
+
+---
+
+## Refactoring Checklist
+
+Before converting old code to lambdas:
+
+1. verify business logic is still explicit and readable
+2. keep method references where they improve clarity
+3. avoid chaining beyond what reviewers can reason about quickly
+4. add tests around transformed flow (especially async chains)
+
+Good lambda usage is concise, testable, and intention-revealing.
+
+---
+
 ## Key Takeaways
 
 - Lambdas reduce boilerplate

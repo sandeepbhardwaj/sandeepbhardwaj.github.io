@@ -45,6 +45,51 @@ class SegmentTree {
 
 ---
 
+## Query and Update Operations
+
+```java
+long query(int node, int l, int r, int ql, int qr) {
+    if (qr < l || r < ql) return 0;              // no overlap
+    if (ql <= l && r <= qr) return tree[node];   // total overlap
+    int m = (l + r) / 2;
+    return query(node*2, l, m, ql, qr) + query(node*2+1, m+1, r, ql, qr);
+}
+
+void update(int node, int l, int r, int idx, int val) {
+    if (l == r) { tree[node] = val; return; }
+    int m = (l + r) / 2;
+    if (idx <= m) update(node*2, l, m, idx, val);
+    else update(node*2+1, m+1, r, idx, val);
+    tree[node] = tree[node*2] + tree[node*2+1];
+}
+```
+
+Time:
+
+- point update: `O(log n)`
+- range query: `O(log n)`
+
+---
+
+## Dry Run (Range Sum)
+
+Array: `[2,1,5,3]`
+
+Query sum `[1..3]`:
+
+- combine segments covering values `1,5,3` => `9`
+
+Update index `2` to `4`:
+
+- update leaf for position `2`
+- recompute all ancestors on path
+
+Query `[1..3]` again => `8`
+
+Segment tree updates only affected path, not full array.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

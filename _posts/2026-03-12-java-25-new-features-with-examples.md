@@ -342,6 +342,42 @@ Migration note:
 
 ---
 
+# Migration Checklist (Java 21 -> 25)
+
+- verify preview/incubator usage and required `--enable-preview` paths
+- rebaseline GC behavior (ZGC/Shenandoah generational assumptions)
+- run memory footprint comparison if compact headers are enabled in your runtime profile
+- validate security workflows if adopting KDF/PEM APIs
+- update CI containers and production JVM flags to JDK 25 equivalents
+
+Run staged performance tests before changing GC or AOT/JFR tuning knobs.
+
+---
+
+# Practical Adoption Order
+
+1. adopt stable language/runtime features first (`ScopedValue`, ergonomic improvements)
+2. apply observability enhancements (JFR profiling workflow updates)
+3. evaluate GC/runtime improvements with controlled benchmarks
+4. experiment with preview/incubator features in isolated modules only
+
+This keeps production risk low while still extracting value from the new LTS.
+
+---
+
+# Preview/Incubator Governance for Teams
+
+For features like Structured Concurrency preview and Vector incubator:
+
+- isolate usage behind internal interfaces
+- pin compiler/runtime flags in build scripts
+- track JEP evolution across updates
+- define fallback paths if APIs change
+
+Treat previews as controlled experiments, not core platform dependencies.
+
+---
+
 # Key Takeaways
 
 - Java 25 LTS delivers major language ergonomics (`module import`, compact source files, flexible constructors).

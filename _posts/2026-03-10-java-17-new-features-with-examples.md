@@ -192,6 +192,45 @@ Java 17 includes important platform updates:
 
 ---
 
+# Migration Notes (Java 11 -> 17)
+
+Practical upgrade focus areas:
+
+- remove dependency on internal JDK APIs (`sun.*`)
+- validate reflection-heavy libraries under strong encapsulation
+- test serialization boundaries with explicit filters
+- align build/test/runtime toolchain to JDK 17
+
+For teams moving from older JDKs, resolve illegal-access warnings before production rollout.
+
+---
+
+# Preview Feature Policy
+
+Some features in Java 17 are preview/incubator.
+Do not ship business-critical production logic on previews without clear upgrade plan.
+
+Recommended policy:
+
+1. use preview features in isolated modules only
+2. gate build/run flags explicitly in CI
+3. track feature stabilization path in target LTS (21+)
+
+This avoids lock-in to evolving syntax/APIs.
+
+---
+
+# Verification Checklist
+
+- run full test suite with `--illegal-access=deny` style migration checks
+- execute startup smoke tests for reflection/instrumentation-heavy frameworks
+- benchmark on target hardware (including ARM if relevant)
+- validate container images and JVM flags under JDK 17 runtime
+
+Treat JDK upgrades as platform engineering work, not just language updates.
+
+---
+
 # 14) Key Takeaways
 
 - Java 17 gives strong language modeling upgrades (`sealed`, switch patterns preview).

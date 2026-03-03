@@ -47,6 +47,53 @@ int[] dfs(TreeNode node) {
 
 ---
 
+## Dry Run (House Robber III Style)
+
+Interpretation:
+
+- return `[take, skip]`
+- `take`: max if current node is robbed
+- `skip`: max if current node is not robbed
+
+For node value `3` with children results:
+
+- left `[4,2]`, right `[1,5]`
+- `take = 3 + 2 + 5 = 10`
+- `skip = max(4,2) + max(1,5) = 9`
+
+Node contributes `[10,9]` upward.
+
+This post-order combination is the core Tree-DP pattern.
+
+---
+
+## Rooting and Parent Tracking (General Trees)
+
+For non-binary trees, pass parent to avoid revisiting:
+
+```java
+void dfs(int u, int parent) {
+    for (int v : g.get(u)) {
+        if (v == parent) continue;
+        dfs(v, u);
+    }
+}
+```
+
+Tree-DP on adjacency-list trees depends on this parent exclusion.
+
+---
+
+## Debug Checklist
+
+1. print DP state per node after combining children
+2. verify leaf/base state matches recurrence
+3. ensure each edge processed once (tree, not cyclic traversal)
+
+Most tree-DP bugs are wrong state meaning or combine formulas.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

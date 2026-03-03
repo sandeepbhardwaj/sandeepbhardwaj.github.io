@@ -65,6 +65,64 @@ google_analytics:
 disqus_user:
 ```
 
+## Environment Variable Pattern (`JEKYLL_ENV`)
+
+Jekyll exposes `JEKYLL_ENV` so templates can toggle behavior by environment.
+
+Run local development:
+
+```bash
+JEKYLL_ENV=development jekyll serve --watch --config _config.yml,_config-dev.yml
+```
+
+Run production build:
+
+```bash
+JEKYLL_ENV=production jekyll build --config _config.yml,_config-prod.yml
+```
+
+In templates:
+
+```liquid
+{% if jekyll.environment == "production" %}
+  <!-- analytics script -->
+{% endif %}
+```
+
+This keeps analytics/ads disabled locally while enabling them in production.
+
+## Practical Multi-Environment Setup
+
+A clean structure for growing sites:
+
+- `_config.yml`: shared defaults
+- `_config-dev.yml`: localhost URL, debug flags, no analytics
+- `_config-staging.yml`: staging URL and test integrations
+- `_config-prod.yml`: final URL + production identifiers
+
+Example staging serve:
+
+```bash
+JEKYLL_ENV=staging jekyll serve --config _config.yml,_config-staging.yml
+```
+
+## Common Pitfalls
+
+1. Overriding too many keys in env files (hard to reason about final config).
+2. Hardcoding production URLs inside markdown instead of using `site.url` and `site.baseurl`.
+3. Running production build without `JEKYLL_ENV=production`.
+4. Forgetting that later config files override earlier ones in `--config`.
+
+## Debug Tip: Inspect Effective Config
+
+To verify what Jekyll is actually using:
+
+```bash
+JEKYLL_ENV=development jekyll build --config _config.yml,_config-dev.yml --verbose
+```
+
+Use this when local behavior differs from CI or GitHub Pages builds.
+
 ## Recommendation
 
 Use option 2 for cleaner maintenance. Keep shared defaults in `_config.yml` and environment-specific overrides in `_config-dev.yml`.
@@ -74,3 +132,4 @@ Use option 2 for cleaner maintenance. Keep shared defaults in `_config.yml` and 
 - Separate defaults from environment overrides.
 - Keep local and production behavior deterministic.
 - Use minimal override files to reduce maintenance overhead.
+- Use `JEKYLL_ENV` + config layering for reliable deploy pipelines.

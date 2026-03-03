@@ -52,6 +52,50 @@ public int kruskalMST(int n, int[][] edges) {
 
 ---
 
+## Dry Run (Kruskal)
+
+Edges `(u,v,w)` sorted by weight:
+
+`(0,1,1), (1,2,2), (0,2,3), (2,3,4)`
+
+Process:
+
+1. take `(0,1,1)` -> components merge, cost=1
+2. take `(1,2,2)` -> merge, cost=3
+3. skip `(0,2,3)` -> would form cycle
+4. take `(2,3,4)` -> merge, cost=7
+
+Used edges = `n-1`, MST cost = `7`.
+
+---
+
+## Kruskal vs Prim
+
+- Kruskal: edge-centric, great with edge list + DSU
+- Prim: node-centric, great with adjacency list + priority queue
+
+Rule of thumb:
+
+- sparse edge list input -> Kruskal
+- dense adjacency graph or incremental expansion view -> Prim
+
+Both are `O(E log E)` / `O(E log V)` scale depending on representation.
+
+---
+
+## Disconnected Graph Handling
+
+MST exists only if graph is fully connected.
+Always validate:
+
+```java
+return used == n - 1 ? cost : -1;
+```
+
+Skipping this check returns incorrect partial-forest cost.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

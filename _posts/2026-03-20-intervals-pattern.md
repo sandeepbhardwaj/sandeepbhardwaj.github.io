@@ -37,6 +37,13 @@ Once sorted, many become simple linear scans.
 2. Iterate and decide overlap vs non-overlap.
 3. Merge/update state accordingly.
 
+Always clarify interval semantics first:
+
+- closed intervals: `[a, b]`
+- half-open intervals: `[a, b)`
+
+This changes overlap condition (`<` vs `<=`) in edge cases.
+
 ---
 
 ## Template: Merge Intervals
@@ -127,6 +134,28 @@ public int minMeetingRooms(int[][] intervals) {
 2. Wrong overlap condition (`<` vs `<=`)
 3. Mutating input intervals without intent
 4. Choosing wrong greedy key (start vs end)
+
+---
+
+## Sweep-Line Alternative
+
+For concurrency/counting style interval problems, sweep-line events are often cleaner:
+
+1. create start event `+1`, end event `-1`
+2. sort events by time (with tie-breaking rule)
+3. scan prefix count to get max overlaps
+
+This is an alternative to heap-based solutions for meeting-room style tasks.
+
+---
+
+## Debug Checklist
+
+- print sorted intervals before processing
+- trace current active interval/window after each step
+- validate overlap rule on touching boundaries (e.g., `[1,2]` and `[2,3]`)
+
+Most interval bugs are boundary definition bugs, not algorithm bugs.
 
 ---
 

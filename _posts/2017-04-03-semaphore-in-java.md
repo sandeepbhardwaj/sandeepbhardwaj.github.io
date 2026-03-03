@@ -40,6 +40,14 @@ A semaphore has permits:
 - `acquire()` takes a permit (waits if none available)
 - `release()` returns a permit
 
+You can also choose fairness:
+
+```java
+Semaphore fair = new Semaphore(10, true);
+```
+
+Fair semaphores reduce starvation risk, but may have lower throughput.
+
 ## Java 8 Style Example
 
 ```java
@@ -69,6 +77,44 @@ public class SemaphoreExample {
     }
 }
 ```
+
+## Timeout Pattern (`tryAcquire`)
+
+In request paths, blocking forever is dangerous. Prefer timeout-based acquisition.
+
+```java
+if (!semaphore.tryAcquire(100, TimeUnit.MILLISECONDS)) {
+    throw new RuntimeException("dependency busy, please retry");
+}
+try {
+    callDownstream();
+} finally {
+    semaphore.release();
+}
+```
+
+This gives predictable backpressure behavior under saturation.
+
+## Bulkhead Pattern with Semaphore
+
+A common production pattern is one semaphore per downstream dependency:
+
+- `paymentApiSemaphore` for payment provider
+- `searchApiSemaphore` for search dependency
+- `emailApiSemaphore` for notifications
+
+This prevents one slow dependency from consuming all worker capacity.
+
+## Permit Leak Prevention
+
+Permit leaks are serious: eventually all requests block.
+
+Checklist:
+
+1. release only if acquisition succeeded
+2. use `finally` always
+3. avoid branching paths that skip release
+4. track available permits and waiting threads in metrics
 
 ## JDK 11 and Java 17 Notes
 
@@ -101,8 +147,18 @@ This is useful when you run many lightweight tasks but still need strict externa
 
 `Semaphore` API remains stable. The same design works; focus on observability and backpressure instead of API migration.
 
+## Monitoring Checklist
+
+- `availablePermits()` trend
+- acquire timeout count
+- average wait time before acquire
+- request failure rate during saturation
+
+These signals tell you whether permit counts match real dependency capacity.
+
 ## Key Takeaways
 
 - Semaphore is a concurrency limiter, not a queue.
 - Always release permits in `finally`.
 - Combine semaphores with retry and timeout logic in production systems.
+- Prefer timeout-based acquisition on latency-sensitive paths.

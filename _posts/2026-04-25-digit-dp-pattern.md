@@ -42,6 +42,59 @@ long dfs(int pos, int tight, int started, int state) { return 0L; }
 
 ---
 
+## Common State Design
+
+Typical Digit DP memo keys:
+
+- `pos`: current digit index
+- `tight`: whether prefix is equal to bound so far
+- `started`: whether non-leading-zero digit has started number
+- extra state: sum, modulo, mask, previous digit, etc.
+
+Memoization is usually allowed only when `tight == 0` (or fully represented in key).
+
+---
+
+## Example: Count Numbers <= N with Digit Sum = S
+
+```java
+long countWithDigitSum(String n, int target) {
+    char[] d = n.toCharArray();
+    Long[][][] memo = new Long[d.length + 1][2][target + 1];
+    return dfs(0, 1, 0, d, target, memo);
+}
+
+long dfs(int pos, int tight, int sum, char[] d, int target, Long[][][] memo) {
+    if (sum > target) return 0;
+    if (pos == d.length) return sum == target ? 1 : 0;
+    if (memo[pos][tight][sum] != null) return memo[pos][tight][sum];
+
+    int lim = tight == 1 ? d[pos] - '0' : 9;
+    long ans = 0;
+    for (int dig = 0; dig <= lim; dig++) {
+        int nt = (tight == 1 && dig == lim) ? 1 : 0;
+        ans += dfs(pos + 1, nt, sum + dig, d, target, memo);
+    }
+    return memo[pos][tight][sum] = ans;
+}
+```
+
+Count in range `[L, R]` using: `count(R) - count(L-1)`.
+
+---
+
+## Dry Run Idea
+
+For `N=25`, target sum `=2`:
+
+- valid numbers: `2, 11, 20`
+- DP explores digit-by-digit with tight control and sum accumulation
+- answer = `3`
+
+Tiny manual checks like this are crucial to validate state transitions.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

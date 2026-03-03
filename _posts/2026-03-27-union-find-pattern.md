@@ -98,6 +98,22 @@ public int[] findRedundantConnection(int[][] edges) {
 
 ---
 
+## Dry Run (Connected Components)
+
+`n = 5`, edges: `[0-1], [1-2], [3-4]`
+
+Initial components: `5`
+
+1. union(0,1) succeeds -> components `4`
+2. union(1,2) succeeds -> components `3`
+3. union(3,4) succeeds -> components `2`
+
+Final answer: `2` connected components.
+
+Union only decreases component count when roots were different.
+
+---
+
 ## Problem 3: Accounts Merge
 
 Use DSU to connect emails belonging to same user account, then group by root.
@@ -110,6 +126,19 @@ Use DSU to connect emails belonging to same user account, then group by root.
 2. Forgetting union by rank/size
 3. 1-based vs 0-based indexing errors
 4. Assuming DSU handles directed semantics directly
+
+---
+
+## Debug Checklist
+
+When DSU output is wrong:
+
+1. print root of each node after all unions
+2. verify index normalization (especially 1-based inputs)
+3. confirm `union` returns false when already connected
+4. ensure component count decrements only on successful union
+
+Most DSU bugs are indexing or incorrect decrement logic.
 
 ---
 
