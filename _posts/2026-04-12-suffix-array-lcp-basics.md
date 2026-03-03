@@ -44,6 +44,66 @@ Arrays.sort(sa, Comparator.comparing(s::substring));
 
 ---
 
+## Dry Run (`"banana"`)
+
+Suffixes:
+
+- `0: banana`
+- `1: anana`
+- `2: nana`
+- `3: ana`
+- `4: na`
+- `5: a`
+
+Sorted suffix array indices:
+
+`[5, 3, 1, 0, 4, 2]`
+
+LCP between adjacent sorted suffixes:
+
+- LCP(`a`, `ana`) = 1
+- LCP(`ana`, `anana`) = 3
+- LCP(`anana`, `banana`) = 0
+- LCP(`banana`, `na`) = 0
+- LCP(`na`, `nana`) = 2
+
+Max LCP = `3` => repeated substring `"ana"`.
+
+---
+
+## LCP Array (Kasai Overview)
+
+Given suffix array, build rank array and compute LCP in linear time:
+
+```java
+int[] buildLcp(String s, int[] sa) {
+    int n = s.length();
+    int[] rank = new int[n], lcp = new int[n - 1];
+    for (int i = 0; i < n; i++) rank[sa[i]] = i;
+
+    int k = 0;
+    for (int i = 0; i < n; i++) {
+        if (rank[i] == n - 1) { k = 0; continue; }
+        int j = sa[rank[i] + 1];
+        while (i + k < n && j + k < n && s.charAt(i + k) == s.charAt(j + k)) k++;
+        lcp[rank[i]] = k;
+        if (k > 0) k--;
+    }
+    return lcp;
+}
+```
+
+This is the practical base for repeated-substring and lexicographic range queries.
+
+---
+
+## Practical Constraint Note
+
+`Comparator.comparing(s::substring)` is easy to teach but expensive for large strings.
+For larger inputs, use efficient suffix-array construction (doubling / SA-IS) to avoid heavy substring allocation.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

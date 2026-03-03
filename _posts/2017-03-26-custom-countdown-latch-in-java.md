@@ -59,6 +59,17 @@ public class CustomCountDownLatch {
 }
 ```
 
+## Missing Features in Simplified Version
+
+The custom latch above demonstrates core mechanics, but it omits production needs:
+
+- timed wait (`await(timeout, unit)`)
+- state visibility/introspection (`getCount()`)
+- interruption policy and cancellation orchestration
+- robust diagnostics for stalled countdowns
+
+That is why `java.util.concurrent.CountDownLatch` should be the default in real code.
+
 ## Java 8/11/17/21/25 Guidance
 
 - Java 8+: Prefer built-in `java.util.concurrent.CountDownLatch` in production.
@@ -87,7 +98,7 @@ public class StartupChecks {
         pool.shutdown();
     }
 
-    static void runCheck(String name, CountDownLatch latch) {
+static void runCheck(String name, CountDownLatch latch) {
         try {
             // perform check
         } finally {
@@ -97,8 +108,45 @@ public class StartupChecks {
 }
 ```
 
+## Timeout + Fail-Fast Startup Pattern
+
+In services, waiting forever is risky. Prefer bounded await and explicit failure action.
+
+```java
+boolean ok = latch.await(10, TimeUnit.SECONDS);
+if (!ok) {
+    throw new IllegalStateException("startup checks did not finish in time");
+}
+```
+
+If one check fails hard, record failure cause and still `countDown()` in `finally` to avoid deadlock.
+
+## Happens-Before Guarantee (Why It Matters)
+
+`CountDownLatch` provides a visibility guarantee:
+
+- actions before `countDown()` in worker thread
+- become visible after successful `await()` return in waiting thread
+
+This makes it safe to publish warm-up results before releasing startup flow.
+
+## Common Pitfalls
+
+1. Forgetting `countDown()` on exception path.
+2. Using latch for cyclic phases (it is one-shot).
+3. Blocking on `await()` with no timeout in critical startup path.
+4. Sharing one latch across unrelated workflows.
+
+## Testing Strategy
+
+- unit test normal completion path
+- test exception path still decrements latch
+- test timeout behavior deterministically
+- test concurrent runs to catch missed `countDown()` branches
+
 ## Key Takeaways
 
 - Always use `while` around `wait()`.
 - Custom implementation is educational; built-in class is production-ready.
 - Latch is one-time use; use `CyclicBarrier`/`Phaser` for repeated phases.
+- Prefer timeout-based awaits for production safety.

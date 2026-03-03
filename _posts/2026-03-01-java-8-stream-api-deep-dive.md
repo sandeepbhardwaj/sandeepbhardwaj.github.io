@@ -176,6 +176,55 @@ double revenue = orders.stream()
 
 ---
 
+# Debugging and Observability Pattern
+
+`peek` is useful for diagnostics, but should not implement business behavior.
+
+```java
+List<OrderDto> out = orders.stream()
+        .filter(Order::isValid)
+        .peek(o -> log.debug("valid-order id={}", o.getId()))
+        .map(this::toDto)
+        .toList();
+```
+
+Guideline:
+
+- use `peek` only for temporary troubleshooting
+- remove or gate debug logs in hot paths
+- keep side effects at terminal boundaries, not intermediate ops
+
+---
+
+# Handling Nulls in Stream Pipelines
+
+Null-heavy data can make pipelines noisy. Normalize early:
+
+```java
+List<String> emails = Optional.ofNullable(users).orElseGet(List::of).stream()
+        .filter(Objects::nonNull)
+        .map(User::getEmail)
+        .filter(Objects::nonNull)
+        .toList();
+```
+
+For Java 9+, `Stream.ofNullable` is also useful in focused spots.
+
+---
+
+# Testing Strategy for Stream Logic
+
+For non-trivial pipelines:
+
+1. unit test happy-path transformation
+2. test null/empty/invalid input cases
+3. test boundary values (large amounts, edge statuses)
+4. test deterministic ordering expectations when `sorted`/`distinct` used
+
+When pipeline grows large, extract stages into named methods and test those methods independently.
+
+---
+
 # Architecture Guidance
 
 Streams are ideal in service layer transformations:

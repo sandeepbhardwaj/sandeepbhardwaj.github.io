@@ -21,48 +21,106 @@ header:
 
 # Sealed Classes for Domain Modeling in Java
 
-Sealed classes let you model closed sets of domain states explicitly.
-This improves compile-time safety and branch exhaustiveness.
+Sealed classes are ideal when your domain has a closed set of valid states.
+They make invalid extension impossible and force exhaustive handling at compile time.
 
 ---
 
-## Domain Modeling Benefits
+## Why Sealed Types Fit Domain Modeling
 
-- prevent unintended subtype extension
-- encode business state machine boundaries
-- simplify exhaustive pattern handling
+- business states are often finite (`Pending`, `Approved`, `Rejected`)
+- extension should be controlled by domain owners
+- decision logic should fail compilation when a new state is added but not handled
+
+This gives stronger guarantees than open inheritance.
 
 ---
 
-## Example
+## Example: Payment State Model
 
 ```java
-public sealed interface SettlementState permits Pending, Settled, Failed {}
+public sealed interface PaymentState permits PaymentState.Pending, PaymentState.Authorized,
+        PaymentState.Captured, PaymentState.Failed {
 
-public record Pending(Instant createdAt) implements SettlementState {}
-public record Settled(String txId, Instant settledAt) implements SettlementState {}
-public record Failed(String reason) implements SettlementState {}
+    record Pending(Instant createdAt) implements PaymentState {}
+    record Authorized(String authId, Instant authorizedAt) implements PaymentState {}
+    record Captured(String captureId, Instant capturedAt) implements PaymentState {}
+    record Failed(String code, String reason) implements PaymentState {}
+}
 ```
 
----
-
-## Why It Helps in Production
-
-- illegal states become unrepresentable.
-- refactors surface missing branches at compile time.
-- API consumers gain clearer contract about possible outcomes.
+A service can now only work with known, approved states.
 
 ---
 
-## Integration Pattern
+## Transition Rules as Code
 
-Use sealed hierarchy at service boundary and map to wire DTOs explicitly.
-Do not leak internal type details across external contracts unless versioned carefully.
+Model transitions explicitly to avoid hidden state changes.
+
+```java
+public final class PaymentTransitions {
+
+    public PaymentState authorize(PaymentState state, String authId, Instant now) {
+        return switch (state) {
+            case PaymentState.Pending ignored -> new PaymentState.Authorized(authId, now);
+            case PaymentState.Authorized s -> s; // idempotent retry
+            case PaymentState.Captured s -> throw new IllegalStateException("Already captured: " + s.captureId());
+            case PaymentState.Failed s -> throw new IllegalStateException("Cannot authorize failed payment: " + s.code());
+        };
+    }
+
+    public PaymentState capture(PaymentState state, String captureId, Instant now) {
+        return switch (state) {
+            case PaymentState.Authorized ignored -> new PaymentState.Captured(captureId, now);
+            case PaymentState.Captured s -> s; // idempotent retry
+            case PaymentState.Pending s -> throw new IllegalStateException("Authorize before capture: " + s.createdAt());
+            case PaymentState.Failed s -> throw new IllegalStateException("Cannot capture failed payment: " + s.code());
+        };
+    }
+}
+```
+
+If you add `Refunded`, compiler forces these switches to be revisited.
+
+---
+
+## Integration Pattern: Domain vs API Contract
+
+Do not expose sealed internal types directly as external API payloads by default.
+Map domain model to stable wire DTOs.
+
+- internal sealed hierarchy can evolve with domain constraints
+- external DTO versions can evolve with compatibility guarantees
+
+This separation avoids breaking public clients when domain internals change.
+
+---
+
+## Dry Run: Adding New State Safely
+
+Requirement: add `Chargeback` state.
+
+1. add `Chargeback` to `permits` list.
+2. compile project.
+3. every non-exhaustive `switch` now fails at compile time.
+4. update transition methods and business handlers.
+5. add tests for legal and illegal transitions.
+
+Outcome: missed logic is caught before runtime.
+
+---
+
+## Common Mistakes
+
+- creating "catch-all" default branches that hide missing state handling
+- mixing persistence entity concerns with sealed domain hierarchy
+- allowing state mutation through setters instead of transition functions
+- exposing sealed state classes directly in public API without versioning policy
 
 ---
 
 ## Key Takeaways
 
-- sealed hierarchies improve domain safety and maintainability.
-- they pair well with records and pattern matching.
-- use them to encode constrained business outcomes explicitly.
+- sealed classes are powerful for closed, business-critical state models.
+- compile-time exhaustiveness makes refactors safer.
+- combine sealed states with explicit transition methods for predictable domain behavior.

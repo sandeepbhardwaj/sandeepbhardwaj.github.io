@@ -52,6 +52,59 @@ public int[] bellmanFord(int n, int[][] edges, int src) {
 
 ---
 
+## Negative Cycle Detection Pass
+
+After `n-1` relaxations, run one more edge pass:
+
+```java
+boolean hasNegativeCycle = false;
+for (int[] e : edges) {
+    int u = e[0], v = e[1], w = e[2];
+    if (dist[u] != Integer.MAX_VALUE && dist[u] + w < dist[v]) {
+        hasNegativeCycle = true;
+        break;
+    }
+}
+```
+
+If any distance still improves, a negative cycle is reachable.
+
+---
+
+## Dry Run (Simple Case)
+
+Edges:
+
+- `0 -> 1 (4)`
+- `0 -> 2 (5)`
+- `1 -> 2 (-2)`
+
+`src=0`
+
+Pass 1:
+
+- `dist[1]=4`, `dist[2]=5`, then via `1->2`, `dist[2]=2`
+
+Further passes no longer improve.
+Final shortest distance to node `2` is `2`.
+
+---
+
+## Early-Exit Optimization
+
+Track whether any relaxation happened in current pass.
+If none, stop early.
+
+```java
+boolean changed = false;
+// inside pass, set changed=true on update
+if (!changed) break;
+```
+
+This significantly speeds up easy graphs while preserving correctness.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

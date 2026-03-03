@@ -46,6 +46,41 @@ while (lo < hi) {
 
 ---
 
+## Dry Run (Conceptual)
+
+Suppose feasible threshold starts from `x >= 7`.
+Search range `[1..10]`:
+
+1. mid=5 -> not feasible => lo=6
+2. mid=8 -> feasible => hi=8
+3. mid=7 -> feasible => hi=7
+4. mid=6 -> not feasible => lo=7
+
+Stop at `lo=hi=7` (minimum feasible answer).
+
+---
+
+## Monotonic Predicate Requirement
+
+This pattern only works if predicate is monotonic:
+
+- all false then true (`FFFFTTTT`), or
+- all true then false (`TTTTFFFF`)
+
+If feasibility oscillates, binary search on answer is invalid.
+
+---
+
+## Bound Initialization Tips
+
+- `lo` should be guaranteed invalid or minimum candidate
+- `hi` should be guaranteed valid (for min-feasible search)
+
+Good bounds reduce bugs and iterations.
+For some problems, derive bounds from input (`max element`, `sum`, etc.) instead of fixed constants.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

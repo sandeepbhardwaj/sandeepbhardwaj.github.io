@@ -304,6 +304,59 @@ Implementations should override if behavior is context-specific.
 
 ------------------------------------------------------------------------
 
+## Production Pitfall: Silent Behavior Changes
+
+A default method update affects all implementers that do not override it.
+That can become a breaking behavior change even when source compatibility is preserved.
+
+Safe rollout pattern:
+
+1. introduce new default method with conservative behavior
+2. add metrics/logging to detect implementations using fallback path
+3. migrate critical implementations to explicit overrides
+4. tighten default behavior only after adoption
+
+------------------------------------------------------------------------
+
+## Testing Strategy for Interface Evolution
+
+When adding/changing default methods in shared libraries:
+
+- add compatibility tests using old implementers
+- verify method resolution for multi-interface implementations
+- add contract tests for both default and overridden paths
+- run binary compatibility checks in CI for published artifacts
+
+Example contract test shape:
+
+```java
+@Test
+void defaultRefund_shouldThrowUnlessOverridden() {
+    PaymentProcessor p = amount -> {};
+    assertThrows(UnsupportedOperationException.class, () -> p.refund(100));
+}
+```
+
+------------------------------------------------------------------------
+
+## Design Heuristic
+
+Use default methods for:
+
+- small composable utility behavior
+- backward-compatible API extension
+- optional capability fallback
+
+Avoid default methods for:
+
+- stateful workflow orchestration
+- cross-cutting business policy
+- logic requiring dependency injection
+
+Keep interface contracts explicit and predictable.
+
+------------------------------------------------------------------------
+
 ## Key Takeaways
 
 -   Default methods were introduced in Java 8 to support API evolution.

@@ -43,6 +43,57 @@ pow[0] = 1;
 
 ---
 
+## O(1) Substring Hash Query
+
+```java
+class RollingHash {
+    private static final long MOD = 1_000_000_007L;
+    private static final long BASE = 911382323L;
+    private final long[] pref, pow;
+
+    RollingHash(String s) {
+        int n = s.length();
+        pref = new long[n + 1];
+        pow = new long[n + 1];
+        pow[0] = 1;
+        for (int i = 0; i < n; i++) {
+            pref[i + 1] = (pref[i] * BASE + s.charAt(i)) % MOD;
+            pow[i + 1] = (pow[i] * BASE) % MOD;
+        }
+    }
+
+    long hash(int l, int r) { // inclusive
+        long val = (pref[r + 1] - (pref[l] * pow[r - l + 1]) % MOD) % MOD;
+        return val < 0 ? val + MOD : val;
+    }
+}
+```
+
+---
+
+## Dry Run
+
+String: `"abcd"`
+
+- compare substring `"bc"` (`[1..2]`) with another range quickly via `hash(l,r)`
+- both queries are O(1) after O(n) preprocessing
+
+This is powerful for repeated substring equality checks in binary-search-on-answer style problems.
+
+---
+
+## Collision Rule
+
+Equal hash does not always mean equal string.
+For critical correctness:
+
+- verify by direct compare on hash match, or
+- use double hashing (two mod values).
+
+Use collision-safe strategy in production-sensitive matching logic.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

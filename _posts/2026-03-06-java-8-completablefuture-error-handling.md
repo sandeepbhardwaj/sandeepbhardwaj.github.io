@@ -98,6 +98,22 @@ This keeps endpoint latency bounded and avoids total failure from one dependency
 
 ---
 
+# Retry Pattern (Bounded and Explicit)
+
+Avoid hidden infinite retries inside async chains.
+Use bounded retry utility with clear attempt count and delay policy.
+
+```java
+CompletableFuture<CreditScore> creditF = retryAsync(
+        () -> CompletableFuture.supplyAsync(() -> creditClient.fetch(userId), ioExecutor),
+        2 // max retries
+).exceptionally(ex -> CreditScore.unknown());
+```
+
+Keep retry policy dependency-specific; do not apply one global retry rule to all exceptions.
+
+---
+
 # Thread Pool Architecture
 
 Use separate pools by workload type:
@@ -113,6 +129,23 @@ ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 ```
 
 Avoid using one giant pool for everything.
+
+---
+
+# Backpressure and Queue Control
+
+Executors with unbounded queues can hide overload until latency explodes.
+Prefer bounded queues with explicit rejection behavior in critical services.
+
+```java
+ExecutorService ioExecutor = new ThreadPoolExecutor(
+        32, 64, 60, TimeUnit.SECONDS,
+        new ArrayBlockingQueue<>(500),
+        new ThreadPoolExecutor.CallerRunsPolicy()
+);
+```
+
+This forces pressure back to callers instead of silently buffering unlimited tasks.
 
 ---
 

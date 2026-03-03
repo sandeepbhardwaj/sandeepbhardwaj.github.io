@@ -53,6 +53,55 @@ class Solution {
 }
 ```
 
+## Why Half Reversal Works
+
+For palindrome numbers, left half mirrors right half.
+Once reversed right-half becomes greater than or equal to remaining left-half, enough digits are processed.
+
+- even digits: compare `x == reversedHalf`
+- odd digits: middle digit is irrelevant, compare `x == reversedHalf / 10`
+
+This avoids full reversal and overflow concerns.
+
+## Dry Run (`x = 1221`)
+
+1. `x=1221`, `reversedHalf=0`
+2. -> `x=122`, `reversedHalf=1`
+3. -> `x=12`, `reversedHalf=12`
+4. stop (`x` not greater than `reversedHalf`)
+5. `x == reversedHalf` => palindrome
+
+## Common Mistakes
+
+1. Reversing whole number and risking overflow.
+2. Forgetting early rejection for numbers ending in `0` (except zero).
+3. Missing odd-digit handling (`reversedHalf / 10` comparison).
+
+## String-Based Alternative
+
+Converting to string is valid and simpler:
+
+```java
+boolean isPalString(int x) {
+    String s = Integer.toString(x);
+    int l = 0, r = s.length() - 1;
+    while (l < r) {
+        if (s.charAt(l++) != s.charAt(r--)) return false;
+    }
+    return true;
+}
+```
+
+Use numeric method when interview asks explicitly “without string conversion.”
+
+## Testing Checklist
+
+- `121` -> true
+- `-121` -> false
+- `10` -> false
+- `0` -> true
+- large palindrome and non-palindrome values
+
 ## Complexity
 
 - Time: `O(log10 n)`
@@ -66,6 +115,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- reversing only half the digits avoids overflow risk and keeps space constant.
+- early rejection rules (`x < 0`, trailing zero except zero itself) remove invalid cases quickly.
+- odd and even digit counts are handled cleanly by comparing `x` with `reversedHalf` or `reversedHalf / 10`.

@@ -26,25 +26,24 @@ header:
 
 # Reverse Linked List Recursively in Java
 
-This guide explains the intuition, optimized approach, and Java implementation for reverse linked list recursively in java, with practical tips for interviews and production coding standards.
-
-## Problem
-
 Reverse a singly linked list using recursion.
-
-## Example
 
 Input: `1 -> 2 -> 3 -> 4`  
 Output: `4 -> 3 -> 2 -> 1`
 
-## Approach
+---
 
-Recursively reverse the sublist starting from `head.next`, then attach current node at the end.
+## Core Idea
 
-Key operations after recursive call returns:
+Recursively reverse from `head.next` onward.
+After recursion returns, current `head` should be attached at the end of reversed sublist.
+
+Pointer rewiring on unwind:
 
 - `head.next.next = head`
 - `head.next = null`
+
+---
 
 ## Java Solution
 
@@ -63,18 +62,62 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run (Call Stack)
+
+List: `1 -> 2 -> 3 -> 4`
+
+Recursive descent:
+
+- `reverse(1)` calls `reverse(2)`
+- `reverse(2)` calls `reverse(3)`
+- `reverse(3)` calls `reverse(4)`
+- `reverse(4)` hits base case and returns node `4`
+
+Unwind:
+
+- at `3`: make `4.next = 3`, set `3.next = null`
+- at `2`: make `3.next = 2`, set `2.next = null`
+- at `1`: make `2.next = 1`, set `1.next = null`
+
+Return `newHead = 4`.
+
+---
+
+## Why `head.next = null` Is Critical
+
+Without this step, old forward links remain and create cycles.
+Example: `2.next` would still point to `3` while `3.next` is rewired to `2`.
+
+---
+
+## Recursive vs Iterative
+
+- recursive approach is concise and easy to reason about
+- iterative approach is safer for very long lists (`O(1)` stack)
+
+Java does not guarantee tail-call optimization, so recursion depth can overflow on large input.
+
+---
+
+## Common Mistakes
+
+1. returning `head` instead of `newHead`
+2. missing base case `head == null || head.next == null`
+3. forgetting to nullify `head.next`
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(n)` due to recursion stack
 
-## When to Use
-
-Prefer iterative solution in production if stack depth can be large.
-Recursive version is elegant and useful for interviews and small lists.
+---
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- recursion solves reversal by rewiring links during unwind phase.
+- two pointer updates are enough for correctness.
+- prefer iterative version when input size can be very large.

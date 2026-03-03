@@ -21,32 +21,32 @@ header:
 
 # Structured Concurrency Patterns in Java 21+
 
-Structured concurrency makes concurrent tasks behave like structured code blocks: start together, fail together, and finish within a clear scope.
-This removes many lifecycle and cancellation leaks.
+Structured concurrency makes concurrent work follow block scope rules: tasks start inside a scope, finish inside it, and are cancelled when scope ends.
+This prevents orphan tasks and inconsistent partial results.
 
 ---
 
 ## Why It Matters
 
-Traditional `CompletableFuture` chains can create detached background tasks that outlive request scope.
-Structured scope enforces ownership and cleanup.
+Common async anti-pattern in request handlers:
+
+- create multiple background tasks
+- return early on one failure
+- sibling tasks keep running without owner
+
+Result: wasted compute, noisy logs, and hard-to-debug leaks.
+Structured scopes solve this by enforcing ownership.
 
 ---
 
-## Primary Patterns
+## Pattern 1: Shutdown on First Failure
 
-- Shutdown-on-failure for dependent subtasks
-- Join-with-timeout for bounded request windows
-- Scope-per-request to guarantee cancellation on exit
-
----
-
-## Java Preview API Example
+Use when all subtasks are required to build final response.
 
 ```java
 try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
     var profile = scope.fork(() -> profileClient.fetch(userId));
-    var orders = scope.fork(() -> orderClient.fetch(userId));
+    var orders = scope.fork(() -> orderClient.fetchByUser(userId));
     var limits = scope.fork(() -> riskClient.fetchLimits(userId));
 
     scope.join();
@@ -56,27 +56,78 @@ try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 }
 ```
 
+Semantics:
+
+- one task fails -> siblings are cancelled
+- caller sees one failure boundary (`throwIfFailed`)
+
 ---
 
-## Failure Semantics You Get
+## Pattern 2: Deadline-Bound Scope
 
-- if one subtask fails, siblings are cancelled.
-- request completion waits for scope closure.
-- failures are surfaced at one boundary point.
+Tie all child tasks to a single request deadline.
+
+```java
+Instant deadline = Instant.now().plusMillis(350);
+
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    var a = scope.fork(() -> serviceA.fetch(userId));
+    var b = scope.fork(() -> serviceB.fetch(userId));
+
+    scope.joinUntil(deadline);
+    scope.throwIfFailed();
+
+    return new Combined(a.get(), b.get());
+}
+```
+
+If deadline is exceeded, cancel subtree and map to timeout/degraded response.
+
+---
+
+## Pattern 3: Partial Results by Policy (Not Accident)
+
+Sometimes partial response is acceptable, but policy must be explicit.
+
+- define mandatory vs optional subtasks
+- fail request if mandatory task fails
+- substitute fallback for optional task failures
+
+This avoids accidental partial results caused by implementation leaks.
+
+---
+
+## Dry Run: Aggregator Endpoint
+
+Scenario: endpoint calls `profile`, `orders`, `recommendations`.
+
+1. create scope for request.
+2. fork three subtasks.
+3. `recommendations` fails fast due to timeout.
+4. with `ShutdownOnFailure`, `profile` and `orders` are cancelled.
+5. request returns single coherent error.
+
+Alternative policy:
+
+- treat `recommendations` as optional in separate nested scope.
+- if it fails, return response without recommendations.
+
+Both are valid, but choose one intentionally.
 
 ---
 
 ## Production Checklist
 
-- enforce per-scope deadlines.
-- map failures to domain-specific error contracts.
-- make subtask calls idempotent where retries are possible.
-- emit per-subtask duration metrics.
+- propagate one deadline to all child calls.
+- ensure downstream clients honor interruption/cancellation.
+- emit per-subtask latency and cancellation metrics.
+- define mandatory/optional dependency policy in code.
+- avoid hidden retries that violate request budget.
 
 ---
 
 ## Key Takeaways
 
-- structured concurrency is about task lifecycle correctness, not only syntax.
-- use it to prevent orphan work and inconsistent partial results.
-- it pairs naturally with virtual threads and request-scoped orchestration.
+- structured concurrency is mainly about lifecycle correctness.
+- scope-based cancellation prevents orphan background work.
+- explicit failure and partial-result policies improve reliability and debuggability.

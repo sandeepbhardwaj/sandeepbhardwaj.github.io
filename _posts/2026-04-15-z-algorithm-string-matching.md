@@ -50,6 +50,54 @@ public int[] zArray(String s) {
 
 ---
 
+## Pattern Matching with Z-Array
+
+For finding `pattern` in `text`:
+
+1. build string `pattern + "#" + text`
+2. compute Z-array
+3. any index with `Z[i] == pattern.length()` is a match
+
+```java
+public List<Integer> zMatch(String text, String pat) {
+    String s = pat + "#" + text;
+    int[] z = zArray(s);
+    List<Integer> out = new ArrayList<>();
+    int m = pat.length();
+    for (int i = m + 1; i < s.length(); i++) {
+        if (z[i] == m) out.add(i - m - 1);
+    }
+    return out;
+}
+```
+
+---
+
+## Dry Run (Conceptual)
+
+`text="ababcab"`, `pat="ab"`
+
+Combined: `"ab#ababcab"`
+
+Z values equal to `2` at text offsets where `"ab"` starts:
+
+- index `0`
+- index `2`
+- index `5`
+
+So matches are `[0,2,5]`.
+
+---
+
+## Z-Box Invariant
+
+Maintain `[l, r]` as rightmost segment where substring matches prefix.
+If `i` is inside this box, reuse previous Z information before extending.
+
+This reuse is why algorithm is linear `O(n)`.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -42,6 +42,67 @@ int h(int r, int c, int tr, int tc) { return Math.abs(r - tr) + Math.abs(c - tc)
 
 ---
 
+## Complete Grid A* Skeleton
+
+```java
+int aStar(int[][] grid, int sr, int sc, int tr, int tc) {
+    int m = grid.length, n = grid[0].length;
+    int[][] g = new int[m][n];
+    for (int[] row : g) Arrays.fill(row, Integer.MAX_VALUE);
+    g[sr][sc] = 0;
+
+    PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+    pq.offer(new int[]{h(sr, sc, tr, tc), 0, sr, sc}); // f, g, r, c
+
+    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+
+    while (!pq.isEmpty()) {
+        int[] cur = pq.poll();
+        int cg = cur[1], r = cur[2], c = cur[3];
+        if (r == tr && c == tc) return cg;
+        if (cg != g[r][c]) continue; // stale
+
+        for (int[] d : dirs) {
+            int nr = r + d[0], nc = c + d[1];
+            if (nr < 0 || nc < 0 || nr >= m || nc >= n || grid[nr][nc] == 1) continue;
+            int ng = cg + 1;
+            if (ng < g[nr][nc]) {
+                g[nr][nc] = ng;
+                int f = ng + h(nr, nc, tr, tc);
+                pq.offer(new int[]{f, ng, nr, nc});
+            }
+        }
+    }
+    return -1;
+}
+```
+
+---
+
+## Heuristic Rule (Critical)
+
+For optimality, heuristic must be:
+
+- admissible (never overestimates true remaining cost)
+- ideally consistent (triangle inequality style)
+
+On 4-direction unit-cost grid, Manhattan distance is admissible and consistent.
+
+---
+
+## Dry Run (Conceptual)
+
+Start `(0,0)`, target `(2,2)`:
+
+1. push neighbors with priority `f=g+h`
+2. node with smallest `f` expanded first
+3. stale entries skipped if better `g` already found
+4. when target popped, shortest path cost is finalized
+
+A* explores less than plain Dijkstra when heuristic is informative.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -62,6 +62,8 @@ class Point {
 - always fallback to read lock on failed validation.
 - avoid reentrant assumptions; `StampedLock` is not reentrant.
 
+Optional improvement: for write-after-read flows, evaluate `tryConvertToWriteLock` to reduce unlock/relock transitions when safe.
+
 ---
 
 ## Migration Checklist
@@ -78,3 +80,46 @@ class Point {
 - StampedLock is a specialized optimization, not a default lock.
 - optimistic reads help only when writes are rare.
 - correctness discipline is mandatory due to API complexity.
+
+---
+
+## When Optimistic Reads Backfire
+
+Optimistic reads are valuable only when writes are rare and validation mostly succeeds.
+If writes are frequent, retries can cost more than a normal read lock.
+
+```java
+long stamp = lock.tryOptimisticRead();
+State s = state;
+if (!lock.validate(stamp)) {
+    stamp = lock.readLock();
+    try { s = state; } finally { lock.unlockRead(stamp); }
+}
+```
+
+Track optimistic validation failure rate in production. If failure is high, redesign the access pattern.
+
+---
+
+## Case Study: Price Cache Snapshot Reads
+
+A price cache usually serves many reads and occasional updates.
+`StampedLock` optimistic reads are useful when price mutations are infrequent.
+
+Engineering guardrails:
+
+- keep optimistic read block tiny
+- revalidate stamp before using derived values
+- avoid calling external methods before validation
+- capture optimistic-failure metric for tuning decisions
+
+---
+
+## Dry Scenario: Validation Failure Path
+
+1. Reader calls `tryOptimisticRead()` and snapshots fields.
+2. Writer acquires write lock and updates fields.
+3. Reader calls `validate(stamp)` -> `false`.
+4. Reader retries under `readLock()` and returns consistent view.
+
+This fallback is what preserves correctness; without it, stale/inconsistent reads can leak.

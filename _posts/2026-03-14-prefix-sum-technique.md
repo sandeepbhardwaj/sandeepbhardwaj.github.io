@@ -286,6 +286,31 @@ Use Difference Array when bulk range updates dominate.
 
 ---
 
+## Debug Checklist for Prefix + HashMap
+
+When counts are off by one, verify these in order:
+
+1. seed map with `freq.put(0, 1)`
+2. update `count` before incrementing current prefix frequency
+3. confirm `prefix - k` lookup (not `k - prefix`)
+4. inspect first few iterations with printed `(prefix, count, freq)` state
+
+Most bugs in this pattern come from update ordering.
+
+---
+
+## Modular Prefix Variant (Quick Mention)
+
+Some problems use modulo equality:
+
+`(prefix[j] - prefix[i]) % m == 0`  
+`=> prefix[j] % m == prefix[i] % m`
+
+Then store first/frequency of remainders instead of raw sums.
+This is the core trick behind problems like “continuous subarray sum”.
+
+---
+
 ## Production Perspective (Backend Systems)
 
 Prefix sum concepts appear in backend systems more often than they seem:

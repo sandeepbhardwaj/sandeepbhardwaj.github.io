@@ -85,6 +85,44 @@ public synchronized void unlock() {
 
 In real code, prefer `ReentrantLock` unless this is for learning.
 
+## Why This Lock Is Still Incomplete
+
+Even with owner tracking, this custom lock is still missing features expected in production:
+
+- reentrancy (same thread acquiring lock multiple times)
+- timed acquisition (`tryLock(timeout)`)
+- interruptible acquisition policy
+- condition queues (`Condition`) for coordinated waiting
+
+Implementing these correctly is non-trivial, which is why JDK locks are preferred.
+
+## Reentrant Behavior Sketch (Learning Only)
+
+```java
+private Thread owner;
+private int holdCount;
+
+public synchronized void lock() throws InterruptedException {
+    Thread current = Thread.currentThread();
+    while (owner != null && owner != current) {
+        wait();
+    }
+    owner = current;
+    holdCount++;
+}
+
+public synchronized void unlock() {
+    if (Thread.currentThread() != owner) throw new IllegalMonitorStateException();
+    holdCount--;
+    if (holdCount == 0) {
+        owner = null;
+        notifyAll();
+    }
+}
+```
+
+This demonstrates reentrancy mechanics, but still lacks timeout/condition support.
+
 ## Production API Equivalent (`ReentrantLock`)
 
 ```java
@@ -108,8 +146,25 @@ public class AccountService {
 
 If you need separate read/write access, use `ReadWriteLock`. For optimistic reads on highly contended state, evaluate `StampedLock`.
 
+## Common Pitfalls
+
+1. Calling `unlock()` from non-owner thread.
+2. Using `notify()` where multiple waiters need wake-up progression.
+3. Holding lock during slow I/O.
+4. Forgetting `finally` around unlock paths.
+
+A lock implementation should optimize for correctness and debuggability first.
+
+## Testing Strategy
+
+- concurrent stress test for race conditions
+- interruption tests while waiting on lock
+- reentrancy tests if supported
+- ownership violation tests (`unlock` by wrong thread)
+
 ## Key Takeaways
 
 - Correctness comes before throughput in concurrent code.
 - Prefer proven JDK concurrency utilities in production over custom implementations.
 - Always account for interruption, waiting conditions, and race windows.
+- Build custom locks only for learning or highly specialized runtime behavior.

@@ -47,6 +47,48 @@ int solve(int l, int r) {
 
 ---
 
+## What `solve(l, r)` Represents
+
+A common and clean interpretation:
+
+`solve(l, r) = maximum score difference (current player - opponent)` for subarray `[l..r]`.
+
+Then:
+
+- pick left => gain `nums[l]`, opponent gets `solve(l+1,r)` advantage
+- net: `nums[l] - solve(l+1,r)`
+
+Same for right.
+
+This difference-based state removes explicit turn variable.
+
+---
+
+## Dry Run
+
+`nums = [1, 5, 2]`
+
+- `solve(2,2)=2`, `solve(1,1)=5`, `solve(0,0)=1`
+- `solve(1,2)=max(5-2, 2-5)=3`
+- `solve(0,1)=max(1-5, 5-1)=4`
+- `solve(0,2)=max(1-3, 2-4)=max(-2,-2)=-2`
+
+Negative result means first player loses by 2 under optimal play.
+
+---
+
+## Decision Rule
+
+If problem asks “can first player win?”:
+
+```java
+return solve(0, n - 1) >= 0;
+```
+
+`>= 0` means first player can tie or win depending on game definition.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

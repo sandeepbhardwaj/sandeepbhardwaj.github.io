@@ -21,40 +21,104 @@ header:
 
 # ClassLoaders and Plugin Architecture in Java
 
-ClassLoader design is the foundation of safe Java plugin systems.
-Isolation and lifecycle policies matter more than dynamic loading itself.
+A Java plugin system succeeds or fails based on classloader boundaries and lifecycle discipline.
+Dynamic loading is easy; safe isolation and unload are hard.
 
 ---
 
-## Core Architecture Decisions
+## Architecture Baseline
 
-- parent-first vs child-first loading
-- plugin API boundary package
-- dependency shading strategy
-- unload/reload lifecycle support
+Use three layers:
+
+- host application classloader
+- stable plugin API module/classpath (shared types)
+- one dedicated classloader per plugin implementation
+
+Only API interfaces should cross classloader boundaries.
 
 ---
 
-## Loading Skeleton
+## Basic Loading Flow
 
 ```java
-URLClassLoader loader = new URLClassLoader(new URL[]{pluginJar.toUri().toURL()}, getClass().getClassLoader());
-Class<?> clazz = Class.forName("com.example.PluginImpl", true, loader);
+URL jarUrl = pluginJar.toUri().toURL();
+try (URLClassLoader loader = new URLClassLoader(new URL[]{jarUrl}, hostApiClassLoader)) {
+    Class<?> implClass = Class.forName("com.example.plugins.InvoicePlugin", true, loader);
+    Plugin plugin = (Plugin) implClass.getDeclaredConstructor().newInstance();
+    plugin.start(context);
+}
 ```
+
+`Plugin` interface must be loaded by shared parent (host API classloader), not plugin-private copy.
 
 ---
 
-## Safety and Operations
+## Parent-First vs Child-First
 
-- validate plugin metadata and version compatibility.
-- isolate plugin failures from host process stability.
-- close classloaders when unloading plugins.
-- enforce sandbox/policy boundaries where needed.
+- parent-first: safer for shared libraries and JDK classes, fewer surprises
+- child-first: stronger isolation for plugin dependencies but higher conflict risk
+
+For most enterprise plugin systems, parent-first with shaded plugin dependencies is more predictable.
+
+---
+
+## Lifecycle Contract Is Mandatory
+
+Define explicit lifecycle and ownership:
+
+```java
+public interface Plugin {
+    void start(PluginContext context) throws Exception;
+    void stop() throws Exception;
+}
+```
+
+Host must track plugin-owned resources:
+
+- executors
+- scheduler tasks
+- network clients
+- file watchers
+
+No unload is safe until all are stopped.
+
+---
+
+## Dry Run: Safe Plugin Reload
+
+1. host marks plugin as `DRAINING`.
+2. host stops new task submissions to plugin.
+3. host calls `plugin.stop()` with timeout.
+4. host verifies no plugin-owned threads remain.
+5. host closes plugin classloader.
+6. host loads new plugin version in fresh classloader.
+
+If step 4 fails, abort reload and keep plugin disabled.
+
+---
+
+## Common Failure Modes
+
+- `ClassCastException` because API type is loaded by different classloaders
+- classloader leak due to static caches holding plugin classes
+- non-daemon plugin threads preventing unload/GC
+- dependency conflicts between host and plugin transitive libs
+
+Mitigate with strict API boundary, shading, and unload diagnostics.
+
+---
+
+## Operational Checks
+
+- track plugin state transitions (`LOADED`, `STARTED`, `DRAINING`, `STOPPED`, `FAILED`).
+- expose per-plugin health and error metrics.
+- run chaos tests that reload plugins repeatedly in staging.
+- monitor classloader count and metaspace growth.
 
 ---
 
 ## Key Takeaways
 
-- plugin systems are runtime architecture, not just reflection tricks.
-- classloader policy determines compatibility and isolation behavior.
-- define plugin contracts and lifecycle from day one.
+- plugin architecture is primarily a classloader and lifecycle problem.
+- shared API boundary and per-plugin isolation are non-negotiable.
+- unload safety requires explicit resource ownership and stop guarantees.

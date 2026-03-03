@@ -44,6 +44,55 @@ Collections.sort(rightSums);
 
 ---
 
+## Example: Max Subset Sum <= Target
+
+```java
+long maxSubsetSumAtMost(long[] nums, long target) {
+    int n = nums.length, mid = n / 2;
+    long[] left = Arrays.copyOfRange(nums, 0, mid);
+    long[] right = Arrays.copyOfRange(nums, mid, n);
+
+    List<Long> L = allSubsetSums(left);
+    List<Long> R = allSubsetSums(right);
+    Collections.sort(R);
+
+    long best = Long.MIN_VALUE;
+    for (long a : L) {
+        long need = target - a;
+        int idx = upperBound(R, need) - 1;
+        if (idx >= 0) best = Math.max(best, a + R.get(idx));
+    }
+    return best;
+}
+```
+
+Where `allSubsetSums` generates `2^(n/2)` sums and `upperBound` is binary search.
+
+---
+
+## Dry Run (Conceptual)
+
+`nums=[3,5,6,7]`, target `12`
+
+- left half `[3,5]` sums: `{0,3,5,8}`
+- right half `[6,7]` sums: `{0,6,7,13}` (sorted)
+
+For left sum `5`, need `<=7`, best right is `7`, total `12` (optimal).
+
+This avoids full `2^n` enumeration by using two `2^(n/2)` enumerations plus merge step.
+
+---
+
+## When MITM Is Appropriate
+
+- `n` around 30–46 where `2^n` is too large
+- exact/closest subset-style optimization
+- constraints allow split-and-merge approach
+
+For small `n`, straightforward backtracking may be simpler.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

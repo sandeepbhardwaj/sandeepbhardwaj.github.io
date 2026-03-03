@@ -50,6 +50,60 @@ public int[] lps(String p) {
 
 ---
 
+## KMP Search Function
+
+```java
+public int firstMatch(String text, String pattern) {
+    if (pattern.isEmpty()) return 0;
+    int[] lps = lps(pattern);
+    int i = 0, j = 0;
+
+    while (i < text.length()) {
+        if (text.charAt(i) == pattern.charAt(j)) {
+            i++; j++;
+            if (j == pattern.length()) return i - j;
+        } else if (j > 0) {
+            j = lps[j - 1];
+        } else {
+            i++;
+        }
+    }
+    return -1;
+}
+```
+
+---
+
+## Dry Run (LPS for `"ababaca"`)
+
+Pattern: `a b a b a c a`
+
+LPS values:
+
+- `lps[0]=0`
+- `lps[1]=0`
+- `lps[2]=1`
+- `lps[3]=2`
+- `lps[4]=3`
+- mismatch at `c` -> fallback -> `lps[5]=0`
+- `lps[6]=1`
+
+Final LPS: `[0,0,1,2,3,0,1]`
+
+LPS tells how far pattern index can jump on mismatch without re-checking known prefix matches.
+
+---
+
+## When KMP Is Worth It
+
+- repeated searches of same pattern
+- large text where `O(n*m)` worst-case is unacceptable
+- deterministic linear-time requirement
+
+For one-off tiny inputs, simpler built-in search may be sufficient.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

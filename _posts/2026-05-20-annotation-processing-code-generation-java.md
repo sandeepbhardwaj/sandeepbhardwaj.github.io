@@ -21,49 +21,116 @@ header:
 
 # Annotation Processing and Code Generation in Java
 
-Annotation processing moves repetitive patterns from runtime to compile time.
-This improves type safety, reduces reflection, and catches errors earlier.
+Annotation processing lets you generate code and validate contracts at compile time.
+This reduces runtime reflection, catches errors earlier, and removes repetitive boilerplate.
 
 ---
 
-## Typical Use Cases
+## Good Use Cases
 
-- mapper generation
-- boilerplate DTO/adaptor generation
-- static registry or metadata generation
-- compile-time contract validation
+- mapper/adapter generation
+- REST client stubs from annotated interfaces
+- compile-time validation of framework annotations
+- metadata registries for startup performance
+
+Avoid generating business logic that becomes hard to debug.
 
 ---
 
-## Annotation Shape
+## Minimal Annotation + Processor Shape
 
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface AutoMapper {}
+public @interface AutoFactory {}
 ```
 
+```java
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
+@SupportedAnnotationTypes("com.example.AutoFactory")
+public final class AutoFactoryProcessor extends AbstractProcessor {
+
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        for (Element element : roundEnv.getElementsAnnotatedWith(AutoFactory.class)) {
+            if (element.getKind() != ElementKind.CLASS) {
+                processingEnv.getMessager().printMessage(
+                    Diagnostic.Kind.ERROR,
+                    "@AutoFactory can only target classes",
+                    element
+                );
+                continue;
+            }
+            generateFactory((TypeElement) element);
+        }
+        return true;
+    }
+
+    private void generateFactory(TypeElement type) {
+        // Use Filer to create source file and write deterministic code.
+    }
+}
+```
+
+Important: always emit actionable diagnostics with exact element location.
+
 ---
 
-## Processor Design Principles
+## Deterministic Codegen Rules
 
-- generate deterministic output (stable ordering)
-- produce actionable compiler errors
-- keep generated code readable for debugging
-- isolate processor logic from application runtime
+Generated output should be stable across machines and build runs.
+
+- sort members and elements before generation
+- avoid timestamps/random IDs in generated files
+- keep formatting consistent to reduce diff noise
+
+Deterministic output is mandatory for trustworthy CI and reviews.
 
 ---
 
-## Build and CI Guidance
+## Incremental Build Considerations
 
-- fail build on generation errors
-- cache generated sources in CI where supported
-- diff generated code in code review for critical paths
+Processors that read unrelated files/classpath resources can break incremental compilation.
+Keep processing local to annotated elements where possible.
+
+If processor is aggregating (global index generation), document that cost and test build impact.
+
+---
+
+## Dry Run: Introducing Codegen in Existing Service
+
+1. add annotation and processor in dedicated `processor` module.
+2. generate code for one simple target (for example `UserMapper`).
+3. compare generated output with handwritten baseline.
+4. enforce compile failure on invalid annotation usage.
+5. add snapshot tests for generated source.
+6. migrate remaining boilerplate gradually.
+
+This keeps adoption safe and reviewable.
+
+---
+
+## CI and Quality Checklist
+
+- fail build on processor errors.
+- include generated sources in test compilation.
+- add golden-file tests for key generated classes.
+- run clean builds in CI to detect missing generation dependencies.
+- verify IDE and CI produce identical generated output.
+
+---
+
+## Common Mistakes
+
+- silently skipping invalid annotations instead of failing compilation
+- generating unreadable code no one can troubleshoot
+- mixing runtime dependencies into processor module
+- non-deterministic generation order causing flaky diffs
 
 ---
 
 ## Key Takeaways
 
-- compile-time generation improves reliability and runtime simplicity.
-- processors should enforce contracts, not hide complexity.
-- deterministic output and clear diagnostics are critical.
+- annotation processing is powerful for compile-time safety and boilerplate removal.
+- processor quality depends on diagnostics, determinism, and build behavior.
+- treat generated code as production code with tests and review discipline.

@@ -364,6 +364,37 @@ Think of it as “Two Pointers + Stateful Invariant”.
 
 ---
 
+## Debug Workflow for Window Bugs
+
+When a solution fails, print this per-step state:
+
+- `left`, `right`
+- current window size
+- current state object (`sum`, `freq`, deque head)
+- whether invariant is valid
+
+Example log shape:
+
+```text
+r=7 l=3 size=5 sum=19 valid=false -> shrink
+```
+
+This quickly reveals missed `while` loops and stale state cleanup.
+
+---
+
+## When Not to Use Sliding Window
+
+Avoid defaulting to sliding window when:
+
+- constraints are non-local (depend on future elements)
+- values include negatives and your logic assumes monotonic sum behavior
+- problem requires arbitrary range queries better solved by prefix sums/segment trees
+
+Pattern selection is as important as implementation.
+
+---
+
 ## Production Perspective (Backend Systems)
 
 Sliding windows appear everywhere in backend engineering:

@@ -117,6 +117,56 @@ Use this pattern for batch enrichment endpoints.
 
 ---
 
+# Timeout Pattern in Java 8
+
+Java 8 does not have `orTimeout/completeOnTimeout` convenience APIs.
+Use scheduler-assisted timeout completion:
+
+```java
+static <T> CompletableFuture<T> withTimeout(
+        CompletableFuture<T> original,
+        long timeoutMs,
+        ScheduledExecutorService scheduler) {
+    CompletableFuture<T> timeout = new CompletableFuture<>();
+    scheduler.schedule(
+            () -> timeout.completeExceptionally(new TimeoutException("timeout")),
+            timeoutMs, TimeUnit.MILLISECONDS
+    );
+    return original.applyToEither(timeout, Function.identity());
+}
+```
+
+This keeps timeout behavior explicit and reusable.
+
+---
+
+# Exception Boundary Pattern
+
+Prefer handling exceptions near API boundary:
+
+```java
+return responseF.handle((value, ex) -> {
+    if (ex != null) return fallbackResponse(userId);
+    return value;
+}).join();
+```
+
+Avoid sprinkling ad-hoc `exceptionally` blocks at many intermediate steps unless each step has distinct recovery semantics.
+
+---
+
+# Cancellation Guidance
+
+`CompletableFuture#cancel(true)` marks the future cancelled, but underlying task interruption depends on task/executor behavior.
+
+Practical advice:
+
+- design tasks to check interruption where possible
+- keep remote call timeouts at HTTP/database client level too
+- avoid assuming cancellation always stops external I/O immediately
+
+---
+
 # Thread Pool Design Rules
 
 - do not rely on `ForkJoinPool.commonPool()` for backend IO calls

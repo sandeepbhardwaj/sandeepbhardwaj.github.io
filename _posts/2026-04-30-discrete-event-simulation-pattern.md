@@ -45,6 +45,49 @@ while (!pq.isEmpty()) {
 
 ---
 
+## Event Model Example
+
+```java
+record Event(long time, int type, int id) {}
+
+PriorityQueue<Event> pq = new PriorityQueue<>(
+        Comparator.<Event>comparingLong(Event::time)
+                .thenComparingInt(Event::type)   // tie-break for determinism
+                .thenComparingInt(Event::id)
+);
+```
+
+Deterministic tie-breaking avoids flaky behavior when multiple events share same timestamp.
+
+---
+
+## Dry Run (Single Server Queue)
+
+Events:
+
+1. request arrives at `t=0` (service time `3`)
+2. request arrives at `t=1`
+
+Flow:
+
+- process arrival at `t=0`, schedule completion at `t=3`
+- arrival at `t=1` waits in queue
+- completion at `t=3` starts next request, schedule new completion
+
+The simulation clock jumps from event to event (`0 -> 1 -> 3 -> ...`), not per time unit.
+
+---
+
+## Safety Rules
+
+- never schedule events in the past
+- define explicit termination condition (time horizon or empty system)
+- guard against infinite self-rescheduling loops
+
+These rules keep simulation stable and debuggable.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -59,6 +59,49 @@ class Solution {
 }
 ```
 
+## Dry Run
+
+Input: `[3,1,2,4]`
+
+- `left` stops at `3` (odd), `right` stops at `4` (even) -> swap -> `[4,1,2,3]`
+- move pointers inward
+- `left` stops at `1`, `right` stops at `2` -> swap -> `[4,2,1,3]`
+- pointers cross -> done
+
+Any valid even-first arrangement is acceptable.
+
+## Invariant
+
+During loop:
+
+- all indices `< left` are even
+- all indices `> right` are odd
+
+Swaps gradually expand these verified regions.
+
+## Common Mistakes
+
+1. Forgetting `left < right` in inner while loops.
+2. Expecting stable relative order from in-place two-pointer solution.
+3. Using sort comparator (`O(n log n)`) when linear partition is enough.
+
+## Stable Variant (Extra Space)
+
+If you must preserve original relative order among evens/odds, use additional array/list:
+
+1. append all evens in original order
+2. append all odds in original order
+
+This costs `O(n)` extra space.
+
+## Testing Checklist
+
+- all even array
+- all odd array
+- alternating parity
+- single element
+- already partitioned input
+
 ## Complexity
 
 - Time: `O(n)`
@@ -68,6 +111,6 @@ Output order inside even or odd groups is not required to be stable.
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- two-pointer partitioning solves parity segregation in one pass.
+- in-place swaps keep space usage constant.
+- correctness depends on advancing pointers only after handling current mismatch/match state.

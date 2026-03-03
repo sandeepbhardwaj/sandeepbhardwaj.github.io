@@ -156,6 +156,52 @@ This keeps contracts explicit without polluting serialization models.
 
 ---
 
+# Controller Mapping Pattern
+
+Keep Optional handling centralized in service layer or one mapping utility.
+
+```java
+public ResponseEntity<UserDto> getUser(Long id) {
+    return userService.findProfile(id)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
+}
+```
+
+This avoids scattering `if (isPresent)` checks across controllers.
+
+---
+
+# Avoid Over-Chaining
+
+Long Optional chains become hard to debug:
+
+```java
+// too dense for many teams when business rules grow
+userRepo.findById(id).filter(...).map(...).flatMap(...).map(...);
+```
+
+Preferred approach for complex flows:
+
+1. keep one or two Optional ops inline
+2. extract meaningful helper methods
+3. log domain decisions outside chain when needed
+
+Readability matters more than “functional purity.”
+
+---
+
+# Testing Optional Contracts
+
+For methods returning `Optional<T>`, test both outcomes explicitly:
+
+- value present path
+- empty path
+
+Also verify side effects are not executed on empty values when using `map` chains.
+
+---
+
 # Best Practices Checklist
 
 - use Optional mainly as return type

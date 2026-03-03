@@ -45,6 +45,61 @@ class LRUCache {
 
 ---
 
+## Practical LRU Shortcut (Java)
+
+For many use cases, `LinkedHashMap` with access-order gives compact LRU:
+
+```java
+class LRU<K, V> extends LinkedHashMap<K, V> {
+    private final int cap;
+    LRU(int cap) { super(16, 0.75f, true); this.cap = cap; }
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > cap;
+    }
+}
+```
+
+This is not always enough for advanced metrics/TTL policies, but great for baseline LRU behavior.
+
+---
+
+## LRU Dry Run
+
+Capacity `2`, operations:
+
+1. `put(1,A)` -> `[1]`
+2. `put(2,B)` -> `[2,1]` (most recent first conceptual)
+3. `get(1)` -> `[1,2]`
+4. `put(3,C)` -> evict `2`, cache `[3,1]`
+
+Eviction is based on recency, not frequency.
+
+---
+
+## LFU State Model
+
+LFU usually needs:
+
+- key -> node (value + frequency)
+- frequency -> ordered keys (to break ties by recency)
+- `minFreq` tracker
+
+All updates must keep these structures consistent, otherwise evictions become incorrect.
+
+---
+
+## Production Cache Design Notes
+
+- include TTL/refresh policy (LRU/LFU alone is often insufficient)
+- measure hit ratio and eviction churn
+- guard against cache stampede on misses
+- define behavior on cache backend failure (degrade gracefully)
+
+Cache correctness and observability matter as much as asymptotic `O(1)` operations.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

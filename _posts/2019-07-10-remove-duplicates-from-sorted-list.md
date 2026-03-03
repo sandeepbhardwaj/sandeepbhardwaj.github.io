@@ -25,24 +25,22 @@ header:
 
 # Remove Duplicates from Sorted List (LeetCode 83)
 
-This guide explains the intuition, optimized approach, and Java implementation for remove duplicates from sorted list (leetcode 83), with practical tips for interviews and production coding standards.
-
-## Problem
-
-Given a sorted linked list, delete duplicate nodes so each value appears once.
-
-## Example
+Given a sorted linked list, remove duplicate nodes so each value appears exactly once.
 
 Input: `1 -> 1 -> 2 -> 3 -> 3`  
 Output: `1 -> 2 -> 3`
 
-## Approach
+---
 
-Since list is sorted, duplicates are adjacent.
+## Core Idea
 
-- Walk list with `current`
-- If `current.val == current.next.val`, skip next node
-- Otherwise move forward
+Because list is sorted, duplicates are always adjacent.
+Use one pointer `current`:
+
+- if `current.val == current.next.val`, skip next node
+- otherwise move `current` forward
+
+---
 
 ## Java Solution
 
@@ -64,13 +62,46 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `1 -> 1 -> 2 -> 3 -> 3`
+
+1. `current=1`, next `1` -> duplicate, skip next  
+   list becomes `1 -> 2 -> 3 -> 3`
+2. `current=1`, next `2` -> move to `2`
+3. `current=2`, next `3` -> move to `3`
+4. `current=3`, next `3` -> duplicate, skip next
+
+Result: `1 -> 2 -> 3`
+
+---
+
+## Important Pointer Rule
+
+After deletion, do not move `current` immediately.
+Reason: there may be more duplicates of same value (for example `1 -> 1 -> 1`).
+
+---
+
+## Common Mistakes
+
+1. advancing pointer after deletion and skipping checks
+2. missing loop condition `current.next != null`
+3. applying this logic to unsorted list
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- sorted order makes duplicates local and easy to remove in one pass.
+- mutation is done by relinking `next` pointers, no extra nodes needed.
+- this differs from LeetCode 82, where all duplicate values must be removed entirely.

@@ -46,6 +46,46 @@ class Fenwick {
 
 ---
 
+## Range Sum Query
+
+Fenwick naturally gives prefix sums.
+Range sum `[l..r]` is:
+
+```java
+long sumRange(int l, int r) {
+    if (l > r) return 0;
+    return sumPrefix(r) - (l == 0 ? 0 : sumPrefix(l - 1));
+}
+```
+
+---
+
+## Dry Run
+
+Array updates:
+
+- add index `0` by `2`
+- add index `2` by `5`
+- add index `3` by `1`
+
+Then:
+
+- `sumPrefix(3)` gives `8`
+- `sumRange(1,3)` gives `6`
+
+Fenwick updates and queries both touch only `O(log n)` internal nodes.
+
+---
+
+## 1-Based Internal Indexing Note
+
+Fenwick tree uses 1-based indexing internally.
+Public API can stay 0-based, but conversion (`idx + 1`) must be consistent.
+
+Most bugs come from mixing these index systems.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

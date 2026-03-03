@@ -26,24 +26,29 @@ header:
 
 # Remove Duplicates from Sorted Array in Java
 
-This guide explains the intuition, optimized approach, and Java implementation for remove duplicates from sorted array in java, with practical tips for interviews and production coding standards.
+Given a sorted array, remove duplicates in-place so each unique value appears once.
+Return the number of unique elements.
 
-## Problem
+---
 
-Remove duplicates from sorted array in-place and return count of unique elements.
+## Two-Pointer Invariant
 
-## Two Pointer Strategy
+- `slow` marks last unique element position
+- `fast` scans from left to right
+- when `nums[fast] != nums[slow]`, move `slow` forward and copy value
 
-- `slow` tracks last unique index
-- `fast` scans array
-- when new value found, write at `slow + 1`
+Because array is sorted, duplicates are adjacent, so this one pass is enough.
+
+---
 
 ## Java Solution
 
 ```java
 class Solution {
     public int removeDuplicates(int[] nums) {
-        if (nums.length == 0) return 0;
+        if (nums.length == 0) {
+            return 0;
+        }
 
         int slow = 0;
         for (int fast = 1; fast < nums.length; fast++) {
@@ -58,13 +63,49 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `[0,0,1,1,1,2,2,3,3,4]`
+
+- start: `slow=0` (`0` is first unique)
+- `fast=1` value `0` equals `nums[slow]`, skip
+- `fast=2` value `1` differs, `slow=1`, write `nums[1]=1`
+- `fast=3,4` both `1`, skip
+- `fast=5` value `2` differs, `slow=2`, write `nums[2]=2`
+- `fast=7` value `3` differs, `slow=3`, write `nums[3]=3`
+- `fast=9` value `4` differs, `slow=4`, write `nums[4]=4`
+
+Return `slow + 1 = 5`.
+Valid prefix becomes `[0,1,2,3,4]`.
+
+---
+
+## Important Note About Output Array
+
+Only first `k` positions are meaningful after operation.
+Elements beyond `k` can contain old values and should be ignored.
+
+---
+
+## Common Mistakes
+
+1. forgetting empty-array check
+2. comparing with `nums[fast - 1]` after in-place writes
+3. assuming full array is cleaned instead of only prefix `[0..k-1]`
+
+---
+
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- sorted order makes adjacent duplicate compaction possible.
+- `slow` always points to end of unique prefix.
+- two pointers give in-place deduplication in linear time.

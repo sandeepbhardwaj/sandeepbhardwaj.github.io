@@ -94,6 +94,27 @@ public int[] dijkstra(List<List<int[]>> g, int src) {
 
 ---
 
+## Dry Run (Dijkstra)
+
+Graph edges:
+
+- `0 -> 1 (4)`
+- `0 -> 2 (1)`
+- `2 -> 1 (2)`
+
+Start `src=0`:
+
+1. `dist=[0,INF,INF]`, pq=`(0,0)`
+2. pop `0`: relax `1=4`, `2=1`
+3. pop `2`: relax `1=min(4,1+2)=3`
+4. pop stale `(1,4)` skipped, pop `(1,3)` processed
+
+Final shortest distance to `1` is `3`.
+
+This illustrates why stale-entry skipping is required.
+
+---
+
 ## Problem 1: Network Delay Time
 
 Dijkstra with source `k`; answer is max distance if all nodes reachable.
@@ -113,6 +134,21 @@ Use Dijkstra with relaxation on max-edge-so-far metric.
 2. Missing stale-entry skip (`if (d != dist[u]) continue`)
 3. Overflow on distance addition
 4. Wrong graph indexing (1-based vs 0-based)
+
+---
+
+## Path Reconstruction Tip
+
+If problem asks actual route, maintain `parent[]` during relax:
+
+```java
+if (newDist < dist[v]) {
+    dist[v] = newDist;
+    parent[v] = u;
+}
+```
+
+Then reconstruct by walking from destination to source through `parent`.
 
 ---
 

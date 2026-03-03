@@ -43,6 +43,63 @@ int[][] st = new int[k][n];
 
 ---
 
+## Complete RMQ (Min Query) Example
+
+```java
+class SparseTableMin {
+    private final int[][] st;
+    private final int[] lg;
+
+    SparseTableMin(int[] a) {
+        int n = a.length;
+        int k = 1 + (int) (Math.log(n) / Math.log(2));
+        st = new int[k][n];
+        lg = new int[n + 1];
+
+        for (int i = 2; i <= n; i++) lg[i] = lg[i / 2] + 1;
+        System.arraycopy(a, 0, st[0], 0, n);
+
+        for (int p = 1; p < k; p++) {
+            int len = 1 << p;
+            for (int i = 0; i + len <= n; i++) {
+                st[p][i] = Math.min(st[p - 1][i], st[p - 1][i + (len >> 1)]);
+            }
+        }
+    }
+
+    int rangeMin(int l, int r) {
+        int p = lg[r - l + 1];
+        return Math.min(st[p][l], st[p][r - (1 << p) + 1]);
+    }
+}
+```
+
+---
+
+## Dry Run
+
+Array: `[5,2,4,7,1,3]`, query `[1..4]`
+
+- length = `4`, `p = floor(log2(4)) = 2`
+- compare blocks:
+  - `st[2][1]` covers `[1..4]`
+  - `st[2][1]` again due exact fit
+- answer = `1`
+
+For non-power-of-two lengths, two overlapping blocks of size `2^p` still cover range.
+
+---
+
+## When Sparse Table Is Ideal
+
+- array is immutable
+- many queries
+- operation is idempotent (`min`, `max`, `gcd`)
+
+For sum queries, overlapping-block trick does not work; use prefix sums or segment tree depending on updates.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

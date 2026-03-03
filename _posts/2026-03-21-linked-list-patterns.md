@@ -130,6 +130,39 @@ public ListNode removeNthFromEnd(ListNode head, int n) {
 }
 ```
 
+Edge note: this assumes `n` is valid (`1 <= n <= length`).
+If input can be invalid, guard against `first == null` during initial gap advance.
+
+---
+
+## Pointer Debug Strategy
+
+For complex linked-list edits, debug with tiny lists and snapshot states:
+
+```text
+prev=2 cur=3 next=4
+```
+
+After each mutation (`cur.next = prev` etc.), verify:
+
+1. no node is orphaned unexpectedly
+2. no accidental cycles are created
+3. termination pointer eventually reaches `null`
+
+Short traces catch most pointer bugs quickly.
+
+---
+
+## Interview-Grade Invariant Habit
+
+Before coding, define one invariant sentence, e.g.:
+
+- reversal: "`prev` is head of reversed prefix"
+- merge: "`tail` is last node of sorted merged list"
+- fast/slow: "`slow` advances half speed of `fast`"
+
+This reduces trial-and-error pointer updates.
+
 ---
 
 ## Common Mistakes

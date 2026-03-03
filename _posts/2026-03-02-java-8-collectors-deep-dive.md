@@ -178,6 +178,58 @@ Use custom collectors only when built-ins cannot express your result shape clear
 
 ---
 
+# `collectingAndThen` for Final DTO Shaping
+
+`collectingAndThen` is useful when you want post-processing after collection.
+
+```java
+Map<String, List<Order>> immutableByCategory = orders.stream()
+        .collect(Collectors.collectingAndThen(
+                Collectors.groupingBy(Order::getCategory),
+                Collections::unmodifiableMap
+        ));
+```
+
+This helps enforce immutability on aggregation results passed to other layers.
+
+---
+
+# Null and Key Hygiene
+
+Collectors assume your key/value logic is safe.
+Before grouping/toMap in production:
+
+- normalize keys (`trim`, `toLowerCase`) where needed
+- filter out null keys/values explicitly
+- define merge behavior for duplicates
+
+Example:
+
+```java
+Map<String, User> byEmail = users.stream()
+        .filter(u -> u.getEmail() != null)
+        .collect(Collectors.toMap(
+                u -> u.getEmail().trim().toLowerCase(),
+                Function.identity(),
+                (a, b) -> a
+        ));
+```
+
+---
+
+# Testing Collector Logic
+
+For non-trivial collector pipelines, test:
+
+1. empty input
+2. duplicate keys
+3. null/invalid records
+4. deterministic totals/counts on known fixture data
+
+Collector bugs are often aggregation-edge bugs, not syntax bugs.
+
+---
+
 # Performance and Readability Rules
 
 - use built-in collectors first

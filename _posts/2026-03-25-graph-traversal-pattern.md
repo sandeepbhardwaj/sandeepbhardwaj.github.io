@@ -134,12 +134,54 @@ private void flood(char[][] g, int r, int c) {
 
 ---
 
+## Dry Run (BFS Traversal)
+
+Graph:
+
+```text
+0 -- 1 -- 2
+|         |
+3 --------4
+```
+
+Start BFS from `0`:
+
+1. queue `[0]`, visit `0`
+2. pop `0`, push neighbors `1,3`
+3. pop `1`, push `2`
+4. pop `3`, push `4` (if not visited)
+5. pop `2`, `4` already queued/visited
+6. pop `4`, done
+
+Visited order depends on adjacency order, but reachability set is deterministic.
+
+---
+
 ## Common Mistakes
 
 1. Missing `visited` tracking in cyclic graphs
 2. Stack overflow on deep recursive DFS
 3. Wrong directed vs undirected edge construction
 4. Mutating shared graph state unintentionally
+
+---
+
+## Iterative DFS for Deep Graphs
+
+For very deep inputs, prefer explicit stack to avoid recursion depth issues:
+
+```java
+Deque<Integer> st = new ArrayDeque<>();
+st.push(src);
+while (!st.isEmpty()) {
+    int u = st.pop();
+    if (vis[u]) continue;
+    vis[u] = true;
+    for (int v : g.get(u)) if (!vis[v]) st.push(v);
+}
+```
+
+This is safer for large production-like graph depths.
 
 ---
 

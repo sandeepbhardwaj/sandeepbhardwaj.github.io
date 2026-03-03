@@ -72,6 +72,48 @@ class Solution {
 }
 ```
 
+## Dry Run (Given Example)
+
+Input:
+
+- `l1 = 2 -> 4 -> 3`
+- `l2 = 5 -> 6 -> 4`
+
+Steps:
+
+1. `2 + 5 + carry(0) = 7` -> node `7`, carry `0`
+2. `4 + 6 + carry(0) = 10` -> node `0`, carry `1`
+3. `3 + 4 + carry(1) = 8` -> node `8`, carry `0`
+
+Result: `7 -> 0 -> 8`
+
+## Why Dummy Node Helps
+
+`dummy` simplifies list construction by removing special handling for first node.
+Without it, code needs extra branch logic when output is still empty.
+
+## Common Mistakes
+
+1. Forgetting final carry node (`carry != 0`).
+2. Advancing list pointers before reading current values.
+3. Mishandling unequal list lengths.
+4. Reusing input nodes and corrupting original lists unintentionally.
+
+## Variant: Digits in Forward Order
+
+If digits are stored most-significant-first, this direct loop does not work.
+Common solutions:
+
+- reverse both lists first, then reuse this method
+- or use stacks to process from the end
+
+## Testing Checklist
+
+- `0 + 0` -> `0`
+- `[9] + [1]` -> `[0,1]`
+- unequal lengths: `[9,9,9] + [1]` -> `[0,0,0,1]`
+- long random lists cross-checked with big integer conversion in tests
+
 ## Complexity
 
 - Time: `O(max(m, n))`
@@ -79,6 +121,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- dummy node simplifies output list construction and removes first-node special cases.
+- loop condition must include carry so final overflow digit is not lost.
+- this pattern generalizes to many digit-by-digit linked-list arithmetic problems.

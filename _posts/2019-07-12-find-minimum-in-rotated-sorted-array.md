@@ -26,25 +26,28 @@ header:
 
 # Find Minimum in Rotated Sorted Array in Java
 
-This guide explains the intuition, optimized approach, and Java implementation for find minimum in rotated sorted array in java, with practical tips for interviews and production coding standards.
+Given a rotated sorted array with distinct values, find the minimum element in `O(log n)`.
 
-## Problem
+---
 
-Array is sorted then rotated. Find the minimum value in `O(log n)`.
+## Binary Search Insight
 
-## Insight
+Use comparison with right boundary:
 
-Compare `nums[mid]` with `nums[right]`:
+- if `nums[mid] > nums[right]`, minimum is in right half (excluding `mid`)
+- else, minimum is in left half including `mid`
 
-- If `nums[mid] > nums[right]`, minimum is in right half
-- Else, minimum is in left half including `mid`
+This keeps minimum index inside `[left, right]` at every step.
+
+---
 
 ## Java Solution
 
 ```java
 class Solution {
     public int findMin(int[] nums) {
-        int left = 0, right = nums.length - 1;
+        int left = 0;
+        int right = nums.length - 1;
 
         while (left < right) {
             int mid = left + (right - left) / 2;
@@ -61,13 +64,47 @@ class Solution {
 }
 ```
 
+---
+
+## Dry Run
+
+Input: `[4,5,6,7,0,1,2]`
+
+1. `left=0`, `right=6`, `mid=3`, `nums[mid]=7`, `nums[right]=2`  
+   `7 > 2` -> minimum is right side, `left=4`
+2. `left=4`, `right=6`, `mid=5`, `nums[mid]=1`, `nums[right]=2`  
+   `1 <= 2` -> minimum is left side including `mid`, `right=5`
+3. `left=4`, `right=5`, `mid=4`, `nums[mid]=0`, `nums[right]=1`  
+   `0 <= 1` -> `right=4`
+
+Now `left == right == 4`, answer is `nums[4] = 0`.
+
+---
+
+## Common Mistakes
+
+1. using `right = mid - 1` in `else` branch (can remove true minimum at `mid`)
+2. writing loop as `left <= right` and returning wrong boundary
+3. mixing this logic with duplicate-value variant
+
+---
+
+## Duplicate Variant Note (LeetCode 154)
+
+With duplicates, if `nums[mid] == nums[right]`, direction is ambiguous.
+Fallback is typically `right--`, which can degrade worst-case to `O(n)`.
+
+---
+
 ## Complexity
 
-- Time: `O(log n)`
+- Time: `O(log n)` for distinct values
 - Space: `O(1)`
+
+---
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- this is a boundary-elimination binary search problem.
+- compare with `right` to decide which half is guaranteed sorted.
+- always keep `mid` in range when it can still be the minimum.

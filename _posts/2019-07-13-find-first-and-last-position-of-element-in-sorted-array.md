@@ -74,6 +74,53 @@ class Solution {
 }
 ```
 
+## Why Two Binary Searches
+
+A standard binary search can find one matching index, but not guaranteed boundaries.
+Boundary queries need directional bias:
+
+- first index: continue searching left even after match
+- last index: continue searching right even after match
+
+That is why two focused searches are cleaner and safer.
+
+## Dry Run
+
+`nums = [5,7,7,8,8,10]`, `target = 8`
+
+- first search returns `3`
+- last search returns `4`
+
+Output: `[3,4]`
+
+For `target = 6`, first search returns `-1`, so output is `[-1,-1]`.
+
+## Common Mistakes
+
+1. Stopping immediately when target is found (misses boundaries).
+2. Reusing one binary-search function without boundary-specific logic.
+3. Forgetting to handle empty input.
+4. Off-by-one errors in `left/right` updates.
+
+## Alternative Bound-Based Formulation
+
+You can compute:
+
+- `left = lowerBound(target)`
+- `right = lowerBound(target + 1) - 1`
+
+Then validate `left` is in range and equals target.
+
+This approach is concise and generalizes to frequency queries.
+
+## Testing Checklist
+
+- empty array
+- target absent
+- single occurrence target
+- all elements equal to target
+- target at first index and last index
+
 ## Complexity
 
 - Time: `O(log n)`
@@ -81,6 +128,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- find first and last positions using two boundary-focused binary searches.
+- lower-bound and upper-bound logic should be implemented separately for clarity.
+- boundary bugs are common, so verify with absent target and duplicate-heavy cases.

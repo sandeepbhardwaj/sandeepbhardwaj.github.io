@@ -60,6 +60,51 @@ class Solution {
 }
 ```
 
+## Dry Run
+
+Input: `[-2,1,-3,4,-1,2,1,-5,4]`
+
+- start: `current=-2`, `best=-2`
+- `1`: `current=max(1,-1)=1`, `best=1`
+- `-3`: `current=max(-3,-2)=-2`, `best=1`
+- `4`: `current=4`, `best=4`
+- `-1`: `current=3`, `best=4`
+- `2`: `current=5`, `best=5`
+- `1`: `current=6`, `best=6`
+- `-5`: `current=1`, `best=6`
+- `4`: `current=5`, `best=6`
+
+Answer: `6` (`[4,-1,2,1]`)
+
+## Why This Works
+
+If `current + nums[i]` is worse than `nums[i]` itself, any subarray ending at `i-1` is harmful.
+So the optimal subarray ending at `i` either:
+
+- extends previous optimal ending at `i-1`, or
+- starts fresh at `i`
+
+This local choice leads to global optimum in one pass.
+
+## Common Mistakes
+
+1. Initializing `current` and `best` to `0` (fails on all-negative arrays).
+2. Using prefix-sum brute force (`O(n^2)`) for this problem.
+3. Forgetting to handle single-element input.
+
+## Variant: Return Subarray Indices
+
+Track start candidate and best range while applying Kadane updates.
+Useful when problem asks for the actual subarray, not just sum.
+
+## Testing Checklist
+
+- all positive values
+- all negative values
+- mix with best subarray in middle
+- single element
+- large random arrays
+
 ## Complexity
 
 - Time: `O(n)`
@@ -67,6 +112,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- Kadane tracks best subarray ending at current index, then upgrades global best.
+- initialize from first element, not zero, to correctly handle all-negative arrays.
+- this is a one-pass dynamic programming pattern with constant extra space.

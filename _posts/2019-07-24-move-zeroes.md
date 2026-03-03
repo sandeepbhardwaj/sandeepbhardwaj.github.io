@@ -60,6 +60,49 @@ class Solution {
 }
 ```
 
+## Dry Run
+
+Input: `[0,1,0,3,12]`
+
+Pass 1 (copy non-zero):
+
+- write `1` at index `0`
+- write `3` at index `1`
+- write `12` at index `2`
+
+Array interim: `[1,3,12,3,12]`, `insertPos=3`
+
+Pass 2 (fill zeros):
+
+- set index `3` to `0`
+- set index `4` to `0`
+
+Final: `[1,3,12,0,0]`
+
+## Why This Is Stable
+
+Non-zero elements are written in the same order they are encountered.
+So relative ordering among non-zero elements is preserved.
+
+## Swap-Based Alternative
+
+Another common approach swaps current non-zero with `insertPos`.
+It can reduce writes when there are few zeros, but this two-pass version is simpler and clear.
+
+## Common Mistakes
+
+1. Sorting array (breaks relative order).
+2. Using extra array unnecessarily (`O(n)` extra space).
+3. Forgetting to zero-fill remainder after compaction.
+
+## Testing Checklist
+
+- all zeros
+- no zeros
+- zeros only at beginning/end
+- alternating zero/non-zero
+- single-element array
+
 ## Complexity
 
 - Time: `O(n)`
@@ -67,6 +110,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- keep non-zero values compacted at the front, then fill rest with zeros.
+- maintain relative order of non-zero elements for stable output.
+- in-place two-pointer compaction gives linear time and constant extra memory.

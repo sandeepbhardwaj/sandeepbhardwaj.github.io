@@ -227,6 +227,43 @@ Operational impact:
 
 ---
 
+# Production Adoption Strategy
+
+For most backend teams, adopt Java 21 in phases:
+
+1. runtime upgrade + regression/performance baseline
+2. language modernization (switch patterns, record patterns)
+3. concurrency modernization (virtual threads for selected endpoints)
+4. preview feature experiments in isolated modules only
+
+This minimizes migration risk while capturing practical gains quickly.
+
+---
+
+# Virtual Threads Rollout Checklist
+
+- identify blocking I/O heavy endpoints first
+- enforce downstream concurrency budgets (DB/HTTP pool limits)
+- track thread pinning and synchronized hot spots
+- compare p95/p99 latency and error rates before/after
+
+Virtual threads reduce complexity, but capacity planning still matters.
+
+---
+
+# Preview/Incubator Governance
+
+Java 21 includes several preview/incubator features.
+Treat them as opt-in experiments with explicit governance:
+
+- separate build profile for `--enable-preview`
+- no accidental dependency from stable modules
+- upgrade plan to finalized feature versions in future LTS
+
+This avoids long-term maintenance surprises.
+
+---
+
 # 15) Key Takeaways
 
 - Java 21 LTS is a major productivity and scalability release.

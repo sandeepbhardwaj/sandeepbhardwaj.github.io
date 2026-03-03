@@ -46,6 +46,55 @@ events.sort((a,b) -> a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]);
 
 ---
 
+## Example: Maximum Overlapping Intervals
+
+```java
+int maxOverlap(int[][] intervals) {
+    List<int[]> events = new ArrayList<>();
+    for (int[] in : intervals) {
+        events.add(new int[]{in[0], +1}); // start
+        events.add(new int[]{in[1], -1}); // end
+    }
+    events.sort((a, b) -> a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]);
+
+    int active = 0, best = 0;
+    for (int[] e : events) {
+        active += e[1];
+        best = Math.max(best, active);
+    }
+    return best;
+}
+```
+
+---
+
+## Dry Run
+
+Intervals: `[1,4], [2,5], [7,9]`
+
+Events after sort:
+
+`(1,+1), (2,+1), (4,-1), (5,-1), (7,+1), (9,-1)`
+
+Active count scan:
+
+- 1 -> 2 -> 1 -> 0 -> 1 -> 0
+
+Maximum overlap = `2`.
+
+---
+
+## Tie-Breaking Rule (Important)
+
+At same coordinate, start/end ordering changes result semantics.
+
+- process end before start for half-open intervals `[l, r)`
+- process start before end for closed intervals `[l, r]` style counting
+
+Define interval semantics first, then choose comparator tie-break.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

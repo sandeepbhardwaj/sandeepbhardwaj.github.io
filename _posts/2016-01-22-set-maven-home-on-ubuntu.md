@@ -25,6 +25,8 @@ toc_icon: cog
 
 Use this when Maven is installed manually (tar/zip) and not via `apt`.
 
+Note: modern Maven does not strictly require `M2_HOME`, but many teams still set it for consistency.
+
 ## 1. Find Maven installation directory
 
 Example:
@@ -56,6 +58,27 @@ Load changes:
 source /etc/profile
 ```
 
+## Better Practice: `/etc/profile.d` Script
+
+Instead of editing `/etc/profile` directly, create a dedicated file:
+
+```bash
+sudo nano /etc/profile.d/maven.sh
+```
+
+```bash
+export M2_HOME=/data/dev/tools/apache-maven-3.9.9
+export PATH=$PATH:$M2_HOME/bin
+```
+
+Then reload:
+
+```bash
+source /etc/profile.d/maven.sh
+```
+
+This keeps system configuration cleaner and easier to maintain.
+
 ## 3. Verify
 
 ```bash
@@ -65,12 +88,37 @@ mvn -v
 
 Expected output includes Maven home path and Java version.
 
+Also confirm Java setup, since Maven depends on JDK:
+
+```bash
+echo $JAVA_HOME
+java -version
+```
+
 ## Optional: user-level config
 
 If you do not want system-wide changes, add the same exports to `~/.bashrc` or `~/.zshrc`.
+
+## Multi-Version Workflow (Optional)
+
+If you use different Maven versions per project:
+
+- keep each version under a tool directory (for example `/opt/tools/maven/`)
+- point `M2_HOME` to the required version in a project-specific shell script
+- load per-project env with `direnv` or a small `source ./env.sh` convention
+
+This avoids global version conflicts.
+
+## Common Troubleshooting
+
+1. `mvn: command not found`: PATH not loaded in current shell (`source` profile again).
+2. Wrong Maven version: another `mvn` appears earlier in PATH (`which mvn`).
+3. Java mismatch errors: `JAVA_HOME` points to incompatible JDK.
+4. Works in terminal but not IDE: configure IDE terminal/environment separately.
 
 ## Key Takeaways
 
 - Keep configuration explicit and environment-specific.
 - Verify setup with version and env checks immediately after changes.
 - Automate these steps in shell profiles or project docs to avoid drift.
+- Prefer `/etc/profile.d` for maintainable system-wide setup.

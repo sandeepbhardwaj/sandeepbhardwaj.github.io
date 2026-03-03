@@ -94,12 +94,50 @@ public boolean hasPathSum(TreeNode root, int targetSum) {
 
 ---
 
+## Dry Run (Path Sum)
+
+Tree:
+
+```text
+    5
+   / \
+  4   8
+     / \
+    13  4
+```
+
+Target = `17`
+
+DFS flow:
+
+- at `5`, remaining target becomes `12`
+- explore left `4`, remaining becomes `8` (leaf and not equal) -> false
+- explore right `8`, remaining becomes `4`
+  - `13` branch fails
+  - `4` leaf matches remaining `4` -> true
+
+Any true branch short-circuits overall result to true.
+
+---
+
 ## Common Mistakes
 
 1. Missing base cases
 2. Using global state when return-value recursion is cleaner
 3. Forgetting path rollback in path-collection problems
 4. Integer overflow in boundary-based BST validation
+
+---
+
+## Recursion Contract Tip
+
+Define function contract in one line before coding:
+
+- “returns whether subtree satisfies X”
+- “returns max depth of subtree”
+- “returns gain contributed upward”
+
+Clear contracts prevent mixing traversal logic with mutable global flags.
 
 ---
 

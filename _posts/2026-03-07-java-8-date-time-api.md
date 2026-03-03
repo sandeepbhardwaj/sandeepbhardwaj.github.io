@@ -91,6 +91,27 @@ Use `ZonedDateTime` and clear business rules for scheduling.
 
 ---
 
+# `LocalDateTime` Persistence Trap
+
+`LocalDateTime` has no timezone/offset.
+Persisting it for global events can create ambiguity across regions.
+
+Bad for event timestamps:
+
+```java
+LocalDateTime createdAt = LocalDateTime.now(); // ambiguous globally
+```
+
+Preferred:
+
+```java
+Instant createdAt = Instant.now(); // unambiguous timeline point
+```
+
+Use `LocalDateTime` only when timezone is intentionally irrelevant.
+
+---
+
 # Expiry and Duration Logic
 
 Use `Duration` or `Period` instead of manual millis arithmetic.
@@ -100,6 +121,31 @@ Instant issuedAt = Instant.now();
 Instant expiresAt = issuedAt.plus(Duration.ofMinutes(15));
 boolean expired = Instant.now().isAfter(expiresAt);
 ```
+
+---
+
+# API Contract Recommendation
+
+For external JSON APIs, standardize on ISO-8601 UTC strings:
+
+```json
+{
+  "createdAt": "2026-03-07T10:15:30Z"
+}
+```
+
+Avoid custom date formats unless integration requires it.
+If custom format is mandatory, define formatter centrally and version the contract.
+
+---
+
+# Database Mapping Guidance
+
+- prefer DB types that preserve timezone semantics (`TIMESTAMP WITH TIME ZONE` where supported)
+- if DB lacks true timezone support, store epoch millis/seconds or UTC instant strings consistently
+- never depend on DB/session local timezone for business correctness
+
+Consistency across app + DB + analytics pipelines is more important than local convenience.
 
 ---
 

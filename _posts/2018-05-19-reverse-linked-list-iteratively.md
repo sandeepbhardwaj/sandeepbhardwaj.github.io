@@ -67,6 +67,64 @@ class Solution {
 }
 ```
 
+## Dry Run (First 3 Steps)
+
+Initial:
+
+- `prev = null`
+- `current = 1 -> 2 -> 3 -> 4 -> 5`
+
+Step 1:
+
+- `next = 2`
+- reverse `1.next = null`
+- move: `prev = 1`, `current = 2`
+
+Step 2:
+
+- `next = 3`
+- reverse `2.next = 1`
+- move: `prev = 2 -> 1`, `current = 3`
+
+Step 3:
+
+- `next = 4`
+- reverse `3.next = 2`
+- move: `prev = 3 -> 2 -> 1`, `current = 4`
+
+Continue until `current == null`. Final `prev` is new head.
+
+## Common Mistakes
+
+1. Forgetting to store `next` before rewiring `current.next`.
+2. Returning `head` instead of `prev`.
+3. Accidentally creating a cycle by wrong pointer update order.
+
+## Useful Variant: Reverse First K Nodes
+
+```java
+ListNode reverseFirstK(ListNode head, int k) {
+    ListNode prev = null, curr = head;
+    while (curr != null && k-- > 0) {
+        ListNode next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+    head.next = curr; // connect remainder
+    return prev;
+}
+```
+
+This pattern is reused in problems like reversing in groups.
+
+## Testing Checklist
+
+- `[]` -> `[]`
+- `[1]` -> `[1]`
+- `[1,2]` -> `[2,1]`
+- `[1,2,3,4,5]` -> `[5,4,3,2,1]`
+
 ## Complexity
 
 - Time: `O(n)`
@@ -80,6 +138,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- iterative reversal is pointer choreography using `prev`, `curr`, and `next`.
+- update order matters: save `next` before changing `curr.next`.
+- iterative approach is production-safe for long lists due to constant stack usage.

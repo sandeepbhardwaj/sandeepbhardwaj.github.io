@@ -21,88 +21,115 @@ header:
 
 # Idempotency and Exactly-Once Semantics in Java Services
 
-Modern backend systems fail in production at boundaries: memory pressure, concurrency races, integration drift, and observability blind spots.
-This article focuses on practical design and implementation decisions so you can apply this topic in real services, not just interview scenarios.
+In distributed systems, retries are unavoidable.
+Correctness comes from making operations idempotent and designing deduplication boundaries carefully.
 
 ---
 
-## Why This Topic Matters
+## Exactly-Once: Practical Meaning
 
-Design safe retryable APIs with deduplication and deterministic write semantics.
+True global exactly-once delivery across networks is usually not achievable end-to-end.
+What we implement in production is:
 
-In high-scale systems, choosing the wrong primitive or abstraction often causes hidden tail-latency, reliability, or maintainability costs.
-The goal is to select the right model early and validate it with measurable runtime signals.
+- at-least-once delivery
+- idempotent processing
+- deterministic deduplication at state boundaries
 
----
-
-## Core Concepts
-
-- Define the correctness model first: what must always be true even under retries, failures, and concurrency.
-- Identify operational constraints: latency SLOs, memory budgets, throughput targets, and incident response requirements.
-- Separate API contract from implementation details so internal optimization can evolve without breaking callers.
-- Design instrumentation alongside code: metrics, logs, and traces must make state transitions observable.
+This yields effectively-once business outcomes.
 
 ---
 
-## Java Implementation Pattern
+## HTTP Idempotency Pattern
+
+For create/payment-like endpoints:
+
+- client sends `Idempotency-Key`
+- server stores `(key, request_hash, final_response)`
+- repeated request with same key and same payload returns original response
+- same key with different payload is rejected
 
 ```java
-public Response createOrder(String idemKey, CreateOrder cmd) {
-    return idemStore.computeIfAbsent(idemKey, k -> process(cmd));
+public Response createPayment(String idemKey, PaymentCommand cmd) {
+    String payloadHash = hash(cmd);
+
+    IdempotencyRecord existing = idemRepository.find(idemKey);
+    if (existing != null) {
+        if (!existing.payloadHash().equals(payloadHash)) {
+            return Response.status(409).body("Idempotency key reused with different payload");
+        }
+        return Response.fromStored(existing.responseCode(), existing.responseBody());
+    }
+
+    PaymentResult result = paymentService.process(cmd);
+    idemRepository.insert(idemKey, payloadHash, result.statusCode(), result.body());
+    return Response.status(result.statusCode()).body(result.body());
 }
 ```
 
 ---
 
-## Design Trade-Offs
+## Persistence Model
 
-- Simpler models are easier to reason about; advanced optimizations should be introduced only when bottlenecks are proven.
-- Throughput-oriented choices can increase latency variance; pause-sensitive systems need different tuning priorities.
-- Runtime flexibility (reflection/dynamic loading) improves extensibility but can add startup and execution overhead.
-- Strong boundaries (module/API contracts) reduce accidental coupling and improve long-term maintainability.
+```sql
+create table idempotency_record (
+  idem_key varchar(128) primary key,
+  payload_hash char(64) not null,
+  status_code int not null,
+  response_body text not null,
+  created_at timestamp not null
+);
+```
 
----
-
-## Production Checklist
-
-1. Define success and failure metrics before rollout.
-2. Add safeguards for saturation and error amplification.
-3. Validate behavior with load tests and failure injection.
-4. Ensure shutdown/recovery paths are explicit and idempotent.
-5. Document assumptions that future maintainers must preserve.
+Add TTL/archival policy based on realistic client retry window.
 
 ---
 
-## Common Pitfalls
+## Message Consumer Idempotency Pattern
 
-1. Treating default JVM/framework settings as universally optimal.
-2. Using benchmarks that do not reflect production traffic patterns.
-3. Ignoring tail latency and focusing only on average metrics.
-4. Mixing concerns (domain logic, transport, persistence, retries) in one layer.
-5. Rolling out invasive changes without guardrails and fast rollback paths.
+For Kafka/queue consumers:
 
----
+- include stable event ID
+- keep processed-event table keyed by event ID
+- process in one transaction with business write when possible
 
-## Testing and Validation Strategy
-
-- Write deterministic unit tests for invariants and edge cases.
-- Add integration tests covering timeouts, retries, partial failures, and restart behavior.
-- Run staged load tests with realistic payload distributions and concurrency levels.
-- Compare baseline vs new implementation with clear before/after metrics.
+If duplicate event arrives, no-op safely.
 
 ---
 
-## Adoption Strategy
+## Dry Run: Duplicate Payment Submission
 
-- Start with one bounded service boundary or one high-impact code path.
-- Roll out behind feature flags or progressive traffic exposure.
-- Observe key metrics for one full traffic cycle before wider rollout.
-- Keep migration notes and fallback plans in repository docs.
+Scenario: client times out after submitting payment and retries twice.
+
+1. first request reaches server, payment is created, response lost in network.
+2. retry #1 arrives with same key and same payload.
+3. server finds stored idempotency record and returns original response.
+4. retry #2 behaves same; no second charge is created.
+
+This is the core business guarantee users care about.
+
+---
+
+## Design Rules
+
+- define idempotency scope (`endpoint + tenant + key`).
+- hash canonicalized request payload, not raw JSON string formatting.
+- store final response, not only "seen" marker.
+- guard side effects (email, webhook, ledger writes) under same dedupe boundary.
+- use unique constraints as final safety net.
+
+---
+
+## Common Mistakes
+
+- accepting idempotency key but not validating payload consistency
+- deduping in memory only (fails on restart/multi-instance)
+- using very short retention window causing replay duplicates later
+- calling downstream side effects before idempotency record is committed
 
 ---
 
 ## Key Takeaways
 
-- Idempotency and Exactly-Once Semantics in Java Services is most valuable when paired with explicit invariants and measurable runtime validation.
-- Production readiness comes from observability, failure handling, and controlled rollout, not only algorithmic correctness.
-- Prefer clear architecture first, then optimize with data.
+- idempotency is the practical path to effectively-once outcomes.
+- correctness depends on key scope, payload validation, and durable dedupe storage.
+- design retries and deduplication together, not as separate concerns.

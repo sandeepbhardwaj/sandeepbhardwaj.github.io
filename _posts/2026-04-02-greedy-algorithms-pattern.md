@@ -51,6 +51,49 @@ public int maxNonOverlappingIntervals(int[][] intervals) {
 
 ---
 
+## Dry Run (Interval Selection)
+
+Intervals: `[[1,3],[2,4],[3,5],[6,7]]`
+
+Sort by end:
+
+`[1,3], [2,4], [3,5], [6,7]`
+
+Selection:
+
+1. pick `[1,3]` (end=3)
+2. skip `[2,4]` because `2 < 3`
+3. pick `[3,5]` because `3 >= 3` (end=5)
+4. pick `[6,7]` because `6 >= 5`
+
+Result count = `3`
+
+---
+
+## Greedy Proof Mindset (Exchange Argument)
+
+To justify greedy:
+
+1. define local choice rule (for example earliest finishing interval)
+2. show any optimal solution can be transformed to include that choice
+3. remaining subproblem stays same shape
+
+If you cannot prove this transformation, greedy may be incorrect.
+
+---
+
+## Common Greedy Families
+
+- interval scheduling/merging
+- minimum arrows / meeting room removals
+- jump reachability
+- activity selection
+- Huffman-like merge-cost optimization with heaps
+
+Many “sort then linear scan” problems are greedy at core.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -53,6 +53,33 @@ public int countSCC(int n, List<List<Integer>> g, List<List<Integer>> rg) {
 
 ---
 
+## Kosaraju in 3 Steps
+
+1. DFS on original graph, push nodes by finish order
+2. reverse all edges
+3. DFS in reverse finish order on reversed graph; each DFS tree is one SCC
+
+Time complexity stays linear: `O(V + E)`.
+
+---
+
+## Dry Run (Small Directed Graph)
+
+Edges:
+
+- `0 -> 1`, `1 -> 2`, `2 -> 0` (one SCC)
+- `2 -> 3`
+- `3 -> 4`, `4 -> 3` (second SCC)
+
+SCCs:
+
+- `{0,1,2}`
+- `{3,4}`
+
+Kosaraju first pass gives finish order ensuring SCC roots are processed correctly in second pass.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.
@@ -104,6 +131,13 @@ public int countSCC(int n, List<List<Integer>> g, List<List<Integer>> rg) {
 2. Ignoring edge cases (empty input, duplicates, overflow, disconnected state).
 3. Mixing multiple strategies without clear invariants.
 4. No complexity analysis against worst-case input.
+
+---
+
+## Practical Caution
+
+`Critical Connections` (bridges in undirected graph) is related low-link thinking but not SCC decomposition.
+For SCC specifically, use Kosaraju or Tarjan on directed graphs.
 
 ---
 

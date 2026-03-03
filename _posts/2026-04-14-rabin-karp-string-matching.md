@@ -43,6 +43,58 @@ for (int i = 0; i < m; i++) hash = (hash * base + s.charAt(i)) % mod;
 
 ---
 
+## Single-Pattern Search Example
+
+```java
+public int rabinKarp(String text, String pat) {
+    int n = text.length(), m = pat.length();
+    if (m == 0) return 0;
+    if (m > n) return -1;
+
+    long mod = 1_000_000_007L, base = 911382323L;
+    long pow = 1, ph = 0, th = 0;
+    for (int i = 0; i < m; i++) {
+        ph = (ph * base + pat.charAt(i)) % mod;
+        th = (th * base + text.charAt(i)) % mod;
+        if (i > 0) pow = (pow * base) % mod;
+    }
+
+    for (int i = 0; i + m <= n; i++) {
+        if (ph == th && text.regionMatches(i, pat, 0, m)) return i; // collision-safe check
+        if (i + m < n) {
+            th = (th - text.charAt(i) * pow) % mod;
+            if (th < 0) th += mod;
+            th = (th * base + text.charAt(i + m)) % mod;
+        }
+    }
+    return -1;
+}
+```
+
+---
+
+## Dry Run (Conceptual)
+
+Text: `"abracadabra"`, pattern: `"cad"` (`m=3`)
+
+1. compute hash of pattern and first window `"abr"`
+2. slide one char each step, update hash in O(1)
+3. when hash matches at window `"cad"`, verify exact substring to avoid collision
+4. return starting index
+
+Rolling hash avoids re-hashing full substring each shift.
+
+---
+
+## Collision Handling Rule
+
+Hash match is necessary, not sufficient.
+Always verify actual substring equality before declaring match.
+
+For very large-scale matching, use double hashing to reduce collision probability further.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

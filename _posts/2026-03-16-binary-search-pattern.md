@@ -119,6 +119,39 @@ private boolean canFinish(int[] piles, int h, int k) {
 
 ---
 
+## Debug Pattern (Fast)
+
+When binary search fails, print:
+
+- `lo`, `hi`, `mid`
+- `nums[mid]` or feasibility result
+- update decision taken
+
+Example:
+
+```text
+lo=3 hi=7 mid=5 cond=true -> hi=5
+```
+
+You can usually spot off-by-one errors within a few iterations.
+
+---
+
+## Post-Loop Validation Rule
+
+For bound-style searches, loop exit index may still need validation.
+
+Example for lower bound:
+
+```java
+int idx = lowerBound(nums, target);
+if (idx == nums.length || nums[idx] != target) return -1;
+```
+
+Always define what returned index means when target is missing.
+
+---
+
 ## Practice Set (Recommended Order)
 
 1. Binary Search (LC 704)  

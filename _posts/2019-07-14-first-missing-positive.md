@@ -67,6 +67,43 @@ class Solution {
 }
 ```
 
+## Dry Run
+
+Input: `[3,4,-1,1]`, `n=4`
+
+Placement phase:
+
+1. `i=0`, value `3` should be at index `2` -> swap => `[-1,4,3,1]`
+2. `i=1`, value `4` should be at index `3` -> swap => `[-1,1,3,4]`
+3. `i=1`, value `1` should be at index `0` -> swap => `[1,-1,3,4]`
+4. remaining values either in place or invalid
+
+Scan phase:
+
+- index `0` has `1` (ok)
+- index `1` has `-1` (expected `2`) -> answer is `2`
+
+## Why the `while` Loop Is Required
+
+One swap may bring another valid number into the same index.
+`while` keeps placing until current index is stable.
+
+Using only one `if` swap per index can leave array partially arranged and produce wrong answer.
+
+## Common Mistakes
+
+1. Forgetting bounds check (`1 <= nums[i] <= n`) before indexing.
+2. Infinite loops when duplicates exist (missing `nums[nums[i]-1] != nums[i]` guard).
+3. Using extra array/hash set, violating `O(1)` extra-space requirement.
+
+## Testing Checklist
+
+- empty array -> `1`
+- all negatives -> `1`
+- contiguous positives starting from 1 -> `n + 1`
+- duplicates (for example `[1,1]`) -> `2`
+- mixed large values (outside `1..n`)
+
 ## Complexity
 
 - Time: `O(n)`
@@ -74,6 +111,6 @@ class Solution {
 
 ## Key Takeaways
 
-- Start from the brute-force idea, then derive the optimized invariant.
-- Use clean pointer/index boundaries to avoid off-by-one bugs.
-- Validate against edge cases (empty input, single element, duplicates, extreme values).
+- index placement (`nums[i]` should be at `nums[i]-1`) gives linear-time missing positive search.
+- ignore out-of-range values; only `[1..n]` affects the answer.
+- cyclic placement requires careful swap conditions to avoid infinite loops.

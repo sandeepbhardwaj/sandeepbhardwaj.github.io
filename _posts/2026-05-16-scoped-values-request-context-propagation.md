@@ -21,59 +21,103 @@ header:
 
 # Scoped Values for Request Context Propagation in Java
 
-Scoped values provide immutable, bounded context propagation.
-They avoid many `ThreadLocal` lifecycle pitfalls in modern concurrent systems.
+Scoped values provide immutable, lexically scoped context propagation.
+They are a safer replacement for many `ThreadLocal` use cases in concurrent Java services.
 
 ---
 
-## Why ThreadLocal Falls Short
+## Why Teams Move Away from ThreadLocal
 
-- leaks across reused threads in pools
-- hard-to-trace mutation across call depth
-- fragile cleanup discipline
+`ThreadLocal` commonly causes:
 
-Scoped values bind context to lexical execution scope.
+- context bleed on pooled threads when cleanup is missed
+- hidden mutable state across call chains
+- fragile behavior in async boundaries
+
+Scoped values solve this by making context lifetime explicit in code.
 
 ---
 
-## Example Pattern
+## Basic Pattern
 
 ```java
-static final ScopedValue<String> REQ_ID = ScopedValue.newInstance();
+static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
 
-public void handle(HttpRequest req) {
-    String id = req.header("X-Request-Id");
-    ScopedValue.where(REQ_ID, id).run(() -> {
+void handle(Request req) {
+    String requestId = req.header("X-Request-Id");
+    ScopedValue.where(REQUEST_ID, requestId).run(() -> {
         serviceA();
         serviceB();
     });
 }
 
 void serviceA() {
-    logger.info("requestId={}", REQ_ID.get());
+    logger.info("requestId={}", REQUEST_ID.get());
+}
+```
+
+`REQUEST_ID` is only readable inside the lexical scope.
+
+---
+
+## What Belongs in Scoped Values
+
+Good candidates:
+
+- trace/request correlation ID
+- tenant ID
+- security principal ID
+
+Avoid putting:
+
+- mutable objects
+- large payloads
+- domain entities that should be passed explicitly
+
+Use scoped values for cross-cutting metadata, not business data transport.
+
+---
+
+## Virtual Threads + Scoped Values
+
+Scoped values work naturally with virtual-thread request models.
+Bind once at request entry and read across nested calls without explicit parameter threading everywhere.
+
+```java
+static final ScopedValue<String> TENANT = ScopedValue.newInstance();
+
+try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
+    exec.submit(() -> ScopedValue.where(TENANT, "tenant-a").run(() -> {
+        billingService.charge();
+        auditService.record();
+    }));
 }
 ```
 
 ---
 
-## Design Guidance
+## Dry Run: HTTP Request Lifecycle
 
-- keep context immutable and compact.
-- pass domain data explicitly; use scoped values for cross-cutting metadata.
-- do not overuse as hidden dependency channel.
+1. HTTP filter extracts `X-Request-Id` and `tenant-id`.
+2. filter binds scoped values and invokes controller.
+3. controller/service/repository logs include scoped context.
+4. response returns; lexical scope ends automatically.
+5. next request on reused platform thread sees no old context.
+
+This directly prevents cross-request context leakage.
 
 ---
 
-## Operational Benefits
+## Testing Guidance
 
-- cleaner request tracing correlation
-- fewer context-leak bugs in concurrent code
-- easier reasoning about context lifetime
+- add integration test that sends two requests with different IDs and verifies logs/trace tags do not mix.
+- add unit tests for methods that expect scoped context and fail fast when missing.
+- keep bindings near protocol entry points (HTTP/gRPC/message listener).
 
 ---
 
 ## Key Takeaways
 
-- scoped values are safer request context propagation primitives.
-- lexical scoping makes lifecycle boundaries explicit.
-- use for observability/security metadata, not business payload transport.
+- scoped values provide immutable, bounded context propagation.
+- they reduce thread-local leakage risk, especially with concurrency.
+- use them for observability and security metadata with strict scope boundaries.

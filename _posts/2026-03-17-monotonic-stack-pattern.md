@@ -138,6 +138,36 @@ public int largestRectangleArea(int[] h) {
 
 ---
 
+## Duplicate Tie-Breaking Rule
+
+For contribution-count problems (like subarray minimums), duplicate handling must be asymmetric:
+
+- one side uses strict comparison (`<`)
+- other side uses non-strict (`<=`)
+
+Without this, equal values may be double-counted or under-counted.
+
+Document your tie rule before coding.
+
+---
+
+## Debug Template
+
+During development, log stack indices and values:
+
+```text
+i=5 val=7 stack=[4(6),2(3)] -> pop 4, answer[4]=7
+```
+
+If results are wrong, inspect:
+
+- whether pops occur at correct comparator condition
+- whether unresolved indices are handled in final flush
+
+Most monotonic stack bugs are comparator or flush mistakes.
+
+---
+
 ## Practice Set (Recommended Order)
 
 1. Next Greater Element I (LC 496)  

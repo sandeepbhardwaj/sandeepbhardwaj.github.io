@@ -81,6 +81,24 @@ class Trie {
 
 ---
 
+## Dry Run (Insert + Search)
+
+Insert words: `"cat"`, `"car"`
+
+Structure after insert:
+
+- root -> `c` -> `a`
+  - branch `t` (`isWord=true`)
+  - branch `r` (`isWord=true`)
+
+`search("ca")` -> reaches node but `isWord=false` => false  
+`startsWith("ca")` -> node exists => true  
+`search("car")` -> node exists and `isWord=true` => true
+
+This separation between path existence and word completion is key.
+
+---
+
 ## Problem 1: Implement Trie
 
 Covered by template above.
@@ -139,6 +157,26 @@ Build trie of dictionary words and DFS on board; prune paths missing trie childr
 2. Not pruning DFS when trie path is null
 3. Hardcoding character set assumptions unintentionally
 4. High memory usage without cleanup in large dictionaries
+
+---
+
+## Memory Optimization Note
+
+For sparse dictionaries, `Map<Character, TrieNode>` children can reduce memory versus fixed `TrieNode[26]`.
+Trade-off: more overhead per access.
+
+Choose based on character set size and dictionary scale.
+
+---
+
+## Debug Checklist
+
+1. verify `isWord` is set only at full-word end
+2. print traversed chars during failed search
+3. for wildcard search, ensure all children are explored on `.`
+4. in board DFS problems, confirm visited rollback and trie-pruning both happen
+
+Most trie bugs come from word-end handling or missing prune conditions.
 
 ---
 

@@ -45,6 +45,53 @@ for (int i = 2; i <= n; i++) dp[i] = dp[i-1] + dp[i-2];
 
 ---
 
+## Dry Run (Fibonacci-Style DP)
+
+For `n=5`:
+
+- memoization computes `solve(5)` and caches subcalls (`solve(4), solve(3), ...`)
+- repeated requests reuse cache instantly
+
+Tabulation fills in order:
+
+- `dp[0], dp[1]` base
+- `dp[2]`, `dp[3]`, `dp[4]`, `dp[5]`
+
+Both produce same answer; execution style differs.
+
+---
+
+## Choosing Between Them
+
+- choose memoization when:
+  - recurrence is natural recursively
+  - only sparse subset of states is visited
+- choose tabulation when:
+  - dependency order is explicit
+  - recursion depth may overflow stack
+  - iterative space optimization is easier
+
+In Java, tabulation is often safer for very deep state spaces.
+
+---
+
+## Space Optimization Reminder
+
+Many 1D tabulations only need previous few states:
+
+```java
+int a = 1, b = 1;
+for (int i = 2; i <= n; i++) {
+    int c = a + b;
+    a = b;
+    b = c;
+}
+```
+
+Optimize space only after correctness is locked.
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.
