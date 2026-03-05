@@ -36,7 +36,7 @@
   function resolveTheme() {
     var storedTheme = readStoredTheme();
     if (storedTheme) return storedTheme;
-    return mediaQuery.matches ? THEMES.dark : THEMES.light;
+    return THEMES.dark;
   }
 
   function nextTheme(theme) {
