@@ -7,7 +7,7 @@ baseurl: ""
 repository: "sandeepbhardwaj/sandeepbhardwaj.github.io"
 
 theme: minimal-mistakes-jekyll
-minimal_mistakes_skin: "default"
+minimal_mistakes_skin: "dark"
 
 locale: "en-US"
 timezone: "Asia/Kolkata"
