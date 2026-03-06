@@ -5,23 +5,25 @@ categories:
 - Platform
 - Backend
 date: 2026-09-03
-seo_title: "CPU/memory requests-limits tuning for JVM services - Advanced Guide"
-seo_description: "Advanced practical guide on cpu/memory requests-limits tuning for jvm services with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-03-k8s-jvm-resource-tuning-requests-limits-part-1/"
-title: "CPU/memory requests-limits tuning for JVM services"
+seo_title: CPU/memory requests-limits tuning for JVM services - Advanced Guide
+seo_description: Advanced practical guide on cpu/memory requests-limits tuning for
+  jvm services with architecture decisions, trade-offs, and production patterns.
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: CPU/memory requests-limits tuning for JVM services
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# CPU/memory requests-limits tuning for JVM services
-
 This post covers production-focused design decisions for **CPU/memory requests-limits tuning for JVM services**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

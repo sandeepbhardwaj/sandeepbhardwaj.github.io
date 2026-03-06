@@ -5,23 +5,25 @@ categories:
 - Microservices
 - Architecture
 date: 2026-08-11
-seo_title: "Platform standards for retries, contracts, and telemetry - Advanced Guide"
-seo_description: "Advanced practical guide on platform standards for retries, contracts, and telemetry with architecture decisions, trade-offs, and production patterns."
-tags: [java, microservices, distributed-systems, architecture, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-08-11-microservices-platform-standards-retries-contracts-part-1/"
-title: "Platform standards for retries, contracts, and telemetry"
+seo_title: Platform standards for retries, contracts, and telemetry - Advanced Guide
+seo_description: Advanced practical guide on platform standards for retries, contracts,
+  and telemetry with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- microservices
+- distributed-systems
+- architecture
+- backend
+title: Platform standards for retries, contracts, and telemetry
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Microservices Architecture and Reliability Patterns"
+  caption: Microservices Architecture and Reliability Patterns
 ---
-
-# Platform standards for retries, contracts, and telemetry
-
 This post covers production-focused design decisions for **Platform standards for retries, contracts, and telemetry**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

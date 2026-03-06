@@ -5,23 +5,27 @@ categories:
 - Design
 - Architecture
 date: 2026-10-12
-seo_title: "Performance-aware object design: memory and allocation patterns - Advanced Guide"
-seo_description: "Advanced practical guide on performance-aware object design: memory and allocation patterns with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-12-java-lld-performance-aware-object-design-part-1/"
-title: "Performance-aware object design: memory and allocation patterns"
+seo_title: 'Performance-aware object design: memory and allocation patterns - Advanced
+  Guide'
+seo_description: 'Advanced practical guide on performance-aware object design: memory
+  and allocation patterns with architecture decisions, trade-offs, and production
+  patterns.'
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: 'Performance-aware object design: memory and allocation patterns'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Performance-aware object design: memory and allocation patterns
-
 This post covers production-focused design decisions for **Performance-aware object design: memory and allocation patterns**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

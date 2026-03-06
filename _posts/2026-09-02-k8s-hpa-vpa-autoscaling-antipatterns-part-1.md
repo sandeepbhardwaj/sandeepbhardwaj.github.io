@@ -5,23 +5,25 @@ categories:
 - Platform
 - Backend
 date: 2026-09-02
-seo_title: "HPA/VPA interactions and autoscaling anti-patterns - Advanced Guide"
-seo_description: "Advanced practical guide on hpa/vpa interactions and autoscaling anti-patterns with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-02-k8s-hpa-vpa-autoscaling-antipatterns-part-1/"
-title: "HPA/VPA interactions and autoscaling anti-patterns"
+seo_title: HPA/VPA interactions and autoscaling anti-patterns - Advanced Guide
+seo_description: Advanced practical guide on hpa/vpa interactions and autoscaling
+  anti-patterns with architecture decisions, trade-offs, and production patterns.
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: HPA/VPA interactions and autoscaling anti-patterns
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# HPA/VPA interactions and autoscaling anti-patterns
-
 This post covers production-focused design decisions for **HPA/VPA interactions and autoscaling anti-patterns**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

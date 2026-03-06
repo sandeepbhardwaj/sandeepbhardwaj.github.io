@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-30
-seo_title: "Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 3)"
-seo_description: "Hands-on guide: Schema Evolution with Avro and Protobuf Compatibility Contracts. Rollout and deprecation policy."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-schema-evolution-compatibility-part-3/"
-title: "Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 3)"
+seo_title: Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 3)
+seo_description: 'Hands-on guide: Schema Evolution with Avro and Protobuf Compatibility
+  Contracts. Rollout and deprecation policy.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 3)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 3)
-
 Part goal: **Rollout and deprecation policy**.
 
 ---

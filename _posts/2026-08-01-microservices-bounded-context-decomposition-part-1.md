@@ -5,23 +5,27 @@ categories:
 - Microservices
 - Architecture
 date: 2026-08-01
-seo_title: "Service decomposition with bounded contexts (avoiding distributed monoliths) - Advanced Guide"
-seo_description: "Advanced practical guide on service decomposition with bounded contexts (avoiding distributed monoliths) with architecture decisions, trade-offs, and production patterns."
-tags: [java, microservices, distributed-systems, architecture, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-08-01-microservices-bounded-context-decomposition-part-1/"
-title: "Service decomposition with bounded contexts (avoiding distributed monoliths)"
+seo_title: Service decomposition with bounded contexts (avoiding distributed monoliths)
+  - Advanced Guide
+seo_description: Advanced practical guide on service decomposition with bounded contexts
+  (avoiding distributed monoliths) with architecture decisions, trade-offs, and production
+  patterns.
+tags:
+- java
+- microservices
+- distributed-systems
+- architecture
+- backend
+title: Service decomposition with bounded contexts (avoiding distributed monoliths)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Microservices Architecture and Reliability Patterns"
+  caption: Microservices Architecture and Reliability Patterns
 ---
-
-# Service decomposition with bounded contexts (avoiding distributed monoliths)
-
 This post covers production-focused design decisions for **Service decomposition with bounded contexts (avoiding distributed monoliths)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

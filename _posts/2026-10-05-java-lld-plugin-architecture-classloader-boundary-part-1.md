@@ -5,23 +5,25 @@ categories:
 - Design
 - Architecture
 date: 2026-10-05
-seo_title: "Plugin-oriented LLD with classloader boundaries - Advanced Guide"
-seo_description: "Advanced practical guide on plugin-oriented lld with classloader boundaries with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-05-java-lld-plugin-architecture-classloader-boundary-part-1/"
-title: "Plugin-oriented LLD with classloader boundaries"
+seo_title: Plugin-oriented LLD with classloader boundaries - Advanced Guide
+seo_description: Advanced practical guide on plugin-oriented lld with classloader
+  boundaries with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: Plugin-oriented LLD with classloader boundaries
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Plugin-oriented LLD with classloader boundaries
-
 This post covers production-focused design decisions for **Plugin-oriented LLD with classloader boundaries**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

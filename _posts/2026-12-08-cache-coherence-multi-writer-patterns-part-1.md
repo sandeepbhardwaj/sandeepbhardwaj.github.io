@@ -5,23 +5,25 @@ categories:
 - Architecture
 - Backend
 date: 2026-12-08
-seo_title: "Cache coherence patterns in multi-writer systems - Advanced Guide"
-seo_description: "Advanced practical guide on cache coherence patterns in multi-writer systems with architecture decisions, trade-offs, and production patterns."
-tags: [distributed-systems, architecture, reliability, backend, java]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-12-08-cache-coherence-multi-writer-patterns-part-1/"
-title: "Cache coherence patterns in multi-writer systems"
+seo_title: Cache coherence patterns in multi-writer systems - Advanced Guide
+seo_description: Advanced practical guide on cache coherence patterns in multi-writer
+  systems with architecture decisions, trade-offs, and production patterns.
+tags:
+- distributed-systems
+- architecture
+- reliability
+- backend
+- java
+title: Cache coherence patterns in multi-writer systems
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Distributed System Design Patterns and Tradeoffs"
+  caption: Distributed System Design Patterns and Tradeoffs
 ---
-
-# Cache coherence patterns in multi-writer systems
-
 This post covers production-focused design decisions for **Cache coherence patterns in multi-writer systems**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

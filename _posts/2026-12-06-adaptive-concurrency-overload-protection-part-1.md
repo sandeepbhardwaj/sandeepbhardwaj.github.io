@@ -5,23 +5,25 @@ categories:
 - Architecture
 - Backend
 date: 2026-12-06
-seo_title: "Adaptive concurrency limits and overload protection - Advanced Guide"
-seo_description: "Advanced practical guide on adaptive concurrency limits and overload protection with architecture decisions, trade-offs, and production patterns."
-tags: [distributed-systems, architecture, reliability, backend, java]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-12-06-adaptive-concurrency-overload-protection-part-1/"
-title: "Adaptive concurrency limits and overload protection"
+seo_title: Adaptive concurrency limits and overload protection - Advanced Guide
+seo_description: Advanced practical guide on adaptive concurrency limits and overload
+  protection with architecture decisions, trade-offs, and production patterns.
+tags:
+- distributed-systems
+- architecture
+- reliability
+- backend
+- java
+title: Adaptive concurrency limits and overload protection
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Distributed System Design Patterns and Tradeoffs"
+  caption: Distributed System Design Patterns and Tradeoffs
 ---
-
-# Adaptive concurrency limits and overload protection
-
 This post covers production-focused design decisions for **Adaptive concurrency limits and overload protection**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

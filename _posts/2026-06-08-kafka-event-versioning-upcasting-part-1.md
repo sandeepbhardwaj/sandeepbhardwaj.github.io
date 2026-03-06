@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-08
-seo_title: "Event Versioning and Upcasting Strategy in Long Lived Domains (Part 1)"
-seo_description: "Hands-on guide: Event Versioning and Upcasting Strategy in Long Lived Domains. Versioned event baseline."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-event-versioning-upcasting-part-1/"
-title: "Event Versioning and Upcasting Strategy in Long Lived Domains (Part 1)"
+seo_title: Event Versioning and Upcasting Strategy in Long Lived Domains (Part 1)
+seo_description: 'Hands-on guide: Event Versioning and Upcasting Strategy in Long
+  Lived Domains. Versioned event baseline.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Event Versioning and Upcasting Strategy in Long Lived Domains (Part 1)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Event Versioning and Upcasting Strategy in Long Lived Domains (Part 1)
-
 Part goal: **Versioned event baseline**.
 
 ---

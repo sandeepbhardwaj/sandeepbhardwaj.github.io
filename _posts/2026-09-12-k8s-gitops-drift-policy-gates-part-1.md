@@ -5,23 +5,25 @@ categories:
 - Platform
 - Backend
 date: 2026-09-12
-seo_title: "GitOps at scale with drift detection and policy gates - Advanced Guide"
-seo_description: "Advanced practical guide on gitops at scale with drift detection and policy gates with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-12-k8s-gitops-drift-policy-gates-part-1/"
-title: "GitOps at scale with drift detection and policy gates"
+seo_title: GitOps at scale with drift detection and policy gates - Advanced Guide
+seo_description: Advanced practical guide on gitops at scale with drift detection
+  and policy gates with architecture decisions, trade-offs, and production patterns.
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: GitOps at scale with drift detection and policy gates
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# GitOps at scale with drift detection and policy gates
-
 This post covers production-focused design decisions for **GitOps at scale with drift detection and policy gates**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

@@ -5,23 +5,26 @@ categories:
 - Spring Boot
 - Backend
 date: 2026-07-15
-seo_title: "Advanced transactional boundaries: propagation and isolation (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on advanced transactional boundaries: propagation and isolation (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, spring-boot, backend, architecture, production]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-07-15-spring-transaction-propagation-isolation-advanced-part-2/"
-title: "Advanced transactional boundaries: propagation and isolation (Part 2)"
+seo_title: 'Advanced transactional boundaries: propagation and isolation (Part 2)
+  - Advanced Guide'
+seo_description: 'Advanced practical guide on advanced transactional boundaries: propagation
+  and isolation (part 2) with architecture decisions, trade-offs, and production patterns.'
+tags:
+- java
+- spring-boot
+- backend
+- architecture
+- production
+title: 'Advanced transactional boundaries: propagation and isolation (Part 2)'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Spring Boot Runtime Engineering"
+  caption: Advanced Spring Boot Runtime Engineering
 ---
-
-# Advanced transactional boundaries: propagation and isolation (Part 2)
-
 This post covers production-focused design decisions for **Advanced transactional boundaries: propagation and isolation (Part 2)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

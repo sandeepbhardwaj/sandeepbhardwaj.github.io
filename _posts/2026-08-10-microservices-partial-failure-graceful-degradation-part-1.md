@@ -5,23 +5,25 @@ categories:
 - Microservices
 - Architecture
 date: 2026-08-10
-seo_title: "Partial failure design and graceful degradation patterns - Advanced Guide"
-seo_description: "Advanced practical guide on partial failure design and graceful degradation patterns with architecture decisions, trade-offs, and production patterns."
-tags: [java, microservices, distributed-systems, architecture, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-08-10-microservices-partial-failure-graceful-degradation-part-1/"
-title: "Partial failure design and graceful degradation patterns"
+seo_title: Partial failure design and graceful degradation patterns - Advanced Guide
+seo_description: Advanced practical guide on partial failure design and graceful degradation
+  patterns with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- microservices
+- distributed-systems
+- architecture
+- backend
+title: Partial failure design and graceful degradation patterns
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Microservices Architecture and Reliability Patterns"
+  caption: Microservices Architecture and Reliability Patterns
 ---
-
-# Partial failure design and graceful degradation patterns
-
 This post covers production-focused design decisions for **Partial failure design and graceful degradation patterns**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

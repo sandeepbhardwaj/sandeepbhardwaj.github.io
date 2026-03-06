@@ -5,23 +5,25 @@ categories:
 - Platform
 - Backend
 date: 2026-09-07
-seo_title: "Kubernetes networking internals for latency-sensitive apps - Advanced Guide"
-seo_description: "Advanced practical guide on kubernetes networking internals for latency-sensitive apps with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-07-k8s-networking-latency-sensitive-services-part-1/"
-title: "Kubernetes networking internals for latency-sensitive apps"
+seo_title: Kubernetes networking internals for latency-sensitive apps - Advanced Guide
+seo_description: Advanced practical guide on kubernetes networking internals for latency-sensitive
+  apps with architecture decisions, trade-offs, and production patterns.
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: Kubernetes networking internals for latency-sensitive apps
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# Kubernetes networking internals for latency-sensitive apps
-
 This post covers production-focused design decisions for **Kubernetes networking internals for latency-sensitive apps**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

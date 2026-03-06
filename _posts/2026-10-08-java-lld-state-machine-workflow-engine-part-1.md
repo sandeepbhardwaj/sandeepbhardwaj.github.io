@@ -5,23 +5,25 @@ categories:
 - Design
 - Architecture
 date: 2026-10-08
-seo_title: "State-machine-driven workflow engines in Java - Advanced Guide"
-seo_description: "Advanced practical guide on state-machine-driven workflow engines in java with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-08-java-lld-state-machine-workflow-engine-part-1/"
-title: "State-machine-driven workflow engines in Java"
+seo_title: State-machine-driven workflow engines in Java - Advanced Guide
+seo_description: Advanced practical guide on state-machine-driven workflow engines
+  in java with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: State-machine-driven workflow engines in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# State-machine-driven workflow engines in Java
-
 This post covers production-focused design decisions for **State-machine-driven workflow engines in Java**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

@@ -5,23 +5,25 @@ categories:
 - Platform
 - Backend
 date: 2026-09-01
-seo_title: "Pod lifecycle, probes, and graceful termination under load - Advanced Guide"
-seo_description: "Advanced practical guide on pod lifecycle, probes, and graceful termination under load with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-01-k8s-pod-lifecycle-probes-graceful-termination-part-1/"
-title: "Pod lifecycle, probes, and graceful termination under load"
+seo_title: Pod lifecycle, probes, and graceful termination under load - Advanced Guide
+seo_description: Advanced practical guide on pod lifecycle, probes, and graceful termination
+  under load with architecture decisions, trade-offs, and production patterns.
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: Pod lifecycle, probes, and graceful termination under load
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# Pod lifecycle, probes, and graceful termination under load
-
 This post covers production-focused design decisions for **Pod lifecycle, probes, and graceful termination under load**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

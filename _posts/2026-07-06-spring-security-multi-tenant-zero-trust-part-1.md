@@ -5,23 +5,27 @@ categories:
 - Spring Boot
 - Backend
 date: 2026-07-06
-seo_title: "Spring Security for multi-tenant and zero-trust service edges - Advanced Guide"
-seo_description: "Advanced practical guide on spring security for multi-tenant and zero-trust service edges with architecture decisions, trade-offs, and production patterns."
-tags: [java, spring-boot, backend, architecture, production]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-07-06-spring-security-multi-tenant-zero-trust-part-1/"
-title: "Spring Security for multi-tenant and zero-trust service edges"
+seo_title: Spring Security for multi-tenant and zero-trust service edges - Advanced
+  Guide
+seo_description: Advanced practical guide on spring security for multi-tenant and
+  zero-trust service edges with architecture decisions, trade-offs, and production
+  patterns.
+tags:
+- java
+- spring-boot
+- backend
+- architecture
+- production
+title: Spring Security for multi-tenant and zero-trust service edges
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Spring Boot Runtime Engineering"
+  caption: Advanced Spring Boot Runtime Engineering
 ---
-
-# Spring Security for multi-tenant and zero-trust service edges
-
 This post covers production-focused design decisions for **Spring Security for multi-tenant and zero-trust service edges**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

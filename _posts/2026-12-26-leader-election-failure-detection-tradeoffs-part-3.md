@@ -5,23 +5,25 @@ categories:
 - Architecture
 - Backend
 date: 2026-12-26
-seo_title: "Leader election and failure detection tradeoffs (Part 3) - Advanced Guide"
-seo_description: "Advanced practical guide on leader election and failure detection tradeoffs (part 3) with architecture decisions, trade-offs, and production patterns."
-tags: [distributed-systems, architecture, reliability, backend, java]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-12-26-leader-election-failure-detection-tradeoffs-part-3/"
-title: "Leader election and failure detection tradeoffs (Part 3)"
+seo_title: Leader election and failure detection tradeoffs (Part 3) - Advanced Guide
+seo_description: Advanced practical guide on leader election and failure detection
+  tradeoffs (part 3) with architecture decisions, trade-offs, and production patterns.
+tags:
+- distributed-systems
+- architecture
+- reliability
+- backend
+- java
+title: Leader election and failure detection tradeoffs (Part 3)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Distributed System Design Patterns and Tradeoffs"
+  caption: Distributed System Design Patterns and Tradeoffs
 ---
-
-# Leader election and failure detection tradeoffs (Part 3)
-
 This post covers production-focused design decisions for **Leader election and failure detection tradeoffs (Part 3)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

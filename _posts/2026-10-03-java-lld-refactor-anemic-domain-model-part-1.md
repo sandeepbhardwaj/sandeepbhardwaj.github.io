@@ -5,23 +5,25 @@ categories:
 - Design
 - Architecture
 date: 2026-10-03
-seo_title: "Refactoring anemic domain models into behavior-rich design - Advanced Guide"
-seo_description: "Advanced practical guide on refactoring anemic domain models into behavior-rich design with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-03-java-lld-refactor-anemic-domain-model-part-1/"
-title: "Refactoring anemic domain models into behavior-rich design"
+seo_title: Refactoring anemic domain models into behavior-rich design - Advanced Guide
+seo_description: Advanced practical guide on refactoring anemic domain models into
+  behavior-rich design with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: Refactoring anemic domain models into behavior-rich design
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Refactoring anemic domain models into behavior-rich design
-
 This post covers production-focused design decisions for **Refactoring anemic domain models into behavior-rich design**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

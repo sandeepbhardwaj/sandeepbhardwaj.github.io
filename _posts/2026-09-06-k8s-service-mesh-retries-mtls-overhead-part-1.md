@@ -5,23 +5,25 @@ categories:
 - Platform
 - Backend
 date: 2026-09-06
-seo_title: "Service mesh tradeoffs: retries, mTLS, and overhead - Advanced Guide"
-seo_description: "Advanced practical guide on service mesh tradeoffs: retries, mtls, and overhead with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-06-k8s-service-mesh-retries-mtls-overhead-part-1/"
-title: "Service mesh tradeoffs: retries, mTLS, and overhead"
+seo_title: 'Service mesh tradeoffs: retries, mTLS, and overhead - Advanced Guide'
+seo_description: 'Advanced practical guide on service mesh tradeoffs: retries, mtls,
+  and overhead with architecture decisions, trade-offs, and production patterns.'
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: 'Service mesh tradeoffs: retries, mTLS, and overhead'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# Service mesh tradeoffs: retries, mTLS, and overhead
-
 This post covers production-focused design decisions for **Service mesh tradeoffs: retries, mTLS, and overhead**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

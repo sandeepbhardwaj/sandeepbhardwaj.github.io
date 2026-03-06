@@ -5,23 +5,26 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-01
-seo_title: "Strategy + factory composition for runtime pluggable behavior - Advanced Guide"
-seo_description: "Advanced practical guide on strategy + factory composition for runtime pluggable behavior with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-01-java-pattern-strategy-factory-composition-part-1/"
-title: "Strategy + factory composition for runtime pluggable behavior"
+seo_title: Strategy + factory composition for runtime pluggable behavior - Advanced
+  Guide
+seo_description: Advanced practical guide on strategy + factory composition for runtime
+  pluggable behavior with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: Strategy + factory composition for runtime pluggable behavior
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# Strategy + factory composition for runtime pluggable behavior
-
 This post covers production-focused design decisions for **Strategy + factory composition for runtime pluggable behavior**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

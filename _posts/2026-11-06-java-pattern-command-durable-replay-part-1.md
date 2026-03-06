@@ -5,23 +5,25 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-06
-seo_title: "Command pattern for durable actions and replay support - Advanced Guide"
-seo_description: "Advanced practical guide on command pattern for durable actions and replay support with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-06-java-pattern-command-durable-replay-part-1/"
-title: "Command pattern for durable actions and replay support"
+seo_title: Command pattern for durable actions and replay support - Advanced Guide
+seo_description: Advanced practical guide on command pattern for durable actions and
+  replay support with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: Command pattern for durable actions and replay support
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# Command pattern for durable actions and replay support
-
 This post covers production-focused design decisions for **Command pattern for durable actions and replay support**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

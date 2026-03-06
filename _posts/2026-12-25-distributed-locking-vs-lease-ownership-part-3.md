@@ -5,23 +5,27 @@ categories:
 - Architecture
 - Backend
 date: 2026-12-25
-seo_title: "Lease-based ownership vs distributed locking patterns (Part 3) - Advanced Guide"
-seo_description: "Advanced practical guide on lease-based ownership vs distributed locking patterns (part 3) with architecture decisions, trade-offs, and production patterns."
-tags: [distributed-systems, architecture, reliability, backend, java]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-12-25-distributed-locking-vs-lease-ownership-part-3/"
-title: "Lease-based ownership vs distributed locking patterns (Part 3)"
+seo_title: Lease-based ownership vs distributed locking patterns (Part 3) - Advanced
+  Guide
+seo_description: Advanced practical guide on lease-based ownership vs distributed
+  locking patterns (part 3) with architecture decisions, trade-offs, and production
+  patterns.
+tags:
+- distributed-systems
+- architecture
+- reliability
+- backend
+- java
+title: Lease-based ownership vs distributed locking patterns (Part 3)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Distributed System Design Patterns and Tradeoffs"
+  caption: Distributed System Design Patterns and Tradeoffs
 ---
-
-# Lease-based ownership vs distributed locking patterns (Part 3)
-
 This post covers production-focused design decisions for **Lease-based ownership vs distributed locking patterns (Part 3)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

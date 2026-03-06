@@ -5,23 +5,26 @@ categories:
 - Design
 - Architecture
 date: 2026-10-14
-seo_title: "Composition over inheritance in extensible Java systems (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on composition over inheritance in extensible java systems (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-14-java-lld-composition-over-inheritance-part-2/"
-title: "Composition over inheritance in extensible Java systems (Part 2)"
+seo_title: Composition over inheritance in extensible Java systems (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on composition over inheritance in extensible
+  java systems (part 2) with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: Composition over inheritance in extensible Java systems (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Composition over inheritance in extensible Java systems (Part 2)
-
 This post covers production-focused design decisions for **Composition over inheritance in extensible Java systems (Part 2)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

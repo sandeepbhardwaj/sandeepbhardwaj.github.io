@@ -5,23 +5,25 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-03
-seo_title: "Chain of responsibility for request pipelines and fallback - Advanced Guide"
-seo_description: "Advanced practical guide on chain of responsibility for request pipelines and fallback with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-03-java-pattern-chain-of-responsibility-pipeline-part-1/"
-title: "Chain of responsibility for request pipelines and fallback"
+seo_title: Chain of responsibility for request pipelines and fallback - Advanced Guide
+seo_description: Advanced practical guide on chain of responsibility for request pipelines
+  and fallback with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: Chain of responsibility for request pipelines and fallback
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# Chain of responsibility for request pipelines and fallback
-
 This post covers production-focused design decisions for **Chain of responsibility for request pipelines and fallback**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 
