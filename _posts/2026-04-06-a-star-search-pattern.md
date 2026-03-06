@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-06
-seo_title: "A* Search Pattern in Java – Complete Guide"
-seo_description: "Use A* in Java for heuristic-guided shortest path search on grids and weighted maps."
-tags: [dsa, java, a-star, graph, pathfinding]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/a-star-search-pattern/"
-title: "A* Search Pattern in Java — A Detailed Guide"
+seo_title: A* Search Pattern in Java – Complete Guide
+seo_description: Use A* in Java for heuristic-guided shortest path search on grids
+  and weighted maps.
+tags:
+- dsa
+- java
+- a-star
+- graph
+- pathfinding
+title: A* Search Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/a-star-search-pattern-banner.svg
+  overlay_image: "/assets/images/a-star-search-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Heuristic Guided Shortest Path Search"
+  caption: Heuristic Guided Shortest Path Search
 ---
-
-# A* Search Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

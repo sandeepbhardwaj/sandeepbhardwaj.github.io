@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Remove Linked List Elements in Java
-
 This guide explains the intuition, optimized approach, and Java implementation for remove linked list elements in java, with practical tips for interviews and production coding standards.
 
 ## Problem

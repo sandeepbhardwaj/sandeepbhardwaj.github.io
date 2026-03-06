@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-20
 seo_title: Intervals Pattern in Java – Complete Guide
-seo_description: Learn interval algorithms in Java including merge, insert, overlap detection, and meeting room scheduling.
+seo_description: Learn interval algorithms in Java including merge, insert, overlap
+  detection, and meeting room scheduling.
 tags:
 - dsa
 - java
 - intervals
 - sorting
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/intervals-pattern/
 title: Intervals Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/intervals-banner.svg
+  overlay_image: "/assets/images/intervals-banner.svg"
   overlay_filter: 0.35
-  caption: "Sorting and Sweep Logic for Range Problems"
+  caption: Sorting and Sweep Logic for Range Problems
   show_overlay_excerpt: false
 ---
-
-# Intervals Pattern in Java — A Detailed Guide
-
 Intervals problems are mostly about ordering and overlap rules.
 Once sorted, many become simple linear scans.
 

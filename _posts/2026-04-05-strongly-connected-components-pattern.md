@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-05
-seo_title: "SCC Pattern in Java – Complete Guide"
-seo_description: "Decompose directed graphs into SCCs in Java using Kosaraju and low-link concepts."
-tags: [dsa, java, scc, graph, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/strongly-connected-components-pattern/"
-title: "Strongly Connected Components Pattern in Java — A Detailed Guide"
+seo_title: SCC Pattern in Java – Complete Guide
+seo_description: Decompose directed graphs into SCCs in Java using Kosaraju and low-link
+  concepts.
+tags:
+- dsa
+- java
+- scc
+- graph
+- algorithms
+title: Strongly Connected Components Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/strongly-connected-components-pattern-banner.svg
+  overlay_image: "/assets/images/strongly-connected-components-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Directed Graph Component Decomposition"
+  caption: Directed Graph Component Decomposition
 ---
-
-# Strongly Connected Components Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

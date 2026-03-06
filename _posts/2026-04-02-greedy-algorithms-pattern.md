@@ -4,23 +4,24 @@ categories:
 - DSA
 - Java
 date: 2026-04-02
-seo_title: "Greedy Algorithms Pattern in Java – Complete Guide"
-seo_description: "Learn greedy strategy design in Java with proof mindset and classic scheduling/selection examples."
-tags: [dsa, java, greedy, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/greedy-algorithms-pattern/"
-title: "Greedy Algorithms Pattern in Java — A Detailed Guide"
+seo_title: Greedy Algorithms Pattern in Java – Complete Guide
+seo_description: Learn greedy strategy design in Java with proof mindset and classic
+  scheduling/selection examples.
+tags:
+- dsa
+- java
+- greedy
+- algorithms
+title: Greedy Algorithms Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/greedy-algorithms-pattern-banner.svg
+  overlay_image: "/assets/images/greedy-algorithms-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Local Choices with Global Guarantees"
+  caption: Local Choices with Global Guarantees
 ---
-
-# Greedy Algorithms Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

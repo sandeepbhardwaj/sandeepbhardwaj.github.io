@@ -20,9 +20,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Jekyll Environment Variables and Multiple Config Files
-
 When developing locally, you often need different settings than production (URL, analytics, Disqus, etc.).
 
 ## Typical Local vs Production Difference

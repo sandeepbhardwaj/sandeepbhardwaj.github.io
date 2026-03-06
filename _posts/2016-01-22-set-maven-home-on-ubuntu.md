@@ -20,9 +20,6 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-
-# Set Maven Home on Ubuntu
-
 Use this when Maven is installed manually (tar/zip) and not via `apt`.
 
 Note: modern Maven does not strictly require `M2_HOME`, but many teams still set it for consistency.

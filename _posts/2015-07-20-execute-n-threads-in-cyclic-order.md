@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Execute N Threads in Cyclic Order
-
 Interview-style concurrency problem: ensure threads print in strict round-robin sequence.
 
 ## Real-World Analogy

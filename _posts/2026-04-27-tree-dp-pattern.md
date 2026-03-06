@@ -4,23 +4,24 @@ categories:
 - DSA
 - Java
 date: 2026-04-27
-seo_title: "Tree DP Pattern in Java – Complete Guide"
-seo_description: "Compute optimal values on trees in Java by combining child DP states per node."
-tags: [dsa, java, tree-dp, dynamic-programming]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/tree-dp-pattern/"
-title: "Tree DP Pattern in Java — A Detailed Guide"
+seo_title: Tree DP Pattern in Java – Complete Guide
+seo_description: Compute optimal values on trees in Java by combining child DP states
+  per node.
+tags:
+- dsa
+- java
+- tree-dp
+- dynamic-programming
+title: Tree DP Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/tree-dp-pattern-banner.svg
+  overlay_image: "/assets/images/tree-dp-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Hierarchical State Combination on Trees"
+  caption: Hierarchical State Combination on Trees
 ---
-
-# Tree DP Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

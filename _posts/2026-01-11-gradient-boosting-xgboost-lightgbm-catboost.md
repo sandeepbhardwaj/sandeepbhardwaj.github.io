@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-11
-seo_title: "Gradient Boosting with XGBoost, LightGBM, and CatBoost"
-seo_description: "A practical in-depth guide to gradient boosting, tuning strategy, and production trade-offs across XGBoost, LightGBM, and CatBoost."
-tags: [ai, ml, gradient-boosting, xgboost, lightgbm, catboost]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/gradient-boosting-xgboost-lightgbm-catboost/"
-title: "Gradient Boosting with XGBoost, LightGBM, and CatBoost"
+seo_title: Gradient Boosting with XGBoost, LightGBM, and CatBoost
+seo_description: A practical in-depth guide to gradient boosting, tuning strategy,
+  and production trade-offs across XGBoost, LightGBM, and CatBoost.
+tags:
+- ai
+- ml
+- gradient-boosting
+- xgboost
+- lightgbm
+- catboost
+title: Gradient Boosting with XGBoost, LightGBM, and CatBoost
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Boosting Sequentially Corrects Previous Errors"
+  caption: Boosting Sequentially Corrects Previous Errors
 ---
-
-# Gradient Boosting with XGBoost, LightGBM, and CatBoost
-
 Gradient boosting is one of the highest-performing approaches for tabular ML.
 Its power comes from sequentially correcting residual errors rather than averaging independent trees.
 

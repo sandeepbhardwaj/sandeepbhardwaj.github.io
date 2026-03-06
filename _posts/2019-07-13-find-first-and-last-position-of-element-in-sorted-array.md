@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Find First and Last Position of Element in Sorted Array
-
 This guide explains the intuition, optimized approach, and Java implementation for find first and last position of element in sorted array, with practical tips for interviews and production coding standards.
 
 ## Problem

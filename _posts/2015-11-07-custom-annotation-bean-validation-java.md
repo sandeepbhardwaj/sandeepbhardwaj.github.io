@@ -19,9 +19,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Custom Annotation for Validating a Bean in Java
-
 This example validates that bean fields are not `null` using a custom class-level annotation.
 
 ## Step 1: Define Annotation

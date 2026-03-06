@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Remove Duplicates from Sorted Array in Java
-
 Given a sorted array, remove duplicates in-place so each unique value appears once.
 Return the number of unique elements.
 

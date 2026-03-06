@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-28
-seo_title: "Event-Driven Architecture with Kafka Java Guide"
-seo_description: "Build event-driven Java systems with contract-first topics and scalable consumers."
-tags: [java, kafka, event-driven, microservices]
-canonical_url: "https://sandeepbhardwaj.github.io/java/event-driven-architecture-kafka-java/"
-title: "Event-Driven Architecture with Kafka and Java"
+seo_title: Event-Driven Architecture with Kafka Java Guide
+seo_description: Build event-driven Java systems with contract-first topics and scalable
+  consumers.
+tags:
+- java
+- kafka
+- event-driven
+- microservices
+title: Event-Driven Architecture with Kafka and Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Asynchronous Contract-Driven Service Communication"
+  caption: Asynchronous Contract-Driven Service Communication
 ---
-
-# Event-Driven Architecture with Kafka and Java
-
 Kafka enables scalable asynchronous integration, but reliability depends on contract and consumer design.
 Treat topics as product interfaces, not internal implementation details.
 

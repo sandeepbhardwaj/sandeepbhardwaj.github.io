@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Find All Numbers Disappeared in an Array in Java
-
 Given an array `nums` of size `n` where values are in range `[1, n]`, some numbers appear twice and others are missing.
 Return all missing numbers.
 

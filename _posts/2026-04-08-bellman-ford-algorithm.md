@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-08
-seo_title: "Bellman-Ford Algorithm in Java – Complete Guide"
-seo_description: "Handle negative edge weights and detect negative cycles in Java using Bellman-Ford."
-tags: [dsa, java, bellman-ford, graph, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/bellman-ford-algorithm/"
-title: "Bellman-Ford Algorithm in Java — A Detailed Guide"
+seo_title: Bellman-Ford Algorithm in Java – Complete Guide
+seo_description: Handle negative edge weights and detect negative cycles in Java using
+  Bellman-Ford.
+tags:
+- dsa
+- java
+- bellman-ford
+- graph
+- algorithms
+title: Bellman-Ford Algorithm in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/bellman-ford-algorithm-banner.svg
+  overlay_image: "/assets/images/bellman-ford-algorithm-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Negative Edge Shortest Paths"
+  caption: Negative Edge Shortest Paths
 ---
-
-# Bellman-Ford Algorithm in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

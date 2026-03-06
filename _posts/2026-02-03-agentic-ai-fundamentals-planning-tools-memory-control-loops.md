@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-02-03
-seo_title: "Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops"
-seo_description: "A practical deep dive into agentic AI architecture: planners, tool use, memory systems, control loops, and failure handling."
-tags: [ai, ml, agentic-ai, ai-agents, llm, tool-calling]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/agentic-ai-fundamentals-planning-tools-memory-control-loops/"
-title: "Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops"
+seo_title: 'Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops'
+seo_description: 'A practical deep dive into agentic AI architecture: planners, tool
+  use, memory systems, control loops, and failure handling.'
+tags:
+- ai
+- ml
+- agentic-ai
+- ai-agents
+- llm
+- tool-calling
+title: 'Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "From Single Prompts to Goal-Driven Systems"
+  caption: From Single Prompts to Goal-Driven Systems
 ---
-
-# Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops
-
 Agentic AI systems do more than generate one response.
 They decompose goals, choose actions, call tools, inspect outcomes, and iterate until completion or stop condition.
 

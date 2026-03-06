@@ -4,23 +4,24 @@ categories:
 - DSA
 - Java
 date: 2026-04-26
-seo_title: "Bitmask DP Pattern in Java – Complete Guide"
-seo_description: "Model subset states in Java with bitmask DP for assignment, TSP-style, and covering problems."
-tags: [dsa, java, bitmask-dp, dynamic-programming]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/bitmask-dp-pattern/"
-title: "Bitmask DP Pattern in Java — A Detailed Guide"
+seo_title: Bitmask DP Pattern in Java – Complete Guide
+seo_description: Model subset states in Java with bitmask DP for assignment, TSP-style,
+  and covering problems.
+tags:
+- dsa
+- java
+- bitmask-dp
+- dynamic-programming
+title: Bitmask DP Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/bitmask-dp-pattern-banner.svg
+  overlay_image: "/assets/images/bitmask-dp-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Subset State Dynamic Programming"
+  caption: Subset State Dynamic Programming
 ---
-
-# Bitmask DP Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

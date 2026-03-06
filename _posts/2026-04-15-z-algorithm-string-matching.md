@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-15
-seo_title: "Z-Algorithm String Matching in Java – Complete Guide"
-seo_description: "Compute Z-array in Java for prefix-match based string search and border analysis."
-tags: [dsa, java, z-algorithm, strings, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/z-algorithm-string-matching/"
-title: "Z-Algorithm for String Matching in Java — A Detailed Guide"
+seo_title: Z-Algorithm String Matching in Java – Complete Guide
+seo_description: Compute Z-array in Java for prefix-match based string search and
+  border analysis.
+tags:
+- dsa
+- java
+- z-algorithm
+- strings
+- algorithms
+title: Z-Algorithm for String Matching in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/z-algorithm-string-matching-banner.svg
+  overlay_image: "/assets/images/z-algorithm-string-matching-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Prefix Match Array Techniques"
+  caption: Prefix Match Array Techniques
 ---
-
-# Z-Algorithm for String Matching in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

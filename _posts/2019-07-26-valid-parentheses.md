@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Valid Parentheses in Java
-
 Given a string containing only `()[]{}`, return `true` if brackets are valid.
 A valid string must close in correct order and with correct bracket type.
 

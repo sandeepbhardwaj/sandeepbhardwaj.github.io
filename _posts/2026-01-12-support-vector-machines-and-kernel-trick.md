@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-12
-seo_title: "Support Vector Machines and the Kernel Trick"
-seo_description: "A practical deep dive into SVMs, margins, kernels, hyperparameters, and when to use SVM in modern ML workflows."
-tags: [ai, ml, svm, kernels, classification]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/support-vector-machines-and-kernel-trick/"
-title: "Support Vector Machines and the Kernel Trick"
+seo_title: Support Vector Machines and the Kernel Trick
+seo_description: A practical deep dive into SVMs, margins, kernels, hyperparameters,
+  and when to use SVM in modern ML workflows.
+tags:
+- ai
+- ml
+- svm
+- kernels
+- classification
+title: Support Vector Machines and the Kernel Trick
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Maximum Margin Thinking"
+  caption: Maximum Margin Thinking
 ---
-
-# Support Vector Machines and the Kernel Trick
-
 Support Vector Machines (SVM) are still useful in many medium-scale, high-dimensional classification problems.
 They provide strong geometry-based decision boundaries and good generalization with proper tuning.
 

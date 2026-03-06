@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-28
-seo_title: "Game Theory DP Minimax in Java – Complete Guide"
-seo_description: "Model two-player optimal play in Java with minimax recurrence and memoization."
-tags: [dsa, java, game-theory, minimax, dp]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/game-theory-dp-minimax/"
-title: "Game Theory DP (Minimax) in Java — A Detailed Guide"
+seo_title: Game Theory DP Minimax in Java – Complete Guide
+seo_description: Model two-player optimal play in Java with minimax recurrence and
+  memoization.
+tags:
+- dsa
+- java
+- game-theory
+- minimax
+- dp
+title: Game Theory DP (Minimax) in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/game-theory-dp-minimax-banner.svg
+  overlay_image: "/assets/images/game-theory-dp-minimax-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Optimal Adversarial Decision Modeling"
+  caption: Optimal Adversarial Decision Modeling
 ---
-
-# Game Theory DP (Minimax) in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

@@ -20,9 +20,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# CyclicBarrier in Java
-
 `CyclicBarrier` lets a fixed number of threads wait until all participants reach the same synchronization point.
 
 ## Real-World Use Cases

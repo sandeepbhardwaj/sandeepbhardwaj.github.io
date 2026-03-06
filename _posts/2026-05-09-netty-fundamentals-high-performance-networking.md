@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-09
-seo_title: "Netty Fundamentals for High-Performance Java Networking"
-seo_description: "Build low-latency event-driven network services with Netty in Java."
-tags: [java, netty, networking, backend, performance]
-canonical_url: "https://sandeepbhardwaj.github.io/java/netty-fundamentals-high-performance-networking/"
-title: "Netty Fundamentals for High-Performance Networking"
+seo_title: Netty Fundamentals for High-Performance Java Networking
+seo_description: Build low-latency event-driven network services with Netty in Java.
+tags:
+- java
+- netty
+- networking
+- backend
+- performance
+title: Netty Fundamentals for High-Performance Networking
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Event Loop Driven Network Service Architecture"
+  caption: Event Loop Driven Network Service Architecture
 ---
-
-# Netty Fundamentals for High-Performance Networking
-
 Netty helps Java services handle large numbers of concurrent network connections with predictable latency.
 Its performance comes from two disciplines:
 

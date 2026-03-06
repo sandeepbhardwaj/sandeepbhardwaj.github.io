@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-30
-seo_title: "Distributed Locking Patterns in Java Guide"
-seo_description: "Coordinate distributed critical sections safely with lease-based Java locking patterns."
-tags: [java, distributed-locking, redis, zookeeper]
-canonical_url: "https://sandeepbhardwaj.github.io/java/distributed-locking-patterns-java-redis-zookeeper/"
-title: "Distributed Locking Patterns in Java (Redis ZooKeeper)"
+seo_title: Distributed Locking Patterns in Java Guide
+seo_description: Coordinate distributed critical sections safely with lease-based
+  Java locking patterns.
+tags:
+- java
+- distributed-locking
+- redis
+- zookeeper
+title: Distributed Locking Patterns in Java (Redis ZooKeeper)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Cross-Node Mutual Exclusion with Lease Safety"
+  caption: Cross-Node Mutual Exclusion with Lease Safety
 ---
-
-# Distributed Locking Patterns in Java (Redis ZooKeeper)
-
 Distributed locks coordinate critical sections across service instances.
 They are lease-based coordination primitives, not equivalent to in-process `synchronized`.
 

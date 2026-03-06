@@ -1,21 +1,25 @@
 ---
-title: "Java 8 Date & Time API — Production & Distributed Systems Guide"
+title: Java 8 Date & Time API — Production & Distributed Systems Guide
 date: 2026-03-07
-categories: [Java]
-tags: [java, java8, datetime, backend, timezone, distributed-systems]
+categories:
+- Java
+tags:
+- java
+- java8
+- datetime
+- backend
+- timezone
+- distributed-systems
 author_profile: true
 toc: true
-seo_title: "Java 8 Date & Time API — Production & Distributed Systems Guide"
-seo_description: "Practical Java 8 Date-Time API guide for backend systems: Instant, ZonedDateTime, offsets, parsing, and timezone-safe architecture."
+seo_title: Java 8 Date & Time API — Production & Distributed Systems Guide
+seo_description: 'Practical Java 8 Date-Time API guide for backend systems: Instant,
+  ZonedDateTime, offsets, parsing, and timezone-safe architecture.'
 header:
-  overlay_image: /assets/images/java-8-date-time-api-banner.svg
+  overlay_image: "/assets/images/java-8-date-time-api-banner.svg"
   overlay_filter: 0.4
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-date-time-api/"
 ---
-
-# Introduction
-
 Date-time bugs are common in distributed systems:
 
 - wrong timezone assumptions

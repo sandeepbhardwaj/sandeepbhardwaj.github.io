@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-29
-seo_title: "A/B Testing and Causal Inference for ML Systems"
-seo_description: "A practical guide to online experimentation, causal thinking, and trustworthy impact measurement for ML product decisions."
-tags: [ai, ml, ab-testing, experimentation, causal-inference]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/ab-testing-and-causal-inference-for-ml-systems/"
-title: "A/B Testing and Causal Inference for ML Systems"
+seo_title: A/B Testing and Causal Inference for ML Systems
+seo_description: A practical guide to online experimentation, causal thinking, and
+  trustworthy impact measurement for ML product decisions.
+tags:
+- ai
+- ml
+- ab-testing
+- experimentation
+- causal-inference
+title: A/B Testing and Causal Inference for ML Systems
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Measure Real Impact, Not Proxy Excitement"
+  caption: Measure Real Impact, Not Proxy Excitement
 ---
-
-# A/B Testing and Causal Inference for ML Systems
-
 Offline model quality improvements are useful, but they are not proof of business impact.
 A model can increase AUC and still reduce conversion, increase complaints, or hurt retention.
 

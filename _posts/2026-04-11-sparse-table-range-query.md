@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-11
-seo_title: "Sparse Table Range Query Pattern in Java – Complete Guide"
-seo_description: "Preprocess immutable arrays in Java for constant-time idempotent range queries."
-tags: [dsa, java, sparse-table, range-query, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/sparse-table-range-query/"
-title: "Sparse Table Range Query Pattern in Java — A Detailed Guide"
+seo_title: Sparse Table Range Query Pattern in Java – Complete Guide
+seo_description: Preprocess immutable arrays in Java for constant-time idempotent
+  range queries.
+tags:
+- dsa
+- java
+- sparse-table
+- range-query
+- algorithms
+title: Sparse Table Range Query Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/sparse-table-range-query-banner.svg
+  overlay_image: "/assets/images/sparse-table-range-query-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Immutable Range Query Acceleration"
+  caption: Immutable Range Query Acceleration
 ---
-
-# Sparse Table Range Query Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-30
-seo_title: "Responsible AI: Fairness, Privacy, and Security"
-seo_description: "A practical guide to building responsible AI systems with fairness checks, privacy controls, and security protections."
-tags: [ai, ml, responsible-ai, fairness, privacy, security]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/responsible-ai-fairness-privacy-and-security/"
-title: "Responsible AI: Fairness, Privacy, and Security"
+seo_title: 'Responsible AI: Fairness, Privacy, and Security'
+seo_description: A practical guide to building responsible AI systems with fairness
+  checks, privacy controls, and security protections.
+tags:
+- ai
+- ml
+- responsible-ai
+- fairness
+- privacy
+- security
+title: 'Responsible AI: Fairness, Privacy, and Security'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Reliable AI Must Also Be Safe and Fair"
+  caption: Reliable AI Must Also Be Safe and Fair
 ---
-
-# Responsible AI: Fairness, Privacy, and Security
-
 AI quality is not just prediction quality.
 A model can be accurate and still unfair, privacy-invasive, insecure, or unsafe in deployment.
 

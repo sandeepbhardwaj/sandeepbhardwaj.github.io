@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-01
-seo_title: "AI/ML Foundations from First Principles"
-seo_description: "A thorough beginner-to-practitioner guide to AI, ML, deep learning, model lifecycle, evaluation, and production trade-offs."
-tags: [ai, ml, deep-learning, data-science, mlops]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/ai-ml-foundations-from-first-principles/"
-title: "AI/ML Foundations from First Principles"
+seo_title: AI/ML Foundations from First Principles
+seo_description: A thorough beginner-to-practitioner guide to AI, ML, deep learning,
+  model lifecycle, evaluation, and production trade-offs.
+tags:
+- ai
+- ml
+- deep-learning
+- data-science
+- mlops
+title: AI/ML Foundations from First Principles
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Build the Right Mental Model Before Building Models"
+  caption: Build the Right Mental Model Before Building Models
 ---
-
-# AI/ML Foundations from First Principles
-
 Most people start AI/ML by jumping into a framework and training a model.
 That is usually the fastest path to confusion.
 

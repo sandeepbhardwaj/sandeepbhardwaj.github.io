@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-02-04
-seo_title: "Building Production AI Agents: Architecture, Guardrails, and Evaluation"
-seo_description: "A production-focused guide for AI agents: system architecture, safety guardrails, tool governance, testing, and operations."
-tags: [ai, ml, ai-agents, agentic-ai, llm, mlops]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/building-production-ai-agents-architecture-guardrails-evaluation/"
-title: "Building Production AI Agents: Architecture, Guardrails, and Evaluation"
+seo_title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
+seo_description: 'A production-focused guide for AI agents: system architecture, safety
+  guardrails, tool governance, testing, and operations.'
+tags:
+- ai
+- ml
+- ai-agents
+- agentic-ai
+- llm
+- mlops
+title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Operate Agents Like Critical Software Systems"
+  caption: Operate Agents Like Critical Software Systems
 ---
-
-# Building Production AI Agents: Architecture, Guardrails, and Evaluation
-
 A prototype agent that works in a demo is easy.
 A production agent that is safe, reliable, observable, and cost-controlled is hard.
 

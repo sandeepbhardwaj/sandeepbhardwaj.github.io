@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-21
-seo_title: "Sequence Modeling with RNN, LSTM, and GRU"
-seo_description: "A practical guide to recurrent sequence models, where they still fit, and how they compare with transformer approaches."
-tags: [ai, ml, rnn, lstm, gru, sequence-modeling]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/sequence-modeling-rnn-lstm-gru-and-when-they-still-matter/"
-title: "Sequence Modeling with RNN, LSTM, and GRU"
+seo_title: Sequence Modeling with RNN, LSTM, and GRU
+seo_description: A practical guide to recurrent sequence models, where they still
+  fit, and how they compare with transformer approaches.
+tags:
+- ai
+- ml
+- rnn
+- lstm
+- gru
+- sequence-modeling
+title: Sequence Modeling with RNN, LSTM, and GRU
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Recurrent Models Still Have Practical Niches"
+  caption: Recurrent Models Still Have Practical Niches
 ---
-
-# Sequence Modeling with RNN, LSTM, and GRU
-
 Transformers dominate many NLP benchmarks, but recurrent models still matter in latency-sensitive and resource-constrained sequential tasks.
 Understanding RNN/LSTM/GRU remains useful for strong engineering decisions.
 

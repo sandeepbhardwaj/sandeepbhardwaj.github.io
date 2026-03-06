@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-19
 seo_title: Heap and Priority Queue Pattern in Java – Complete Guide
-seo_description: Master heap and priority queue patterns in Java for top-k, streaming median, scheduling, and greedy optimization.
+seo_description: Master heap and priority queue patterns in Java for top-k, streaming
+  median, scheduling, and greedy optimization.
 tags:
 - dsa
 - java
 - heap
 - priority-queue
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/heap-priority-queue-pattern/
 title: Heap and Priority Queue Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/heap-priority-queue-banner.svg
+  overlay_image: "/assets/images/heap-priority-queue-banner.svg"
   overlay_filter: 0.35
-  caption: "Efficient Access to Extreme Elements"
+  caption: Efficient Access to Extreme Elements
   show_overlay_excerpt: false
 ---
-
-# Heap and Priority Queue Pattern in Java — A Detailed Guide
-
 Use heaps when you need repeated access to the smallest or largest element under updates.
 Java provides this via `PriorityQueue`.
 

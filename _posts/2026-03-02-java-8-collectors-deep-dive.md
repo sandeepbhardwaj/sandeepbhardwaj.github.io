@@ -1,24 +1,28 @@
 ---
-title: "Java 8 Collectors — groupingBy, partitioningBy, and Custom Collectors"
+title: Java 8 Collectors — groupingBy, partitioningBy, and Custom Collectors
 date: 2026-03-02
-categories: [Java]
-tags: [java, java8, streams, collectors, backend, aggregation]
+categories:
+- Java
+tags:
+- java
+- java8
+- streams
+- collectors
+- backend
+- aggregation
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 8 Collectors Deep Dive (groupingBy, partitioningBy, reducing)"
-seo_description: "Master Java 8 Collectors with practical backend aggregation examples, custom collectors, performance notes, and best practices."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 8 Collectors Deep Dive (groupingBy, partitioningBy, reducing)
+seo_description: Master Java 8 Collectors with practical backend aggregation examples,
+  custom collectors, performance notes, and best practices.
 header:
-  overlay_image: /assets/images/java8-collectors-deep-dive-banner.svg
+  overlay_image: "/assets/images/java8-collectors-deep-dive-banner.svg"
   overlay_filter: 0.4
-  caption: "Modern Backend Development with Java 8"
+  caption: Modern Backend Development with Java 8
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-collectors-deep-dive/"
 ---
-
-# Introduction
-
 Collectors are the aggregation engine of the Stream API.
 In backend code, they are used for:
 

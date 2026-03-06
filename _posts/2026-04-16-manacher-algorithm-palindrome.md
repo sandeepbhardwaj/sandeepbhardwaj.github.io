@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-16
-seo_title: "Manacher Algorithm in Java – Complete Guide"
-seo_description: "Find longest palindromic substrings in linear time in Java with Manacher’s algorithm."
-tags: [dsa, java, manacher, palindrome, strings]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/manacher-algorithm-palindrome/"
-title: "Manacher Algorithm for Palindromes in Java — A Detailed Guide"
+seo_title: Manacher Algorithm in Java – Complete Guide
+seo_description: Find longest palindromic substrings in linear time in Java with Manacher’s
+  algorithm.
+tags:
+- dsa
+- java
+- manacher
+- palindrome
+- strings
+title: Manacher Algorithm for Palindromes in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/manacher-algorithm-palindrome-banner.svg
+  overlay_image: "/assets/images/manacher-algorithm-palindrome-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Linear-Time Palindrome Radius Computation"
+  caption: Linear-Time Palindrome Radius Computation
 ---
-
-# Manacher Algorithm for Palindromes in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

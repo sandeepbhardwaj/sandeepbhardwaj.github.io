@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Single Number in Java Using XOR
-
 Given an integer array where every value appears exactly twice except one value, return the value that appears once.
 
 ---

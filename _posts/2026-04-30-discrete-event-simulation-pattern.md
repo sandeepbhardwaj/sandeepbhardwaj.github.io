@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-30
-seo_title: "Discrete Event Simulation Pattern in Java – Complete Guide"
-seo_description: "Simulate asynchronous systems in Java using time-ordered event queues and state transitions."
-tags: [dsa, java, simulation, priority-queue, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/discrete-event-simulation-pattern/"
-title: "Discrete Event Simulation Pattern in Java — A Detailed Guide"
+seo_title: Discrete Event Simulation Pattern in Java – Complete Guide
+seo_description: Simulate asynchronous systems in Java using time-ordered event queues
+  and state transitions.
+tags:
+- dsa
+- java
+- simulation
+- priority-queue
+- algorithms
+title: Discrete Event Simulation Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/discrete-event-simulation-pattern-banner.svg
+  overlay_image: "/assets/images/discrete-event-simulation-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Time-Ordered Event Processing"
+  caption: Time-Ordered Event Processing
 ---
-
-# Discrete Event Simulation Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

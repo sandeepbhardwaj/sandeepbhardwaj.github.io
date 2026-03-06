@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-19
-seo_title: "Java Module System JPMS Guide for Large Codebases"
-seo_description: "Use JPMS for dependency boundaries, stronger encapsulation, and modular runtime images."
-tags: [java, jpms, modules, architecture]
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-module-system-jpms-large-codebases/"
-title: "Java Module System (JPMS) for Large Codebases"
+seo_title: Java Module System JPMS Guide for Large Codebases
+seo_description: Use JPMS for dependency boundaries, stronger encapsulation, and modular
+  runtime images.
+tags:
+- java
+- jpms
+- modules
+- architecture
+title: Java Module System (JPMS) for Large Codebases
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Strong Encapsulation and Dependency Boundaries"
+  caption: Strong Encapsulation and Dependency Boundaries
 ---
-
-# Java Module System (JPMS) for Large Codebases
-
 JPMS gives compile-time and runtime enforcement of architecture boundaries.
 In large codebases, this helps stop dependency sprawl and accidental internal API usage.
 

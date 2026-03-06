@@ -19,9 +19,6 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-
-# Varargs in Java: Variable-Argument Methods
-
 Varargs (`...`) lets a method accept zero or more arguments of the same type.
 
 ## Real-World Use Cases

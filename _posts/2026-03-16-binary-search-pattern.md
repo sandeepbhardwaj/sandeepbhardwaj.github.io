@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-16
 seo_title: Binary Search Pattern in Java – Complete Guide
-seo_description: Master binary search in Java including index search, first/last occurrence, and answer-space binary search.
+seo_description: Master binary search in Java including index search, first/last occurrence,
+  and answer-space binary search.
 tags:
 - dsa
 - java
 - binary-search
 - algorithms
 - interview-preparation
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/binary-search-pattern/
 title: Binary Search Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/binary-search-banner.svg
+  overlay_image: "/assets/images/binary-search-banner.svg"
   overlay_filter: 0.35
-  caption: "Log-Time Decisions on Monotonic Spaces"
+  caption: Log-Time Decisions on Monotonic Spaces
   show_overlay_excerpt: false
 ---
-
-# Binary Search Pattern in Java — A Detailed Guide
-
 Binary search is not just for finding a value in a sorted array.
 It is a decision pattern over monotonic spaces.
 

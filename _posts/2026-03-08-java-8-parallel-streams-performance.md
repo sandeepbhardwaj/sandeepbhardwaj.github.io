@@ -1,21 +1,25 @@
 ---
-title: "Parallel Streams in Java 8 — Performance Engineering Guide"
+title: Parallel Streams in Java 8 — Performance Engineering Guide
 date: 2026-03-08
-categories: [Java]
-tags: [java, java8, streams, parallel-streams, backend, performance]
+categories:
+- Java
+tags:
+- java
+- java8
+- streams
+- parallel-streams
+- backend
+- performance
 author_profile: true
 toc: true
-seo_title: "Parallel Streams in Java 8 — Performance Engineering Guide"
-seo_description: "When parallel streams help and when they hurt in backend services: workload fit, common pool risks, benchmarking, and production guidelines."
+seo_title: Parallel Streams in Java 8 — Performance Engineering Guide
+seo_description: 'When parallel streams help and when they hurt in backend services:
+  workload fit, common pool risks, benchmarking, and production guidelines.'
 header:
-  overlay_image: /assets/images/java-8-parallel-streams-performance-banner.svg
+  overlay_image: "/assets/images/java-8-parallel-streams-performance-banner.svg"
   overlay_filter: 0.4
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-parallel-streams-performance/"
 ---
-
-# Introduction
-
 `parallelStream()` is not a universal performance switch.
 It can improve throughput for CPU-bound, independent workloads, and degrade latency badly in request/response services when misused.
 

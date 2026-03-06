@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-31
-seo_title: "Profiling and Performance Benchmarking with JMH"
-seo_description: "Benchmark Java code correctly with JMH methodology and production-aligned profiling."
-tags: [java, jmh, performance, benchmarking, jvm]
-canonical_url: "https://sandeepbhardwaj.github.io/java/profiling-performance-benchmarking-jmh/"
-title: "Profiling and Performance Benchmarking with JMH"
+seo_title: Profiling and Performance Benchmarking with JMH
+seo_description: Benchmark Java code correctly with JMH methodology and production-aligned
+  profiling.
+tags:
+- java
+- jmh
+- performance
+- benchmarking
+- jvm
+title: Profiling and Performance Benchmarking with JMH
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Reliable JVM Microbenchmarking and Profiling"
+  caption: Reliable JVM Microbenchmarking and Profiling
 ---
-
-# Profiling and Performance Benchmarking with JMH
-
 JMH is the correct tool for JVM microbenchmarks.
 Without it, results are usually distorted by JIT warmup, dead-code elimination, and measurement noise.
 

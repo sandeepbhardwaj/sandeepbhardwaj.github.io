@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-07
-seo_title: "Java Flight Recorder and Mission Control Production Guide"
-seo_description: "Diagnose production JVM behavior with low-overhead profiling via JFR and JMC."
-tags: [java, jfr, observability, performance, jmc]
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-flight-recorder-mission-control-production/"
-title: "Java Flight Recorder and Mission Control in Production"
+seo_title: Java Flight Recorder and Mission Control Production Guide
+seo_description: Diagnose production JVM behavior with low-overhead profiling via
+  JFR and JMC.
+tags:
+- java
+- jfr
+- observability
+- performance
+- jmc
+title: Java Flight Recorder and Mission Control in Production
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Low Overhead Production Profiling and Diagnostics"
+  caption: Low Overhead Production Profiling and Diagnostics
 ---
-
-# Java Flight Recorder and Mission Control in Production
-
 JFR is one of the highest-value JVM tools because it captures deep runtime signals with low overhead.
 Use it proactively, not only during incidents.
 

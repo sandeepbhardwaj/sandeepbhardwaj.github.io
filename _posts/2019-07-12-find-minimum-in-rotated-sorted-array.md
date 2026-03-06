@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Find Minimum in Rotated Sorted Array in Java
-
 Given a rotated sorted array with distinct values, find the minimum element in `O(log n)`.
 
 ---

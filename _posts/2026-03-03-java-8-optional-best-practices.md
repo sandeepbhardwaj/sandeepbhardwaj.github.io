@@ -1,24 +1,28 @@
 ---
-title: "Optional in Java 8 — Correct Usage in Production Systems"
+title: Optional in Java 8 — Correct Usage in Production Systems
 date: 2026-03-03
-categories: [Java]
-tags: [java, java8, optional, backend, api-design, clean-code]
+categories:
+- Java
+tags:
+- java
+- java8
+- optional
+- backend
+- api-design
+- clean-code
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 8 Optional Best Practices for Backend Engineers"
-seo_description: "Use Optional correctly in Java 8: when to use it, common mistakes, service-layer patterns, and API design best practices."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 8 Optional Best Practices for Backend Engineers
+seo_description: 'Use Optional correctly in Java 8: when to use it, common mistakes,
+  service-layer patterns, and API design best practices.'
 header:
-  overlay_image: /assets/images/java8-optional-best-practices-banner.svg
+  overlay_image: "/assets/images/java8-optional-best-practices-banner.svg"
   overlay_filter: 0.4
-  caption: "Modern Backend Development with Java 8"
+  caption: Modern Backend Development with Java 8
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-optional-best-practices/"
 ---
-
-# Introduction
-
 `Optional<T>` makes absence explicit in API contracts.
 Used correctly, it reduces null-related defects and clarifies service-layer behavior.
 Used incorrectly, it adds noise and confusion.

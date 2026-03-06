@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-22
-seo_title: "LLM Foundations: Tokenization, Pretraining, and Inference"
-seo_description: "A practical foundation on how large language models are built, trained, and served in real-world AI systems."
-tags: [ai, ml, llm, transformers, pretraining, inference]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/llm-foundations-tokenization-pretraining-and-inference/"
-title: "LLM Foundations: Tokenization, Pretraining, and Inference"
+seo_title: 'LLM Foundations: Tokenization, Pretraining, and Inference'
+seo_description: A practical foundation on how large language models are built, trained,
+  and served in real-world AI systems.
+tags:
+- ai
+- ml
+- llm
+- transformers
+- pretraining
+- inference
+title: 'LLM Foundations: Tokenization, Pretraining, and Inference'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Understand the Stack Before Using the API"
+  caption: Understand the Stack Before Using the API
 ---
-
-# LLM Foundations: Tokenization, Pretraining, and Inference
-
 LLM applications look simple from API perspective but involve multiple layers of trade-offs.
 Strong products require understanding tokenization, pretraining behavior, adaptation options, and inference economics.
 

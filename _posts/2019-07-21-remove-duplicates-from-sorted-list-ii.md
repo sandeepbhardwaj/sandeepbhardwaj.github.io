@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Remove Duplicates from Sorted List II in Java
-
 This guide explains the intuition, optimized approach, and Java implementation for remove duplicates from sorted list ii in java, with practical tips for interviews and production coding standards.
 
 ## Problem

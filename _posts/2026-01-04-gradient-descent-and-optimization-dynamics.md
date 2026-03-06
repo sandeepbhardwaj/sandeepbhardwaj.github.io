@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-04
-seo_title: "Gradient Descent and Optimization Dynamics in ML"
-seo_description: "A detailed guide to gradient descent, learning rates, batch strategies, convergence behavior, and practical optimization diagnostics."
-tags: [ai, ml, gradient-descent, optimization, deep-learning]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/gradient-descent-and-optimization-dynamics/"
-title: "Gradient Descent and Optimization Dynamics"
+seo_title: Gradient Descent and Optimization Dynamics in ML
+seo_description: A detailed guide to gradient descent, learning rates, batch strategies,
+  convergence behavior, and practical optimization diagnostics.
+tags:
+- ai
+- ml
+- gradient-descent
+- optimization
+- deep-learning
+title: Gradient Descent and Optimization Dynamics
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Why Models Learn, Stall, or Diverge"
+  caption: Why Models Learn, Stall, or Diverge
 ---
-
-# Gradient Descent and Optimization Dynamics
-
 Most ML training is optimization.
 You define a loss function and adjust parameters to reduce it.
 

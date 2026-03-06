@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-17
-seo_title: "Rolling Hash Pattern in Java – Complete Guide"
-seo_description: "Apply rolling hash in Java for substring comparison, duplicate detection, and string indexing."
-tags: [dsa, java, rolling-hash, strings, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/rolling-hash-pattern/"
-title: "Rolling Hash Pattern in Java — A Detailed Guide"
+seo_title: Rolling Hash Pattern in Java – Complete Guide
+seo_description: Apply rolling hash in Java for substring comparison, duplicate detection,
+  and string indexing.
+tags:
+- dsa
+- java
+- rolling-hash
+- strings
+- algorithms
+title: Rolling Hash Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/rolling-hash-pattern-banner.svg
+  overlay_image: "/assets/images/rolling-hash-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Compact String Fingerprinting"
+  caption: Compact String Fingerprinting
 ---
-
-# Rolling Hash Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

@@ -4,23 +4,26 @@ categories:
 - Java
 - Backend
 date: 2026-05-06
-seo_title: "GC Tuning in Modern Java for Production Systems"
-seo_description: "Tune Java garbage collectors using pause-time, throughput, and allocation telemetry."
-tags: [java, gc, g1gc, zgc, shenandoah, performance]
-canonical_url: "https://sandeepbhardwaj.github.io/java/gc-tuning-modern-java-g1-zgc-shenandoah/"
-title: "GC Tuning in Modern Java (G1 ZGC Shenandoah) Guide"
+seo_title: GC Tuning in Modern Java for Production Systems
+seo_description: Tune Java garbage collectors using pause-time, throughput, and allocation
+  telemetry.
+tags:
+- java
+- gc
+- g1gc
+- zgc
+- shenandoah
+- performance
+title: GC Tuning in Modern Java (G1 ZGC Shenandoah) Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Balancing Pause Time Throughput and Allocation Rate"
+  caption: Balancing Pause Time Throughput and Allocation Rate
 ---
-
-# GC Tuning in Modern Java (G1 ZGC Shenandoah) Guide
-
 GC tuning should be outcome-driven: latency SLO, throughput target, and memory budget.
 Random flag tuning without telemetry usually makes systems worse.
 

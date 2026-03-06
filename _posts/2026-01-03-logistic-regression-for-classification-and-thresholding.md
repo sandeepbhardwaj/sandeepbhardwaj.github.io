@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-03
-seo_title: "Logistic Regression for Classification and Thresholding"
-seo_description: "A detailed practical guide to logistic regression, probability outputs, threshold tuning, calibration, and production deployment."
-tags: [ai, ml, logistic-regression, classification, model-evaluation]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/logistic-regression-for-classification-and-thresholding/"
-title: "Logistic Regression for Classification and Thresholding"
+seo_title: Logistic Regression for Classification and Thresholding
+seo_description: A detailed practical guide to logistic regression, probability outputs,
+  threshold tuning, calibration, and production deployment.
+tags:
+- ai
+- ml
+- logistic-regression
+- classification
+- model-evaluation
+title: Logistic Regression for Classification and Thresholding
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Predict Probabilities First, Decide with Thresholds Second"
+  caption: Predict Probabilities First, Decide with Thresholds Second
 ---
-
-# Logistic Regression for Classification and Thresholding
-
 Linear regression predicts continuous values.
 Classification problems need class probabilities and decisions.
 

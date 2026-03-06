@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-26
 seo_title: Shortest Path Pattern in Java – Complete Guide
-seo_description: Master shortest path algorithms in Java including BFS for unweighted graphs and Dijkstra for weighted graphs.
+seo_description: Master shortest path algorithms in Java including BFS for unweighted
+  graphs and Dijkstra for weighted graphs.
 tags:
 - dsa
 - java
 - shortest-path
 - bfs
 - dijkstra
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/shortest-path-pattern/
 title: Shortest Path Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/shortest-path-banner.svg
+  overlay_image: "/assets/images/shortest-path-banner.svg"
   overlay_filter: 0.35
-  caption: "Optimal Route Computation Across Graphs"
+  caption: Optimal Route Computation Across Graphs
   show_overlay_excerpt: false
 ---
-
-# Shortest Path Pattern in Java — A Detailed Guide
-
 Choose shortest-path algorithm based on edge weights:
 
 - unweighted: BFS

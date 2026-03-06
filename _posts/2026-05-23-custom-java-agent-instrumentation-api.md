@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-23
-seo_title: "Custom Java Agent Instrumentation API Guide"
-seo_description: "Instrument Java bytecode at load time for telemetry, policy checks, and diagnostics."
-tags: [java, javaagent, instrumentation, observability]
-canonical_url: "https://sandeepbhardwaj.github.io/java/custom-java-agent-instrumentation-api/"
-title: "Building a Custom Java Agent (Instrumentation API)"
+seo_title: Custom Java Agent Instrumentation API Guide
+seo_description: Instrument Java bytecode at load time for telemetry, policy checks,
+  and diagnostics.
+tags:
+- java
+- javaagent
+- instrumentation
+- observability
+title: Building a Custom Java Agent (Instrumentation API)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Load Time Instrumentation and Runtime Introspection"
+  caption: Load Time Instrumentation and Runtime Introspection
 ---
-
-# Building a Custom Java Agent (Instrumentation API)
-
 Java agents let you instrument classes without modifying application source code.
 They are powerful for tracing, profiling, and policy enforcement, but they run at platform-critical boundaries.
 

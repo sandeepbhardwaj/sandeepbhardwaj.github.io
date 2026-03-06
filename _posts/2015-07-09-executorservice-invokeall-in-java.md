@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# ExecutorService `invokeAll` in Java
-
 `invokeAll` submits a collection of `Callable` tasks and waits until all complete.
 
 ## Real-World Use Cases

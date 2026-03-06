@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-26
-seo_title: "Feature Stores and Training-Serving Consistency"
-seo_description: "A practical guide to feature stores, point-in-time correctness, online/offline parity, and feature governance for production ML."
-tags: [ai, ml, feature-store, mlops, data-engineering]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/feature-stores-and-training-serving-consistency/"
-title: "Feature Stores and Training-Serving Consistency"
+seo_title: Feature Stores and Training-Serving Consistency
+seo_description: A practical guide to feature stores, point-in-time correctness, online/offline
+  parity, and feature governance for production ML.
+tags:
+- ai
+- ml
+- feature-store
+- mlops
+- data-engineering
+title: Feature Stores and Training-Serving Consistency
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Feature Integrity Is Model Integrity"
+  caption: Feature Integrity Is Model Integrity
 ---
-
-# Feature Stores and Training-Serving Consistency
-
 Most production ML regressions are not caused by model architecture.
 They are caused by feature mismatch: training saw one definition, serving used another.
 

@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-24
-seo_title: "Memoization vs Tabulation in Java – Complete Guide"
-seo_description: "Choose the right DP execution model in Java with tradeoffs, templates, and performance implications."
-tags: [dsa, java, dp, memoization, tabulation]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/memoization-vs-tabulation-dp/"
-title: "Memoization vs Tabulation in Java DP — A Detailed Guide"
+seo_title: Memoization vs Tabulation in Java – Complete Guide
+seo_description: Choose the right DP execution model in Java with tradeoffs, templates,
+  and performance implications.
+tags:
+- dsa
+- java
+- dp
+- memoization
+- tabulation
+title: Memoization vs Tabulation in Java DP — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/memoization-vs-tabulation-dp-banner.svg
+  overlay_image: "/assets/images/memoization-vs-tabulation-dp-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Choosing the Right DP Execution Model"
+  caption: Choosing the Right DP Execution Model
 ---
-
-# Memoization vs Tabulation in Java DP — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

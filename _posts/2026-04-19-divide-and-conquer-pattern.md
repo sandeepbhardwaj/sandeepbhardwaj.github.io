@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-19
-seo_title: "Divide and Conquer Pattern in Java – Complete Guide"
-seo_description: "Structure recursive Java solutions with split-solve-merge for scalable problem decomposition."
-tags: [dsa, java, divide-and-conquer, recursion, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/divide-and-conquer-pattern/"
-title: "Divide and Conquer Pattern in Java — A Detailed Guide"
+seo_title: Divide and Conquer Pattern in Java – Complete Guide
+seo_description: Structure recursive Java solutions with split-solve-merge for scalable
+  problem decomposition.
+tags:
+- dsa
+- java
+- divide-and-conquer
+- recursion
+- algorithms
+title: Divide and Conquer Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/divide-and-conquer-pattern-banner.svg
+  overlay_image: "/assets/images/divide-and-conquer-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Split Solve Merge Strategy"
+  caption: Split Solve Merge Strategy
 ---
-
-# Divide and Conquer Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

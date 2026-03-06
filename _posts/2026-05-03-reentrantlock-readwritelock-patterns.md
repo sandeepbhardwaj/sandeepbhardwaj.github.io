@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-03
-seo_title: "ReentrantLock and ReadWriteLock Patterns in Java"
-seo_description: "Use explicit lock APIs in Java for advanced coordination and lock-state control."
-tags: [java, concurrency, reentrantlock, readwritelock]
-canonical_url: "https://sandeepbhardwaj.github.io/java/reentrantlock-readwritelock-patterns/"
-title: "ReentrantLock and ReadWriteLock Patterns in Java"
+seo_title: ReentrantLock and ReadWriteLock Patterns in Java
+seo_description: Use explicit lock APIs in Java for advanced coordination and lock-state
+  control.
+tags:
+- java
+- concurrency
+- reentrantlock
+- readwritelock
+title: ReentrantLock and ReadWriteLock Patterns in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Explicit Locking Strategies for Shared State"
+  caption: Explicit Locking Strategies for Shared State
 ---
-
-# ReentrantLock and ReadWriteLock Patterns in Java
-
 `ReentrantLock` and `ReadWriteLock` are useful when intrinsic monitors are too limited for production coordination needs.
 Use them intentionally, because lock flexibility comes with complexity.
 

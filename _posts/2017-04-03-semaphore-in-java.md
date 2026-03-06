@@ -21,9 +21,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Semaphore in Java
-
 A `Semaphore` controls how many threads can access a shared resource at the same time.
 
 ## Real-World Use Cases

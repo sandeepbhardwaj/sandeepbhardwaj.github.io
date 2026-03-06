@@ -4,23 +4,24 @@ categories:
 - DSA
 - Java
 date: 2026-04-21
-seo_title: "Coordinate Compression Pattern in Java – Complete Guide"
-seo_description: "Compress sparse numeric ranges in Java to dense indices for efficient array-based processing."
-tags: [dsa, java, coordinate-compression, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/coordinate-compression-pattern/"
-title: "Coordinate Compression Pattern in Java — A Detailed Guide"
+seo_title: Coordinate Compression Pattern in Java – Complete Guide
+seo_description: Compress sparse numeric ranges in Java to dense indices for efficient
+  array-based processing.
+tags:
+- dsa
+- java
+- coordinate-compression
+- algorithms
+title: Coordinate Compression Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/coordinate-compression-pattern-banner.svg
+  overlay_image: "/assets/images/coordinate-compression-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Order-Preserving Index Compaction"
+  caption: Order-Preserving Index Compaction
 ---
-
-# Coordinate Compression Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

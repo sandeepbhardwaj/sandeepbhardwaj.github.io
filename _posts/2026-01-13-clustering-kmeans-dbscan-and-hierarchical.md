@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-13
-seo_title: "Clustering: K-Means, DBSCAN, and Hierarchical Methods"
-seo_description: "A practical guide to clustering methods, distance choices, validation, and production use in segmentation and anomaly discovery."
-tags: [ai, ml, clustering, kmeans, dbscan, unsupervised-learning]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/clustering-kmeans-dbscan-and-hierarchical/"
-title: "Clustering: K-Means, DBSCAN, and Hierarchical Methods"
+seo_title: 'Clustering: K-Means, DBSCAN, and Hierarchical Methods'
+seo_description: A practical guide to clustering methods, distance choices, validation,
+  and production use in segmentation and anomaly discovery.
+tags:
+- ai
+- ml
+- clustering
+- kmeans
+- dbscan
+- unsupervised-learning
+title: 'Clustering: K-Means, DBSCAN, and Hierarchical Methods'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Find Structure Without Labels"
+  caption: Find Structure Without Labels
 ---
-
-# Clustering: K-Means, DBSCAN, and Hierarchical Methods
-
 Clustering finds structure in unlabeled data.
 It is widely used for customer segmentation, pattern discovery, exploratory analysis, and anomaly surfacing.
 

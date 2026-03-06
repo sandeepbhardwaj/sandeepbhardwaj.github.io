@@ -21,9 +21,6 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-
-# Double-Checked Locking Singleton Pattern in Java
-
 Double-checked locking provides lazy initialization with lower synchronization overhead after initialization.
 
 ## Real-World Use Cases

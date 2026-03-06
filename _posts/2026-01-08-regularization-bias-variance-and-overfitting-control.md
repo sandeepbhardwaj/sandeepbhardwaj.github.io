@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-08
-seo_title: "Regularization, Bias-Variance, and Overfitting Control"
-seo_description: "Understand bias-variance trade-offs and practical regularization strategies to improve generalization in ML models."
-tags: [ai, ml, regularization, bias-variance, overfitting]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/regularization-bias-variance-and-overfitting-control/"
-title: "Regularization, Bias-Variance, and Overfitting Control"
+seo_title: Regularization, Bias-Variance, and Overfitting Control
+seo_description: Understand bias-variance trade-offs and practical regularization
+  strategies to improve generalization in ML models.
+tags:
+- ai
+- ml
+- regularization
+- bias-variance
+- overfitting
+title: Regularization, Bias-Variance, and Overfitting Control
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Generalization Is the Real Objective"
+  caption: Generalization Is the Real Objective
 ---
-
-# Regularization, Bias-Variance, and Overfitting Control
-
 Training accuracy can always be pushed up with enough complexity.
 Real ML quality is measured on unseen data.
 

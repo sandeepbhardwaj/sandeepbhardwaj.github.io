@@ -1,24 +1,28 @@
 ---
-title: "Java 11 New Features — Complete Guide with Examples"
+title: Java 11 New Features — Complete Guide with Examples
 date: 2026-03-09
-categories: [Java]
-tags: [java, java11, jdk11, backend, jvm, httpclient]
+categories:
+- Java
+tags:
+- java
+- java11
+- jdk11
+- backend
+- jvm
+- httpclient
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 11 Features with Examples (Complete Guide)"
-seo_description: "Comprehensive Java 11 guide covering language, library, JVM, and tooling features with practical examples."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 11 Features with Examples (Complete Guide)
+seo_description: Comprehensive Java 11 guide covering language, library, JVM, and
+  tooling features with practical examples.
 header:
-  overlay_image: /assets/images/default-post-banner.svg
+  overlay_image: "/assets/images/default-post-banner.svg"
   overlay_filter: 0.4
-  caption: "Java 11 LTS for Production Backend Systems"
+  caption: Java 11 LTS for Production Backend Systems
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-11-new-features-with-examples/"
 ---
-
-# Introduction
-
 Java 11 is an LTS release and remains a common production baseline.
 This guide covers the important Java 11 additions with practical examples.
 

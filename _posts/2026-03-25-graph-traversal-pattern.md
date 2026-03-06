@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-25
 seo_title: Graph Traversal Pattern in Java – Complete Guide
-seo_description: Learn graph traversal in Java using BFS and DFS with adjacency lists, connected components, and traversal safety.
+seo_description: Learn graph traversal in Java using BFS and DFS with adjacency lists,
+  connected components, and traversal safety.
 tags:
 - dsa
 - java
 - graph
 - bfs
 - dfs
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/graph-traversal-pattern/
 title: Graph Traversal Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/graph-traversal-banner.svg
+  overlay_image: "/assets/images/graph-traversal-banner.svg"
   overlay_filter: 0.35
-  caption: "Systematic Exploration of Networked Data"
+  caption: Systematic Exploration of Networked Data
   show_overlay_excerpt: false
 ---
-
-# Graph Traversal Pattern in Java — A Detailed Guide
-
 Graph traversal is foundational for connectivity, reachability, and component analysis.
 The two primary techniques are DFS and BFS.
 

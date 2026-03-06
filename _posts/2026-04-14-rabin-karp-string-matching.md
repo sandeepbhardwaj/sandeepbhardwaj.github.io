@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-14
-seo_title: "Rabin-Karp String Matching in Java – Complete Guide"
-seo_description: "Use rolling hash in Java for efficient string matching and multi-pattern scanning."
-tags: [dsa, java, rabin-karp, rolling-hash, strings]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/rabin-karp-string-matching/"
-title: "Rabin-Karp String Matching in Java — A Detailed Guide"
+seo_title: Rabin-Karp String Matching in Java – Complete Guide
+seo_description: Use rolling hash in Java for efficient string matching and multi-pattern
+  scanning.
+tags:
+- dsa
+- java
+- rabin-karp
+- rolling-hash
+- strings
+title: Rabin-Karp String Matching in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/rabin-karp-string-matching-banner.svg
+  overlay_image: "/assets/images/rabin-karp-string-matching-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Hash-Based Substring Search"
+  caption: Hash-Based Substring Search
 ---
-
-# Rabin-Karp String Matching in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

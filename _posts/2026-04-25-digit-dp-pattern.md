@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-25
-seo_title: "Digit DP Pattern in Java – Complete Guide"
-seo_description: "Count numbers under digit constraints in Java with tight-bound state transitions."
-tags: [dsa, java, digit-dp, dynamic-programming, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/digit-dp-pattern/"
-title: "Digit DP Pattern in Java — A Detailed Guide"
+seo_title: Digit DP Pattern in Java – Complete Guide
+seo_description: Count numbers under digit constraints in Java with tight-bound state
+  transitions.
+tags:
+- dsa
+- java
+- digit-dp
+- dynamic-programming
+- algorithms
+title: Digit DP Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/digit-dp-pattern-banner.svg
+  overlay_image: "/assets/images/digit-dp-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Counting Under Numeric Bound Constraints"
+  caption: Counting Under Numeric Bound Constraints
 ---
-
-# Digit DP Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

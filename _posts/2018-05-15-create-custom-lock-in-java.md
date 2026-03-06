@@ -21,9 +21,6 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-
-# Create a Custom Lock in Java
-
 This deep dive explains the problem model, concurrency contract, Java implementation, and real-world caveats you should know before using this pattern in production.
 
 ## Lock implementation

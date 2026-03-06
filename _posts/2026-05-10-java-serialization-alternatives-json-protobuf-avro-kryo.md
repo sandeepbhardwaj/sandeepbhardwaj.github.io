@@ -4,23 +4,26 @@ categories:
 - Java
 - Backend
 date: 2026-05-10
-seo_title: "Java Serialization Alternatives Guide for Backend Systems"
-seo_description: "Select serialization formats in Java based on latency, size, schema evolution, and interoperability."
-tags: [java, serialization, protobuf, avro, json, kryo]
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-serialization-alternatives-json-protobuf-avro-kryo/"
-title: "Java Serialization Alternatives (JSON Protobuf Avro Kryo)"
+seo_title: Java Serialization Alternatives Guide for Backend Systems
+seo_description: Select serialization formats in Java based on latency, size, schema
+  evolution, and interoperability.
+tags:
+- java
+- serialization
+- protobuf
+- avro
+- json
+- kryo
+title: Java Serialization Alternatives (JSON Protobuf Avro Kryo)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Choosing Serialization by Contract and Performance"
+  caption: Choosing Serialization by Contract and Performance
 ---
-
-# Java Serialization Alternatives (JSON Protobuf Avro Kryo)
-
 Serialization format choice is an architecture decision.
 It directly impacts latency, payload size, schema evolution safety, and cross-language support.
 

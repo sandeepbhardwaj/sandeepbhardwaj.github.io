@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-29
 seo_title: Trie Pattern in Java – Complete Guide
-seo_description: Learn Trie in Java for prefix search, autocomplete, and dictionary-based backtracking problems.
+seo_description: Learn Trie in Java for prefix search, autocomplete, and dictionary-based
+  backtracking problems.
 tags:
 - dsa
 - java
 - trie
 - prefix-tree
 - strings
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/trie-pattern/
 title: Trie Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/trie-banner.svg
+  overlay_image: "/assets/images/trie-banner.svg"
   overlay_filter: 0.35
-  caption: "Efficient Prefix-Based String Search"
+  caption: Efficient Prefix-Based String Search
   show_overlay_excerpt: false
 ---
-
-# Trie Pattern in Java — A Detailed Guide
-
 Trie (prefix tree) is optimized for prefix operations on string sets.
 It is widely used in dictionaries, autocomplete, and word-search style problems.
 

@@ -5,7 +5,8 @@ categories:
 - Java
 date: 2026-03-13
 seo_title: Sliding Window Technique in Java – Complete Guide for Backend Engineers
-seo_description: Master sliding window in Java with fixed and variable window templates, invariants, and production-grade examples.
+seo_description: Master sliding window in Java with fixed and variable window templates,
+  invariants, and production-grade examples.
 tags:
 - dsa
 - java
@@ -13,20 +14,16 @@ tags:
 - algorithms
 - interview-preparation
 - backend-engineering
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/sliding-window-technique/
 title: Sliding Window Technique in Java — A Detailed Guide for Serious Engineers
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/sliding-window-banner.svg
+  overlay_image: "/assets/images/sliding-window-banner.svg"
   overlay_filter: 0.35
-  caption: "From Two Pointers to Window Invariants"
+  caption: From Two Pointers to Window Invariants
   show_overlay_excerpt: false
 ---
-
-# Sliding Window Technique in Java — A Detailed Guide for Serious Engineers
-
 Sliding Window is a focused form of the Two Pointers technique.
 If Two Pointers teaches movement strategy, Sliding Window teaches *stateful range management*.
 

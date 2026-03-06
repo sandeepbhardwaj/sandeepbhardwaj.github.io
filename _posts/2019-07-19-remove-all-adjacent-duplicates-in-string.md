@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Remove All Adjacent Duplicates in String (Java)
-
 Given a string, repeatedly remove adjacent equal characters until no such pair remains.
 
 Example: `"abbaca" -> "ca"`

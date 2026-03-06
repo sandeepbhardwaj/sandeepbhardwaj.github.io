@@ -4,23 +4,24 @@ categories:
 - DSA
 - Java
 date: 2026-04-01
-seo_title: "Bit Manipulation Patterns in Java – Complete Guide"
-seo_description: "Master bitwise operations in Java for masks, parity, subset states, and constant-memory optimizations."
-tags: [dsa, java, bit-manipulation, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/bit-manipulation-pattern/"
-title: "Bit Manipulation Patterns in Java — A Detailed Guide"
+seo_title: Bit Manipulation Patterns in Java – Complete Guide
+seo_description: Master bitwise operations in Java for masks, parity, subset states,
+  and constant-memory optimizations.
+tags:
+- dsa
+- java
+- bit-manipulation
+- algorithms
+title: Bit Manipulation Patterns in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/bit-manipulation-pattern-banner.svg
+  overlay_image: "/assets/images/bit-manipulation-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Bitwise State Compression and Fast Checks"
+  caption: Bitwise State Compression and Fast Checks
 ---
-
-# Bit Manipulation Patterns in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

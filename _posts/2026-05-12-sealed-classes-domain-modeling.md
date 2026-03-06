@@ -4,23 +4,23 @@ categories:
 - Java
 - Backend
 date: 2026-05-12
-seo_title: "Sealed Classes for Domain Modeling in Java"
-seo_description: "Model closed domain hierarchies safely using sealed classes in Java."
-tags: [java, sealed-classes, domain-modeling, oop]
-canonical_url: "https://sandeepbhardwaj.github.io/java/sealed-classes-domain-modeling/"
-title: "Sealed Classes for Domain Modeling in Java"
+seo_title: Sealed Classes for Domain Modeling in Java
+seo_description: Model closed domain hierarchies safely using sealed classes in Java.
+tags:
+- java
+- sealed-classes
+- domain-modeling
+- oop
+title: Sealed Classes for Domain Modeling in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Closed Type Hierarchies for Domain Safety"
+  caption: Closed Type Hierarchies for Domain Safety
 ---
-
-# Sealed Classes for Domain Modeling in Java
-
 Sealed classes are ideal when your domain has a closed set of valid states.
 They make invalid extension impossible and force exhaustive handling at compile time.
 

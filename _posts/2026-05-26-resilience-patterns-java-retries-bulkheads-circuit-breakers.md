@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-26
-seo_title: "Resilience Patterns in Java Microservices"
-seo_description: "Apply retry, bulkhead, and circuit breaker controls in Java services under failure."
-tags: [java, resilience, retries, circuit-breaker, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/java/resilience-patterns-java-retries-bulkheads-circuit-breakers/"
-title: "Resilience Patterns in Java (Retries Bulkheads Circuit Breakers)"
+seo_title: Resilience Patterns in Java Microservices
+seo_description: Apply retry, bulkhead, and circuit breaker controls in Java services
+  under failure.
+tags:
+- java
+- resilience
+- retries
+- circuit-breaker
+- backend
+title: Resilience Patterns in Java (Retries Bulkheads Circuit Breakers)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Dependency Failure Containment and Recovery Controls"
+  caption: Dependency Failure Containment and Recovery Controls
 ---
-
-# Resilience Patterns in Java (Retries Bulkheads Circuit Breakers)
-
 Resilience patterns protect your service during dependency failures.
 They work only when composed as one policy, not added independently.
 

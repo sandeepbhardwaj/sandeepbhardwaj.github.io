@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-22
 seo_title: Backtracking Pattern in Java – Complete Guide
-seo_description: Learn backtracking in Java with recursion templates for combinations, permutations, subsets, and constraint search.
+seo_description: Learn backtracking in Java with recursion templates for combinations,
+  permutations, subsets, and constraint search.
 tags:
 - dsa
 - java
 - backtracking
 - recursion
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/backtracking-pattern/
 title: Backtracking Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/backtracking-banner.svg
+  overlay_image: "/assets/images/backtracking-banner.svg"
   overlay_filter: 0.35
-  caption: "Search Trees with Pruning"
+  caption: Search Trees with Pruning
   show_overlay_excerpt: false
 ---
-
-# Backtracking Pattern in Java — A Detailed Guide
-
 Backtracking is DFS over a decision tree with undo steps.
 It is the default strategy for exhaustive search with constraints.
 

@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-21
 seo_title: Linked List Patterns in Java – Complete Guide
-seo_description: Master linked list patterns in Java including fast-slow pointers, reversal, merge, and cycle detection.
+seo_description: Master linked list patterns in Java including fast-slow pointers,
+  reversal, merge, and cycle detection.
 tags:
 - dsa
 - java
 - linked-list
 - fast-slow
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/linked-list-patterns/
 title: Linked List Patterns in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/linked-list-banner.svg
+  overlay_image: "/assets/images/linked-list-banner.svg"
   overlay_filter: 0.35
-  caption: "Pointer Discipline and In-Place Transformations"
+  caption: Pointer Discipline and In-Place Transformations
   show_overlay_excerpt: false
 ---
-
-# Linked List Patterns in Java — A Detailed Guide
-
 Linked list problems are pointer manipulation problems.
 Most solutions reduce to a few reusable patterns.
 

@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-01
-seo_title: "Java Memory Model (JMM) Deep Dive for Backend Engineers"
-seo_description: "Understand visibility, ordering, and happens-before guarantees in modern Java concurrency."
-tags: [java, jmm, concurrency, backend, performance]
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-memory-model-jmm-deep-dive/"
-title: "Java Memory Model (JMM) Deep Dive — A Practical Guide"
+seo_title: Java Memory Model (JMM) Deep Dive for Backend Engineers
+seo_description: Understand visibility, ordering, and happens-before guarantees in
+  modern Java concurrency.
+tags:
+- java
+- jmm
+- concurrency
+- backend
+- performance
+title: Java Memory Model (JMM) Deep Dive — A Practical Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Visibility Ordering and Happens-Before Guarantees"
+  caption: Visibility Ordering and Happens-Before Guarantees
 ---
-
-# Java Memory Model (JMM) Deep Dive — A Practical Guide
-
 The Java Memory Model defines how threads observe shared state. Without it, code that "works on my machine" can fail under production scheduling, CPU reorderings, and JIT optimizations.
 
 ---
