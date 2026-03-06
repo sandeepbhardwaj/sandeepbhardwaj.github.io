@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-12
-seo_title: "Kafka Observability Lag Saturation and SLO Driven Operations (Part 1)"
-seo_description: "Hands-on guide: Kafka Observability Lag Saturation and SLO Driven Operations. Define SLO and baseline dashboard."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-observability-lag-slo-operations-part-1/"
-title: "Kafka Observability Lag Saturation and SLO Driven Operations (Part 1)"
+seo_title: Kafka Observability Lag Saturation and SLO Driven Operations (Part 1)
+seo_description: 'Hands-on guide: Kafka Observability Lag Saturation and SLO Driven
+  Operations. Define SLO and baseline dashboard.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Kafka Observability Lag Saturation and SLO Driven Operations (Part 1)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Kafka Observability Lag Saturation and SLO Driven Operations (Part 1)
-
 Part goal: **Define SLO and baseline dashboard**.
 
 ---

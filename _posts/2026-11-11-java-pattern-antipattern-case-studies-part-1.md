@@ -5,23 +5,25 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-11
-seo_title: "Pattern misuse case studies and accidental complexity - Advanced Guide"
-seo_description: "Advanced practical guide on pattern misuse case studies and accidental complexity with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-11-java-pattern-antipattern-case-studies-part-1/"
-title: "Pattern misuse case studies and accidental complexity"
+seo_title: Pattern misuse case studies and accidental complexity - Advanced Guide
+seo_description: Advanced practical guide on pattern misuse case studies and accidental
+  complexity with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: Pattern misuse case studies and accidental complexity
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# Pattern misuse case studies and accidental complexity
-
 This post covers production-focused design decisions for **Pattern misuse case studies and accidental complexity**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

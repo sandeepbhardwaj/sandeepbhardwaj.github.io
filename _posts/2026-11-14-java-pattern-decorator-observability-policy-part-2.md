@@ -5,23 +5,27 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-14
-seo_title: "Decorator pattern for observability and policy layering (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on decorator pattern for observability and policy layering (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-14-java-pattern-decorator-observability-policy-part-2/"
-title: "Decorator pattern for observability and policy layering (Part 2)"
+seo_title: Decorator pattern for observability and policy layering (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on decorator pattern for observability and
+  policy layering (part 2) with architecture decisions, trade-offs, and production
+  patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: Decorator pattern for observability and policy layering (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# Decorator pattern for observability and policy layering (Part 2)
-
 This post covers production-focused design decisions for **Decorator pattern for observability and policy layering (Part 2)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

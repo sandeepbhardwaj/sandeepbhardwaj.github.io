@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-27
-seo_title: "Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 3)"
-seo_description: "Hands-on guide: Outbox Plus CDC with Debezium for Reliable Event Publishing. Operational governance and replay."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-outbox-cdc-debezium-pattern-part-3/"
-title: "Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 3)"
+seo_title: Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 3)
+seo_description: 'Hands-on guide: Outbox Plus CDC with Debezium for Reliable Event
+  Publishing. Operational governance and replay.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 3)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 3)
-
 Part goal: **Operational governance and replay**.
 
 ---

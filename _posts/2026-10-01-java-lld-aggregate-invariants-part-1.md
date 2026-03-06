@@ -5,23 +5,25 @@ categories:
 - Design
 - Architecture
 date: 2026-10-01
-seo_title: "Aggregate design and invariants in rich domain models - Advanced Guide"
-seo_description: "Advanced practical guide on aggregate design and invariants in rich domain models with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-01-java-lld-aggregate-invariants-part-1/"
-title: "Aggregate design and invariants in rich domain models"
+seo_title: Aggregate design and invariants in rich domain models - Advanced Guide
+seo_description: Advanced practical guide on aggregate design and invariants in rich
+  domain models with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: Aggregate design and invariants in rich domain models
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Aggregate design and invariants in rich domain models
-
 This post covers production-focused design decisions for **Aggregate design and invariants in rich domain models**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

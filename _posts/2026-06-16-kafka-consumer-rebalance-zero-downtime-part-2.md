@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-16
-seo_title: "Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 2)"
-seo_description: "Hands-on guide: Consumer Group Rebalance Internals and Zero Downtime Tuning. Cooperative and static membership."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-consumer-rebalance-zero-downtime-part-2/"
-title: "Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 2)"
+seo_title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 2)
+seo_description: 'Hands-on guide: Consumer Group Rebalance Internals and Zero Downtime
+  Tuning. Cooperative and static membership.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 2)
-
 Part goal: **Cooperative and static membership**.
 
 ---

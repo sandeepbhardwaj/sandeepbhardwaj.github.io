@@ -5,23 +5,27 @@ categories:
 - Spring Boot
 - Backend
 date: 2026-07-29
-seo_title: "Reactive vs virtual threads decision model in Spring services (Part 3) - Advanced Guide"
-seo_description: "Advanced practical guide on reactive vs virtual threads decision model in spring services (part 3) with architecture decisions, trade-offs, and production patterns."
-tags: [java, spring-boot, backend, architecture, production]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-07-29-spring-reactive-vs-virtual-threads-part-3/"
-title: "Reactive vs virtual threads decision model in Spring services (Part 3)"
+seo_title: Reactive vs virtual threads decision model in Spring services (Part 3)
+  - Advanced Guide
+seo_description: Advanced practical guide on reactive vs virtual threads decision
+  model in spring services (part 3) with architecture decisions, trade-offs, and production
+  patterns.
+tags:
+- java
+- spring-boot
+- backend
+- architecture
+- production
+title: Reactive vs virtual threads decision model in Spring services (Part 3)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Spring Boot Runtime Engineering"
+  caption: Advanced Spring Boot Runtime Engineering
 ---
-
-# Reactive vs virtual threads decision model in Spring services (Part 3)
-
 This post covers production-focused design decisions for **Reactive vs virtual threads decision model in Spring services (Part 3)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

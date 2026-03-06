@@ -5,23 +5,26 @@ categories:
 - Platform
 - Backend
 date: 2026-09-29
-seo_title: "Progressive delivery: canary and blue-green in production (Part 3) - Advanced Guide"
-seo_description: "Advanced practical guide on progressive delivery: canary and blue-green in production (part 3) with architecture decisions, trade-offs, and production patterns."
-tags: [kubernetes, platform-engineering, reliability, backend, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-09-29-k8s-progressive-delivery-canary-bluegreen-part-3/"
-title: "Progressive delivery: canary and blue-green in production (Part 3)"
+seo_title: 'Progressive delivery: canary and blue-green in production (Part 3) - Advanced
+  Guide'
+seo_description: 'Advanced practical guide on progressive delivery: canary and blue-green
+  in production (part 3) with architecture decisions, trade-offs, and production patterns.'
+tags:
+- kubernetes
+- platform-engineering
+- reliability
+- backend
+- operations
+title: 'Progressive delivery: canary and blue-green in production (Part 3)'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Kubernetes Engineering for Backend Platforms"
+  caption: Kubernetes Engineering for Backend Platforms
 ---
-
-# Progressive delivery: canary and blue-green in production (Part 3)
-
 This post covers production-focused design decisions for **Progressive delivery: canary and blue-green in production (Part 3)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

@@ -5,23 +5,25 @@ categories:
 - Design
 - Architecture
 date: 2026-10-16
-seo_title: "Immutability and concurrency-safe object modeling (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on immutability and concurrency-safe object modeling (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-16-java-lld-immutability-concurrency-safe-design-part-2/"
-title: "Immutability and concurrency-safe object modeling (Part 2)"
+seo_title: Immutability and concurrency-safe object modeling (Part 2) - Advanced Guide
+seo_description: Advanced practical guide on immutability and concurrency-safe object
+  modeling (part 2) with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: Immutability and concurrency-safe object modeling (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Immutability and concurrency-safe object modeling (Part 2)
-
 This post covers production-focused design decisions for **Immutability and concurrency-safe object modeling (Part 2)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

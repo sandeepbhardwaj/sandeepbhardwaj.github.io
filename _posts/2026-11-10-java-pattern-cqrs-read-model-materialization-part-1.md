@@ -5,23 +5,25 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-10
-seo_title: "CQRS pattern in Java with read model materialization - Advanced Guide"
-seo_description: "Advanced practical guide on cqrs pattern in java with read model materialization with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-10-java-pattern-cqrs-read-model-materialization-part-1/"
-title: "CQRS pattern in Java with read model materialization"
+seo_title: CQRS pattern in Java with read model materialization - Advanced Guide
+seo_description: Advanced practical guide on cqrs pattern in java with read model
+  materialization with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: CQRS pattern in Java with read model materialization
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# CQRS pattern in Java with read model materialization
-
 This post covers production-focused design decisions for **CQRS pattern in Java with read model materialization**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

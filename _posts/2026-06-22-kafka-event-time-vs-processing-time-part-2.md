@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-22
-seo_title: "Event Time Versus Processing Time Tradeoffs in Stream Pipelines (Part 2)"
-seo_description: "Hands-on guide: Event Time Versus Processing Time Tradeoffs in Stream Pipelines. Grace period and lateness policy."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-event-time-vs-processing-time-part-2/"
-title: "Event Time Versus Processing Time Tradeoffs in Stream Pipelines (Part 2)"
+seo_title: Event Time Versus Processing Time Tradeoffs in Stream Pipelines (Part 2)
+seo_description: 'Hands-on guide: Event Time Versus Processing Time Tradeoffs in Stream
+  Pipelines. Grace period and lateness policy.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Event Time Versus Processing Time Tradeoffs in Stream Pipelines (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Event Time Versus Processing Time Tradeoffs in Stream Pipelines (Part 2)
-
 Part goal: **Grace period and lateness policy**.
 
 ---

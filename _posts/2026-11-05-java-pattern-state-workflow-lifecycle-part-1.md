@@ -5,23 +5,25 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-05
-seo_title: "State pattern for workflow lifecycle enforcement - Advanced Guide"
-seo_description: "Advanced practical guide on state pattern for workflow lifecycle enforcement with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-05-java-pattern-state-workflow-lifecycle-part-1/"
-title: "State pattern for workflow lifecycle enforcement"
+seo_title: State pattern for workflow lifecycle enforcement - Advanced Guide
+seo_description: Advanced practical guide on state pattern for workflow lifecycle
+  enforcement with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: State pattern for workflow lifecycle enforcement
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# State pattern for workflow lifecycle enforcement
-
 This post covers production-focused design decisions for **State pattern for workflow lifecycle enforcement**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

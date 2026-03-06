@@ -5,23 +5,25 @@ categories:
 - Microservices
 - Architecture
 date: 2026-08-12
-seo_title: "Incident-driven architecture refactoring in microservices - Advanced Guide"
-seo_description: "Advanced practical guide on incident-driven architecture refactoring in microservices with architecture decisions, trade-offs, and production patterns."
-tags: [java, microservices, distributed-systems, architecture, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-08-12-microservices-incident-driven-refactoring-part-1/"
-title: "Incident-driven architecture refactoring in microservices"
+seo_title: Incident-driven architecture refactoring in microservices - Advanced Guide
+seo_description: Advanced practical guide on incident-driven architecture refactoring
+  in microservices with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- microservices
+- distributed-systems
+- architecture
+- backend
+title: Incident-driven architecture refactoring in microservices
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Microservices Architecture and Reliability Patterns"
+  caption: Microservices Architecture and Reliability Patterns
 ---
-
-# Incident-driven architecture refactoring in microservices
-
 This post covers production-focused design decisions for **Incident-driven architecture refactoring in microservices**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

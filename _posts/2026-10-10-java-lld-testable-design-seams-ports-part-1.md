@@ -5,23 +5,26 @@ categories:
 - Design
 - Architecture
 date: 2026-10-10
-seo_title: "Testable design using seams, ports, and deterministic adapters - Advanced Guide"
-seo_description: "Advanced practical guide on testable design using seams, ports, and deterministic adapters with architecture decisions, trade-offs, and production patterns."
-tags: [java, lld, oop, architecture, design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-10-10-java-lld-testable-design-seams-ports-part-1/"
-title: "Testable design using seams, ports, and deterministic adapters"
+seo_title: Testable design using seams, ports, and deterministic adapters - Advanced
+  Guide
+seo_description: Advanced practical guide on testable design using seams, ports, and
+  deterministic adapters with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- lld
+- oop
+- architecture
+- design
+title: Testable design using seams, ports, and deterministic adapters
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced LLD and OOP Design in Java"
+  caption: Advanced LLD and OOP Design in Java
 ---
-
-# Testable design using seams, ports, and deterministic adapters
-
 This post covers production-focused design decisions for **Testable design using seams, ports, and deterministic adapters**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

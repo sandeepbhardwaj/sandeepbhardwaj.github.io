@@ -5,23 +5,26 @@ categories:
 - Microservices
 - Architecture
 date: 2026-08-21
-seo_title: "Consistency patterns without distributed transactions (Part 2) - Advanced Guide"
-seo_description: "Advanced practical guide on consistency patterns without distributed transactions (part 2) with architecture decisions, trade-offs, and production patterns."
-tags: [java, microservices, distributed-systems, architecture, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-08-21-microservices-consistency-without-2pc-part-2/"
-title: "Consistency patterns without distributed transactions (Part 2)"
+seo_title: Consistency patterns without distributed transactions (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on consistency patterns without distributed
+  transactions (part 2) with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- microservices
+- distributed-systems
+- architecture
+- backend
+title: Consistency patterns without distributed transactions (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Microservices Architecture and Reliability Patterns"
+  caption: Microservices Architecture and Reliability Patterns
 ---
-
-# Consistency patterns without distributed transactions (Part 2)
-
 This post covers production-focused design decisions for **Consistency patterns without distributed transactions (Part 2)**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

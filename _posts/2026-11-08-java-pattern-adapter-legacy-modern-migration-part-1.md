@@ -5,23 +5,25 @@ categories:
 - Design Patterns
 - Architecture
 date: 2026-11-08
-seo_title: "Adapter pattern for legacy-modern system migration - Advanced Guide"
-seo_description: "Advanced practical guide on adapter pattern for legacy-modern system migration with architecture decisions, trade-offs, and production patterns."
-tags: [java, design-patterns, architecture, backend, software-design]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-11-08-java-pattern-adapter-legacy-modern-migration-part-1/"
-title: "Adapter pattern for legacy-modern system migration"
+seo_title: Adapter pattern for legacy-modern system migration - Advanced Guide
+seo_description: Advanced practical guide on adapter pattern for legacy-modern system
+  migration with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- design-patterns
+- architecture
+- backend
+- software-design
+title: Adapter pattern for legacy-modern system migration
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Design Patterns with Java"
+  caption: Advanced Design Patterns with Java
 ---
-
-# Adapter pattern for legacy-modern system migration
-
 This post covers production-focused design decisions for **Adapter pattern for legacy-modern system migration**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

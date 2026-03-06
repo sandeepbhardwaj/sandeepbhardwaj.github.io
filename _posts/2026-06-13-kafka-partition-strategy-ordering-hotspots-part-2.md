@@ -5,23 +5,25 @@ categories:
 - Kafka
 - Distributed Systems
 date: 2026-06-13
-seo_title: "Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 2)"
-seo_description: "Hands-on guide: Kafka Partition Strategy for Ordering and Hotspot Mitigation. Harden with key bucketing."
-tags: [java, kafka, distributed-systems, streaming, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/kafka-partition-strategy-ordering-hotspots-part-2/"
-title: "Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 2)"
+seo_title: Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 2)
+seo_description: 'Hands-on guide: Kafka Partition Strategy for Ordering and Hotspot
+  Mitigation. Harden with key bucketing.'
+tags:
+- java
+- kafka
+- distributed-systems
+- streaming
+- backend
+title: Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 2)
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "June Kafka Hands-On Series"
+  caption: June Kafka Hands-On Series
 ---
-
-# Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 2)
-
 Part goal: **Harden with key bucketing**.
 
 ---

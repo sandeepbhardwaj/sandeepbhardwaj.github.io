@@ -5,23 +5,25 @@ categories:
 - Architecture
 - Backend
 date: 2026-12-10
-seo_title: "Causality and ordering with logical/vector clocks - Advanced Guide"
-seo_description: "Advanced practical guide on causality and ordering with logical/vector clocks with architecture decisions, trade-offs, and production patterns."
-tags: [distributed-systems, architecture, reliability, backend, java]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-12-10-causality-ordering-logical-vector-clocks-part-1/"
-title: "Causality and ordering with logical/vector clocks"
+seo_title: Causality and ordering with logical/vector clocks - Advanced Guide
+seo_description: Advanced practical guide on causality and ordering with logical/vector
+  clocks with architecture decisions, trade-offs, and production patterns.
+tags:
+- distributed-systems
+- architecture
+- reliability
+- backend
+- java
+title: Causality and ordering with logical/vector clocks
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Distributed System Design Patterns and Tradeoffs"
+  caption: Distributed System Design Patterns and Tradeoffs
 ---
-
-# Causality and ordering with logical/vector clocks
-
 This post covers production-focused design decisions for **Causality and ordering with logical/vector clocks**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 

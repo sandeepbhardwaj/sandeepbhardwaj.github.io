@@ -5,23 +5,26 @@ categories:
 - Spring Boot
 - Backend
 date: 2026-07-11
-seo_title: "Micrometer/OpenTelemetry with high-cardinality metric governance - Advanced Guide"
-seo_description: "Advanced practical guide on micrometer/opentelemetry with high-cardinality metric governance with architecture decisions, trade-offs, and production patterns."
-tags: [java, spring-boot, backend, architecture, production]
-canonical_url: "https://sandeepbhardwaj.github.io/2026-07-11-spring-observability-micrometer-opentelemetry-part-1/"
-title: "Micrometer/OpenTelemetry with high-cardinality metric governance"
+seo_title: Micrometer/OpenTelemetry with high-cardinality metric governance - Advanced
+  Guide
+seo_description: Advanced practical guide on micrometer/opentelemetry with high-cardinality
+  metric governance with architecture decisions, trade-offs, and production patterns.
+tags:
+- java
+- spring-boot
+- backend
+- architecture
+- production
+title: Micrometer/OpenTelemetry with high-cardinality metric governance
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Advanced Spring Boot Runtime Engineering"
+  caption: Advanced Spring Boot Runtime Engineering
 ---
-
-# Micrometer/OpenTelemetry with high-cardinality metric governance
-
 This post covers production-focused design decisions for **Micrometer/OpenTelemetry with high-cardinality metric governance**.
 The emphasis is on correctness, scalability, and operational behavior under failure.
 
