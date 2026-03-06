@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Middle of the Linked List in Java
-
 Given the head of a singly linked list, return its middle node.
 If the list has two middle nodes, return the second middle.
 

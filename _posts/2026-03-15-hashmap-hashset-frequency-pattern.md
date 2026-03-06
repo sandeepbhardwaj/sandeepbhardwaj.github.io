@@ -5,7 +5,8 @@ categories:
 - Java
 date: 2026-03-15
 seo_title: HashMap and HashSet Frequency Pattern in Java – Complete Guide
-seo_description: Learn HashMap and HashSet frequency patterns in Java with counting, lookup, and linear-time matching examples.
+seo_description: Learn HashMap and HashSet frequency patterns in Java with counting,
+  lookup, and linear-time matching examples.
 tags:
 - dsa
 - java
@@ -13,20 +14,16 @@ tags:
 - hashset
 - frequency-pattern
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/hashmap-hashset-frequency-pattern/
 title: HashMap and HashSet Frequency Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/hashmap-hashset-banner.svg
+  overlay_image: "/assets/images/hashmap-hashset-banner.svg"
   overlay_filter: 0.35
-  caption: "Constant-Time Lookups for Linear-Time Solutions"
+  caption: Constant-Time Lookups for Linear-Time Solutions
   show_overlay_excerpt: false
 ---
-
-# HashMap and HashSet Frequency Pattern in Java — A Detailed Guide
-
 Hash-based patterns are the default when you need fast membership checks, counts, or complement lookups.
 This pattern often converts nested-loop logic into linear-time solutions.
 

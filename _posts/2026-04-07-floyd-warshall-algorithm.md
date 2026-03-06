@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-07
-seo_title: "Floyd-Warshall Algorithm in Java – Complete Guide"
-seo_description: "Compute all-pairs shortest paths in Java with dynamic programming over intermediate nodes."
-tags: [dsa, java, floyd-warshall, graph, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/floyd-warshall-algorithm/"
-title: "Floyd-Warshall Algorithm in Java — A Detailed Guide"
+seo_title: Floyd-Warshall Algorithm in Java – Complete Guide
+seo_description: Compute all-pairs shortest paths in Java with dynamic programming
+  over intermediate nodes.
+tags:
+- dsa
+- java
+- floyd-warshall
+- graph
+- algorithms
+title: Floyd-Warshall Algorithm in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/floyd-warshall-algorithm-banner.svg
+  overlay_image: "/assets/images/floyd-warshall-algorithm-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "All-Pairs Shortest Path DP"
+  caption: All-Pairs Shortest Path DP
 ---
-
-# Floyd-Warshall Algorithm in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

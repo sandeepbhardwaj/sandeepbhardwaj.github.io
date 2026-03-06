@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-28
-seo_title: "Monitoring Drift and ML Incident Response"
-seo_description: "A practical guide to production ML monitoring, data and concept drift detection, and incident response playbooks."
-tags: [ai, ml, monitoring, drift, mlops, reliability]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/monitoring-drift-and-ml-incident-response/"
-title: "Monitoring Drift and ML Incident Response"
+seo_title: Monitoring Drift and ML Incident Response
+seo_description: A practical guide to production ML monitoring, data and concept drift
+  detection, and incident response playbooks.
+tags:
+- ai
+- ml
+- monitoring
+- drift
+- mlops
+- reliability
+title: Monitoring Drift and ML Incident Response
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Models Decay Unless You Monitor"
+  caption: Models Decay Unless You Monitor
 ---
-
-# Monitoring Drift and ML Incident Response
-
 A model that performed well on launch day can fail silently two weeks later.
 In production, distributions move, user behavior evolves, adversaries adapt, and upstream data contracts change.
 

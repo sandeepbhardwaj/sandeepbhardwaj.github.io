@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-28
 seo_title: Dynamic Programming Pattern in Java – Complete Guide
-seo_description: Master dynamic programming in Java with state definition, transitions, memoization, and tabulation patterns.
+seo_description: Master dynamic programming in Java with state definition, transitions,
+  memoization, and tabulation patterns.
 tags:
 - dsa
 - java
 - dynamic-programming
 - dp
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/dynamic-programming-pattern/
 title: Dynamic Programming Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/dynamic-programming-banner.svg
+  overlay_image: "/assets/images/dynamic-programming-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "State Transitions for Optimal Substructure"
+  caption: State Transitions for Optimal Substructure
 ---
-
-# Dynamic Programming Pattern in Java — A Detailed Guide
-
 DP solves optimization/counting problems with overlapping subproblems.
 The hardest part is state definition, not coding loops.
 

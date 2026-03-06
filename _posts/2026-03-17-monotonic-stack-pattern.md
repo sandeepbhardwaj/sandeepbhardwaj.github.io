@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-17
 seo_title: Monotonic Stack Pattern in Java – Complete Guide
-seo_description: Learn monotonic stack in Java for next greater/smaller problems, range contributions, and linear-time scans.
+seo_description: Learn monotonic stack in Java for next greater/smaller problems,
+  range contributions, and linear-time scans.
 tags:
 - dsa
 - java
 - monotonic-stack
 - stack
 - algorithms
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/monotonic-stack-pattern/
 title: Monotonic Stack Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/monotonic-stack-banner.svg
+  overlay_image: "/assets/images/monotonic-stack-banner.svg"
   overlay_filter: 0.35
-  caption: "Linear-Time Neighbor Discovery"
+  caption: Linear-Time Neighbor Discovery
   show_overlay_excerpt: false
 ---
-
-# Monotonic Stack Pattern in Java — A Detailed Guide
-
 Monotonic stack helps find next/previous greater or smaller elements in linear time.
 It avoids repeated backward or forward scans.
 

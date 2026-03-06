@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-14
-seo_title: "Dimensionality Reduction with PCA, UMAP, and t-SNE"
-seo_description: "A practical deep dive into dimensionality reduction methods, when to use them, and pitfalls in interpretation."
-tags: [ai, ml, pca, umap, tsne, unsupervised-learning]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/dimensionality-reduction-pca-umap-tsne/"
-title: "Dimensionality Reduction with PCA, UMAP, and t-SNE"
+seo_title: Dimensionality Reduction with PCA, UMAP, and t-SNE
+seo_description: A practical deep dive into dimensionality reduction methods, when
+  to use them, and pitfalls in interpretation.
+tags:
+- ai
+- ml
+- pca
+- umap
+- tsne
+- unsupervised-learning
+title: Dimensionality Reduction with PCA, UMAP, and t-SNE
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Compress Information, Keep Signal"
+  caption: Compress Information, Keep Signal
 ---
-
-# Dimensionality Reduction with PCA, UMAP, and t-SNE
-
 High-dimensional data introduces noise, sparsity, and computational cost.
 Dimensionality reduction can improve model stability, speed, and interpretability when used correctly.
 

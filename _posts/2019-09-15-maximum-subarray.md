@@ -24,9 +24,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Maximum Subarray in Java (Kadane Algorithm)
-
 This guide explains the intuition, optimized approach, and Java implementation for maximum subarray in java (kadane algorithm), with practical tips for interviews and production coding standards.
 
 ## Problem

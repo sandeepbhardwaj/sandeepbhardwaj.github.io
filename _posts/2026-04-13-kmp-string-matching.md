@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-13
-seo_title: "KMP String Matching in Java – Complete Guide"
-seo_description: "Implement linear-time substring search in Java using LPS prefix-function preprocessing."
-tags: [dsa, java, kmp, strings, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/kmp-string-matching/"
-title: "KMP String Matching in Java — A Detailed Guide"
+seo_title: KMP String Matching in Java – Complete Guide
+seo_description: Implement linear-time substring search in Java using LPS prefix-function
+  preprocessing.
+tags:
+- dsa
+- java
+- kmp
+- strings
+- algorithms
+title: KMP String Matching in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/kmp-string-matching-banner.svg
+  overlay_image: "/assets/images/kmp-string-matching-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Linear-Time Pattern Matching"
+  caption: Linear-Time Pattern Matching
 ---
-
-# KMP String Matching in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

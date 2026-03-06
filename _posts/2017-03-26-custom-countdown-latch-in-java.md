@@ -21,9 +21,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Create a Custom CountDownLatch in Java
-
 This post explains how a latch works internally using a simplified custom implementation.
 
 ## Real-World Use Cases

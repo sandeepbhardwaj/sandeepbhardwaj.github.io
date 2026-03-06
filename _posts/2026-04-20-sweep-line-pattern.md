@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-20
-seo_title: "Sweep Line Pattern in Java – Complete Guide"
-seo_description: "Process interval and geometry events in Java with sorted endpoints and active-state tracking."
-tags: [dsa, java, sweep-line, intervals, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/sweep-line-pattern/"
-title: "Sweep Line Pattern in Java — A Detailed Guide"
+seo_title: Sweep Line Pattern in Java – Complete Guide
+seo_description: Process interval and geometry events in Java with sorted endpoints
+  and active-state tracking.
+tags:
+- dsa
+- java
+- sweep-line
+- intervals
+- algorithms
+title: Sweep Line Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/sweep-line-pattern-banner.svg
+  overlay_image: "/assets/images/sweep-line-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Event Ordering and Active Set Management"
+  caption: Event Ordering and Active Set Management
 ---
-
-# Sweep Line Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

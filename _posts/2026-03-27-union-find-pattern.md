@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-27
 seo_title: Union-Find (Disjoint Set) Pattern in Java – Complete Guide
-seo_description: Learn Union-Find in Java with path compression and union by rank for connectivity and dynamic component problems.
+seo_description: Learn Union-Find in Java with path compression and union by rank
+  for connectivity and dynamic component problems.
 tags:
 - dsa
 - java
 - union-find
 - disjoint-set
 - graph
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/union-find-pattern/
 title: Union-Find (Disjoint Set) Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/union-find-banner.svg
+  overlay_image: "/assets/images/union-find-banner.svg"
   overlay_filter: 0.35
-  caption: "Dynamic Connectivity with Near-Constant Operations"
+  caption: Dynamic Connectivity with Near-Constant Operations
   show_overlay_excerpt: false
 ---
-
-# Union-Find (Disjoint Set) Pattern in Java — A Detailed Guide
-
 Union-Find solves dynamic connectivity problems efficiently.
 It supports two core operations:
 

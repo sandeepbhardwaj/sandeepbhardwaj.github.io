@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-09
-seo_title: "Decision Trees: From Splits to Pruning"
-seo_description: "A deep practical guide to decision trees, split criteria, pruning, interpretability, and production trade-offs."
-tags: [ai, ml, decision-trees, classification, regression]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/decision-trees-from-splits-to-pruning/"
-title: "Decision Trees: From Splits to Pruning"
+seo_title: 'Decision Trees: From Splits to Pruning'
+seo_description: A deep practical guide to decision trees, split criteria, pruning,
+  interpretability, and production trade-offs.
+tags:
+- ai
+- ml
+- decision-trees
+- classification
+- regression
+title: 'Decision Trees: From Splits to Pruning'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Simple Rules, Strong Baselines"
+  caption: Simple Rules, Strong Baselines
 ---
-
-# Decision Trees: From Splits to Pruning
-
 Decision trees are one of the most practical ML models for tabular data.
 They are intuitive, flexible, and strong baselines for both classification and regression.
 

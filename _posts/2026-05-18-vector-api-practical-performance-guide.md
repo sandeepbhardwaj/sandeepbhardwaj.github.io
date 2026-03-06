@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-18
-seo_title: "Vector API Practical Performance Guide for Java"
-seo_description: "Apply SIMD style vector computation for CPU-efficient numeric workloads in Java."
-tags: [java, vector-api, performance, jvm]
-canonical_url: "https://sandeepbhardwaj.github.io/java/vector-api-practical-performance-guide/"
-title: "Vector API Practical Performance Guide in Java"
+seo_title: Vector API Practical Performance Guide for Java
+seo_description: Apply SIMD style vector computation for CPU-efficient numeric workloads
+  in Java.
+tags:
+- java
+- vector-api
+- performance
+- jvm
+title: Vector API Practical Performance Guide in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "SIMD Friendly Numeric Processing in Java"
+  caption: SIMD Friendly Numeric Processing in Java
 ---
-
-# Vector API Practical Performance Guide in Java
-
 The Vector API enables explicit SIMD-style operations in Java for numeric hot paths.
 Use it only where CPU profiling shows scalar loops are a bottleneck.
 

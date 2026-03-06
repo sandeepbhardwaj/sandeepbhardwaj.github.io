@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-27
-seo_title: "Model Serving Architectures: Batch, Online, and Streaming"
-seo_description: "A practical architecture guide to model serving patterns, latency trade-offs, and reliability controls in production ML systems."
-tags: [ai, ml, model-serving, inference, mlops, architecture]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/model-serving-architectures-batch-online-and-streaming/"
-title: "Model Serving Architectures: Batch, Online, and Streaming"
+seo_title: 'Model Serving Architectures: Batch, Online, and Streaming'
+seo_description: A practical architecture guide to model serving patterns, latency
+  trade-offs, and reliability controls in production ML systems.
+tags:
+- ai
+- ml
+- model-serving
+- inference
+- mlops
+- architecture
+title: 'Model Serving Architectures: Batch, Online, and Streaming'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Choose the Serving Pattern by SLA and Business Flow"
+  caption: Choose the Serving Pattern by SLA and Business Flow
 ---
-
-# Model Serving Architectures: Batch, Online, and Streaming
-
 A production model is useful only when it can make decisions in the right place, at the right time, with predictable reliability.
 
 Most teams spend months improving model quality, then lose value because serving architecture was chosen too late or chosen incorrectly.

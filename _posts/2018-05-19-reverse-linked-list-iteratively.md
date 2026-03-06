@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Reverse Linked List Iteratively in Java
-
 This guide explains the intuition, optimized approach, and Java implementation for reverse linked list iteratively in java, with practical tips for interviews and production coding standards.
 
 ## Problem

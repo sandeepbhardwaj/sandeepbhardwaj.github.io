@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-06
-seo_title: "Model Evaluation Metrics That Actually Matter"
-seo_description: "How to choose and use ML metrics that align with real business cost across classification, regression, and ranking."
-tags: [ai, ml, evaluation, metrics, model-validation]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/model-evaluation-metrics-that-actually-matter/"
-title: "Model Evaluation Metrics That Actually Matter"
+seo_title: Model Evaluation Metrics That Actually Matter
+seo_description: How to choose and use ML metrics that align with real business cost
+  across classification, regression, and ranking.
+tags:
+- ai
+- ml
+- evaluation
+- metrics
+- model-validation
+title: Model Evaluation Metrics That Actually Matter
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "If Metric Is Wrong, Optimization Is Wrong"
+  caption: If Metric Is Wrong, Optimization Is Wrong
 ---
-
-# Model Evaluation Metrics That Actually Matter
-
 Most model failures in production are not training failures.
 They are evaluation failures.
 

@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-11
-seo_title: "Java Records in Production API Design"
-seo_description: "Use Java records for immutable contracts and cleaner backend API boundaries."
-tags: [java, records, api-design, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/java/records-production-api-design/"
-title: "Records in Production API Design — Java Guide"
+seo_title: Java Records in Production API Design
+seo_description: Use Java records for immutable contracts and cleaner backend API
+  boundaries.
+tags:
+- java
+- records
+- api-design
+- backend
+title: Records in Production API Design — Java Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Immutable Data Contracts with Minimal Boilerplate"
+  caption: Immutable Data Contracts with Minimal Boilerplate
 ---
-
-# Records in Production API Design — Java Guide
-
 Java records are best used for immutable data contracts.
 They reduce boilerplate and make API boundary models explicit, especially for request/response DTOs and event payloads.
 

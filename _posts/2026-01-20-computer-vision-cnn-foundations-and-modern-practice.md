@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-20
-seo_title: "Computer Vision: CNN Foundations and Modern Practice"
-seo_description: "A practical guide to computer vision fundamentals, CNN architecture intuition, training tactics, and deployment constraints."
-tags: [ai, ml, computer-vision, cnn, deep-learning]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/computer-vision-cnn-foundations-and-modern-practice/"
-title: "Computer Vision: CNN Foundations and Modern Practice"
+seo_title: 'Computer Vision: CNN Foundations and Modern Practice'
+seo_description: A practical guide to computer vision fundamentals, CNN architecture
+  intuition, training tactics, and deployment constraints.
+tags:
+- ai
+- ml
+- computer-vision
+- cnn
+- deep-learning
+title: 'Computer Vision: CNN Foundations and Modern Practice'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "From Pixels to Semantics"
+  caption: From Pixels to Semantics
 ---
-
-# Computer Vision: CNN Foundations and Modern Practice
-
 Computer vision systems convert pixels into structured outputs such as labels, boxes, masks, or embeddings.
 CNNs remain foundational in many practical vision pipelines due to efficiency and strong transfer learning ecosystems.
 

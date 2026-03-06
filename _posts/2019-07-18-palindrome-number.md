@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Palindrome Number in Java (Without String Conversion)
-
 This guide explains the intuition, optimized approach, and Java implementation for palindrome number in java (without string conversion), with practical tips for interviews and production coding standards.
 
 ## Problem

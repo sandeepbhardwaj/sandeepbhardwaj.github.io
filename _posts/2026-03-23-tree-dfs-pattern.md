@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-23
 seo_title: Tree DFS Pattern in Java – Complete Guide
-seo_description: Master depth-first traversal patterns on binary trees in Java with recursion templates and path-based problems.
+seo_description: Master depth-first traversal patterns on binary trees in Java with
+  recursion templates and path-based problems.
 tags:
 - dsa
 - java
 - tree
 - dfs
 - recursion
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/tree-dfs-pattern/
 title: Tree DFS Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/tree-dfs-banner.svg
+  overlay_image: "/assets/images/tree-dfs-banner.svg"
   overlay_filter: 0.35
-  caption: "Depth-First Reasoning on Hierarchical Data"
+  caption: Depth-First Reasoning on Hierarchical Data
   show_overlay_excerpt: false
 ---
-
-# Tree DFS Pattern in Java — A Detailed Guide
-
 Tree DFS explores nodes depth-first and is ideal for path, subtree, and structural properties.
 
 ---

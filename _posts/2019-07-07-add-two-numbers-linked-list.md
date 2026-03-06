@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Add Two Numbers Represented as Linked List
-
 This guide explains the intuition, optimized approach, and Java implementation for add two numbers represented as linked list, with practical tips for interviews and production coding standards.
 
 ## Problem

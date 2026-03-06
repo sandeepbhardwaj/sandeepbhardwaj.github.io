@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-15
-seo_title: "Structured Concurrency Patterns for Java Backends"
-seo_description: "Coordinate concurrent subtasks with scoped lifecycle and failure propagation in Java."
-tags: [java, structured-concurrency, java21, concurrency]
-canonical_url: "https://sandeepbhardwaj.github.io/java/structured-concurrency-patterns-java-21/"
-title: "Structured Concurrency Patterns in Java 21+"
+seo_title: Structured Concurrency Patterns for Java Backends
+seo_description: Coordinate concurrent subtasks with scoped lifecycle and failure
+  propagation in Java.
+tags:
+- java
+- structured-concurrency
+- java21
+- concurrency
+title: Structured Concurrency Patterns in Java 21+
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Task Lifecycles with Coordinated Failure Handling"
+  caption: Task Lifecycles with Coordinated Failure Handling
 ---
-
-# Structured Concurrency Patterns in Java 21+
-
 Structured concurrency makes concurrent work follow block scope rules: tasks start inside a scope, finish inside it, and are cancelled when scope ends.
 This prevents orphan tasks and inconsistent partial results.
 

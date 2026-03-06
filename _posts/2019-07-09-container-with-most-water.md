@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Container With Most Water in Java
-
 Given an array `height`, pick two indices `i` and `j` to form a container.
 Maximize area:
 

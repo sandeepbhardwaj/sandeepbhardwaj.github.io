@@ -1,24 +1,27 @@
 ---
-title: "Java 17 New Features — Complete Guide with Examples"
+title: Java 17 New Features — Complete Guide with Examples
 date: 2026-03-10
-categories: [Java]
-tags: [java, java17, jdk17, lts, backend]
+categories:
+- Java
+tags:
+- java
+- java17
+- jdk17
+- lts
+- backend
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 17 Features with Examples (Complete Guide)"
-seo_description: "Comprehensive Java 17 LTS guide covering all JDK 17 JEP features with practical examples."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 17 Features with Examples (Complete Guide)
+seo_description: Comprehensive Java 17 LTS guide covering all JDK 17 JEP features
+  with practical examples.
 header:
-  overlay_image: /assets/images/default-post-banner.svg
+  overlay_image: "/assets/images/default-post-banner.svg"
   overlay_filter: 0.4
-  caption: "Java 17 LTS for Modern Backend Systems"
+  caption: Java 17 LTS for Modern Backend Systems
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-17-new-features-with-examples/"
 ---
-
-# Introduction
-
 Java 17 is an LTS release.
 This article covers all JDK 17 release JEPs with practical examples where applicable.
 

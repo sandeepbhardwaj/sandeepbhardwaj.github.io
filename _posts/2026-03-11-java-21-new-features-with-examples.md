@@ -1,24 +1,28 @@
 ---
-title: "Java 21 New Features — Complete Guide with Examples"
+title: Java 21 New Features — Complete Guide with Examples
 date: 2026-03-11
-categories: [Java]
-tags: [java, java21, jdk21, lts, backend, virtual-threads]
+categories:
+- Java
+tags:
+- java
+- java21
+- jdk21
+- lts
+- backend
+- virtual-threads
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 21 Features with Examples (Complete Guide)"
-seo_description: "Comprehensive Java 21 LTS guide covering all JDK 21 JEP features with practical examples."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 21 Features with Examples (Complete Guide)
+seo_description: Comprehensive Java 21 LTS guide covering all JDK 21 JEP features
+  with practical examples.
 header:
-  overlay_image: /assets/images/default-post-banner.svg
+  overlay_image: "/assets/images/default-post-banner.svg"
   overlay_filter: 0.4
-  caption: "Java 21 LTS for High-Scale Systems"
+  caption: Java 21 LTS for High-Scale Systems
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-21-new-features-with-examples/"
 ---
-
-# Introduction
-
 Java 21 is an LTS release with major improvements in concurrency, pattern matching, and collections.
 This article covers all JDK 21 release JEPs with examples.
 

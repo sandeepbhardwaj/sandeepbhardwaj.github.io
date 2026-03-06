@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-23
-seo_title: "Prompt Engineering Patterns for Reliable LLM Apps"
-seo_description: "A practical guide to prompt design patterns, failure modes, and evaluation strategy for production LLM applications."
-tags: [ai, ml, llm, prompt-engineering, generative-ai]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/prompt-engineering-patterns-for-reliable-llm-apps/"
-title: "Prompt Engineering Patterns for Reliable LLM Apps"
+seo_title: Prompt Engineering Patterns for Reliable LLM Apps
+seo_description: A practical guide to prompt design patterns, failure modes, and evaluation
+  strategy for production LLM applications.
+tags:
+- ai
+- ml
+- llm
+- prompt-engineering
+- generative-ai
+title: Prompt Engineering Patterns for Reliable LLM Apps
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Prompts Are Interface Contracts"
+  caption: Prompts Are Interface Contracts
 ---
-
-# Prompt Engineering Patterns for Reliable LLM Apps
-
 Prompt engineering in production is about behavior control, not prose quality.
 A prompt is an interface contract between product requirements and model behavior.
 

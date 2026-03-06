@@ -21,9 +21,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Create a Custom Thread Pool in Java
-
 This is a learning-oriented implementation to understand worker threads, queueing, and task execution flow.
 
 ## Real-World Use Cases

@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-24
 seo_title: Tree BFS Pattern in Java – Complete Guide
-seo_description: Learn tree BFS in Java using queue-based level traversal, shortest depth, and level-order transformations.
+seo_description: Learn tree BFS in Java using queue-based level traversal, shortest
+  depth, and level-order transformations.
 tags:
 - dsa
 - java
 - tree
 - bfs
 - queue
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/tree-bfs-pattern/
 title: Tree BFS Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/tree-bfs-banner.svg
+  overlay_image: "/assets/images/tree-bfs-banner.svg"
   overlay_filter: 0.35
-  caption: "Level-Order Exploration with Queues"
+  caption: Level-Order Exploration with Queues
   show_overlay_excerpt: false
 ---
-
-# Tree BFS Pattern in Java — A Detailed Guide
-
 BFS traverses trees level by level.
 It is ideal for shortest-level decisions and level-grouped output.
 

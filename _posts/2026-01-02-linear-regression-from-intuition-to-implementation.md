@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-02
-seo_title: "Linear Regression from Intuition to Implementation"
-seo_description: "A thorough guide to linear regression: intuition, math, assumptions, optimization, diagnostics, and production use."
-tags: [ai, ml, linear-regression, statistics, supervised-learning]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/linear-regression-from-intuition-to-implementation/"
-title: "Linear Regression from Intuition to Implementation"
+seo_title: Linear Regression from Intuition to Implementation
+seo_description: 'A thorough guide to linear regression: intuition, math, assumptions,
+  optimization, diagnostics, and production use.'
+tags:
+- ai
+- ml
+- linear-regression
+- statistics
+- supervised-learning
+title: Linear Regression from Intuition to Implementation
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Start with the Simplest Model You Can Defend"
+  caption: Start with the Simplest Model You Can Defend
 ---
-
-# Linear Regression from Intuition to Implementation
-
 Linear regression is often taught as a beginner model.
 In practice, it is also a serious production baseline and, in many cases, a final model.
 

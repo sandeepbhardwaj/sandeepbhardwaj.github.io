@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-21
-seo_title: "Reflection Performance Optimization in Java"
-seo_description: "Reduce reflective overhead in Java with caching, method handles, and architecture choices."
-tags: [java, reflection, performance, jvm]
-canonical_url: "https://sandeepbhardwaj.github.io/java/reflection-costs-optimization-strategies-java/"
-title: "Reflection Costs and Optimization Strategies in Java"
+seo_title: Reflection Performance Optimization in Java
+seo_description: Reduce reflective overhead in Java with caching, method handles,
+  and architecture choices.
+tags:
+- java
+- reflection
+- performance
+- jvm
+title: Reflection Costs and Optimization Strategies in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Reducing Reflection Overhead in Hot Paths"
+  caption: Reducing Reflection Overhead in Hot Paths
 ---
-
-# Reflection Costs and Optimization Strategies in Java
-
 Reflection is useful for extensibility and framework infrastructure, but expensive when used repeatedly in hot paths.
 The right strategy is selective optimization, not blanket removal.
 

@@ -1,24 +1,28 @@
 ---
-title: "Java 8 Stream API — A Deep Dive for Backend Engineers"
+title: Java 8 Stream API — A Deep Dive for Backend Engineers
 date: 2026-03-01
-categories: [Java]
-tags: [java, java8, streams, backend, performance, functional-programming]
+categories:
+- Java
+tags:
+- java
+- java8
+- streams
+- backend
+- performance
+- functional-programming
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 8 Stream API Deep Dive for Backend Engineers"
-seo_description: "Learn Java 8 Streams with real backend examples, lazy evaluation, performance trade-offs, and production best practices."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 8 Stream API Deep Dive for Backend Engineers
+seo_description: Learn Java 8 Streams with real backend examples, lazy evaluation,
+  performance trade-offs, and production best practices.
 header:
-  overlay_image: /assets/images/java8-stream-api-deep-dive-banner.svg
+  overlay_image: "/assets/images/java8-stream-api-deep-dive-banner.svg"
   overlay_filter: 0.4
-  caption: "Modern Backend Development with Java 8"
+  caption: Modern Backend Development with Java 8
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-stream-api-deep-dive/"
 ---
-
-# Introduction
-
 In most backend systems, a big part of business logic is data transformation:
 
 - filter invalid inputs

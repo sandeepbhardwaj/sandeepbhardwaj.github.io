@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-20
-seo_title: "Annotation Processing and Code Generation in Java Guide"
-seo_description: "Generate compile-time Java code for safer contracts and faster runtime behavior."
-tags: [java, annotation-processing, codegen, compiler]
-canonical_url: "https://sandeepbhardwaj.github.io/java/annotation-processing-code-generation-java/"
-title: "Annotation Processing and Code Generation in Java"
+seo_title: Annotation Processing and Code Generation in Java Guide
+seo_description: Generate compile-time Java code for safer contracts and faster runtime
+  behavior.
+tags:
+- java
+- annotation-processing
+- codegen
+- compiler
+title: Annotation Processing and Code Generation in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Compile Time Generation for Safer APIs"
+  caption: Compile Time Generation for Safer APIs
 ---
-
-# Annotation Processing and Code Generation in Java
-
 Annotation processing lets you generate code and validate contracts at compile time.
 This reduces runtime reflection, catches errors earlier, and removes repetitive boilerplate.
 

@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-14
-seo_title: "Virtual Threads Architecture Patterns in Java 21"
-seo_description: "Scale blocking style Java services with virtual threads and structured design."
-tags: [java, java21, virtual-threads, concurrency, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/java/virtual-threads-architecture-patterns-java-21/"
-title: "Virtual Threads Architecture Patterns (Java 21+) Guide"
+seo_title: Virtual Threads Architecture Patterns in Java 21
+seo_description: Scale blocking style Java services with virtual threads and structured
+  design.
+tags:
+- java
+- java21
+- virtual-threads
+- concurrency
+- backend
+title: Virtual Threads Architecture Patterns (Java 21+) Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Scalable Thread Per Task Architecture"
+  caption: Scalable Thread Per Task Architecture
 ---
-
-# Virtual Threads Architecture Patterns (Java 21+) Guide
-
 Virtual threads let you keep a simple blocking style while scaling to much higher concurrency for I/O-heavy services.
 The key is to combine them with explicit resource budgets.
 

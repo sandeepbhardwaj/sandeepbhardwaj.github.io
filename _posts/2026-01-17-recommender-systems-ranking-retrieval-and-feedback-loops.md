@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-17
-seo_title: "Recommender Systems: Retrieval, Ranking, and Feedback Loops"
-seo_description: "A practical architecture guide to modern recommender systems including candidate retrieval, ranking, and online feedback."
-tags: [ai, ml, recommender-systems, ranking, retrieval]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/recommender-systems-ranking-retrieval-and-feedback-loops/"
-title: "Recommender Systems: Retrieval, Ranking, and Feedback Loops"
+seo_title: 'Recommender Systems: Retrieval, Ranking, and Feedback Loops'
+seo_description: A practical architecture guide to modern recommender systems including
+  candidate retrieval, ranking, and online feedback.
+tags:
+- ai
+- ml
+- recommender-systems
+- ranking
+- retrieval
+title: 'Recommender Systems: Retrieval, Ranking, and Feedback Loops'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Find the Right Item in Milliseconds"
+  caption: Find the Right Item in Milliseconds
 ---
-
-# Recommender Systems: Retrieval, Ranking, and Feedback Loops
-
 Recommendation systems are not one model.
 They are multi-stage decision pipelines balancing relevance, diversity, freshness, fairness, and latency.
 

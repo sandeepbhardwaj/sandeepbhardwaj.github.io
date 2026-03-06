@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-24
-seo_title: "Bytecode Engineering with ASM in Java"
-seo_description: "Generate and transform Java bytecode directly using ASM for advanced tooling and frameworks."
-tags: [java, asm, bytecode, jvm]
-canonical_url: "https://sandeepbhardwaj.github.io/java/bytecode-engineering-asm-practical-intro/"
-title: "Bytecode Engineering with ASM — Practical Intro"
+seo_title: Bytecode Engineering with ASM in Java
+seo_description: Generate and transform Java bytecode directly using ASM for advanced
+  tooling and frameworks.
+tags:
+- java
+- asm
+- bytecode
+- jvm
+title: Bytecode Engineering with ASM — Practical Intro
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Low-Level Bytecode Transformation Patterns"
+  caption: Low-Level Bytecode Transformation Patterns
 ---
-
-# Bytecode Engineering with ASM — Practical Intro
-
 ASM is a low-level bytecode toolkit used by frameworks, agents, and build tools.
 It gives maximum control, but mistakes can break class verification or runtime behavior.
 

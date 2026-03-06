@@ -22,9 +22,6 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-
-# Blocking Queue in Java
-
 `BlockingQueue` is a thread-safe queue from `java.util.concurrent` used heavily in producer-consumer systems.
 
 ## Real-World Use Cases

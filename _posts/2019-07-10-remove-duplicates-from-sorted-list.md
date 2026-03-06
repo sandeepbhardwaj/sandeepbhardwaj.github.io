@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Remove Duplicates from Sorted List (LeetCode 83)
-
 Given a sorted linked list, remove duplicate nodes so each value appears exactly once.
 
 Input: `1 -> 1 -> 2 -> 3 -> 3`  

@@ -23,9 +23,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Reverse Linked List Recursively in Java
-
 Reverse a singly linked list using recursion.
 
 Input: `1 -> 2 -> 3 -> 4`  

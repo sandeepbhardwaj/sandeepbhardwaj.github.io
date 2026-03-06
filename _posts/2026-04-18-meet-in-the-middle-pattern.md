@@ -4,23 +4,24 @@ categories:
 - DSA
 - Java
 date: 2026-04-18
-seo_title: "Meet-in-the-Middle Pattern in Java – Complete Guide"
-seo_description: "Solve exponential subset problems faster in Java by splitting search space and merging results."
-tags: [dsa, java, meet-in-the-middle, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/meet-in-the-middle-pattern/"
-title: "Meet-in-the-Middle Pattern in Java — A Detailed Guide"
+seo_title: Meet-in-the-Middle Pattern in Java – Complete Guide
+seo_description: Solve exponential subset problems faster in Java by splitting search
+  space and merging results.
+tags:
+- dsa
+- java
+- meet-in-the-middle
+- algorithms
+title: Meet-in-the-Middle Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/meet-in-the-middle-pattern-banner.svg
+  overlay_image: "/assets/images/meet-in-the-middle-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Balanced Exponential Search Reduction"
+  caption: Balanced Exponential Search Reduction
 ---
-
-# Meet-in-the-Middle Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

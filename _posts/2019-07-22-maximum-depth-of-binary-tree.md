@@ -25,9 +25,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Maximum Depth of Binary Tree in Java
-
 This guide explains the intuition, optimized approach, and Java implementation for maximum depth of binary tree in java, with practical tips for interviews and production coding standards.
 
 ## Problem

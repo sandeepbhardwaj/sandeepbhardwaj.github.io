@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-04
-seo_title: "Minimum Spanning Tree Pattern in Java – Complete Guide"
-seo_description: "Build minimum-cost connected graphs in Java with Kruskal and Prim implementations."
-tags: [dsa, java, mst, graph, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/minimum-spanning-tree-pattern/"
-title: "Minimum Spanning Tree Pattern in Java — A Detailed Guide"
+seo_title: Minimum Spanning Tree Pattern in Java – Complete Guide
+seo_description: Build minimum-cost connected graphs in Java with Kruskal and Prim
+  implementations.
+tags:
+- dsa
+- java
+- mst
+- graph
+- algorithms
+title: Minimum Spanning Tree Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/minimum-spanning-tree-pattern-banner.svg
+  overlay_image: "/assets/images/minimum-spanning-tree-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Minimum Cost Graph Connectivity"
+  caption: Minimum Cost Graph Connectivity
 ---
-
-# Minimum Spanning Tree Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

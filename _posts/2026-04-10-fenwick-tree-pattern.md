@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-10
-seo_title: "Fenwick Tree Pattern in Java – Complete Guide"
-seo_description: "Use Binary Indexed Tree in Java for prefix sums and point updates in logarithmic time."
-tags: [dsa, java, fenwick-tree, bit, algorithms]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/fenwick-tree-pattern/"
-title: "Fenwick Tree Pattern in Java — A Detailed Guide"
+seo_title: Fenwick Tree Pattern in Java – Complete Guide
+seo_description: Use Binary Indexed Tree in Java for prefix sums and point updates
+  in logarithmic time.
+tags:
+- dsa
+- java
+- fenwick-tree
+- bit
+- algorithms
+title: Fenwick Tree Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/fenwick-tree-pattern-banner.svg
+  overlay_image: "/assets/images/fenwick-tree-pattern-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Lightweight Prefix Aggregation Structure"
+  caption: Lightweight Prefix Aggregation Structure
 ---
-
-# Fenwick Tree Pattern in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

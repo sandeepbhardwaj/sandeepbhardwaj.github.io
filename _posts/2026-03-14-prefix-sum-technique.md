@@ -5,7 +5,8 @@ categories:
 - Java
 date: 2026-03-14
 seo_title: Prefix Sum Pattern in Java – Complete Guide for Backend Engineers
-seo_description: Master Prefix Sum in Java with core templates, hashmap extensions, subarray problems, and production-grade reasoning.
+seo_description: Master Prefix Sum in Java with core templates, hashmap extensions,
+  subarray problems, and production-grade reasoning.
 tags:
 - dsa
 - java
@@ -13,20 +14,16 @@ tags:
 - algorithms
 - interview-preparation
 - backend-engineering
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/prefix-sum-technique/
 title: Prefix Sum Pattern in Java — A Detailed Guide for Serious Engineers
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/prefix-sum-banner.svg
+  overlay_image: "/assets/images/prefix-sum-banner.svg"
   overlay_filter: 0.35
-  caption: "Cumulative Thinking for Linear-Time Range Queries"
+  caption: Cumulative Thinking for Linear-Time Range Queries
   show_overlay_excerpt: false
 ---
-
-# Prefix Sum Pattern in Java — A Detailed Guide for Serious Engineers
-
 Prefix Sum is one of the highest-leverage DSA patterns.
 It converts repeated range computations from repeated work into constant-time lookups after linear preprocessing.
 

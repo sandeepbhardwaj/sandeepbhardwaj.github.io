@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-29
-seo_title: "LRU LFU Cache Design in Java – Complete Guide"
-seo_description: "Design O(1) LRU/LFU caches in Java using hash maps and linked/bucket structures."
-tags: [dsa, java, cache-design, lru, lfu]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/lru-lfu-cache-design/"
-title: "LRU and LFU Cache Design in Java — A Detailed Guide"
+seo_title: LRU LFU Cache Design in Java – Complete Guide
+seo_description: Design O(1) LRU/LFU caches in Java using hash maps and linked/bucket
+  structures.
+tags:
+- dsa
+- java
+- cache-design
+- lru
+- lfu
+title: LRU and LFU Cache Design in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/lru-lfu-cache-design-banner.svg
+  overlay_image: "/assets/images/lru-lfu-cache-design-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Constant-Time Cache Eviction Structures"
+  caption: Constant-Time Cache Eviction Structures
 ---
-
-# LRU and LFU Cache Design in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-22
-seo_title: "ClassLoaders and Plugin Architecture Java Guide"
-seo_description: "Design extensible Java plugin systems with classloader isolation and lifecycle control."
-tags: [java, classloader, plugins, architecture]
-canonical_url: "https://sandeepbhardwaj.github.io/java/classloaders-plugin-architecture-java/"
-title: "ClassLoaders and Plugin Architecture in Java"
+seo_title: ClassLoaders and Plugin Architecture Java Guide
+seo_description: Design extensible Java plugin systems with classloader isolation
+  and lifecycle control.
+tags:
+- java
+- classloader
+- plugins
+- architecture
+title: ClassLoaders and Plugin Architecture in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Isolated Runtime Extension Architecture"
+  caption: Isolated Runtime Extension Architecture
 ---
-
-# ClassLoaders and Plugin Architecture in Java
-
 A Java plugin system succeeds or fails based on classloader boundaries and lifecycle discipline.
 Dynamic loading is easy; safe isolation and unload are hard.
 

@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-17
-seo_title: "Foreign Function and Memory API Practical Guide"
-seo_description: "Use modern Java native interop APIs to replace JNI-heavy patterns safely."
-tags: [java, ffm, native, interop, jvm]
-canonical_url: "https://sandeepbhardwaj.github.io/java/foreign-function-memory-api-practical-guide/"
-title: "Foreign Function and Memory API — Practical Java Guide"
+seo_title: Foreign Function and Memory API Practical Guide
+seo_description: Use modern Java native interop APIs to replace JNI-heavy patterns
+  safely.
+tags:
+- java
+- ffm
+- native
+- interop
+- jvm
+title: Foreign Function and Memory API — Practical Java Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Native Interop and Off Heap Memory Control"
+  caption: Native Interop and Off Heap Memory Control
 ---
-
-# Foreign Function and Memory API — Practical Java Guide
-
 The Foreign Function and Memory (FFM) API lets Java call native code and manage off-heap memory without writing JNI glue.
 Its main advantage is explicit, safer memory lifetime management.
 

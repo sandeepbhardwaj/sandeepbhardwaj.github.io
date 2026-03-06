@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-25
-seo_title: "MLOps Foundations: Pipelines, Versioning, Reproducibility"
-seo_description: "A practical guide to MLOps fundamentals including data and model versioning, reproducible pipelines, and deployment workflows."
-tags: [ai, ml, mlops, pipelines, reproducibility, deployment]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/mlops-foundations-pipelines-versioning-and-reproducibility/"
-title: "MLOps Foundations: Pipelines, Versioning, and Reproducibility"
+seo_title: 'MLOps Foundations: Pipelines, Versioning, Reproducibility'
+seo_description: A practical guide to MLOps fundamentals including data and model
+  versioning, reproducible pipelines, and deployment workflows.
+tags:
+- ai
+- ml
+- mlops
+- pipelines
+- reproducibility
+- deployment
+title: 'MLOps Foundations: Pipelines, Versioning, and Reproducibility'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "From Notebook Success to Production Reliability"
+  caption: From Notebook Success to Production Reliability
 ---
-
-# MLOps Foundations: Pipelines, Versioning, and Reproducibility
-
 A model that works once in a notebook is a prototype.
 A model that can be retrained, validated, deployed, monitored, rolled back, and audited is a production system.
 

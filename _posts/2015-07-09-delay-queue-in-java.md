@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Delay Queue in Java
-
 `DelayQueue` is a specialized blocking queue where elements become available only after a delay expires.
 
 ## Real-World Use Cases

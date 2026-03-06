@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-02-01
-seo_title: "Vector Databases for RAG in Production"
-seo_description: "A practical deep-dive into vector database design, ANN indexing, hybrid retrieval, filtering, and operations for production RAG systems."
-tags: [ai, ml, rag, vector-database, embeddings, retrieval]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/vector-databases-for-rag-in-production/"
-title: "Vector Databases for RAG in Production"
+seo_title: Vector Databases for RAG in Production
+seo_description: A practical deep-dive into vector database design, ANN indexing,
+  hybrid retrieval, filtering, and operations for production RAG systems.
+tags:
+- ai
+- ml
+- rag
+- vector-database
+- embeddings
+- retrieval
+title: Vector Databases for RAG in Production
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "ANN Trade-offs Decide Retrieval Quality and Latency"
+  caption: ANN Trade-offs Decide Retrieval Quality and Latency
 ---
-
-# Vector Databases for RAG in Production
-
 Vector databases are central to modern RAG systems, but many implementations fail because teams treat them as storage instead of retrieval engines.
 
 A production-ready vector system must balance:

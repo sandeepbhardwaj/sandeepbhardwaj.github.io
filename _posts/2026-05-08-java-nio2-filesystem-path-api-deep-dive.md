@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-08
-seo_title: "Java NIO.2 File System and Path API Guide"
-seo_description: "Use Java NIO.2 APIs for safe, scalable file and path operations in backend services."
-tags: [java, nio2, filesystem, io, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-nio2-filesystem-path-api-deep-dive/"
-title: "Java NIO.2 File System and Path API Deep Dive"
+seo_title: Java NIO.2 File System and Path API Guide
+seo_description: Use Java NIO.2 APIs for safe, scalable file and path operations in
+  backend services.
+tags:
+- java
+- nio2
+- filesystem
+- io
+- backend
+title: Java NIO.2 File System and Path API Deep Dive
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Modern File I O and Path Handling Patterns"
+  caption: Modern File I O and Path Handling Patterns
 ---
-
-# Java NIO.2 File System and Path API Deep Dive
-
 `java.nio.file` is the production baseline for file workflows in Java.
 Compared to legacy `java.io.File`, it gives better path safety, clearer APIs, and stronger behavior around moves, links, and attributes.
 

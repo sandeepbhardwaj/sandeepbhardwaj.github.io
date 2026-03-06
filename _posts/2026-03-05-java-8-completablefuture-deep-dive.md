@@ -1,21 +1,25 @@
 ---
-title: "CompletableFuture in Java 8 — Asynchronous Backend Design"
+title: CompletableFuture in Java 8 — Asynchronous Backend Design
 date: 2026-03-05
-categories: [Java]
-tags: [java, java8, completablefuture, backend, concurrency, async]
+categories:
+- Java
+tags:
+- java
+- java8
+- completablefuture
+- backend
+- concurrency
+- async
 author_profile: true
 toc: true
-seo_title: "CompletableFuture in Java 8 — Asynchronous Backend Design"
-seo_description: "Design production-grade async backend flows using CompletableFuture: composition, timeouts, thread pools, and service orchestration."
+seo_title: CompletableFuture in Java 8 — Asynchronous Backend Design
+seo_description: 'Design production-grade async backend flows using CompletableFuture:
+  composition, timeouts, thread pools, and service orchestration.'
 header:
-  overlay_image: /assets/images/java-8-completablefuture-deep-dive-banner.svg
+  overlay_image: "/assets/images/java-8-completablefuture-deep-dive-banner.svg"
   overlay_filter: 0.4
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-completablefuture-deep-dive/"
 ---
-
-# Introduction
-
 `CompletableFuture` enables non-blocking service orchestration in Java 8.
 It is especially useful when an endpoint needs data from multiple downstream services.
 

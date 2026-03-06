@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-07
-seo_title: "Cross-Validation and Experiment Design for ML"
-seo_description: "A practical guide to cross-validation, data splitting strategies, and reliable experiment design in machine learning."
-tags: [ai, ml, cross-validation, experimentation, model-selection]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/cross-validation-and-experiment-design/"
-title: "Cross-Validation and Experiment Design for ML"
+seo_title: Cross-Validation and Experiment Design for ML
+seo_description: A practical guide to cross-validation, data splitting strategies,
+  and reliable experiment design in machine learning.
+tags:
+- ai
+- ml
+- cross-validation
+- experimentation
+- model-selection
+title: Cross-Validation and Experiment Design for ML
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Reliable Results Need Reliable Splits"
+  caption: Reliable Results Need Reliable Splits
 ---
-
-# Cross-Validation and Experiment Design for ML
-
 If your split strategy is wrong, every model comparison is unreliable.
 Cross-validation is not just a data science ritual; it is how you estimate future performance honestly.
 

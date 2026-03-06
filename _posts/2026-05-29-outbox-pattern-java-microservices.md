@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-29
-seo_title: "Outbox Pattern Java Microservices Guide"
-seo_description: "Guarantee reliable event publication with transactional outbox architecture in Java."
-tags: [java, outbox-pattern, microservices, kafka]
-canonical_url: "https://sandeepbhardwaj.github.io/java/outbox-pattern-java-microservices/"
-title: "Outbox Pattern in Java Microservices"
+seo_title: Outbox Pattern Java Microservices Guide
+seo_description: Guarantee reliable event publication with transactional outbox architecture
+  in Java.
+tags:
+- java
+- outbox-pattern
+- microservices
+- kafka
+title: Outbox Pattern in Java Microservices
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Reliable Event Publication with Transactional Boundaries"
+  caption: Reliable Event Publication with Transactional Boundaries
 ---
-
-# Outbox Pattern in Java Microservices
-
 Outbox pattern solves the dual-write problem: persisting business data and publishing an event reliably.
 Instead of doing both in separate systems in one step, you persist publish intent in the same DB transaction.
 

@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-05
-seo_title: "Feature Engineering Patterns for Real-World ML"
-seo_description: "A practical deep dive into feature engineering patterns, leakage prevention, and production-safe feature pipelines."
-tags: [ai, ml, feature-engineering, data-science, mlops]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/feature-engineering-patterns-for-real-world-ml/"
-title: "Feature Engineering Patterns for Real-World ML"
+seo_title: Feature Engineering Patterns for Real-World ML
+seo_description: A practical deep dive into feature engineering patterns, leakage
+  prevention, and production-safe feature pipelines.
+tags:
+- ai
+- ml
+- feature-engineering
+- data-science
+- mlops
+title: Feature Engineering Patterns for Real-World ML
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Better Features Beat Fancy Models"
+  caption: Better Features Beat Fancy Models
 ---
-
-# Feature Engineering Patterns for Real-World ML
-
 Model quality on tabular data is often decided by features, not model family.
 A disciplined feature process can turn an average model into a strong production system.
 

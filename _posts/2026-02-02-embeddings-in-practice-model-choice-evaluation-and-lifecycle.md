@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-02-02
-seo_title: "Embeddings in Practice: Model Choice, Evaluation, and Lifecycle"
-seo_description: "A practical deep-dive into embedding model selection, domain adaptation, evaluation, drift monitoring, and refresh strategy."
-tags: [ai, ml, embeddings, retrieval, rag, mlops]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/embeddings-in-practice-model-choice-evaluation-and-lifecycle/"
-title: "Embeddings in Practice: Model Choice, Evaluation, and Lifecycle"
+seo_title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
+seo_description: A practical deep-dive into embedding model selection, domain adaptation,
+  evaluation, drift monitoring, and refresh strategy.
+tags:
+- ai
+- ml
+- embeddings
+- retrieval
+- rag
+- mlops
+title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Embedding Quality Determines Retrieval Ceiling"
+  caption: Embedding Quality Determines Retrieval Ceiling
 ---
-
-# Embeddings in Practice: Model Choice, Evaluation, and Lifecycle
-
 Embedding models convert text (or other modalities) into vectors that power retrieval, clustering, semantic matching, and recommendation.
 
 In production, embedding quality is often the hard ceiling for RAG quality.

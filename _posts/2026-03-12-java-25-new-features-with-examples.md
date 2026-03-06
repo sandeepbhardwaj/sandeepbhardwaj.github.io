@@ -1,24 +1,28 @@
 ---
-title: "Java 25 New Features — Complete Guide with Examples"
+title: Java 25 New Features — Complete Guide with Examples
 date: 2026-03-12
-categories: [Java]
-tags: [java, java25, jdk25, lts, backend, jvm]
+categories:
+- Java
+tags:
+- java
+- java25
+- jdk25
+- lts
+- backend
+- jvm
 author_profile: true
 toc: true
-toc_label: "In This Article"
-toc_icon: "cog"
-seo_title: "Java 25 Features with Examples (Complete Guide)"
-seo_description: "Comprehensive Java 25 guide covering all JDK 25 release features with practical examples."
+toc_label: In This Article
+toc_icon: cog
+seo_title: Java 25 Features with Examples (Complete Guide)
+seo_description: Comprehensive Java 25 guide covering all JDK 25 release features
+  with practical examples.
 header:
-  overlay_image: /assets/images/default-post-banner.svg
+  overlay_image: "/assets/images/default-post-banner.svg"
   overlay_filter: 0.4
-  caption: "Java 25 LTS: Language, Runtime, and Tooling Updates"
+  caption: 'Java 25 LTS: Language, Runtime, and Tooling Updates'
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-25-new-features-with-examples/"
 ---
-
-# Introduction
-
 Java 25 is an LTS release (GA on September 16, 2025).
 This article covers all JDK 25 release JEPs with practical examples.
 

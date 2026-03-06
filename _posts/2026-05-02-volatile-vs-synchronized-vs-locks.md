@@ -4,23 +4,25 @@ categories:
 - Java
 - Backend
 date: 2026-05-02
-seo_title: "volatile vs synchronized vs Locks in Java"
-seo_description: "Choose the right synchronization primitive in Java based on correctness and contention patterns."
-tags: [java, concurrency, volatile, synchronized, locks]
-canonical_url: "https://sandeepbhardwaj.github.io/java/volatile-vs-synchronized-vs-locks/"
-title: "volatile vs synchronized vs Locks in Java — Practical Guide"
+seo_title: volatile vs synchronized vs Locks in Java
+seo_description: Choose the right synchronization primitive in Java based on correctness
+  and contention patterns.
+tags:
+- java
+- concurrency
+- volatile
+- synchronized
+- locks
+title: volatile vs synchronized vs Locks in Java — Practical Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Choosing the Right Synchronization Primitive"
+  caption: Choosing the Right Synchronization Primitive
 ---
-
-# volatile vs synchronized vs Locks in Java — Practical Guide
-
 Choosing the wrong synchronization primitive creates either hidden race bugs or unnecessary latency.
 This guide gives a decision framework you can apply quickly in production code.
 

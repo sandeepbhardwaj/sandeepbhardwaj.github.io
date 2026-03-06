@@ -3,9 +3,8 @@ author_profile: true
 categories:
 - Java
 date: 2026-02-28
-seo_description: Learn Java 8 default methods with practical interface
-  patterns, API evolution strategies, conflict resolution rules, and
-  backend design examples.
+seo_description: Learn Java 8 default methods with practical interface patterns, API
+  evolution strategies, conflict resolution rules, and backend design examples.
 seo_title: Java 8 Default Methods Explained for Backend Engineers
 tags:
 - java
@@ -19,15 +18,11 @@ toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-default-methods-banner.svg
+  overlay_image: "/assets/images/java-default-methods-banner.svg"
   overlay_filter: 0.2
-  caption: "Modern Backend Development with Java 8"
+  caption: Modern Backend Development with Java 8
   show_overlay_excerpt: false
 ---
-
-
-# Default Methods in Java 8 -- A Deep Dive for Backend Engineers
-
 ## Introduction
 
 Before Java 8, interfaces in Java were strictly abstract. They could

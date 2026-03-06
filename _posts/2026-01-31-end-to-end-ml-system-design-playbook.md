@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-31
-seo_title: "End-to-End ML System Design Playbook"
-seo_description: "A complete practical playbook for designing, deploying, and operating production machine learning systems end to end."
-tags: [ai, ml, system-design, mlops, production-ml]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/end-to-end-ml-system-design-playbook/"
-title: "End-to-End ML System Design Playbook"
+seo_title: End-to-End ML System Design Playbook
+seo_description: A complete practical playbook for designing, deploying, and operating
+  production machine learning systems end to end.
+tags:
+- ai
+- ml
+- system-design
+- mlops
+- production-ml
+title: End-to-End ML System Design Playbook
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "From Problem Framing to Continuous Improvement"
+  caption: From Problem Framing to Continuous Improvement
 ---
-
-# End-to-End ML System Design Playbook
-
 This final article combines the January series into one practical blueprint.
 Production ML success requires coordinated decisions across data, modeling, deployment, and operations.
 

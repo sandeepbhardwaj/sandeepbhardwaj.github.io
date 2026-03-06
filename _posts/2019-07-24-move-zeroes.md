@@ -24,9 +24,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Move Zeroes in Java (Stable In-Place)
-
 This guide explains the intuition, optimized approach, and Java implementation for move zeroes in java (stable in-place), with practical tips for interviews and production coding standards.
 
 ## Problem

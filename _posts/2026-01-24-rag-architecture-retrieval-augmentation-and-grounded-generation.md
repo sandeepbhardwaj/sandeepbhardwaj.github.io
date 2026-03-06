@@ -4,23 +4,26 @@ categories:
 - AI
 - ML
 date: 2026-01-24
-seo_title: "RAG Architecture: Retrieval-Augmented Generation"
-seo_description: "A practical deep dive into RAG system design, indexing, retrieval quality, grounding, and production evaluation."
-tags: [ai, ml, rag, llm, retrieval, search]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/rag-architecture-retrieval-augmentation-and-grounded-generation/"
-title: "RAG Architecture: Retrieval-Augmented Generation"
+seo_title: 'RAG Architecture: Retrieval-Augmented Generation'
+seo_description: A practical deep dive into RAG system design, indexing, retrieval
+  quality, grounding, and production evaluation.
+tags:
+- ai
+- ml
+- rag
+- llm
+- retrieval
+- search
+title: 'RAG Architecture: Retrieval-Augmented Generation'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Better Retrieval, Better Answers"
+  caption: Better Retrieval, Better Answers
 ---
-
-# RAG Architecture: Retrieval-Augmented Generation
-
 RAG is one of the most practical ways to make LLM answers more factual, auditable, and domain-aware.
 Instead of relying only on model memory, RAG injects retrieved evidence at inference time.
 

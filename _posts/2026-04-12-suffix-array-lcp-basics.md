@@ -4,23 +4,25 @@ categories:
 - DSA
 - Java
 date: 2026-04-12
-seo_title: "Suffix Array and LCP Basics in Java – Complete Guide"
-seo_description: "Understand suffix array and LCP basics in Java for substring ranking and repetition analysis."
-tags: [dsa, java, suffix-array, lcp, strings]
-canonical_url: "https://sandeepbhardwaj.github.io/dsa/java/suffix-array-lcp-basics/"
-title: "Suffix Array and LCP Basics in Java — A Detailed Guide"
+seo_title: Suffix Array and LCP Basics in Java – Complete Guide
+seo_description: Understand suffix array and LCP basics in Java for substring ranking
+  and repetition analysis.
+tags:
+- dsa
+- java
+- suffix-array
+- lcp
+- strings
+title: Suffix Array and LCP Basics in Java — A Detailed Guide
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/suffix-array-lcp-basics-banner.svg
+  overlay_image: "/assets/images/suffix-array-lcp-basics-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Suffix Ordering and Prefix Overlap"
+  caption: Suffix Ordering and Prefix Overlap
 ---
-
-# Suffix Array and LCP Basics in Java — A Detailed Guide
-
 This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
 ---

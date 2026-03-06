@@ -22,9 +22,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Detect a Loop in Linked List (Floyd Cycle Detection)
-
 This guide explains the intuition, optimized approach, and Java implementation for detect a loop in linked list (floyd cycle detection), with practical tips for interviews and production coding standards.
 
 ## Problem

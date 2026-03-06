@@ -1,21 +1,25 @@
 ---
-title: "Functional Interfaces in Java 8 — Advanced Backend Patterns"
+title: Functional Interfaces in Java 8 — Advanced Backend Patterns
 date: 2026-03-04
-categories: [Java]
-tags: [java, java8, functional-interfaces, backend, api-design, architecture]
+categories:
+- Java
+tags:
+- java
+- java8
+- functional-interfaces
+- backend
+- api-design
+- architecture
 author_profile: true
 toc: true
-seo_title: "Functional Interfaces in Java 8 — Advanced Backend Patterns"
-seo_description: "Advanced backend patterns with Java 8 functional interfaces: composition, reusable policies, and clean architecture use cases."
+seo_title: Functional Interfaces in Java 8 — Advanced Backend Patterns
+seo_description: 'Advanced backend patterns with Java 8 functional interfaces: composition,
+  reusable policies, and clean architecture use cases.'
 header:
-  overlay_image: /assets/images/java-8-functional-interfaces-advanced-banner.svg
+  overlay_image: "/assets/images/java-8-functional-interfaces-advanced-banner.svg"
   overlay_filter: 0.4
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-functional-interfaces-advanced/"
 ---
-
-# Introduction
-
 Functional interfaces are not just lambda targets.
 In backend systems they help build reusable policies for validation, mapping, retries, and cross-cutting orchestration.
 

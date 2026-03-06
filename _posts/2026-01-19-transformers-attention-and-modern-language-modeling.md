@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-19
-seo_title: "Transformers, Attention, and Modern Language Modeling"
-seo_description: "A practical explanation of transformers, self-attention, training dynamics, and deployment trade-offs for modern NLP systems."
-tags: [ai, ml, transformers, attention, nlp]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/transformers-attention-and-modern-language-modeling/"
-title: "Transformers, Attention, and Modern Language Modeling"
+seo_title: Transformers, Attention, and Modern Language Modeling
+seo_description: A practical explanation of transformers, self-attention, training
+  dynamics, and deployment trade-offs for modern NLP systems.
+tags:
+- ai
+- ml
+- transformers
+- attention
+- nlp
+title: Transformers, Attention, and Modern Language Modeling
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Attention Changed NLP Architecture"
+  caption: Attention Changed NLP Architecture
 ---
-
-# Transformers, Attention, and Modern Language Modeling
-
 Transformers are the architecture behind modern LLMs, code models, rerankers, and many multimodal systems.
 They replaced recurrent-heavy NLP because they model context more directly and scale better with compute.
 

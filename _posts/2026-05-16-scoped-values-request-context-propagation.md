@@ -4,23 +4,24 @@ categories:
 - Java
 - Backend
 date: 2026-05-16
-seo_title: "Scoped Values Request Context Propagation Guide"
-seo_description: "Propagate immutable request context safely across concurrent Java execution paths."
-tags: [java, scoped-values, concurrency, backend]
-canonical_url: "https://sandeepbhardwaj.github.io/java/scoped-values-request-context-propagation/"
-title: "Scoped Values for Request Context Propagation in Java"
+seo_title: Scoped Values Request Context Propagation Guide
+seo_description: Propagate immutable request context safely across concurrent Java
+  execution paths.
+tags:
+- java
+- scoped-values
+- concurrency
+- backend
+title: Scoped Values for Request Context Propagation in Java
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/java-advanced-generic-banner.svg
+  overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Immutable Context Propagation Without ThreadLocal Drift"
+  caption: Immutable Context Propagation Without ThreadLocal Drift
 ---
-
-# Scoped Values for Request Context Propagation in Java
-
 Scoped values provide immutable, lexically scoped context propagation.
 They are a safer replacement for many `ThreadLocal` use cases in concurrent Java services.
 

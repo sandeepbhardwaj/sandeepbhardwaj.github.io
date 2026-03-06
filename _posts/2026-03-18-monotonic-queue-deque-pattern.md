@@ -5,27 +5,24 @@ categories:
 - Java
 date: 2026-03-18
 seo_title: Monotonic Queue (Deque) Pattern in Java – Complete Guide
-seo_description: Learn monotonic deque pattern in Java for sliding window extrema and constrained DP optimizations.
+seo_description: Learn monotonic deque pattern in Java for sliding window extrema
+  and constrained DP optimizations.
 tags:
 - dsa
 - java
 - monotonic-queue
 - deque
 - sliding-window
-canonical_url: https://sandeepbhardwaj.github.io/dsa/java/monotonic-queue-deque-pattern/
 title: Monotonic Queue (Deque) Pattern in Java — A Detailed Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
 header:
-  overlay_image: /assets/images/monotonic-queue-banner.svg
+  overlay_image: "/assets/images/monotonic-queue-banner.svg"
   overlay_filter: 0.35
-  caption: "Window Extremes in Amortized O(1)"
+  caption: Window Extremes in Amortized O(1)
   show_overlay_excerpt: false
 ---
-
-# Monotonic Queue (Deque) Pattern in Java — A Detailed Guide
-
 Monotonic deque extends monotonic-stack thinking to moving windows.
 It gives fast max/min queries while the window slides.
 

@@ -1,21 +1,25 @@
 ---
-title: "CompletableFuture — Error Handling & Thread Pool Architecture"
+title: CompletableFuture — Error Handling & Thread Pool Architecture
 date: 2026-03-06
-categories: [Java]
-tags: [java, java8, completablefuture, backend, error-handling, thread-pool]
+categories:
+- Java
+tags:
+- java
+- java8
+- completablefuture
+- backend
+- error-handling
+- thread-pool
 author_profile: true
 toc: true
-seo_title: "CompletableFuture — Error Handling & Thread Pool Architecture"
-seo_description: "Production-ready CompletableFuture patterns for exception handling, fallbacks, timeout control, and thread pool architecture."
+seo_title: CompletableFuture — Error Handling & Thread Pool Architecture
+seo_description: Production-ready CompletableFuture patterns for exception handling,
+  fallbacks, timeout control, and thread pool architecture.
 header:
-  overlay_image: /assets/images/java-8-completablefuture-error-handling-banner.svg
+  overlay_image: "/assets/images/java-8-completablefuture-error-handling-banner.svg"
   overlay_filter: 0.4
   show_overlay_excerpt: false
-canonical_url: "https://sandeepbhardwaj.github.io/java/java-8-completablefuture-error-handling/"
 ---
-
-# Introduction
-
 Async code without clear failure policy becomes fragile quickly.
 This post focuses on robust `CompletableFuture` error handling and thread-pool design for production systems.
 

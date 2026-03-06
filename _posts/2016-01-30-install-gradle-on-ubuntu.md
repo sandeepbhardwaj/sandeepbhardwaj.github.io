@@ -20,9 +20,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Install Gradle on Ubuntu
-
 This guide provides a clean, repeatable setup flow, verification steps, and common pitfalls to avoid in real environments.
 
 ## 1. Download and Extract

@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-10
-seo_title: "Random Forest: Practical Guide for Robust Tabular ML"
-seo_description: "Learn how random forest reduces variance, handles nonlinearity, and delivers robust performance on real-world tabular data."
-tags: [ai, ml, random-forest, ensemble-learning, tabular]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/random-forest-practical-guide/"
-title: "Random Forest: Practical Guide"
+seo_title: 'Random Forest: Practical Guide for Robust Tabular ML'
+seo_description: Learn how random forest reduces variance, handles nonlinearity, and
+  delivers robust performance on real-world tabular data.
+tags:
+- ai
+- ml
+- random-forest
+- ensemble-learning
+- tabular
+title: 'Random Forest: Practical Guide'
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Bagging for Stability and Strong Baselines"
+  caption: Bagging for Stability and Strong Baselines
 ---
-
-# Random Forest: Practical Guide
-
 Random forest is often the fastest way to get a strong tabular baseline.
 It reduces variance of decision trees through bagging and feature randomness.
 

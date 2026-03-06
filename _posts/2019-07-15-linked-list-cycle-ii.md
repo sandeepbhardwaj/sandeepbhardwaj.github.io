@@ -24,9 +24,6 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-
-# Linked List Cycle II in Java (Find Cycle Start)
-
 This guide explains the intuition, optimized approach, and Java implementation for linked list cycle ii in java (find cycle start), with practical tips for interviews and production coding standards.
 
 ## Problem

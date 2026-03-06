@@ -4,23 +4,25 @@ categories:
 - AI
 - ML
 date: 2026-01-15
-seo_title: "Anomaly Detection for Fraud and Operations"
-seo_description: "A practical guide to anomaly detection methods, thresholding, alert quality, and deployment for fraud and ops use cases."
-tags: [ai, ml, anomaly-detection, fraud, operations]
-canonical_url: "https://sandeepbhardwaj.github.io/ai/ml/anomaly-detection-for-fraud-and-operations/"
-title: "Anomaly Detection for Fraud and Operations"
+seo_title: Anomaly Detection for Fraud and Operations
+seo_description: A practical guide to anomaly detection methods, thresholding, alert
+  quality, and deployment for fraud and ops use cases.
+tags:
+- ai
+- ml
+- anomaly-detection
+- fraud
+- operations
+title: Anomaly Detection for Fraud and Operations
 toc: true
 toc_icon: cog
-toc_label: "In This Article"
+toc_label: In This Article
 header:
-  overlay_image: /assets/images/ai-ml-series-banner.svg
+  overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
-  caption: "Detect Rare Events Without Drowning in Alerts"
+  caption: Detect Rare Events Without Drowning in Alerts
 ---
-
-# Anomaly Detection for Fraud and Operations
-
 Anomaly detection is used when rare harmful events matter more than average behavior.
 Examples include payment fraud, infrastructure incidents, insider abuse, and sensor failures.
 

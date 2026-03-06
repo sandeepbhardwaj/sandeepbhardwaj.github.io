@@ -19,9 +19,6 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-
-# Enum in Java
-
 Enums model a fixed set of constants with type safety and encapsulated behavior.
 
 ## Real-World Use Cases
