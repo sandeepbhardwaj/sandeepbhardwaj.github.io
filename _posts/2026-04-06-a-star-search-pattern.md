@@ -54,7 +54,7 @@ int aStar(int[][] grid, int sr, int sc, int tr, int tc) {
     PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
     pq.offer(new int[]{h(sr, sc, tr, tc), 0, sr, sc}); // f, g, r, c
 
-    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+    int[][] dirs = { {1,0}, {-1,0}, {0,1}, {0,-1} };
 
     while (!pq.isEmpty()) {
         int[] cur = pq.poll();
