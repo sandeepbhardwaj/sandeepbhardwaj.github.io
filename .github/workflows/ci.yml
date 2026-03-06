@@ -24,3 +24,50 @@ jobs:
         env:
           JEKYLL_ENV: production
         run: bundle exec jekyll build --strict_front_matter
+
+      - name: Validate sitemap.xml
+        run: |
+          if [ ! -f _site/sitemap.xml ]; then
+            echo "::error::_site/sitemap.xml not found"
+            exit 1
+          fi
+
+          ruby -e '
+          require "rexml/document"
+
+          path = "_site/sitemap.xml"
+          xml = File.read(path)
+          begin
+            doc = REXML::Document.new(xml)
+          rescue REXML::ParseException => e
+            abort("sitemap.xml is not valid XML: #{e.message}")
+          end
+
+          urls = doc.elements.to_a("urlset/url/loc").map { |el| el.text.to_s.strip }
+          if urls.empty?
+            abort("sitemap.xml has no URLs")
+          end
+
+          invalid = urls.select { |u| !(u.start_with?("https://sandeepbhardwaj.github.io/")) }
+          if invalid.any?
+            puts "Invalid sitemap URLs (first 5):"
+            invalid.first(5).each { |u| puts "  #{u}" }
+            abort("sitemap.xml contains non-production URLs")
+          end
+
+          bad_http = urls.select { |u| u.start_with?("http://") }
+          if bad_http.any?
+            puts "Non-HTTPS sitemap URLs (first 5):"
+            bad_http.first(5).each { |u| puts "  #{u}" }
+            abort("sitemap.xml contains non-HTTPS URLs")
+          end
+
+          local = urls.select { |u| u.include?("localhost") }
+          if local.any?
+            puts "localhost URLs found (first 5):"
+            local.first(5).each { |u| puts "  #{u}" }
+            abort("sitemap.xml contains localhost URLs")
+          end
+
+          puts "sitemap.xml validation passed (#{urls.size} URLs)"
+          '
