@@ -13,6 +13,7 @@ group :jekyll_plugins do
   gem "jekyll-sitemap"
   gem "jekyll-feed"
   gem "jekyll-seo-tag"
+  gem "jekyll-last-modified-at"
 end
 
 # Ruby 4.x compatibility for libraries used by Jekyll/theme stack.
