@@ -1,11 +1,11 @@
-{% assign newsletter = site.newsletter %}
-{% assign buttondown_username = newsletter.buttondown_username | default: "" | strip %}
-{% if newsletter.enabled and buttondown_username != "" %}
+{% assign followit = site.followit %}
+{% assign followit_url = followit.url | default: "" | strip %}
+{% if followit.enabled and followit_url != "" %}
   <div class="page__footer-follow">
     <ul class="social-icons">
       <li>
-        <a href="https://buttondown.com/{{ buttondown_username }}" rel="nofollow noopener noreferrer">
-          <i class="fas fa-fw fa-envelope" aria-hidden="true"></i> {{ newsletter.footer_label | default: "Subscribe via email" }}
+        <a href="{{ followit_url }}" rel="nofollow noopener noreferrer">
+          <i class="fas fa-fw fa-envelope" aria-hidden="true"></i> {{ followit.footer_label | default: "Subscribe via email" }}
         </a>
       </li>
     </ul>

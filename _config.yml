@@ -54,10 +54,9 @@ footer:
       icon: "fas fa-fw fa-cookie-bite"
       url: "/cookie-policy/"
 
-newsletter:
+followit:
   enabled: true
-  rss_url: "/feed.xml"
-  buttondown_username: "sandeepbhardwaj"
+  url: "https://follow.it/code-to-architecture?leanpub"
   footer_label: "Subscribe via email"
 
 plugins:

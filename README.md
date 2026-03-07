@@ -12,7 +12,7 @@ Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` them
 - ⚙️ Static blog powered by Jekyll and Minimal Mistakes
 - 🚀 Deployed to GitHub Pages through GitHub Actions
 - 📡 Publishes an RSS feed at `https://sandeepbhardwaj.github.io/feed.xml`
-- ✉️ Includes a footer subscribe link for Buttondown
+- ✉️ Includes a footer subscribe link for `follow.it`
 
 ## Tech Stack
 
@@ -115,10 +115,10 @@ Notable settings:
 - 📈 `analytics.google.tracking_id`: GA4 tracking ID
 - 👤 `author`: author profile and social links
 - 🔗 `footer.links`: footer navigation links
-- ✉️ `newsletter.buttondown_username`: Buttondown username for the footer subscribe link
-- 🏷️ `newsletter.footer_label`: footer label text for the subscribe link
+- ✉️ `followit.url`: `follow.it` subscription URL used in the footer
+- 🏷️ `followit.footer_label`: footer label text for the subscribe link
 
-## Buttondown
+## Email Subscriptions
 
 📡 The site exposes an RSS feed at:
 
@@ -126,13 +126,7 @@ Notable settings:
 https://sandeepbhardwaj.github.io/feed.xml
 ```
 
-To enable email subscriptions:
-
-1. Set `newsletter.buttondown_username` in `_config.yml`.
-2. Optionally update `newsletter.footer_label`.
-3. In Buttondown, import or connect the site RSS feed so new posts are emailed automatically.
-
-The footer subscribe link is rendered from [`_includes/footer/custom.html`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_includes/footer/custom.html).
+The footer subscribe link is rendered from [`_includes/footer/custom.html`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_includes/footer/custom.html) and configured in [`_config.yml`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_config.yml).
 
 ## Troubleshooting
 
