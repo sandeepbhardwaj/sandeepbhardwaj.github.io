@@ -22,19 +22,45 @@ header:
   caption: Java Design Patterns Series
   show_overlay_excerpt: false
 ---
-Proxy controls access to another object.
-That access control might mean security checks, caching, lazy initialization, rate limiting, or remote communication.
+Teams often discover Proxy accidentally.
+They add authorization, then caching, then maybe rate limiting, and suddenly one object is standing between callers and the real service.
 
 ---
 
-## Example Problem
+## What Actually Hurts
 
-Generating a report is expensive.
-Only admin users may access it, and repeated requests for the same report should be cached.
+Suppose a reporting service is expensive to call.
+Only admins may access it, and repeated requests for the same report should not regenerate the payload every time.
+
+The naive implementation usually mixes those concerns directly into the service:
+
+- security checks
+- cache lookup logic
+- expensive report generation
+
+That works for a while, but the service stops being about reports.
+It becomes a policy bucket.
 
 ---
 
-## UML
+## Why Proxy Is The Right Shape
+
+This is not just “extra behavior around a method.”
+
+The core design problem is controlled access to a real object:
+
+- some callers should be rejected
+- some requests should be served from cache
+- the expensive implementation should stay unaware of those control policies
+
+That is Proxy territory.
+
+If you push this into helper methods, the caller starts coordinating policy manually.
+If you treat it like a Decorator, you risk framing the problem as feature composition when it is really gatekeeping and shielding.
+
+---
+
+## Structure
 
 ```mermaid
 classDiagram
@@ -51,7 +77,7 @@ classDiagram
 
 ---
 
-## Implementation Walkthrough
+## A Minimal Implementation
 
 ```java
 import java.util.HashMap;
@@ -93,36 +119,68 @@ ReportService reportService = new SecuredCachedReportProxy(new RealReportService
 String report = reportService.getReport("sales-monthly", new UserContext("sandeep", true));
 ```
 
-The proxy performs two distinct control tasks before the expensive service does any work:
+The important part is not the syntax.
+It is the boundary:
 
-1. it rejects unauthorized callers
-2. it avoids repeated work through caching
+1. the caller still depends on `ReportService`
+2. the real service still focuses on generating reports
+3. the proxy owns access policy and cache reuse
 
-That is why Proxy fits better than a plain helper method here. The caller still sees the same `ReportService` contract, but access to the real object is now governed by policy.
+That separation is what keeps the design clean when the control logic grows.
 
 ---
 
-## Why Proxy Fits Better Than Decorator Here
+## Where Teams Usually Get This Wrong
 
-Decorator and Proxy look structurally similar.
-The difference is intent.
+The common mistake is letting the proxy become an unstructured grab bag.
 
-- Decorator adds behavior as part of business composition
-- Proxy controls access to the real object
+For example:
 
-This example is fundamentally about gatekeeping access and shielding an expensive service.
+- authorization logic starts depending on cache contents
+- cache keys start depending on caller identity in inconsistent ways
+- retries, rate limiting, and audit logging get piled in without a clear order
 
-As the policy grows, the proxy can evolve to support TTL, tenant-aware cache keys, or remote call protection without changing client code.
+At that point the proxy still compiles, but it stops being predictable.
+
+A proxy should answer one design question clearly:
+
+> What is allowed to reach the real object, and under what conditions can that work be avoided?
+
+If the answer becomes muddy, the abstraction is degrading.
+
+---
+
+## Proxy vs Decorator In Practice
+
+They can look identical in class diagrams.
+They are not identical in intent.
+
+- Decorator is usually about composing business or cross-cutting behavior
+- Proxy is about governing access to the underlying object
+
+In this example, the main value is not “adding features.”
+The value is deciding whether the real service should be touched at all.
+
+That is why Proxy is the better name and the better mental model here.
 
 ---
 
 ## Production Notes
 
-Real proxies often add:
+A production proxy often grows into things like:
 
 - TTL-based caches
-- permission scopes
+- tenant-aware cache keys
+- permission scopes or scoped roles
 - remote client retries
-- circuit breaking
+- circuit breakers
+- audit logging
 
-At that point the proxy becomes operationally important, so its behavior must be documented and tested.
+My rule here is simple:
+
+- keep the real service business-focused
+- keep the proxy policy-focused
+- test cache behavior and authorization paths independently
+
+If your proxy changes latency, security posture, or failure behavior, it is no longer a minor wrapper.
+It is part of the system contract and should be treated that way.

@@ -22,25 +22,51 @@ header:
   caption: Java Design Patterns Series
   show_overlay_excerpt: false
 ---
-Decorator is ideal when behavior should be layered dynamically without creating an inheritance tree for every combination.
-In backend systems, this often appears in pricing, validation, caching, authorization, and logging.
+Decorator becomes useful when the base behavior is stable, but the way you wrap it keeps changing.
+That usually happens in systems where pricing, logging, validation, or policy layers need to stack without creating a new class for every combination.
 
 ---
 
-## Example Problem
+## Where The Pain Starts
 
-We start with base price calculation.
-Then we want optional layers:
+Imagine pricing logic that begins simply and then attracts extra responsibilities:
 
 - coupon discount
 - tax
 - metrics logging
 
-These combinations should be composable.
+At first, people often just add more conditionals into one calculator.
+Then the order starts to matter.
+Then observability shows up.
+Then someone wants one flow with coupon plus tax, another with tax only, and another with metrics around everything.
+
+That is where a plain inheritance hierarchy starts getting silly.
 
 ---
 
-## UML
+## Why Decorator Fits This Better Than Subclasses
+
+The real problem is not “how do I add code around a method.”
+It is “how do I keep optional behavior composable without turning the model into a subclass matrix.”
+
+Without Decorator, you quickly drift toward names like:
+
+- `DiscountedPriceCalculator`
+- `DiscountedTaxedPriceCalculator`
+- `DiscountedTaxedMetricsPriceCalculator`
+
+That is not domain modeling.
+That is class explosion.
+
+Decorator gives you a better shape:
+
+- one stable contract
+- one core implementation
+- optional wrappers with explicit ordering
+
+---
+
+## Structure
 
 ```mermaid
 classDiagram
@@ -62,7 +88,7 @@ classDiagram
 
 ---
 
-## Implementation Walkthrough
+## A Minimal Implementation
 
 ```java
 public interface PriceCalculator {
@@ -134,27 +160,34 @@ PriceCalculator calculator = new MetricsDecorator(
 );
 ```
 
-This composition is not arbitrary.
-The ordering expresses business meaning. A coupon applied before tax can yield a different monetary result than a coupon applied after tax, so the assembly code is part of the business design, not just a technical wrapper stack.
+The important thing here is not that decorators can stack.
+Everyone already knows that part.
+
+The important thing is that ordering carries business meaning.
+A coupon applied before tax can produce a different outcome than a coupon applied after tax.
+So the assembly code is not just plumbing.
+It is part of the pricing policy.
 
 ---
 
-## Why Not Inheritance
+## What Makes Decorator Dangerous
 
-Without Decorator, you quickly create classes such as:
+Decorator looks elegant in diagrams and messy in production if you overuse it.
 
-- `DiscountedPriceCalculator`
-- `DiscountedTaxedPriceCalculator`
-- `DiscountedTaxedMetricsPriceCalculator`
+Typical failure modes:
 
-That scales badly.
-Decorator avoids combinatorial class explosion by composing behavior.
+- the wrapping order is implicit and nobody knows which layer runs first
+- too many small decorators make debugging painful
+- domain behavior and technical behavior get mixed without boundaries
 
-That is the main reason to prefer it over inheritance here. You are composing orthogonal concerns instead of minting a new subclass for every combination of discount, tax, and instrumentation behavior.
+My bias is to use Decorator when the layers are genuinely orthogonal and when order can be made explicit in one place.
+If both of those are not true, simpler composition is usually better.
 
 ---
 
-## Practical Warning
+## When I Would Still Choose Something Else
 
-Too many decorators can hide control flow.
-If debugging the stack becomes difficult, create a higher-level composition factory so behavior assembly stays readable.
+If the behavior is fixed and not optional, a regular service class is usually enough.
+If the object graph is getting hard to read, a composition factory or policy object is often a better boundary than ten decorators chained together.
+
+Decorator is strongest when variability is real, the contract is stable, and the layering itself expresses useful intent.
