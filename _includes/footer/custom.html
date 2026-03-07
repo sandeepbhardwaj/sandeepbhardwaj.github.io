@@ -1,0 +1,13 @@
+{% assign newsletter = site.newsletter %}
+{% assign buttondown_username = newsletter.buttondown_username | default: "" | strip %}
+{% if newsletter.enabled and buttondown_username != "" %}
+  <div class="page__footer-follow">
+    <ul class="social-icons">
+      <li>
+        <a href="https://buttondown.com/{{ buttondown_username }}" rel="nofollow noopener noreferrer">
+          <i class="fas fa-fw fa-envelope" aria-hidden="true"></i> {{ newsletter.footer_label | default: "Subscribe via email" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+{% endif %}

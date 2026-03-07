@@ -54,6 +54,12 @@ footer:
       icon: "fas fa-fw fa-cookie-bite"
       url: "/cookie-policy/"
 
+newsletter:
+  enabled: true
+  rss_url: "/feed.xml"
+  buttondown_username: "sandeepbhardwaj"
+  footer_label: "Subscribe via email"
+
 plugins:
   - jekyll-paginate
   - jekyll-sitemap

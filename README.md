@@ -1,24 +1,36 @@
-# Sandeep Bhardwaj Blog
+# Code to Architecture
+
+[![CI](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/ci.yml)
+[![Deploy Jekyll site to Pages](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/deploy-pages.yml)
 
 Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` theme.
 
-## Stack
+🌐 Live site: `https://sandeepbhardwaj.github.io`
 
-- Jekyll `4.4.1`
-- Theme: `minimal-mistakes-jekyll` `4.27.3`
-- Ruby version pinned in `.ruby-version` (`4.0.1`)
-- GitHub Pages deployment via GitHub Actions
+## Overview
 
-## Run Locally
+- ⚙️ Static blog powered by Jekyll and Minimal Mistakes
+- 🚀 Deployed to GitHub Pages through GitHub Actions
+- 📡 Publishes an RSS feed at `https://sandeepbhardwaj.github.io/feed.xml`
+- ✉️ Includes a footer subscribe link for Buttondown
 
-1. Install Ruby using the version in `.ruby-version`.
+## Tech Stack
+
+- 💎 Ruby `4.0.1`
+- 🧱 Jekyll `4.4.1`
+- 🎨 `minimal-mistakes-jekyll` `4.27.3`
+- 🔄 GitHub Actions for CI and deployment
+
+## Local Development
+
+1. Install Ruby `4.0.1`.
 2. Install dependencies:
 
 ```bash
 bundle install
 ```
 
-3. Start the site:
+3. Start the site locally:
 
 ```bash
 bundle exec jekyll serve
@@ -26,64 +38,110 @@ bundle exec jekyll serve
 
 4. Open `http://127.0.0.1:4000`.
 
-## Common Commands
+## Useful Commands
 
-Build static site:
+🛠️ Run a production-style build:
 
 ```bash
 bundle exec jekyll build
 ```
 
-Build with strict front matter checks:
+🔍 Run the stricter CI-style build:
 
 ```bash
 bundle exec jekyll build --strict_front_matter
 ```
 
-## Write a New Post
+## Content Workflow
 
-1. Create a file in `_posts/` named:
-   `YYYY-MM-DD-your-title.md`
-2. Add front matter with at least:
-   `title`, `date`, `categories`, `tags`, `excerpt`
-3. Add a cover image in `assets/images/` if needed and reference it in front matter.
+📝 Create a new post in `_posts/` using:
+
+```text
+YYYY-MM-DD-your-title.md
+```
+
+Recommended front matter fields:
+
+- `title`
+- `date`
+- `categories`
+- `tags`
+- `excerpt`
+
+Add related cover/banner assets under `assets/images/` when needed.
 
 ## Project Structure
 
 ```text
 .
-├── _config.yml                  # Site configuration
-├── _posts/                      # Blog posts
-├── _pages/                      # Static pages (about, tags, categories, contact)
-├── _data/navigation.yml         # Header navigation links
-├── _includes/head/custom.html   # Custom head tags/snippets
+├── _config.yml
+├── _data/navigation.yml
+├── _includes/footer/custom.html
+├── _includes/head/custom.html
+├── _pages/
+├── _posts/
+├── _sass/custom/
 ├── assets/
-│   ├── css/                     # Custom styles
-│   ├── images/                  # Images and banners
-│   └── js/theme-toggle.js       # Light/dark theme toggle logic
-├── .github/workflows/ci.yml     # PR/main build checks
-└── .github/workflows/deploy-pages.yml # GitHub Pages deploy pipeline
+│   ├── css/
+│   ├── images/
+│   └── js/
+└── .github/workflows/
+    ├── ci.yml
+    └── deploy-pages.yml
 ```
 
-## Deployment
+## CI/CD
 
-- `CI` workflow runs on pull requests and on pushes to `main`.
-- On successful CI for `main`, `Deploy Jekyll site to Pages` builds and deploys `_site` to GitHub Pages.
-- Live URL: `https://sandeepbhardwaj.github.io`
+`CI` runs on every pull request and on pushes to `main`. It:
 
-## Configuration Notes
+- ✅ installs Ruby dependencies
+- ✅ builds the site with `bundle exec jekyll build --strict_front_matter`
+- ✅ validates that `_site/sitemap.xml` exists and only contains production HTTPS URLs
 
-- Update GA4 ID in `_config.yml` under:
-  `analytics.google.tracking_id`
-- Update author/contact links in `_config.yml`.
-- `README.md` is excluded from Jekyll build output.
+`Deploy Jekyll site to Pages` runs when:
+
+- `CI` succeeds on `main`
+- triggered manually with `workflow_dispatch`
+- triggered by the scheduled nightly run
+
+The deploy workflow builds the site and publishes `_site` to GitHub Pages.
+
+## Configuration
+
+Core site settings live in [`_config.yml`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_config.yml).
+
+Notable settings:
+
+- 📈 `analytics.google.tracking_id`: GA4 tracking ID
+- 👤 `author`: author profile and social links
+- 🔗 `footer.links`: footer navigation links
+- ✉️ `newsletter.buttondown_username`: Buttondown username for the footer subscribe link
+- 🏷️ `newsletter.footer_label`: footer label text for the subscribe link
+
+## Buttondown
+
+📡 The site exposes an RSS feed at:
+
+```text
+https://sandeepbhardwaj.github.io/feed.xml
+```
+
+To enable email subscriptions:
+
+1. Set `newsletter.buttondown_username` in `_config.yml`.
+2. Optionally update `newsletter.footer_label`.
+3. In Buttondown, import or connect the site RSS feed so new posts are emailed automatically.
+
+The footer subscribe link is rendered from [`_includes/footer/custom.html`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_includes/footer/custom.html).
 
 ## Troubleshooting
 
-If gems become inconsistent:
+🧰 If the local environment gets out of sync:
 
 ```bash
 rm -rf .bundle vendor Gemfile.lock
 bundle install
 bundle exec jekyll serve --trace
 ```
+
+`README.md` is excluded from the generated site output.
