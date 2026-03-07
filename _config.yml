@@ -60,6 +60,7 @@ followit:
   footer_label: "Subscribe via email"
 
 plugins:
+  - jekyll-archives
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-feed
@@ -108,12 +109,20 @@ defaults:
       author_profile: false
 
 category_archive:
-  type: liquid
+  type: jekyll-archives
   path: /categories/
 
 tag_archive:
   type: liquid
   path: /tags/
+
+jekyll-archives:
+  enabled:
+    - categories
+  layouts:
+    category: archive-taxonomy
+  permalinks:
+    category: /categories/:name/
 
 social:
   type: Person
