@@ -22,12 +22,12 @@ header:
   caption: Java Design Patterns Series
   show_overlay_excerpt: false
 ---
-Facade provides a simpler interface over a subsystem that is noisy, fragmented, or too detailed for most callers.
-That makes it a natural fit for application services and orchestration boundaries.
+Facade is useful when the caller should think in terms of one business action, but the system underneath still needs several subsystem calls to make that happen.
+That is why it shows up so often in application services and orchestration layers.
 
 ---
 
-## Example Problem
+## What Becomes Messy Without It
 
 Checkout requires multiple subsystems:
 
@@ -40,7 +40,26 @@ Most callers should not coordinate these pieces manually.
 
 ---
 
-## UML
+## Why This Should Not Leak To Callers
+
+If every caller has to remember the checkout sequence, you get duplication immediately:
+
+- reserve inventory
+- authorize payment
+- create shipment
+- generate invoice
+
+Worse, you get inconsistent failure handling.
+One caller retries payment.
+Another forgets to create the invoice.
+A third logs only half the workflow.
+
+That is the real value of Facade.
+It turns a multi-step subsystem interaction into one application-level boundary.
+
+---
+
+## Structure
 
 ```mermaid
 sequenceDiagram
@@ -60,7 +79,7 @@ sequenceDiagram
 
 ---
 
-## Implementation Walkthrough
+## A Minimal Implementation
 
 ```java
 public final class CheckoutFacade {
@@ -95,28 +114,43 @@ Usage stays simple:
 CheckoutResult result = checkoutFacade.checkout(command);
 ```
 
-The facade is useful because the client now interacts with checkout as one application-level action instead of four subsystem calls.
-That reduces duplication in callers and gives you one place to define sequencing, failure semantics, and request-level observability.
+The important shift is this:
+
+- clients talk in terms of `checkout`
+- the facade owns sequencing
+- subsystem coordination is no longer copied around the codebase
+
+That gives you one place to express failure semantics, observability, and orchestration policy.
 
 ---
 
-## Why Facade Helps
+## Where Facade Earns Its Keep
 
-It reduces coupling at the caller side.
-Clients interact with one high-level use case instead of four lower-level services.
-
-It also creates a natural place for:
+In real systems, this is the natural place for:
 
 - orchestration rules
 - transaction boundaries
 - compensating actions
 - request-level logging
 
-In real systems, this is also the right layer to make compensation rules explicit. If payment succeeds but shipment creation fails, the facade is the natural place to define whether the system should roll back, retry, or mark the workflow for asynchronous recovery.
+It is also where compensation policy becomes explicit.
+If payment succeeds but shipment creation fails, the facade is the layer that should decide whether to roll back, retry, or mark the workflow for asynchronous recovery.
 
 ---
 
-## Common Mistake
+## How Facades Rot
 
-Facade should simplify access, not become the home for every business rule in the system.
-If the class keeps growing, split by use case instead of creating one mega-facade.
+The usual mistake is treating Facade as a safe place to dump every rule.
+
+That creates a mega-facade that knows too much:
+
+- validation
+- pricing
+- orchestration
+- fallback policy
+- reporting side effects
+
+At that point the class is no longer simplifying the subsystem.
+It is becoming a second subsystem.
+
+My rule is simple: split facades by use case boundary, not by the fact that several services exist underneath.
