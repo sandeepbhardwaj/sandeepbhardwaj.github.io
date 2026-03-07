@@ -258,6 +258,24 @@
   color: var(--error-404-muted);
 }
 
+.mermaid {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 0.85rem;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96));
+  overflow-x: auto;
+}
+
+[data-theme="dark"] .mermaid {
+  border-color: rgba(148, 163, 184, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.9));
+}
+
 .error-404__line--warn {
   margin-top: 0.32rem;
   color: var(--error-404-warn);
