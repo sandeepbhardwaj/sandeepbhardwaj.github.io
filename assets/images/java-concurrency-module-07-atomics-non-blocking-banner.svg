@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" role="img" aria-labelledby="title desc">
+  <title id="title">Java Concurrency Module 7 Banner</title>
+  <desc id="desc">Atomics and non-blocking banner for the Java concurrency series.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="50%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="480" fill="url(#bg)"/>
+  <g fill="none" stroke="rgba(255,255,255,0.12)">
+    <circle cx="1180" cy="210" r="105"/>
+    <circle cx="1260" cy="210" r="50"/>
+    <path d="M1080 210h220"/>
+  </g>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#10b981"/>
+  <text x="235" y="111" fill="#ecfdf5" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
+  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 7</text>
+  <text x="90" y="278" fill="#d1fae5" font-size="42" font-family="Arial, Helvetica, sans-serif">Atomics and Non-Blocking Techniques</text>
+  <text x="90" y="344" fill="#bbf7d0" font-size="24" font-family="Arial, Helvetica, sans-serif">CAS, AtomicReference, LongAdder, VarHandle, and lock-free trade-offs.</text>
+</svg>

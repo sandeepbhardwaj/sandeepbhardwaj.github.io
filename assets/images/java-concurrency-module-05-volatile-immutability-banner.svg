@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" role="img" aria-labelledby="title desc">
+  <title id="title">Java Concurrency Module 5 Banner</title>
+  <desc id="desc">Volatile and immutability banner for the Java concurrency series.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#84cc16"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="480" fill="url(#bg)"/>
+  <g fill="none" stroke="rgba(255,255,255,0.12)">
+    <rect x="1060" y="110" width="270" height="140" rx="18"/>
+    <path d="M1095 155h200M1095 200h160"/>
+  </g>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#14b8a6"/>
+  <text x="235" y="111" fill="#f0fdfa" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
+  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 5</text>
+  <text x="90" y="278" fill="#ccfbf1" font-size="42" font-family="Arial, Helvetica, sans-serif">volatile, Immutability, and Safe Sharing</text>
+  <text x="90" y="344" fill="#ecfccb" font-size="24" font-family="Arial, Helvetica, sans-serif">Visibility, safe publication, immutable design, and shared state discipline.</text>
+</svg>
