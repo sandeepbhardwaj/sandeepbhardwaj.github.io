@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" role="img" aria-labelledby="title desc">
+  <title id="title">Java Concurrency Module 11 Banner</title>
+  <desc id="desc">Fork join and async composition banner for the Java concurrency series.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#082f49"/>
+      <stop offset="50%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="480" fill="url(#bg)"/>
+  <g fill="none" stroke="rgba(255,255,255,0.13)">
+    <path d="M1070 120h90l70 90-70 90h-90l-70-90z"/>
+    <path d="M1230 210h140"/>
+  </g>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#0ea5e9"/>
+  <text x="235" y="111" fill="#f0f9ff" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
+  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 11</text>
+  <text x="90" y="278" fill="#e0f2fe" font-size="42" font-family="Arial, Helvetica, sans-serif">Fork/Join, Parallelism, and Async Composition</text>
+  <text x="90" y="344" fill="#ede9fe" font-size="24" font-family="Arial, Helvetica, sans-serif">Work stealing, parallel streams, CompletableFuture, and fan-out orchestration.</text>
+</svg>
