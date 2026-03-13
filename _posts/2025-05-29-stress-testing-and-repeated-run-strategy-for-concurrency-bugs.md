@@ -187,6 +187,33 @@ This layered approach is usually more useful than one giant flaky test.
 
 ---
 
+## What to Randomize
+
+Useful stress tests do more than rerun the same code in a loop.
+They vary the conditions that influence scheduling and contention, such as:
+
+- thread counts
+- task counts
+- input size
+- injected delays at key boundaries
+- executor type or pool size
+
+That variation helps the suite explore interleavings that a fixed test shape may never hit.
+The goal is not randomness for its own sake.
+It is widening the surface area where timing bugs can appear.
+
+## How to Read Failures
+
+A failing stress test is only valuable if it leaves evidence.
+Capture enough information to answer:
+
+- what input and concurrency level were used
+- which invariant broke
+- whether the failure was a wrong result, timeout, or deadlock
+- whether the failure reproduces with the same seed or scenario
+
+Stress testing becomes much more practical when it produces artifacts the team can investigate rather than a vague "flaky failure" label.
+
 ## Key Takeaways
 
 - Stress testing is for rare schedules and timing-sensitive failures that deterministic tests may not cover.

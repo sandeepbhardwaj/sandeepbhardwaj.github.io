@@ -151,6 +151,46 @@ Formal progress classes matter most when building reusable concurrency primitive
 
 ---
 
+## A Concrete Mental Model
+
+These guarantees become easier to remember if you phrase them as promises under contention.
+
+- obstruction-free: one thread can finish if others stop interfering
+- lock-free: the system keeps making overall progress even if some thread keeps losing
+- wait-free: every thread has a bounded path to completion
+
+That wording matters because it moves the discussion away from marketing language like "no locks" and toward the actual user-visible property.
+A queue can be lock-free and still let a particular unlucky thread starve for a long time.
+A wait-free algorithm rules that out, but usually at much higher complexity cost.
+
+## Why Progress Class Is Not the Whole Design
+
+Engineers sometimes hear "lock-free" and assume it is automatically the most advanced or most scalable answer.
+That is incomplete.
+Progress guarantees describe one dimension of behavior.
+They do not automatically answer:
+
+- how much CPU the retries burn
+- how readable the algorithm is
+- how easy it is to prove correctness
+- whether memory usage, fairness, or observability are acceptable
+
+A lock-based design with short critical sections can beat a theoretically stronger non-blocking design in real services because the whole system is simpler to reason about.
+That is why application engineering should start from end-to-end cost, not from the prestige of the progress label.
+
+## Testing and Review Notes
+
+When reviewing a custom concurrent structure, insist on precise language.
+Ask the author to state which progress guarantee is actually provided and under what assumptions.
+Then ask the more practical follow-up questions:
+
+- what happens under heavy contention
+- can some thread starve for a long time
+- how will this be benchmarked against a simpler lock-based version
+- who will maintain this code six months later
+
+Most teams discover that the correct answer is not "implement wait-free from scratch," but "use the simplest primitive whose behavior we can explain and test clearly."
+
 ## Key Takeaways
 
 - Obstruction-free, lock-free, and wait-free describe different progress guarantees.

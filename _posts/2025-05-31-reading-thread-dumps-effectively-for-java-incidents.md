@@ -169,6 +169,75 @@ Thread dumps are easier to read when the application architecture is easier to n
 
 ---
 
+## Example Dump Fragment
+
+A small fragment is often easier to read than a full production dump at first:
+
+```text
+"http-nio-8080-exec-14" #122 prio=5 os_prio=0 cpu=412.13ms elapsed=18.22s tid=0x...
+   java.lang.Thread.State: BLOCKED (on object monitor)
+    at com.example.cache.PricingCache.refresh(PricingCache.java:87)
+    - waiting to lock <0x0000000701234ab0> (a java.lang.Object)
+
+"http-nio-8080-exec-07" #115 prio=5 os_prio=0 cpu=398.91ms elapsed=18.30s tid=0x...
+   java.lang.Thread.State: BLOCKED (on object monitor)
+    at com.example.cache.PricingCache.refresh(PricingCache.java:87)
+    - waiting to lock <0x0000000701234ab0> (a java.lang.Object)
+
+"cache-refresh-worker-1" #96 prio=5 os_prio=0 cpu=9912.45ms elapsed=19.01s tid=0x...
+   java.lang.Thread.State: RUNNABLE
+    at com.example.cache.PricingCache.refresh(PricingCache.java:87)
+    - locked <0x0000000701234ab0> (a java.lang.Object)
+```
+
+Even this tiny sample tells a story:
+
+- many request threads are blocked on the same monitor
+- one worker owns that monitor
+- the interesting question is now why that critical section is so expensive
+
+That is the reading habit worth building: look for relationships, not for all lines equally.
+
+## Incident Triage Notes
+
+During incidents, start broad and then narrow.
+Use metrics to decide whether you are chasing:
+
+- lock contention
+- pool starvation
+- blocked I/O
+- deadlock
+
+Then use the dump to confirm or refute that hypothesis.
+The strongest readers do not memorize every stack pattern.
+They move quickly from symptom to likely resource bottleneck and then to the owning code path.
+
+## Second Example: Pool Starvation Pattern
+
+A second dump fragment helps because not every incident is a hot monitor.
+Sometimes the faster clue is a request pool blocked waiting on dependent work.
+
+```text
+"http-nio-8080-exec-21" #141 prio=5 os_prio=0 cpu=122.40ms elapsed=12.40s tid=0x...
+   java.lang.Thread.State: WAITING (parking)
+    at java.util.concurrent.CompletableFuture.join(CompletableFuture.java:2117)
+    at com.example.api.OrderController.handle(OrderController.java:54)
+
+"order-io-pool-3" #98 prio=5 os_prio=0 cpu=9.12ms elapsed=12.55s tid=0x...
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+    at com.example.client.InventoryClient.fetch(InventoryClient.java:88)
+
+"order-io-pool-4" #99 prio=5 os_prio=0 cpu=8.77ms elapsed=12.55s tid=0x...
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+    at com.example.client.PricingClient.fetch(PricingClient.java:73)
+```
+
+This pattern suggests a different story:
+
+- request threads are blocked waiting on futures
+- the real bottleneck sits behind the dependent I/O pool or downstream service
+- the dump is pointing you toward orchestration or dependency latency, not a deadlock
+
 ## Key Takeaways
 
 - Effective thread-dump reading starts with an incident question, not with scanning every line blindly.

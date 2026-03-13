@@ -175,6 +175,60 @@ It is controlled latency and graceful behavior when dependencies misbehave.
 
 ---
 
+## Choose the Pattern by Failure Semantics
+
+Aggregation patterns look similar on a diagram, but they behave very differently when dependencies are slow or broken.
+That is the part readers need to internalize.
+A required pricing call and an optional recommendations call should not sit in the same orchestration path with the same timeout and failure policy just because both are remote requests.
+
+Choose the orchestration shape according to what failure means:
+
+- required dependency: fail fast or propagate a clear error
+- optional dependency: degrade with fallback or omission
+- redundant dependency: first acceptable answer wins
+- dependent call chain: stop the chain early when a prerequisite fails
+
+Once those semantics are clear, the `CompletableFuture` operators become much easier to choose.
+
+## Observability and Testing Notes
+
+Aggregation logic needs tests that reflect service behavior, not just fluent API correctness.
+Write scenarios for:
+
+- one required dependency timing out
+- one optional dependency degrading successfully
+- multiple dependencies failing together
+- slow completion after the client-visible deadline has already passed
+
+Also instrument the workflow with enough detail to answer incident questions quickly: which dependency timed out, which path fell back, and how much latency each stage consumed.
+That is what makes async orchestration operable rather than merely clever.
+
+## Second Example: First Response Wins
+
+Aggregation is not always "wait for everyone."
+A second scenario worth seeing is redundant lookup where the fastest acceptable answer wins.
+
+```java
+import java.util.concurrent.CompletableFuture;
+
+public class ReplicaRaceDemo {
+
+    public static void main(String[] args) {
+        CompletableFuture<String> primary = CompletableFuture.supplyAsync(() -> "primary-price");
+        CompletableFuture<String> replica = CompletableFuture.supplyAsync(() -> "replica-price");
+
+        CompletableFuture<Object> fastest = CompletableFuture.anyOf(primary, replica);
+        System.out.println(fastest.join());
+    }
+}
+```
+
+This is a very different orchestration pattern from fan-out and combine:
+
+- multiple providers race
+- only the first acceptable result matters
+- the composition method should reflect that workflow shape
+
 ## Key Takeaways
 
 - Async aggregation is about dependency structure, deadlines, and fallback policy, not just starting many futures.

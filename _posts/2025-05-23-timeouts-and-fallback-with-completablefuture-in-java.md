@@ -186,6 +186,82 @@ Those answers matter more than memorizing one API name.
 
 ---
 
+## Failure Model Matters More Than the API Name
+
+Timeout handling is really a statement about failure semantics.
+When a dependency misses its deadline, you are deciding what the service believes next:
+
+- the request must fail
+- a degraded answer is acceptable
+- partial data should be returned and the rest omitted
+
+That is why good timeout design starts with business meaning, not with `orTimeout` versus `completeOnTimeout`.
+The API only encodes the policy.
+
+## Production Guidance
+
+Production timeout design usually needs two layers:
+
+- a per-dependency budget
+- an end-to-end request budget
+
+Without both, a service can time out individual calls and still miss its overall latency target.
+It also needs strong observability:
+
+- timeout counts
+- fallback counts
+- late success counts if abandoned work still finishes underneath
+
+Those signals tell you whether the system is degrading gracefully or simply hiding overload behind default values.
+
+## Testing and Review Notes
+
+Review timeout code by asking what happens after the timeout, not just at the timeout.
+Does the underlying client cancel the work?
+Can timed-out tasks pile up in the background?
+Will the caller know the response is degraded?
+
+Tests should simulate slow dependencies repeatedly, because the operational hazard is often accumulation: many timed-out tasks still consuming I/O slots, connection pool entries, or executor capacity after the caller has already moved on.
+
+## Second Example: Required Dependency with Fail-Fast Timeout
+
+The first example used fallback.
+A second one should show the opposite case where timeout means the workflow must fail.
+
+```java
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+public class CompletableFutureFailFastTimeoutDemo {
+
+    public static void main(String[] args) {
+        CompletableFuture<String> pricingFuture = CompletableFuture
+                .supplyAsync(() -> slowPricing())
+                .orTimeout(200, TimeUnit.MILLISECONDS);
+
+        try {
+            System.out.println(pricingFuture.join());
+        } catch (Exception e) {
+            System.out.println("Pricing failed fast: " + e.getClass().getSimpleName());
+        }
+    }
+
+    static String slowPricing() {
+        try {
+            Thread.sleep(1_000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return "live-price";
+    }
+}
+```
+
+Now the contrast is explicit:
+
+- `completeOnTimeout` for degraded answers
+- `orTimeout` for required dependencies that must fail clearly
+
 ## Key Takeaways
 
 - `orTimeout` fails a future on deadline, while `completeOnTimeout` supplies a fallback value.

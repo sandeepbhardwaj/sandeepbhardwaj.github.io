@@ -150,6 +150,98 @@ Trying to use one universal counter primitive for every case usually produces ei
 
 ---
 
+## A Counter Selection Framework
+
+Once many threads update the same logical counter, the important question is not only "how do I increment safely?"
+It is also:
+
+- how exact must reads be
+- how hot will the write path become
+- is the counter part of coordination or only measurement
+
+That framework usually narrows the choice quickly.
+Use `AtomicLong` when you need exact per-update semantics or the count participates in a broader decision.
+Use `LongAdder` when the value is primarily operational and many threads update it at the same time.
+Use a lock or different ownership model when the counter is actually attached to a bigger shared invariant.
+
+## Operational Considerations
+
+Hot counters become visible in production in surprising ways.
+You may see:
+
+- CPU burn around retry-heavy atomics
+- lock contention around centralized bookkeeping
+- misleading metrics because readers assume snapshot precision that is not really guaranteed
+
+The fix is not always a different counter class.
+Sometimes the deeper problem is that too much work depends on one central number.
+A better design can shard the state, aggregate later, or move the decision closer to the owner of the resource.
+
+## Testing and Review Notes
+
+Review counter code with plain language.
+Ask:
+
+- is this value a business invariant or just telemetry
+- what reads are allowed to be approximate
+- what happens when thousands of updates hit this path at once
+- does the counter need to compose with other state changes atomically
+
+Write stress tests that focus on the final invariants and on the operational path.
+If a benchmark shows contention savings but the design still uses the counter to make exact admission decisions, the optimization is solving the wrong problem.
+
+## Second Example: When the Counter Belongs to a Larger Invariant
+
+Sometimes the right second example is one where the answer is not another counter primitive at all.
+
+```java
+import java.util.concurrent.locks.ReentrantLock;
+
+public class InventoryCounterDemo {
+
+    public static void main(String[] args) {
+        Inventory inventory = new Inventory(10);
+        System.out.println(inventory.reserve(4));
+        System.out.println(inventory.available());
+        System.out.println(inventory.reserved());
+    }
+
+    static final class Inventory {
+        private final ReentrantLock lock = new ReentrantLock();
+        private int available;
+        private int reserved;
+
+        Inventory(int initialStock) {
+            this.available = initialStock;
+        }
+
+        boolean reserve(int quantity) {
+            lock.lock();
+            try {
+                if (available < quantity) {
+                    return false;
+                }
+                available -= quantity;
+                reserved += quantity;
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        int available() {
+            return available;
+        }
+
+        int reserved() {
+            return reserved;
+        }
+    }
+}
+```
+
+The lesson is that once counts must move together, the problem is bigger than one hot number.
+
 ## Key Takeaways
 
 - Counter design depends on semantics, not just on update frequency.

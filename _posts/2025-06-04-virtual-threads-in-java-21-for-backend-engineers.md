@@ -163,6 +163,74 @@ A much larger thread count changes the operational cost and lifecycle of thread-
 
 ---
 
+## A Production-Shaped Example
+
+A useful way to think about virtual threads is to imagine a normal request handler that performs several blocking calls in sequence.
+In the old model, that design forced you to think immediately about scarce platform-thread capacity.
+With virtual threads, the same straightforward code becomes reasonable again for many workloads:
+
+- receive request
+- call service A
+- call service B
+- query the database
+- assemble response
+
+That is not because blocking stopped existing.
+It is because the thread cost of waiting changed enough that the simpler control flow may now be the best trade for both readability and throughput.
+
+## Migration Guidance
+
+The safest migration path is incremental.
+Start by identifying code that became complicated mainly to avoid thread cost.
+Then ask whether virtual threads let that path become simpler without violating downstream limits.
+
+Good candidates usually include request-scoped blocking orchestration.
+Poor candidates include code that is dominated by CPU work or by heavy synchronization on shared state.
+The migration question is not "can we switch everything," but "where does the simpler model clearly improve the design."
+
+## Limits That Do Not Change
+
+Virtual threads change the cost of waiting threads.
+They do not change the capacity of databases, downstream APIs, disk, or CPU cores.
+That is why the operational model still needs semaphores, rate limits, connection-pool discipline, and clear timeout policy.
+The best virtual-thread designs keep the code simpler without pretending that external resources became infinite.
+
+## Second Example: Virtual Threads with Bounded Downstream Access
+
+A second example matters because virtual threads make blocking cheaper, but they do not remove the need to protect scarce downstream capacity.
+
+```java
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+
+public class VirtualThreadWithSemaphoreDemo {
+    private static final Semaphore DB_LIMIT = new Semaphore(20);
+
+    public static void main(String[] args) throws Exception {
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int i = 0; i < 100; i++) {
+                executor.submit(() -> {
+                    DB_LIMIT.acquireUninterruptibly();
+                    try {
+                        queryDatabase();
+                    } finally {
+                        DB_LIMIT.release();
+                    }
+                });
+            }
+        }
+    }
+
+    static void queryDatabase() {
+    }
+}
+```
+
+This shows the modern rule more honestly:
+
+- virtual threads simplify request concurrency
+- semaphores or similar limits still protect the real bottleneck
+
 ## Key Takeaways
 
 - Virtual threads in Java 21 make blocking-style backend code much more scalable than with scarce platform threads alone.

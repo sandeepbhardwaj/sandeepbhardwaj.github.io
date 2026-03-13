@@ -149,7 +149,64 @@ It is often what preserves correctness and operability long enough for performan
 
 ---
 
-## Final Takeaways
+## Runnable Selection Example
+
+The easiest way to choose well is to translate the problem into one plain sentence and then match the primitive to that sentence.
+
+```java
+// One value changes independently and frequently.
+AtomicLong sequence = new AtomicLong();
+long nextId = sequence.incrementAndGet();
+
+// Several fields must remain consistent together.
+synchronized (account) {
+    account.reserve(quantity);
+    account.recordAuditEntry(userId);
+}
+
+// Producers and consumers need safe handoff with built-in queuing.
+BlockingQueue<Job> queue = new ArrayBlockingQueue<>(1_000);
+
+// Several remote calls should run together and then combine.
+CompletableFuture<Result> result = profileFuture.thenCombine(orderFuture, Result::new);
+```
+
+None of these examples is "more modern" in isolation.
+Each one is simply aligned with a different problem shape.
+
+## Failure-First Selection
+
+Another strong design habit is to choose by failure mode before choosing by API familiarity.
+Ask:
+
+- what happens if work arrives faster than it can be processed
+- what happens if a child task fails
+- what happens if one thread waits forever
+- what happens if two updates must be seen together
+
+Those questions usually narrow the primitive faster than an API catalog does.
+For example:
+
+- overload plus handoff pressure suggests a bounded queue and rejection story
+- shared invariants suggest a lock or ownership boundary
+- optional async work suggests `CompletableFuture` with timeout and fallback rules
+- one-shot startup coordination suggests a latch, not an ad hoc volatile flag cluster
+
+This is why concurrency design improves when you start from failure containment and workload shape rather than from novelty.
+
+## Operational Review Checklist
+
+Before finalizing a concurrency choice, review it with the same discipline you would apply to a storage or networking design:
+
+1. What exact invariant or coordination rule is this primitive enforcing?
+2. What is the overload story: queue, reject, backpressure, or block?
+3. How will cancellation, timeout, or shutdown behave?
+4. What metrics or thread names will make incidents diagnosable?
+5. Is there a simpler primitive that already satisfies the real requirement?
+
+If the team cannot answer those questions clearly, the design is usually still too vague.
+
+## Key Takeaways
 
 - Choose concurrency primitives by problem shape, not by novelty or familiarity.
 - State protection, coordination, task execution, and async composition are different needs and usually imply different tools.

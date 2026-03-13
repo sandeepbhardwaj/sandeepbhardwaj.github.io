@@ -13,9 +13,6 @@
     <path d="M1070 120h90l70 90-70 90h-90l-70-90z"/>
     <path d="M1230 210h140"/>
   </g>
-  <rect x="90" y="84" width="290" height="42" rx="21" fill="#0ea5e9"/>
-  <text x="235" y="111" fill="#f0f9ff" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
-  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 11</text>
-  <text x="90" y="278" fill="#e0f2fe" font-size="42" font-family="Arial, Helvetica, sans-serif">Fork/Join, Parallelism, and Async Composition</text>
-  <text x="90" y="344" fill="#ede9fe" font-size="24" font-family="Arial, Helvetica, sans-serif">Work stealing, parallel streams, CompletableFuture, and fan-out orchestration.</text>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#f97316"/>
+  <text x="235" y="111" fill="#fff7ed" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
 </svg>

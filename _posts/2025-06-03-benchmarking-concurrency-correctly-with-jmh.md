@@ -153,6 +153,43 @@ The benchmark should model the concurrency question, not just the API call.
 
 ---
 
+## What JMH Protects You From
+
+JMH helps protect against several classic mistakes that make concurrency benchmarks look convincing while being wrong.
+It reduces the chance that you accidentally measure:
+
+- class loading and cold-start effects instead of steady-state work
+- code that the JIT optimized away
+- unrealistic thread setup outside the measured path
+- timing noise from ad hoc loops and manual stopwatch logic
+
+That protection is exactly why concurrency benchmarks should rarely be handwritten from scratch.
+The JVM is too dynamic for casual measurement to be trustworthy.
+
+## Review Notes for Benchmark Design
+
+A strong benchmark review asks the same questions a strong code review asks:
+
+- what claim is this benchmark trying to support
+- does the shared state resemble the production contention pattern
+- what simpler baseline are we comparing against
+- are we measuring the synchronization cost or some unrelated allocation and logging cost
+
+If a benchmark cannot defend its setup, the resulting numbers should not drive architecture decisions.
+JMH is the harness; the engineer still has to ask a good question.
+
+## A Minimal Benchmark Matrix
+
+For concurrency work, one benchmark number is almost never enough.
+A useful benchmark matrix usually varies at least:
+
+- thread count
+- shared versus per-thread state
+- simple baseline versus optimized design
+- realistic contention level
+
+That matrix often teaches more than one heroic result because it shows where the design is actually strong and where it falls apart.
+
 ## Key Takeaways
 
 - JMH exists because naive Java benchmarking is highly misleading, especially for concurrent code.

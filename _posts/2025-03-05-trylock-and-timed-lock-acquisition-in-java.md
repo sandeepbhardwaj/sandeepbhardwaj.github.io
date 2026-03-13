@@ -180,6 +180,23 @@ The fallback policy is as important as the lock call itself.
 
 ---
 
+## Choosing Between Fail Fast and Bounded Waiting
+
+`tryLock()` without waiting and timed `tryLock(...)` express two different product decisions.
+Fail-fast acquisition says, "if the work is already in progress elsewhere, skip or return quickly."
+Timed acquisition says, "this work is still worth waiting for, but only up to a budget."
+
+That difference should match the user-visible behavior.
+Background refresh or duplicate maintenance work often fits fail-fast logic.
+Request handling with a small latency budget may fit timed waiting.
+Critical state changes with no acceptable fallback usually need a different design altogether.
+
+## Review Notes
+
+A good review question is: what does the caller do when lock acquisition fails?
+If the answer is vague, the design is incomplete.
+Resilience does not come from the API alone; it comes from the fallback or timeout policy around it.
+
 ## Key Takeaways
 
 - `tryLock()` is for fail-fast acquisition.

@@ -175,6 +175,31 @@ The strongest suites usually include both types.
 
 ---
 
+## Design for Determinism
+
+Deterministic tests become easier when the production code separates concurrency policy from business logic.
+For example, a component is much easier to test if it accepts:
+
+- an executor rather than creating one internally
+- a clock rather than reading time directly
+- a callback or hook around important coordination points
+
+Those seams let the test drive the interleaving deliberately instead of trying to guess it with sleep calls.
+In practice, deterministic testing is often a design-quality signal: code that is impossible to test deterministically is frequently also hard to reason about in production.
+
+## Where Determinism Stops and Stress Begins
+
+Not every concurrency bug can be forced with one clean schedule.
+Deterministic tests are strongest for protocol rules such as:
+
+- signal before proceed
+- do not publish before initialization completes
+- cancel siblings when one task fails
+
+Stress tests take over when the bug is more about rare timing windows or contention patterns.
+The mature approach is not choosing one or the other.
+It is using deterministic tests for protocol guarantees and stress runs for schedule exploration.
+
 ## Key Takeaways
 
 - Deterministic concurrency tests force important schedules instead of hoping the runtime produces them.

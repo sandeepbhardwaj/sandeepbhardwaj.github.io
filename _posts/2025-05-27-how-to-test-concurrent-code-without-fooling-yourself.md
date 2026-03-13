@@ -186,6 +186,32 @@ If you cannot answer those questions, the test is probably giving too much confi
 
 ---
 
+## What Good Test APIs Look Like
+
+One recurring source of weak concurrency tests is an API that is hard to control from the outside.
+If the only way to influence the component is to call `start()` and hope timing works out, the test suite will drift toward sleeps and luck.
+
+Good concurrent components expose seams that make testing easier, such as:
+
+- injectable executors or schedulers
+- explicit latches, listeners, or hooks for milestone events
+- time sources that can be controlled or faked
+- clearly observable state transitions
+
+That design discipline helps both tests and production debugging, because the concurrency contract becomes visible instead of hidden behind timing.
+
+## Production Review Notes
+
+Before trusting a concurrency test suite, ask:
+
+- which invariant each test is proving
+- whether hangs fail quickly with useful diagnostics
+- which scenarios are deterministic versus stress-based
+- whether cancellation, interruption, and shutdown paths are covered
+
+The best test suites mix narrow deterministic checks with repeated stress runs.
+That combination catches both obvious protocol bugs and rare schedule-dependent failures.
+
 ## Key Takeaways
 
 - Concurrent tests are easy to make noisy and easy to make misleading.

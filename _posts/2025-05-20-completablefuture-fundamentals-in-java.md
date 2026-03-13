@@ -182,6 +182,64 @@ The best `CompletableFuture` code usually reads like a workflow, not like nested
 
 ---
 
+## A Production-Shaped Example
+
+Consider a backend endpoint that needs three independent pieces of data and a small amount of CPU work to assemble the response.
+`CompletableFuture` is valuable here not because it is fashionable, but because it lets the orchestration read like the workflow:
+
+1. start the remote calls
+2. transform results as they arrive
+3. combine them at a clear boundary
+4. handle failure in one visible place
+
+That is the strongest use of the abstraction.
+If you only submit one task and immediately call `join()`, you are using an expensive workflow tool for a very simple problem.
+
+## Testing and Review Notes
+
+`CompletableFuture` code should be reviewed for execution behavior, not just syntax.
+Ask:
+
+- which stages may run inline versus asynchronously
+- which executor owns the blocking work
+- where failure is translated or recovered
+- where the pipeline intentionally rejoins the synchronous world
+
+Tests should include both success and failure paths.
+It is common for the happy path to look elegant while exceptional completion, timeout, or cancellation behavior remains barely tested.
+A good async tutorial post should prepare the reader for that reality, not only for the pretty fluent API.
+
+## Second Example: Explicit Executor Ownership
+
+A second example is useful because many real systems should not rely on the common pool for backend-critical work.
+
+```java
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class CompletableFutureExecutorDemo {
+
+    public static void main(String[] args) {
+        ExecutorService ioExecutor = Executors.newFixedThreadPool(8);
+        try {
+            CompletableFuture<String> future = CompletableFuture
+                    .supplyAsync(() -> "inventory", ioExecutor)
+                    .thenApply(result -> "loaded-" + result);
+
+            System.out.println(future.join());
+        } finally {
+            ioExecutor.shutdown();
+        }
+    }
+}
+```
+
+This example teaches a different lesson from the first one:
+
+- the completion graph may be elegant
+- but executor ownership is still part of the design
+
 ## Key Takeaways
 
 - `CompletableFuture` extends the idea of a future into a full async composition model.

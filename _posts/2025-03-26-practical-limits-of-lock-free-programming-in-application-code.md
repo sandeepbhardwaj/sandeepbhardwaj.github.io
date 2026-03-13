@@ -148,6 +148,76 @@ That is a much narrower set of conditions than many teams assume.
 
 ---
 
+## Where Lock-Free Still Wins
+
+This post is not arguing that lock-free techniques are useless.
+They matter in places where the state boundary is tiny, the contention is real, and the abstraction will be reused enough to justify the complexity.
+Examples include:
+
+- specialized runtime libraries
+- highly contended counters and queues
+- low-level frameworks that many applications depend on
+
+In those domains, the engineering investment can be worth it because a small improvement compounds across many callers.
+
+## Why Business Code Usually Values Different Things
+
+Application services usually have broader correctness boundaries than low-level data-structure code.
+They care about:
+
+- multi-step business invariants
+- failure handling across downstream calls
+- overload behavior
+- readable incident response paths
+
+Lock-free algorithms do not make those concerns disappear.
+In fact, they can make them harder to reason about because the synchronization story is less explicit to a casual reader.
+That is why a lock or a queue owned by one thread often wins in service code even when a lock-free structure looks more sophisticated on paper.
+
+## Decision Checklist
+
+Before introducing custom lock-free code in application space, answer these questions plainly:
+
+- what measured contention problem are we solving
+- why are built-in concurrent utilities not sufficient
+- what invariant becomes simpler rather than more complex with lock-free design
+- how will we test starvation, retries, and correctness under load
+- who on the team can debug this during an incident
+
+If those answers are weak, the code is probably solving the wrong layer of the problem.
+The best concurrency design in application code is often the design that is easiest to explain, bound, and operate safely.
+
+## Review Notes for Application Teams
+
+A strong code review question is: did lock-free design simplify the invariant or merely move the complexity into retries and state transitions?
+Application teams often discover that the second case is more common.
+If the answer requires a long explanation about progress guarantees but still leaves overload, shutdown, and business correctness vague, the design is probably solving the wrong kind of problem.
+
+## Second Example: Single-Owner Serialization Instead of Shared CAS Logic
+
+A second scenario that often fits application code better is to stop sharing the invariant directly and serialize updates through one owner.
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class SingleOwnerLedgerDemo {
+
+    public static void main(String[] args) {
+        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+            executor.submit(() -> System.out.println("reserve 3"));
+            executor.submit(() -> System.out.println("reserve 2"));
+        }
+    }
+}
+```
+
+This is deliberately simple, but it highlights another application-level alternative:
+
+- one thread owns the mutable state
+- updates are serialized by design
+- the code avoids multi-variable CAS complexity altogether
+
 ## Key Takeaways
 
 - Lock-free programming solves some problems very well, but it is not the default best answer for application code.

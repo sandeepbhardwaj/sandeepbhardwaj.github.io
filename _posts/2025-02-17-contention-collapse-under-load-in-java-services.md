@@ -154,6 +154,37 @@ The best fix is usually not “add more threads.”
 
 ---
 
+## Why Retries Make It Worse
+
+The dangerous part of contention collapse is the feedback loop around retries and queueing.
+Once latency rises, callers often start adding more pressure exactly where the system is already weakest.
+That can happen through:
+
+- client retries
+- duplicate refresh work
+- timeouts that abandon work while the server keeps processing it
+- larger pool sizes that increase waiting but not useful throughput
+
+This is why contention incidents are rarely fixed by "more concurrency."
+The real fix usually reduces pressure on the bottleneck or deduplicates work around it.
+
+## Operational Signals
+
+Look for lock wait time, queue depth, retry rate, and tail latency moving upward together.
+That pattern usually means the bottleneck is no longer local to one request path; it is becoming the dominant system behavior.
+
+## Design Heuristic
+
+When one bottleneck becomes hot, the safest move is usually to reduce duplicate work around it.
+Single-flight refresh, admission control, shard ownership, and bounded queues often help more than raw thread-count changes because they attack the feedback loop instead of feeding it.
+That is the mindset readers should keep: remove pressure from the hot spot before trying to out-thread it.
+
+## Capacity Planning Note
+
+A healthy system should degrade with bounded pain, not with a self-amplifying collapse.
+If one hotspot can pull the whole service into retries, timeouts, and thread buildup, the concurrency design is already too centralized around that resource.
+That is the broader lesson behind this failure mode.
+
 ## Key Takeaways
 
 - Contention collapse happens when more concurrency creates less useful throughput.

@@ -160,6 +160,41 @@ Avoid them when:
 
 ---
 
+## A Better Mental Model
+
+Parallel streams are effectively a compact divide-and-conquer engine over a data pipeline.
+They help when all of the following are true at the same time:
+
+- the source can be partitioned efficiently
+- each partition has meaningful CPU work to do
+- the operations are independent and side-effect free
+- the runtime context can tolerate the shared pool usage
+
+If any one of those assumptions is weak, the outcome becomes less predictable.
+That is why seemingly similar pipelines can behave very differently after adding `parallel()`.
+
+## Production Guidance
+
+In production services, a good default is caution.
+Parallel streams are strongest in bounded data-processing steps where the team controls the workload shape.
+They are weaker in request-serving code that mixes dependency calls, logging, cache mutation, or latency-sensitive shared resources.
+
+A practical rule is to require evidence before adopting them on hot paths:
+
+- benchmark against the sequential form
+- inspect thread usage
+- confirm the pipeline stays side-effect free
+- verify that common-pool contention will not surprise some unrelated component
+
+That process turns `parallel()` from a stylistic shortcut into an explicit engineering decision.
+
+## Testing and Review Notes
+
+Unit tests are not enough here because correctness is usually not the hard part.
+The risks are performance regressions and operational side effects.
+Add benchmarks or repeated timing checks around realistic inputs, and review the pipeline for hidden shared state.
+If the team cannot explain why this particular pipeline should parallelize well, it probably should not.
+
 ## Key Takeaways
 
 - Parallel streams help most on large, CPU-bound, stateless pipelines.

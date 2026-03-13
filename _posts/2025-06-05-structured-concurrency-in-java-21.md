@@ -164,6 +164,58 @@ As of Java 21 specifically, remember that structured concurrency is preview, so 
 
 ---
 
+## Failure and Cancellation Semantics
+
+The strongest reason to care about structured concurrency is not elegance.
+It is failure containment.
+When child tasks live inside an explicit scope, the parent can define a coherent rule such as:
+
+- if one child fails, cancel the siblings
+- if the parent times out, the whole group stops
+- if the scope exits, no child should keep running invisibly
+
+Those rules are exactly what many ad hoc async systems fail to express clearly.
+Structure is valuable because it makes the lifecycle contract explicit and local.
+
+## Adoption Guidance
+
+As a preview feature in Java 21, structured concurrency should be adopted deliberately.
+That means evaluating:
+
+- platform policy around preview features
+- how much request-scoped fan-out work the system actually has
+- whether current async code is suffering from lifecycle confusion today
+
+For the right services, even a preview API can be worth prototyping because it exposes a much better design shape.
+But the motivation should be lifecycle clarity, not simply trying a new API for its own sake.
+
+## A Larger Example Shape
+
+A good way to evaluate structured concurrency is to look at request-scoped fan-out work that already feels messy in futures or callbacks.
+If the team constantly asks, "who cancels the remaining subtasks" or "why is this child still running after the request ended," that is a strong signal that lifecycle structure is missing.
+Structured concurrency matters most when those questions are common, not merely because the API is new.
+
+## Second Example Shape: First Success Wins
+
+Structured concurrency is also useful when the parent wants the first acceptable result rather than all results.
+A simplified preview-style shape looks like this:
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnSuccess<String>()) {
+    scope.fork(() -> fetchFromPrimary());
+    scope.fork(() -> fetchFromReplica());
+
+    scope.join();
+    return scope.result();
+}
+```
+
+This is a different scenario from `ShutdownOnFailure`:
+
+- multiple child tasks race
+- one success is enough
+- the scope owns cleanup of the losing work
+
 ## Key Takeaways
 
 - Structured concurrency gives concurrent subtasks a clear parent scope and lifecycle.

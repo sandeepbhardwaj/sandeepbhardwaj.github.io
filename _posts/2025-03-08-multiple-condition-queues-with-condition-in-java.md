@@ -177,6 +177,22 @@ It is the waiting queue associated with a predicate on protected state.
 
 ---
 
+## Why Targeted Signaling Matters
+
+Targeted signaling is not just a micro-optimization.
+It is a readability and correctness improvement.
+When producers and consumers wait for different predicates, separate condition queues make the code tell the truth about the workflow.
+A wakeup on `notEmpty` means something different from a wakeup on `notFull`, and the code becomes easier to reason about because those meanings are explicit.
+
+This is one reason `Condition` scales better than one implicit monitor wait set as coordination gets richer.
+The more distinct waiting reasons a design has, the more valuable clear queue separation becomes.
+
+## Testing and Review Notes
+
+Review each `Condition` against its predicate in plain language.
+If the team cannot say, "threads wait here for space" or "threads wait here for data," the abstraction boundary is still muddy.
+Tests should exercise both sides under contention so that wrong-condition signaling fails quickly rather than silently.
+
 ## Key Takeaways
 
 - Multiple `Condition` queues let one lock support several different waiting reasons cleanly.

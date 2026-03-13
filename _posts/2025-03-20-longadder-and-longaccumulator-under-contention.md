@@ -152,6 +152,82 @@ Do not choose either for:
 
 ---
 
+## Mental Model
+
+`LongAdder` and `LongAccumulator` trade exact single-location updates for better scaling under contention.
+Instead of forcing every thread to fight over one hot memory location, they spread updates across internal cells and combine the result when you read it.
+
+That is why they help in write-heavy metrics paths.
+They reduce the cost of many threads incrementing the same logical counter at once.
+The trade-off is that reading the total is not the same kind of single-cell snapshot you get from `AtomicLong`.
+For statistics, request counts, and monitoring, that is usually fine.
+For exact coordination logic, it may not be.
+
+## Where Snapshot Expectations Go Wrong
+
+A common mistake is to treat `LongAdder.sum()` as if it were an exact coordination primitive.
+It is better to think of it as a scalable aggregation view.
+During concurrent updates, the observed total is the current combined value across cells, not a transactional checkpoint around the rest of your workflow.
+
+That makes `LongAdder` a strong fit for:
+
+- metrics counters
+- request totals
+- cache hit and miss statistics
+- best-effort operational dashboards
+
+It is a poor fit for things like:
+
+- generating unique sequence numbers
+- protecting thresholds that require exact one-step decisions
+- replacing proper admission control or rate-limit coordination
+
+## Production Guidance
+
+A practical rule is simple:
+
+- if correctness depends on every read being exact, prefer `AtomicLong` or a lock around the larger invariant
+- if you mostly care about update throughput and operational visibility, `LongAdder` is often the better tool
+
+Reviewers should also look at how the value is consumed.
+Using `LongAdder` for metrics export is healthy.
+Using it to decide whether to admit the next payment, reserve the next seat, or enforce an exact concurrency limit is usually the wrong abstraction.
+
+## Second Example: Exact Sequence Numbers Still Want AtomicLong
+
+A second example helps because it shows the opposite case: a counter that must stay exact and ordered.
+That is not a `LongAdder` problem.
+
+```java
+import java.util.concurrent.atomic.AtomicLong;
+
+public class AtomicIdGeneratorDemo {
+
+    public static void main(String[] args) {
+        IdGenerator generator = new IdGenerator(1000);
+        System.out.println(generator.nextId());
+        System.out.println(generator.nextId());
+    }
+
+    static final class IdGenerator {
+        private final AtomicLong next = new AtomicLong();
+
+        IdGenerator(long start) {
+            next.set(start);
+        }
+
+        long nextId() {
+            return next.getAndIncrement();
+        }
+    }
+}
+```
+
+This contrast is important:
+
+- `LongAdder` for hot metrics
+- `AtomicLong` for exact sequence generation
+
 ## Key Takeaways
 
 - `LongAdder` and `LongAccumulator` are designed for high-contention update paths.

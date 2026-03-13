@@ -179,6 +179,68 @@ Prefer explicit context passing when:
 
 ---
 
+## Why ThreadLocal Gets Riskier Over Time
+
+`ThreadLocal` often starts as a convenience and turns into hidden architecture.
+As systems add more executors, more asynchronous boundaries, more tracing, and more context fields, the number of invisible assumptions grows quickly.
+The code still compiles, but readers can no longer tell where important data comes from or where it is cleared.
+
+That is why `ThreadLocal` usage deserves periodic design review.
+What began as one request ID can quietly become tenant identity, security context, locale, feature flags, and audit metadata all flowing through ambient thread state.
+The more business meaning it carries, the more dangerous the invisibility becomes.
+
+## Safer Context Approaches
+
+A healthier default is to keep business-critical context explicit and reserve `ThreadLocal` for tightly scoped infrastructure concerns.
+Common safer patterns include:
+
+- passing an immutable request-context object explicitly
+- wrapping executor submission so capture and restore are deliberate
+- rebuilding context at service boundaries from headers or request metadata
+
+These approaches are noisier in signatures, but they are also easier to reason about and test.
+That trade is often worth making.
+
+## Testing and Review Notes
+
+Tests for context propagation should cover more than the happy path.
+Exercise:
+
+- executor handoff
+- request completion and cleanup
+- reused worker threads
+- failures and early returns
+
+In review, ask whether the context is truly thread-scoped or whether the code is only assuming thread scope because explicit propagation was avoided.
+That one question catches many long-term maintenance problems.
+
+## Second Example: Executor Handoff Loses Context
+
+A second example is important here because the real pain usually starts when work leaves the original thread.
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ThreadLocalHandoffDemo {
+    private static final ThreadLocal<String> REQUEST_ID = new ThreadLocal<>();
+
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            REQUEST_ID.set("req-99");
+            executor.submit(() -> System.out.println("Worker sees " + REQUEST_ID.get())).get();
+        } finally {
+            REQUEST_ID.remove();
+            executor.shutdown();
+        }
+    }
+}
+```
+
+The worker usually prints `null` because the context did not move with the task.
+That is the propagation problem in one small example.
+
 ## Key Takeaways
 
 - `ThreadLocal` is thread-scoped storage, not inherently request-scoped context.

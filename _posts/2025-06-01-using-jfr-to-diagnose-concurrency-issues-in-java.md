@@ -173,6 +173,43 @@ Concurrency incidents are rarely explained by one signal alone.
 
 ---
 
+## A Practical Capture Strategy
+
+JFR is most useful when capture is intentional.
+Instead of starting recordings randomly after the system is already back to normal, define a simple incident playbook:
+
+- when latency crosses a threshold, capture a short recording
+- keep thread names, pool names, and deployment version available alongside it
+- align the recording window with application metrics and logs
+
+That turns JFR from an expert-only tool into a repeatable operational step.
+A good capture strategy is less about one perfect command and more about collecting evidence while the behavior is actually happening.
+
+## Correlate JFR with Other Signals
+
+JFR events become much more informative when you line them up with:
+
+- request latency spikes
+- pool queue growth
+- GC activity
+- database or HTTP client error bursts
+
+This matters because blocked time is often only the visible symptom.
+The root cause may sit in a downstream dependency or in one overloaded executor.
+JFR gives the thread-behavior side of the story; the rest of the telemetry tells you why the story unfolded that way.
+
+## Second Command Example: Start, Dump, and Stop
+
+Another practical capture shape is to start a named recording, dump it when the incident window is active, and then stop it cleanly.
+
+```bash
+jcmd <pid> JFR.start name=incident settings=profile
+jcmd <pid> JFR.dump name=incident filename=incident.jfr
+jcmd <pid> JFR.stop name=incident
+```
+
+This scenario is useful when the incident timing is uncertain and you want more control than a fixed duration gives you.
+
 ## Key Takeaways
 
 - JFR adds a time dimension to concurrency diagnosis that thread dumps alone do not provide.

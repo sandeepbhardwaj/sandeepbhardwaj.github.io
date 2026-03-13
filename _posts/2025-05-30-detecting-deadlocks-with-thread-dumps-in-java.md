@@ -188,6 +188,31 @@ The best deadlock debugging is often deadlock prevention through simpler lock de
 
 ---
 
+## A Repeatable Incident Workflow
+
+Deadlock diagnosis is easier when the team follows the same sequence every time:
+
+1. capture multiple dumps close together
+2. let the JVM's own deadlock detection speak first if it can
+3. identify the involved thread names and lock owners
+4. map those locks back to the code paths and business operation
+5. confirm whether the ordering pattern can recur under load
+
+That workflow matters because deadlocks are rarely just about thread state labels.
+They are about a cycle in resource ownership, and the cycle is easier to explain when you tie it back to the application operation that created it.
+
+## Prevention Review Notes
+
+After fixing a deadlock, do not stop at the one bug.
+Review the broader locking policy:
+
+- do locks have a documented acquisition order
+- are large synchronized blocks hiding multiple responsibilities
+- could one side be replaced with message passing or queue ownership
+- should timeout or interruptible acquisition be part of the design
+
+Those review questions turn a one-off incident into a design improvement instead of a temporary patch.
+
 ## Key Takeaways
 
 - Thread dumps are one of the fastest practical ways to detect deadlocks in Java.

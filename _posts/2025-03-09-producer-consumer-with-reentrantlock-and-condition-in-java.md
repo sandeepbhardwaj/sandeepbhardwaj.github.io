@@ -186,6 +186,24 @@ Do not write to disk or call remote services while holding it.
 
 ---
 
+## Shutdown and Backpressure Notes
+
+Real producer-consumer systems need more than correct wake-up behavior.
+They also need a shutdown story and an overload story.
+Ask:
+
+- what happens to blocked producers during shutdown
+- what happens when consumers are slower than producers for a long period
+- is data dropped, retried, persisted elsewhere, or backpressured upstream
+
+These questions matter because bounded buffers are part of system capacity design, not just of synchronization design.
+A queue that is correct under light load but undefined under sustained pressure is not yet production-ready.
+
+## Review Notes
+
+When reviewing custom producer-consumer code, compare it against a standard queue.
+If the custom version is not clearly buying something specific, the safer choice is usually the built-in abstraction.
+
 ## Key Takeaways
 
 - Producer-consumer is a natural fit for `ReentrantLock` plus multiple `Condition` queues.
