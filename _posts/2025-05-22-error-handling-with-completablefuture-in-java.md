@@ -211,6 +211,34 @@ The more context you preserve near the source of failure, the easier production 
 
 ---
 
+## Second Example: Observation versus Recovery
+
+A second example helps because `whenComplete` and `handle` are easy to blur unless you see them in a separate scenario.
+
+```java
+import java.util.concurrent.CompletableFuture;
+
+public class CompletableFutureHandleDemo {
+
+    public static void main(String[] args) {
+        String result = CompletableFuture
+                .<String>supplyAsync(() -> {
+                    throw new IllegalArgumentException("bad input");
+                })
+                .handle((value, error) -> error == null ? value : "default-result")
+                .whenComplete((value, error) -> System.out.println("Observed completion"))
+                .join();
+
+        System.out.println(result);
+    }
+}
+```
+
+This example makes the roles easier to separate:
+
+- `handle` converts completion into a new value
+- `whenComplete` observes completion without being the main recovery tool
+
 ## Key Takeaways
 
 - `exceptionally` recovers from failure, `handle` sees both success and failure, and `whenComplete` is best for observation and side effects.

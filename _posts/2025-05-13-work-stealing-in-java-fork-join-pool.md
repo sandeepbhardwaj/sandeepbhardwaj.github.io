@@ -197,6 +197,49 @@ It is usually that the workload did not fit the model well.
 
 ---
 
+## Task Shape Matters More Than API Choice
+
+A reader should come away with one practical lesson here:
+work stealing is helpful only if the task graph gives it something useful to steal.
+That means the real design work is in decomposition.
+Tasks need enough structure that idle workers can meaningfully pick up remaining work without huge coordination cost.
+
+A good task tree usually has these properties:
+
+- each split creates independent subproblems
+- leaf work is large enough to amortize scheduling overhead
+- combining results is cheaper than the parallel work itself
+- no hot shared mutable state sits in the middle of every branch
+
+If those properties are missing, the pool can still steal tasks, but stealing will not rescue the design.
+
+## Operational Guidance
+
+When Fork/Join code underperforms in production, resist the urge to tune pool size first.
+Start with workload questions:
+
+- are tasks mostly CPU work or are they blocking on dependencies
+- is the split threshold creating enough work for all cores
+- are some branches much more expensive than others
+- are tasks spending time contending on shared structures
+
+Thread names, pool metrics, and benchmarks against a sequential baseline are more informative than abstract theory here.
+A healthy Fork/Join design usually looks calm under profiling: workers stay busy, task counts are reasonable, and the combining phase is predictable.
+
+## Testing and Review Notes
+
+In code review, ask the author to explain the intended task shape in plain language.
+If they cannot say where the split threshold comes from or why the subtasks are independent, the design is probably not mature yet.
+
+Tests should go beyond correctness of the final answer.
+Also measure:
+
+- performance against a sequential version
+- sensitivity to different thresholds
+- behavior on uneven workloads where some branches are much heavier than others
+
+That kind of review is what turns work stealing from a buzzword into an actual engineering advantage.
+
 ## Key Takeaways
 
 - Work stealing keeps Fork/Join workers busy by letting idle workers take tasks from busy ones.

@@ -195,6 +195,44 @@ These questions find most real issues quickly.
 
 ---
 
+## A Better Mental Model for Fork Join Performance
+
+Fork/Join performs well when the framework overhead is much smaller than the useful work inside each leaf task.
+That sounds obvious, but it is the rule that explains almost every success and failure.
+
+A helpful mental model is:
+
+- splitting creates opportunity for parallelism
+- every split also creates scheduling and join overhead
+- the win appears only when useful compute dominates the overhead
+
+This is why performance tuning here is rarely about one clever knob.
+It is mostly about choosing task boundaries that match the hardware and the workload.
+
+## What to Measure Before Optimizing
+
+Before changing thresholds or pool settings, measure three things:
+
+- sequential baseline time
+- parallel time at realistic data sizes
+- CPU utilization while the workload runs
+
+Those numbers answer whether the code is actually using cores well or merely creating more coordination work.
+If CPU stays low, blocking or under-splitting may be the issue.
+If CPU is high but throughput is poor, tiny tasks, allocation pressure, or shared-state contention may be the culprit.
+
+## Testing and Review Notes
+
+Performance-sensitive Fork/Join code should ship with both correctness tests and benchmark evidence.
+Reviewers should expect answers to questions like:
+
+- why is this threshold appropriate
+- what happens on small inputs
+- what happens on skewed or irregular inputs
+- how much faster is this than the sequential version after warm-up
+
+That discipline keeps the team from preserving parallel complexity that never actually pays for itself.
+
 ## Key Takeaways
 
 - Most Fork/Join slowdowns come from mismatched workload shape, bad granularity, or blocking tasks.

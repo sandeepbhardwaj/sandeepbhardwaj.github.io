@@ -149,6 +149,52 @@ Reactive remains compelling when:
 
 ---
 
+## Runnable Comparison Shape
+
+The programming styles look different even before performance enters the picture:
+
+```java
+// Classic thread-per-request style
+OrderSummary summary = loadOrder(orderId);
+Inventory inventory = loadInventory(orderId);
+return render(summary, inventory);
+```
+
+```java
+// Reactive shape
+return orderClient.load(orderId)
+        .zipWith(inventoryClient.load(orderId))
+        .map(tuple -> render(tuple.getT1(), tuple.getT2()));
+```
+
+```java
+// Virtual-thread request style
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    Future<OrderSummary> summary = executor.submit(() -> loadOrder(orderId));
+    Future<Inventory> inventory = executor.submit(() -> loadInventory(orderId));
+    return render(summary.get(), inventory.get());
+}
+```
+
+The point is not that one snippet is universally superior.
+It is that each model changes where complexity lives: direct control flow, pipeline composition, or structured blocking concurrency.
+
+## Operational Trade-Offs
+
+These models also differ operationally.
+Reactive systems often shine when explicit backpressure and end-to-end non-blocking behavior are core requirements.
+Virtual-thread designs shine when straightforward code and high blocking concurrency matter more.
+Classic platform-thread-per-request remains viable for simpler or lower-concurrency systems where the traditional cost model is acceptable.
+
+A reader should evaluate not just throughput but also debugging cost, failure handling clarity, and how easily the team can explain the concurrency story during an incident.
+
+## Team and Migration Considerations
+
+Architecture is chosen by teams, not by benchmarks alone.
+If the team is fluent in reactive design and the stack is truly non-blocking, reactive may still be the right long-term model.
+If most complexity exists only because old thread scarcity forced awkward async code, virtual threads may let the system become dramatically simpler.
+The best choice is the one whose operational model the team can sustain.
+
 ## Key Takeaways
 
 - Classic thread-per-request is simple but historically constrained by expensive platform threads.

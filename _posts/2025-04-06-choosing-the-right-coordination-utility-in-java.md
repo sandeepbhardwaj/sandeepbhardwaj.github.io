@@ -227,6 +227,43 @@ The hardest coordination bugs usually come from a mismatch between the primitive
 
 ---
 
+## Example Shapes
+
+A selector post benefits from more than one concrete example because the whole point is to recognize workflow shape.
+
+### Example 1: One-Shot Startup Gate with CountDownLatch
+
+```java
+CountDownLatch startup = new CountDownLatch(3);
+executor.submit(() -> warmCache(startup));
+executor.submit(() -> loadRoutes(startup));
+executor.submit(() -> startConsumers(startup));
+startup.await();
+```
+
+This is a one-shot gate:
+
+- fixed count
+- one release moment
+- no reuse across rounds
+
+### Example 2: Concurrency Limit with Semaphore
+
+```java
+Semaphore dbPermits = new Semaphore(20);
+if (dbPermits.tryAcquire()) {
+    try {
+        callDatabase();
+    } finally {
+        dbPermits.release();
+    }
+}
+```
+
+This is not about phases or completion groups.
+It is about admission control.
+Seeing both examples side by side makes the utility boundary much clearer.
+
 ## Key Takeaways
 
 - Choose coordination utilities by synchronization shape, not by API familiarity.

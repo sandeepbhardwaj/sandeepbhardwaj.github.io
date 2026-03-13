@@ -177,6 +177,19 @@ This mindset is safer and simpler than trying to reason about exceptional cases 
 
 ---
 
+## Production Review Notes
+
+In real code review, the question is not whether someone can reproduce a spurious wakeup in a small demo.
+The real question is whether the waiting logic is correct under every allowed wakeup path.
+Check for three things together:
+
+- the predicate is read while holding the same monitor
+- the thread waits in a `while` loop, not an `if`
+- the code that makes the predicate true performs state change before signaling
+
+If any of those pieces is missing, the code is relying on timing luck rather than on the contract.
+That is why condition rechecking is one of the most important habits in low-level monitor code.
+
 ## Key Takeaways
 
 - spurious wakeups are allowed by the Java waiting contract

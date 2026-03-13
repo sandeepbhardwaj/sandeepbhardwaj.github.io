@@ -182,6 +182,16 @@ Without jitter or lease ownership rules, the system can burn compute while job c
 
 ---
 
+## Testing and Review Notes
+
+Livelock deserves tests that look for lack of useful progress, not only for blocked states.
+That is a subtle but important distinction.
+A livelocked system may show active threads, increasing retry counters, and lots of log noise while still completing almost no real work.
+
+In review, ask whether the conflict-resolution strategy breaks symmetry.
+If all contenders react the same way at the same time, livelock risk rises sharply.
+Add jitter, bounded retries, or an ownership rule so that "be polite and retry" does not become a permanent traffic dance.
+
 ## Key Takeaways
 
 - Livelock means the system is active but not making useful progress.

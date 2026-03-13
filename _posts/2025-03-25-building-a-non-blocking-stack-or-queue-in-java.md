@@ -169,6 +169,71 @@ The standard library already covers most real needs.
 
 ---
 
+## Mental Model
+
+A non-blocking stack or queue is not merely "a collection without locks."
+It is an algorithm whose correctness depends on many threads coordinating through repeated state observations and conditional updates.
+That means the real work is in preserving structural invariants while other threads keep interfering.
+
+For a stack, the core state is often just the head pointer, so the shape is relatively approachable.
+For a queue, the state usually involves more moving pieces such as head, tail, and linkage assumptions.
+That is one reason non-blocking queues are harder to design and verify correctly than non-blocking stacks.
+
+## Why Backpressure and Ownership Still Matter
+
+Even if the data structure itself is lock-free, the surrounding system still needs a policy for overload.
+A non-blocking queue does not magically solve:
+
+- what happens when producers outrun consumers
+- how memory growth is bounded
+- how cancellation or shutdown interacts with in-flight nodes
+- whether retries and contention are acceptable at peak load
+
+That is a valuable reader lesson.
+Algorithmic progress guarantees and system-level capacity control are different concerns.
+You still need a coherent admission, draining, and observability story around the structure.
+
+## Testing and Review Notes
+
+Custom non-blocking structures need stronger testing than ordinary collection wrappers.
+Useful checks include:
+
+- repeated push-pop or enqueue-dequeue races
+- integrity assertions on final size and remaining elements
+- stress tests that run far longer than a normal unit test
+- comparisons against a simpler lock-based version for both correctness and performance
+
+If the benchmark win is small and the maintenance burden is large, the custom structure is often the wrong trade.
+For most application teams, built-in concurrent queues are the right default unless there is a measured reason to go lower level.
+
+## Second Example: The Built-In Queue Alternative
+
+A second example matters here because most readers should not build their own queue.
+They should recognize when the JDK already provides the right abstraction.
+
+```java
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+public class ConcurrentLinkedQueueDemo {
+
+    public static void main(String[] args) {
+        Queue<String> queue = new ConcurrentLinkedQueue<>();
+        queue.offer("A");
+        queue.offer("B");
+
+        System.out.println(queue.poll());
+        System.out.println(queue.poll());
+    }
+}
+```
+
+This is a useful contrast with the custom stack:
+
+- the lock-free algorithm already exists
+- the queue edge cases are already handled
+- application code stays focused on business behavior instead of non-blocking algorithm maintenance
+
 ## Key Takeaways
 
 - A non-blocking stack can be built with an atomic head pointer and CAS loops.

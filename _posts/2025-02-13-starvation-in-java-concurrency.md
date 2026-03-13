@@ -157,6 +157,39 @@ They are not free, but they can matter for specific workloads.
 
 ---
 
+## Operational Signals and Review Notes
+
+Starvation is easiest to miss when dashboards show that the service is "up" overall.
+The important signal is often unevenness:
+
+- one queue grows while another stays healthy
+- some request classes hit timeouts while others stay fast
+- housekeeping or refresh jobs drift later and later
+- specific thread pools stay saturated for long periods
+
+In review, ask who can be postponed indefinitely by this design.
+If there is no clear answer, you probably do not yet understand the fairness story.
+That question is especially important with shared executors, unfair locks, and mixed latency classes in one queue.
+
+## Testing Strategy
+
+Tests for starvation should not only assert eventual completion under light load.
+They should also simulate sustained occupancy where fast or favored work keeps arriving.
+That is when fairness assumptions are exposed.
+If one class of work only succeeds when the system is mostly idle, the design is probably already too fragile.
+
+## Design Heuristic
+
+A practical rule is to separate work by latency class before starvation symptoms force you to.
+Fast request work, slow blocking maintenance, and low-priority background tasks should not all depend on the same small queue and the same handful of workers if fairness matters to the feature.
+That separation is often more effective than trying to rescue a mixed workload later with tuning alone.
+
+## Capacity Planning Note
+
+Starvation is often a sizing and ownership problem as much as a locking problem.
+If important work has no reserved path to execution, it will eventually compete with work that should never have been allowed to dominate it.
+That is why queue ownership and workload separation are design decisions, not just tuning details.
+
 ## Key Takeaways
 
 - Starvation means some threads or tasks repeatedly fail to get enough progress.

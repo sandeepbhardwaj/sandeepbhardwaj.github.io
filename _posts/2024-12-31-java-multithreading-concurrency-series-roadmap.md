@@ -81,8 +81,6 @@ Concurrency becomes useful only when it is tied to real throughput, latency, cor
 
 ## Publishing Plan
 
-- Start date: January 1, 2025
-- End date: June 9, 2025
 - Cadence: 1 post per day
 - Planned posts: 160
 - Planned module banners: 12
@@ -91,54 +89,19 @@ Each module uses a shared banner so the series stays visually consistent without
 
 ---
 
-## Series Timeline
-
-### January 1, 2025 to January 10, 2025
+## Series Structure
 
 - Module 1: Foundations Before Writing Threads
-
-### January 11, 2025 to January 20, 2025
-
 - Module 2: Core Thread Basics
-
-### January 21, 2025 to February 3, 2025
-
 - Module 3: Intrinsic Locking and Monitor Mechanics
-
-### February 4, 2025 to February 17, 2025
-
 - Module 4: Concurrency Bugs and Failure Modes
-
-### February 18, 2025 to March 1, 2025
-
 - Module 5: `volatile`, Immutability, and Safe Sharing
-
-### March 2, 2025 to March 15, 2025
-
 - Module 6: Explicit Locks and Conditions
-
-### March 16, 2025 to March 26, 2025
-
 - Module 7: Atomics and Non-Blocking Techniques
-
-### March 27, 2025 to April 6, 2025
-
 - Module 8: Coordination Utilities
-
-### April 7, 2025 to April 23, 2025
-
 - Module 9: Concurrent Collections and Blocking Queues
-
-### April 24, 2025 to May 11, 2025
-
 - Module 10: Executors, Futures, and Task Orchestration
-
-### May 12, 2025 to May 26, 2025
-
 - Module 11: Fork/Join, Parallelism, and Async Composition
-
-### May 27, 2025 to June 9, 2025
-
 - Module 12: Testing, Diagnostics, and Modern Java Concurrency
 
 All posts in the series follow the same public path shape:

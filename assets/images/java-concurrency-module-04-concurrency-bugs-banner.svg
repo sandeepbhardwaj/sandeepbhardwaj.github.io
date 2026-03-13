@@ -13,9 +13,6 @@
     <path d="M1080 110l220 220M1300 110l-220 220"/>
     <circle cx="1190" cy="220" r="150"/>
   </g>
-  <rect x="90" y="84" width="290" height="42" rx="21" fill="#ef4444"/>
-  <text x="235" y="111" fill="#fef2f2" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
-  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 4</text>
-  <text x="90" y="278" fill="#fee2e2" font-size="42" font-family="Arial, Helvetica, sans-serif">Concurrency Bugs and Failure Modes</text>
-  <text x="90" y="344" fill="#fed7aa" font-size="24" font-family="Arial, Helvetica, sans-serif">Race conditions, deadlocks, stale reads, starvation, and throughput collapse.</text>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#f97316"/>
+  <text x="235" y="111" fill="#fff7ed" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
 </svg>

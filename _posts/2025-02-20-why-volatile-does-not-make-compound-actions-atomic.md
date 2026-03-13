@@ -159,6 +159,37 @@ The rule is simple:
 
 ---
 
+## The Mental Model to Remember
+
+`volatile` answers a visibility question:
+
+- when one thread writes, when do other threads reliably see that write
+
+Atomicity answers a different question:
+
+- can this whole multi-step transition be observed or interleaved halfway through
+
+Those questions are related, but they are not interchangeable.
+That is why `volatile` can be exactly correct for a stop flag and completely wrong for a counter or reservation step.
+
+## Testing and Review Notes
+
+Whenever code combines `volatile` with logic that spans more than one step, review aggressively.
+Look for patterns like:
+
+- read then write
+- check then act
+- compare one field and update another
+- compute a new value from the old one
+
+If the correctness rule depends on those steps staying together, a visibility keyword alone cannot enforce it.
+
+## A Quick Review Shortcut
+
+If you can describe an operation as read-modify-write, compare-and-decide, or check-then-act, stop and verify atomicity explicitly.
+Those phrases are strong clues that visibility alone is not enough.
+They are the review language that catches many mistaken `volatile` designs early.
+
 ## Key Takeaways
 
 - `volatile` does not make read-modify-write or check-then-act code safe.

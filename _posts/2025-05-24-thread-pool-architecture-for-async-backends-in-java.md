@@ -184,6 +184,38 @@ It is clear concurrency boundaries.
 
 ---
 
+## Capacity Domains
+
+A useful way to design executor architecture is to think in capacity domains.
+Each pool is a statement that one workload class should have its own queue, its own saturation point, and its own failure behavior.
+That is why "one pool per service" ages badly.
+It forces unrelated work to share a fate they should not share.
+
+Examples of separate capacity domains include:
+
+- request-scoped blocking I/O
+- CPU-heavy response transformation
+- scheduled maintenance and retries
+- low-priority cache warm-up or refresh tasks
+
+Once those domains are explicit, overload policy becomes far easier to reason about.
+
+## Testing and Operational Notes
+
+Architecture posts are only useful if they translate into review questions.
+For each executor, document:
+
+- owner workload
+- queue bound
+- rejection policy
+- thread naming pattern
+- expected steady-state utilization
+
+Then test saturation deliberately.
+What happens when the I/O pool backs up?
+What happens when maintenance work falls behind?
+The point of separate pools is not only performance tuning; it is predictable failure isolation under load.
+
 ## Key Takeaways
 
 - Async backends still need explicit thread-pool architecture.

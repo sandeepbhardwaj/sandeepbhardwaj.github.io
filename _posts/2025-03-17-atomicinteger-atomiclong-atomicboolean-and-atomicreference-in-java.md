@@ -178,6 +178,88 @@ then an atomic field is often too small a tool for the job.
 
 ---
 
+## Choosing the Type by State Shape
+
+A useful selection rule is to choose the atomic type based on what the shared state actually represents.
+
+Use `AtomicInteger` or `AtomicLong` when the value is fundamentally numeric:
+
+- counters
+- sequence numbers
+- retry budgets
+- rolling timestamps or versions
+
+Use `AtomicBoolean` when the whole question is a binary gate:
+
+- has startup completed
+- has shutdown begun
+- should workers keep running
+
+Use `AtomicReference<T>` when the real shared state is an immutable object snapshot.
+That is often the most powerful pattern in application code because it lets you keep complex state off to the side in an immutable value while the atomic reference handles publication and replacement.
+
+## Production Patterns
+
+The most maintainable production uses are usually the boring ones.
+Examples include:
+
+- swapping the current configuration snapshot after a refresh finishes
+- exposing a shutdown flag checked by worker loops
+- tracking last processed offset or sequence number
+- implementing an idempotent one-time transition such as "open" to "closed"
+
+These patterns work because readers can understand them in one sentence.
+If your `AtomicReference` starts carrying mutable objects that are then modified after publication, you lose most of the benefit.
+The cleaner pattern is:
+
+1. build a new immutable value off-thread
+2. validate it
+3. atomically replace the current reference
+4. let readers observe either old or new, but never a partial mix
+
+## Testing and Review Notes
+
+For these atomic types, many failures come from surrounding assumptions rather than the atomic operation itself.
+Review for questions like:
+
+- is `AtomicBoolean` being used where a broader lifecycle lock is actually needed
+- does the numeric counter need exact snapshots or only eventual totals
+- is `AtomicReference` pointing to immutable state, or to something still being mutated elsewhere
+- are callers depending on several reads staying consistent with one another
+
+Tests should include repeated concurrent reads and writes plus clear assertions about what outcomes are allowed.
+For example, a snapshot-swap test should allow readers to see either version A or version B, but should never allow them to see a half-updated combination derived from both.
+
+## Second Example: One-Time Transition with AtomicBoolean
+
+A second scenario worth seeing is a one-time transition where only the first caller should win.
+That is where `compareAndSet` on `AtomicBoolean` becomes more meaningful than a plain `set(true)`.
+
+```java
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class DrainSwitchDemo {
+
+    public static void main(String[] args) {
+        DrainSwitch drainSwitch = new DrainSwitch();
+
+        System.out.println(drainSwitch.beginDrain());
+        System.out.println(drainSwitch.beginDrain());
+    }
+
+    static final class DrainSwitch {
+        private final AtomicBoolean draining = new AtomicBoolean(false);
+
+        boolean beginDrain() {
+            return draining.compareAndSet(false, true);
+        }
+    }
+}
+```
+
+Only the first caller transitions the service into draining mode.
+That is a different use case from counters or snapshot references, and it helps show why atomic type choice follows state meaning.
+
 ## Key Takeaways
 
 - `AtomicInteger`, `AtomicLong`, `AtomicBoolean`, and `AtomicReference` cover most practical single-variable atomic needs.

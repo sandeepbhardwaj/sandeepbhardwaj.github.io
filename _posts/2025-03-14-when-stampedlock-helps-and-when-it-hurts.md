@@ -183,6 +183,23 @@ If you cannot say those things clearly, the safer choice is usually not `Stamped
 
 ---
 
+## What Optimistic Read Actually Promises
+
+An optimistic read does not mean "safe without coordination."
+It means:
+
+- read the fields without taking a full read lock
+- then prove afterward that no conflicting write invalidated the observation
+
+That is a narrower promise than many readers first assume.
+It works best when the read touches a small, coherent slice of state that can be validated immediately.
+The longer the read-side work and the more scattered the data, the less attractive the optimistic path becomes.
+
+## Review Notes
+
+If `StampedLock` appears in application code, ask for profiling evidence and for a clear explanation of why immutable snapshot replacement or `ReentrantReadWriteLock` is not sufficient.
+That keeps the design grounded in measured need instead of API prestige.
+
 ## Key Takeaways
 
 - `StampedLock` helps in narrow read-mostly scenarios where optimistic reads usually validate.

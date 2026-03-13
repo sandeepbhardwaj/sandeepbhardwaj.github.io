@@ -177,6 +177,27 @@ Naming threads and pools consistently matters here just as much as in deadlock d
 
 ---
 
+## Ownership Rule
+
+A simple rule prevents many leakage bugs:
+who creates the executor must define its lifecycle.
+If ownership is unclear, shutdown will eventually be unclear too.
+That is why hidden internal pools inside helpers and utility classes are so dangerous.
+They create concurrency resources without making anyone responsible for:
+
+- shutdown ordering
+- queue draining
+- rejected work policy
+- thread naming and monitoring
+
+Treating executors as application infrastructure instead of convenient helper objects is one of the healthiest architectural upgrades a service team can make.
+
+## Testing and Review Notes
+
+Leakage bugs often hide until long-running integration or soak tests.
+Add checks around thread-count growth, pool shutdown, and repeated create-destroy cycles.
+A service that looks fine after one request can still leak badly after ten thousand.
+
 ## Key Takeaways
 
 - Threads and executors are resources with lifecycle, not disposable implementation details.

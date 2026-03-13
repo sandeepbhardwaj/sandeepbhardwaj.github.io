@@ -176,6 +176,32 @@ The correct fix depends on the underlying ownership model, not on lock aversion.
 
 ---
 
+## What Healthy and Unhealthy Contention Look Like
+
+Not all contention is a bug.
+A healthy system may show short waits on small critical sections while still maintaining good throughput and predictable latency.
+Unhealthy contention usually looks different:
+
+- many threads pile up behind the same monitor or lock
+- the owner spends too long inside the critical section
+- queue depth and tail latency rise together
+- adding threads stops helping and may even hurt
+
+That distinction matters because the fix is not always "remove the lock."
+Sometimes the right answer is to shrink the protected work, split the state, or move blocking I/O out of the critical section.
+
+## A Step by Step Investigation Flow
+
+A practical investigation sequence is:
+
+1. identify the hottest contended lock or monitor
+2. inspect what work happens while holding it
+3. check how often that path executes and under which workload
+4. decide whether the state can be partitioned, ownership changed, or the critical section shortened
+
+Profiling should lead to a design decision, not just to a screenshot of a hot lock.
+The important outcome is understanding why that piece of shared state became a bottleneck in the first place.
+
 ## Key Takeaways
 
 - Lock contention profiling helps find the real serialization points that limit throughput.

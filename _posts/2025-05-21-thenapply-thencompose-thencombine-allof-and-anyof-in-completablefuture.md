@@ -202,6 +202,36 @@ That maps directly to:
 
 ---
 
+## Second Example: Nested Futures versus Flattened Futures
+
+The most common operator confusion is easier to understand when you see the bad and good shapes next to each other.
+
+```java
+import java.util.concurrent.CompletableFuture;
+
+public class NestedFutureDemo {
+
+    public static void main(String[] args) {
+        CompletableFuture<String> orderId = CompletableFuture.completedFuture("order-42");
+
+        CompletableFuture<CompletableFuture<String>> nested =
+                orderId.thenApply(NestedFutureDemo::loadAsync);
+
+        CompletableFuture<String> flat =
+                orderId.thenCompose(NestedFutureDemo::loadAsync);
+
+        System.out.println(nested.join().join());
+        System.out.println(flat.join());
+    }
+
+    static CompletableFuture<String> loadAsync(String id) {
+        return CompletableFuture.completedFuture("loaded-" + id);
+    }
+}
+```
+
+That small contrast explains why `thenCompose` exists much better than prose alone.
+
 ## Key Takeaways
 
 - `thenApply` transforms a result, `thenCompose` chains to another async stage, and `thenCombine` merges independent futures.

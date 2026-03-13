@@ -163,6 +163,36 @@ Read-write locking is a workload-specific optimization, not a default replacemen
 
 ---
 
+## When "Read-Mostly" Is Really True
+
+Teams often describe workloads as read-heavy too casually.
+The useful question is not whether reads happen often.
+It is whether writes are rare enough, short enough, and isolated enough that shared read concurrency will actually reduce meaningful waiting.
+
+If writes happen regularly, or if readers quickly need to upgrade into writes, the benefit shrinks fast.
+That is why `ReadWriteLock` should be justified with workload shape rather than intuition.
+The optimization only pays when reader-reader overlap is a real source of avoidable blocking.
+
+## Testing and Review Notes
+
+Benchmark against a simple exclusive lock under realistic read-write ratios.
+If the gain is tiny, the added complexity may not be worth carrying through the codebase.
+
+## Alternatives Worth Comparing
+
+Before settling on a read-write lock, also compare two other shapes:
+
+- immutable snapshot replacement for read-mostly data
+- one plain exclusive lock for simpler mutable state
+
+If either alternative explains the concurrency story more clearly with similar performance, it is usually the better long-term choice.
+
+## A Practical Alternative
+
+For read-mostly shared data, immutable snapshot replacement is often worth comparing directly.
+It removes reader locking entirely and can make the concurrency story easier to explain than a mutable structure protected by separate read and write paths.
+That comparison helps readers choose by workload and maintainability, not by API novelty.
+
 ## Key Takeaways
 
 - `ReadWriteLock` allows shared reads and exclusive writes.

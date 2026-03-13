@@ -149,6 +149,102 @@ Without that kind of reason, `VarHandle` usually increases complexity without he
 
 ---
 
+## Mental Model
+
+`VarHandle` is best understood as a low-level access mechanism, not as a friendlier replacement for everyday concurrency APIs.
+It gives controlled access to fields and array elements with a range of access modes:
+
+- plain
+- opaque
+- acquire and release
+- volatile
+- compare-and-set and related atomic operations
+
+That makes it much more expressive than the older reflective atomic utilities.
+It also means the caller is closer to the memory-model details.
+This power is useful for library authors, frameworks, and specialized runtime code, but it increases the burden on the person reading or maintaining it.
+
+## Why Most Application Code Should Be Careful
+
+Many business applications never need `VarHandle` directly.
+If the problem can already be solved with `AtomicReference`, a lock, an executor boundary, or a concurrent collection, those tools usually communicate intent better.
+
+`VarHandle` becomes attractive when you are:
+
+- building custom synchronization utilities
+- working on specialized data structures
+- needing finer access modes than the atomic wrappers expose
+- replacing older low-level mechanisms in library code
+
+The danger is not that `VarHandle` is bad.
+The danger is that it can make a design look compact while hiding memory-ordering assumptions that are harder for most teams to review.
+
+## Testing and Review Notes
+
+Treat `VarHandle` code like systems code.
+Review for:
+
+- exact access mode choice and why it is sufficient
+- publication and visibility assumptions across threads
+- whether a higher-level primitive would express the intent more clearly
+- how many engineers on the team can debug this path under incident pressure
+
+Testing should be heavier than normal application tests.
+Repeated stress runs, focused state-transition assertions, and strong comments around the concurrency contract are worth the effort here because the code is operating closer to the language memory model.
+
+## Second Example: Release and Acquire Publication
+
+The first example used `compareAndSet`.
+A second example is useful because `VarHandle` also exists for finer-grained memory ordering, not only for CAS.
+
+```java
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+
+public class VarHandleReleaseAcquireDemo {
+
+    public static void main(String[] args) {
+        MessageSlot slot = new MessageSlot();
+        slot.publish("ready");
+        System.out.println(slot.read());
+    }
+
+    static final class MessageSlot {
+        private static final VarHandle READY;
+
+        static {
+            try {
+                READY = MethodHandles.lookup()
+                        .findVarHandle(MessageSlot.class, "ready", boolean.class);
+            } catch (ReflectiveOperationException e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
+
+        private String payload;
+        private volatile boolean ready;
+
+        void publish(String value) {
+            payload = value;
+            READY.setRelease(this, true);
+        }
+
+        String read() {
+            if (!(boolean) READY.getAcquire(this)) {
+                return "not-ready";
+            }
+            return payload;
+        }
+    }
+}
+```
+
+This scenario is what ordinary atomic wrappers cannot express as clearly:
+
+- publish data first
+- then publish the ready signal with release semantics
+- readers observe the signal with acquire semantics
+
 ## Key Takeaways
 
 - `VarHandle` is Java's modern supported low-level mechanism for atomic access and memory-order control.

@@ -171,6 +171,29 @@ If the answer is "I need a workflow," `CompletableFuture` is usually the right t
 
 ---
 
+## A Production-Shaped Comparison
+
+The deepest difference between these abstractions is where complexity lives.
+With plain `Future`, the workflow complexity usually stays outside the abstraction.
+The caller submits work, keeps track of the handle, and decides later when to block.
+With `CompletableFuture`, more of the workflow can live inside the composition graph itself.
+
+That makes `CompletableFuture` better for fan-out, transformation, fallback, and combination.
+It also means careless code can build long async chains that are harder to debug than a simple submit-and-wait path.
+The right choice depends on whether the workflow really is simple or whether the simplicity is only being outsourced to the caller.
+
+## Testing and Operational Notes
+
+When comparing the two in real code, review more than syntax.
+Ask:
+
+- will this code block anyway at a clear boundary
+- do we need composition or just delayed retrieval
+- who owns timeout and cancellation behavior
+- how will failures be logged and traced
+
+That line of questioning often reveals that some paths are genuinely simple enough for `Future`, while others benefit from `CompletableFuture` because the composition is intrinsic to the feature.
+
 ## Key Takeaways
 
 - Plain `Future` is mainly a blocking result handle; `CompletableFuture` is a richer async composition abstraction.

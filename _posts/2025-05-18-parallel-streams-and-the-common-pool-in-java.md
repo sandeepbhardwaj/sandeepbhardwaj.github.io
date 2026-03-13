@@ -185,6 +185,29 @@ Parallel streams are best when the code and the execution model are both simple.
 
 ---
 
+## A Production-Shaped Failure Pattern
+
+One of the most common real failures is not a wrong result but an invisible capacity collision.
+A service introduces parallel streams in several places because each call site looks independent.
+Later, latency becomes erratic because all of those pipelines are now competing for the same common-pool workers.
+Add one blocking stage somewhere in the mix and the interference gets even worse.
+
+This is why experienced teams treat `parallelStream()` as a resource decision, not just a collection-method decision.
+The line of code is small, but the scheduling consequences are process-wide.
+
+## Review and Testing Notes
+
+Do not approve parallel-stream changes on elegance alone.
+Review for:
+
+- whether the pipeline is CPU-bound rather than blocking
+- whether side effects or shared mutable state appear anywhere in the stages
+- whether the service already relies on the common pool in other components
+- whether a simple benchmark showed a meaningful win at realistic sizes
+
+A useful test is to compare sequential and parallel versions under data sizes that resemble production, not toy inputs.
+If the measured win is tiny or unstable, the clearer sequential pipeline is usually the better engineering choice.
+
 ## Key Takeaways
 
 - Parallel streams usually execute on the shared Fork/Join common pool.

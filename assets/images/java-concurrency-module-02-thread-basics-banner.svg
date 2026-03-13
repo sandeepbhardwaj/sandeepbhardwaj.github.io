@@ -14,9 +14,6 @@
     <path d="M1100 150h220"/>
     <path d="M1180 90v120"/>
   </g>
-  <rect x="90" y="84" width="290" height="42" rx="21" fill="#fb7185"/>
-  <text x="235" y="111" fill="#fff1f2" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
-  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 2</text>
-  <text x="90" y="278" fill="#e0f2fe" font-size="42" font-family="Arial, Helvetica, sans-serif">Core Thread Basics</text>
-  <text x="90" y="344" fill="#dbeafe" font-size="24" font-family="Arial, Helvetica, sans-serif">Thread, Runnable, Callable, join, interruption, and task lifecycle basics.</text>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#f97316"/>
+  <text x="235" y="111" fill="#fff7ed" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
 </svg>

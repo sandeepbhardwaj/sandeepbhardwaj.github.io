@@ -14,9 +14,6 @@
     <circle cx="1260" cy="210" r="50"/>
     <path d="M1080 210h220"/>
   </g>
-  <rect x="90" y="84" width="290" height="42" rx="21" fill="#10b981"/>
-  <text x="235" y="111" fill="#ecfdf5" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
-  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 7</text>
-  <text x="90" y="278" fill="#d1fae5" font-size="42" font-family="Arial, Helvetica, sans-serif">Atomics and Non-Blocking Techniques</text>
-  <text x="90" y="344" fill="#bbf7d0" font-size="24" font-family="Arial, Helvetica, sans-serif">CAS, AtomicReference, LongAdder, VarHandle, and lock-free trade-offs.</text>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#f97316"/>
+  <text x="235" y="111" fill="#fff7ed" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
 </svg>

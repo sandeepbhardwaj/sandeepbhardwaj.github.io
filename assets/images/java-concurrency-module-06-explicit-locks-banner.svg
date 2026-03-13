@@ -12,9 +12,6 @@
   <g fill="none" stroke="rgba(255,255,255,0.12)">
     <path d="M1120 170a70 70 0 1 1 140 0v40h40v120h-220V210h40z"/>
   </g>
-  <rect x="90" y="84" width="290" height="42" rx="21" fill="#8b5cf6"/>
-  <text x="235" y="111" fill="#f5f3ff" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
-  <text x="90" y="210" fill="#f8fafc" font-size="56" font-weight="700" font-family="Arial, Helvetica, sans-serif">Module 6</text>
-  <text x="90" y="278" fill="#ede9fe" font-size="42" font-family="Arial, Helvetica, sans-serif">Explicit Locks and Conditions</text>
-  <text x="90" y="344" fill="#fde68a" font-size="24" font-family="Arial, Helvetica, sans-serif">ReentrantLock, Condition, ReadWriteLock, and StampedLock in practice.</text>
+  <rect x="90" y="84" width="290" height="42" rx="21" fill="#f97316"/>
+  <text x="235" y="111" fill="#fff7ed" font-size="22" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Java Concurrency Series</text>
 </svg>
