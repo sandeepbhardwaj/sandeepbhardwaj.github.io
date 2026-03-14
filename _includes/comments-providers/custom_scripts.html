@@ -1,0 +1,110 @@
+{% assign comments = site.comments %}
+{% assign giscus = comments.giscus %}
+{% assign repo = giscus.repo | default: site.repository | default: "" | strip %}
+{% assign repo_id = giscus.repo_id | default: "" | strip %}
+{% assign category = giscus.category | default: "" | strip %}
+{% assign category_id = giscus.category_id | default: "" | strip %}
+{% assign mapping = giscus.mapping | default: "pathname" | strip %}
+{% assign term = giscus.term | default: "" | strip %}
+{% assign strict = giscus.strict | default: "0" | strip %}
+{% assign reactions_enabled = giscus.reactions_enabled | default: "1" | strip %}
+{% assign emit_metadata = giscus.emit_metadata | default: "0" | strip %}
+{% assign input_position = giscus.input_position | default: "top" | strip %}
+{% assign light_theme = giscus.light_theme | default: "light" | strip %}
+{% assign dark_theme = giscus.dark_theme | default: "dark_dimmed" | strip %}
+{% assign lang = giscus.lang | default: "en" | strip %}
+{% assign loading = giscus.loading | default: "lazy" | strip %}
+
+{% if comments.provider == "custom" and page.comments and giscus.enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
+  <script>
+    (function () {
+      "use strict";
+
+      var config = {
+        repo: {{ repo | jsonify }},
+        repoId: {{ repo_id | jsonify }},
+        category: {{ category | jsonify }},
+        categoryId: {{ category_id | jsonify }},
+        mapping: {{ mapping | jsonify }},
+        term: {{ term | jsonify }},
+        strict: {{ strict | jsonify }},
+        reactionsEnabled: {{ reactions_enabled | jsonify }},
+        emitMetadata: {{ emit_metadata | jsonify }},
+        inputPosition: {{ input_position | jsonify }},
+        lightTheme: {{ light_theme | jsonify }},
+        darkTheme: {{ dark_theme | jsonify }},
+        lang: {{ lang | jsonify }},
+        loading: {{ loading | jsonify }}
+      };
+
+      function activeSiteTheme() {
+        return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      }
+
+      function activeGiscusTheme() {
+        return activeSiteTheme() === "dark" ? config.darkTheme : config.lightTheme;
+      }
+
+      function giscusContainer() {
+        return document.querySelector(".giscus");
+      }
+
+      function giscusFrame() {
+        return document.querySelector("iframe.giscus-frame");
+      }
+
+      function syncGiscusTheme() {
+        var frame = giscusFrame();
+        if (!frame || !frame.contentWindow) return;
+
+        frame.contentWindow.postMessage(
+          { giscus: { setConfig: { theme: activeGiscusTheme() } } },
+          "https://giscus.app"
+        );
+      }
+
+      function loadGiscus() {
+        var container = giscusContainer();
+        if (!container || container.getAttribute("data-giscus-loaded") === "true") return;
+
+        var script = document.createElement("script");
+        script.src = "https://giscus.app/client.js";
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        script.setAttribute("data-repo", config.repo);
+        script.setAttribute("data-repo-id", config.repoId);
+        script.setAttribute("data-category", config.category);
+        script.setAttribute("data-category-id", config.categoryId);
+        script.setAttribute("data-mapping", config.mapping);
+        script.setAttribute("data-strict", config.strict);
+        script.setAttribute("data-reactions-enabled", config.reactionsEnabled);
+        script.setAttribute("data-emit-metadata", config.emitMetadata);
+        script.setAttribute("data-input-position", config.inputPosition);
+        script.setAttribute("data-theme", activeGiscusTheme());
+        script.setAttribute("data-lang", config.lang);
+
+        if (config.term) {
+          script.setAttribute("data-term", config.term);
+        }
+
+        if (config.loading) {
+          script.setAttribute("data-loading", config.loading);
+        }
+
+        container.appendChild(script);
+        container.setAttribute("data-giscus-loaded", "true");
+      }
+
+      function init() {
+        loadGiscus();
+        window.addEventListener("site-theme-change", syncGiscusTheme);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init, { once: true });
+      } else {
+        init();
+      }
+    })();
+  </script>
+{% endif %}

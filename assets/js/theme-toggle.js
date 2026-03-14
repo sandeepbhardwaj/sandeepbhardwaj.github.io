@@ -79,6 +79,9 @@
     document.documentElement.classList.toggle("dark-mode", theme === THEMES.dark);
     updateThemeStylesheet(theme);
     updateToggleUI(theme);
+    window.dispatchEvent(new CustomEvent("site-theme-change", {
+      detail: { theme: theme }
+    }));
   }
 
   function handleToggleClick() {
