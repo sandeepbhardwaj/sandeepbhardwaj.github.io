@@ -1,0 +1,13 @@
+{% assign comments = site.comments %}
+{% assign giscus = comments.giscus %}
+{% assign repo = giscus.repo | default: site.repository | default: "" | strip %}
+{% assign repo_id = giscus.repo_id | default: "" | strip %}
+{% assign category = giscus.category | default: "" | strip %}
+{% assign category_id = giscus.category_id | default: "" | strip %}
+
+{% if comments.provider == "custom" and page.comments and giscus.enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
+  <section class="page__comments">
+    <h4 class="page__comments-title">Comments</h4>
+    <div class="giscus"></div>
+  </section>
+{% endif %}
