@@ -10,6 +10,9 @@ on:
     # GitHub Actions cron uses UTC. 18:35 UTC = 00:05 IST (next day).
     - cron: "35 18 * * *"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -71,4 +74,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4.0.5
