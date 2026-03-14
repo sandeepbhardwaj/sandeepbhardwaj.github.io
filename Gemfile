@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby "4.0.1"
 
 gem "jekyll", "4.4.1"
-gem "minimal-mistakes-jekyll", "4.27.3"
+gem "minimal-mistakes-jekyll", "4.28.0"
 gem "liquid", "4.0.4"
 gem "faraday-retry"
 
