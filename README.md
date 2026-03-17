@@ -16,14 +16,14 @@ Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` them
 
 ## Tech Stack
 
-- 💎 Ruby `4.0.1`
+- 💎 Ruby `4.0.2`
 - 🧱 Jekyll `4.4.1`
 - 🎨 `minimal-mistakes-jekyll` `4.27.3`
 - 🔄 GitHub Actions for CI and deployment
 
 ## Local Development
 
-1. Install Ruby `4.0.1`.
+1. Install Ruby `4.0.2`.
 2. Install dependencies:
 
 ```bash
@@ -136,6 +136,13 @@ The footer subscribe link is rendered from [`_includes/footer/custom.html`](/Use
 rm -rf .bundle vendor Gemfile.lock
 bundle install
 bundle exec jekyll serve --trace
+```
+
+If `bundle` stops working immediately after a Ruby upgrade, refresh Bundler first:
+
+```bash
+gem install bundler
+bundle -v
 ```
 
 `README.md` is excluded from the generated site output.
