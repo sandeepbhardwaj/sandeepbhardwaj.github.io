@@ -129,6 +129,7 @@ social:
   name: "Sandeep Bhardwaj"
   links:
     - "https://github.com/sandeepbhardwaj"
+    - "https://www.linkedin.com/in/sandeepbhardwaj/"
 
 seo:
   type: Blog
@@ -160,3 +161,4 @@ comments:
     loading: "lazy"
 
 og_image: /assets/images/site-og-image.svg
+og_image_alt: "Code to Architecture banner with the tagline Designing Systems That Scale Beyond Code."

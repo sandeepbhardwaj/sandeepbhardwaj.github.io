@@ -18,7 +18,7 @@ Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` them
 
 - 💎 Ruby `4.0.2`
 - 🧱 Jekyll `4.4.1`
-- 🎨 `minimal-mistakes-jekyll` `4.27.3`
+- 🎨 `minimal-mistakes-jekyll` `4.28.0`
 - 🔄 GitHub Actions for CI and deployment
 
 ## Local Development
