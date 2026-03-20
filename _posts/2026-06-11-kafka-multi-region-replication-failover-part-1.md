@@ -106,3 +106,65 @@ Cut producer path to primary and verify secondary path continuity.
 - where this pattern fails under load or restart conditions
 - which metrics prove correctness and stability
 - how to convert this into a production runbook
+
+---
+
+        ## Problem 1: Failover Is a Data Ownership Problem, Not Just a Routing Problem
+
+        Problem description:
+        Multi-region Kafka plans look easy in diagrams, but failover breaks down around offset translation, producer ownership, and how consumers know which region is authoritative. Build the baseline and make the risky default behavior visible.
+
+        What we are solving actually:
+        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
+
+        What we are doing actually:
+
+        1. build the smallest working topology that demonstrates the problem clearly
+2. capture one concrete correctness or latency metric before tuning
+3. exercise the happy path and one controlled failure path
+4. write down what a clean operator signal looks like before the system grows
+
+        ```mermaid
+flowchart LR
+    A[Primary region] --> B[Replication]
+    B --> C[Secondary region]
+    C --> D[Failover consumers]
+```
+
+        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
+
+        ## Runnable Deep-Dive Snippet
+
+        ```java
+        if (primaryRegionHealthy()) {
+    producer.send(primaryRecord);
+} else {
+    producer.send(secondaryRecord);
+}
+        ```
+
+        The snippet is not meant to be a full application.
+        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
+
+        ## Verification Notes
+
+        Run a controlled failover drill and record message continuity, duplicate risk, and recovery time. A document that has never seen a drill is only an optimistic plan.
+
+        ## Failure Drill
+
+        Pause replication and then fail over reads. The inconsistency window you observe is the real cost of the topology, and it must be explicit in your operating model.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - define whether the design is active-passive or active-active before building tools around it
+- document which region owns writes during failover and recovery
+- test consumer offset behavior across region transitions
+- track replication lag as a correctness signal, not just a throughput metric
+
+---
+
+## Operator Prompt
+
+For multi region kafka replication and failover patterns (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

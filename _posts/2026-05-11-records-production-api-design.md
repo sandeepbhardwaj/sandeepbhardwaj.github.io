@@ -131,3 +131,67 @@ Result:
 - records are excellent for immutable API and messaging contracts.
 - validate structural invariants in compact constructors.
 - treat record component changes as versioned contract changes.
+
+---
+
+        ## Problem 1: Use Records at Boundaries Where Immutability Is an Asset
+
+        Problem description:
+        Teams often replace every DTO and domain type with records without deciding where immutable value semantics help and where lifecycle-heavy entities still need behavior.
+
+        What we are solving actually:
+        We are placing records where they strengthen API clarity, equality, and serialization contracts. The goal is not to turn every object into a record; it is to make boundary data explicit and stable.
+
+        What we are doing actually:
+
+        1. use records for request, response, and event payloads with clear value semantics
+2. validate invariants in the compact constructor so invalid data cannot exist
+3. keep mutation-heavy aggregates as regular classes with behavior
+4. treat record evolution as contract evolution and version it carefully
+
+        ```mermaid
+flowchart LR
+    A[HTTP / Messaging boundary] --> B[Record input]
+    B --> C[Validation]
+    C --> D[Domain service]
+```
+
+        This section is worth making concrete because architecture advice around records production api design often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        public record CreateCustomerRequest(String email, String country) {
+    public CreateCustomerRequest {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("email is required");
+        }
+        if (country == null || country.isBlank()) {
+            throw new IllegalArgumentException("country is required");
+        }
+    }
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Try to evolve a record used in public APIs by renaming or reordering components. You will immediately see why records work best where versioning and migration rules are already explicit.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - review serialization compatibility before changing record components
+- keep domain rules close to the constructor instead of scattered setters
+- avoid hiding behavior-heavy aggregates behind records just to look modern
+- test equality and JSON mapping when records cross service boundaries
+
+        ## Review Checklist
+
+        - Use records for value carriers, not long-lived mutable entities.
+- Keep constructors small and invariant-focused.
+- Document compatibility expectations for public record types.

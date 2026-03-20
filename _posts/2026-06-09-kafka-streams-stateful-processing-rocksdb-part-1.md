@@ -106,3 +106,71 @@ Restart app and record baseline restore duration.
 - where this pattern fails under load or restart conditions
 - which metrics prove correctness and stability
 - how to convert this into a production runbook
+
+---
+
+        ## Problem 1: State Stores Are Operational Assets, Not Hidden Internals
+
+        Problem description:
+        Kafka Streams stateful processing looks simple in code, but restore time, changelog pressure, and RocksDB tuning decide whether the topology survives restarts gracefully. Build the baseline and make the risky default behavior visible.
+
+        What we are solving actually:
+        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
+
+        What we are doing actually:
+
+        1. build the smallest working topology that demonstrates the problem clearly
+2. capture one concrete correctness or latency metric before tuning
+3. exercise the happy path and one controlled failure path
+4. write down what a clean operator signal looks like before the system grows
+
+        ```mermaid
+flowchart LR
+    A[Input stream] --> B[Stateful topology]
+    B --> C[(RocksDB state store)]
+    C --> D[Changelog topic]
+    D --> C
+```
+
+        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
+
+        ## Runnable Deep-Dive Snippet
+
+        ```java
+        builder.stream("orders.events")
+    .groupByKey()
+    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+    .count(Materialized.as("orders-counts"));
+        ```
+
+        The snippet is not meant to be a full application.
+        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
+
+        ## Verification Notes
+
+        Measure local state size, changelog throughput, and restore duration together. Any one metric on its own gives an incomplete picture of state-store health.
+
+        ## Failure Drill
+
+        Delete local state and restart the app during traffic. The restore behavior will quickly show whether changelog sizing and topology design are realistic for production recovery.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - separate local disk pressure from broker-side changelog pressure
+- track restore duration after restarts and scale events
+- keep state store names stable so operational visibility stays consistent
+- watch compaction and retention settings on changelog topics
+
+---
+
+## Operator Prompt
+
+For kafka streams stateful processing and rocksdb tuning (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

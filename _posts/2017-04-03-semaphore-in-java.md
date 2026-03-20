@@ -23,6 +23,30 @@ header:
 ---
 A `Semaphore` controls how many threads can access a shared resource at the same time.
 
+## Problem description:
+
+We need to limit concurrency against a shared dependency or scarce resource instead of letting unlimited requests pile in.
+
+What we are solving actually:
+
+We are solving admission control, not scheduling.
+The semaphore decides how many callers may proceed at once and forces the rest to wait or fail fast.
+
+What we are doing actually:
+
+1. Create a semaphore with a permit count equal to safe concurrency.
+2. Acquire before entering the protected work.
+3. Release in `finally` so permits are never leaked.
+
+```mermaid
+flowchart LR
+    A[Incoming task] --> B{Permit available?}
+    B -->|Yes| C[Acquire permit]
+    B -->|No| D[Wait or timeout]
+    C --> E[Use dependency]
+    E --> F[Release permit]
+```
+
 ## Real-World Use Cases
 
 - limiting concurrent outbound API calls
@@ -150,6 +174,13 @@ This is useful when you run many lightweight tasks but still need strict externa
 - acquire timeout count
 - average wait time before acquire
 - request failure rate during saturation
+
+## Debug steps:
+
+- log acquisition failures and timeouts separately from downstream failures
+- verify permits are released only after successful acquisition
+- compare `availablePermits()` trends with real downstream saturation
+- use fairness only when starvation risk matters more than throughput
 
 These signals tell you whether permit counts match real dependency capacity.
 

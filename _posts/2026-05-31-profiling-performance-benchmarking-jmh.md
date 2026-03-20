@@ -130,3 +130,62 @@ Performance tests should be repeatable and versioned like functional tests.
 - JMH is required for credible JVM microbenchmarking.
 - profile first, benchmark targeted hotspots, then validate in production.
 - optimization is complete only when service-level SLOs improve.
+
+---
+
+        ## Problem 1: Make Performance Claims Reproducible
+
+        Problem description:
+        Teams often mix profiling, benchmarking, and production telemetry together, which leads to optimizations based on noise, warmup artifacts, or unrealistic toy tests.
+
+        What we are solving actually:
+        We are solving trustworthy performance decisions. JMH matters because it gives micro benchmarks a disciplined harness, while profiling tells us which code deserves that effort in the first place.
+
+        What we are doing actually:
+
+        1. start with a user-visible latency or throughput question
+2. profile production-like load to find a candidate hot path
+3. write a JMH benchmark that isolates that path with realistic inputs
+4. compare the micro result with workload-level telemetry before deciding to ship
+
+        ```mermaid
+flowchart LR
+    A[User-visible regression] --> B[Profile]
+    B --> C[Hot path]
+    C --> D[JMH benchmark]
+    D --> E[Optimization decision]
+```
+
+        This section is worth making concrete because architecture advice around profiling performance benchmarking jmh often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        @Benchmark
+public OrderSummary baseline() {
+    return mapper.map(orderFixture);
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Run the benchmark without warmup discipline or with tiny unrealistic inputs and compare it to production telemetry. The mismatch is the reminder that benchmarks are only as good as their model.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - separate benchmarking from profiling and from business-level telemetry
+- control warmup, forks, and input size deliberately
+- watch allocation rate alongside execution time
+- validate that the benchmarked path is still hot in the real application
+
+        ## Review Checklist
+
+        - Profile first, benchmark second.
+- Use realistic inputs and warmup.
+- Tie micro wins back to production outcomes.

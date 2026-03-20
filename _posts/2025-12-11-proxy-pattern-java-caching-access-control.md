@@ -27,10 +27,21 @@ They add authorization, then caching, then maybe rate limiting, and suddenly one
 
 ---
 
-## What Actually Hurts
+## Problem 1: Protect an Expensive Report Service with Access and Cache Policy
 
+Problem description:
 Suppose a reporting service is expensive to call.
 Only admins may access it, and repeated requests for the same report should not regenerate the payload every time.
+
+What we are solving actually:
+We are solving controlled access to a real object.
+The report service should remain focused on generating reports, while the proxy decides whether the real object should be touched at all.
+
+What we are doing actually:
+
+1. Keep callers dependent on the same `ReportService` contract.
+2. Put authorization and cache checks in front of the real service.
+3. Avoid leaking these control policies into the report-generation class itself.
 
 The naive implementation usually mixes those concerns directly into the service:
 
@@ -107,7 +118,7 @@ public final class SecuredCachedReportProxy implements ReportService {
         if (!userContext.isAdmin()) {
             throw new SecurityException("Admin role required");
         }
-        return cache.computeIfAbsent(reportId, id -> delegate.getReport(id, userContext));
+        return cache.computeIfAbsent(reportId, id -> delegate.getReport(id, userContext)); // Only touch the real service on a cache miss.
     }
 }
 ```
@@ -184,3 +195,14 @@ My rule here is simple:
 
 If your proxy changes latency, security posture, or failure behavior, it is no longer a minor wrapper.
 It is part of the system contract and should be treated that way.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- test unauthorized access before testing cache behavior
+- verify cache keys are scoped correctly for the security model
+- measure cache hit and miss paths separately because they have different latency behavior
+- keep authorization, caching, and retry policy understandable instead of hiding them in one opaque wrapper

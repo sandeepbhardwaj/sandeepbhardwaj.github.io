@@ -23,26 +23,25 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for add two numbers represented as linked list, with practical tips for interviews and production coding standards.
+This is a linked-list version of grade-school addition.
+The main challenge is not arithmetic itself, but carrying digits correctly while the two lists may have different lengths.
 
-## Problem
+---
 
-Two non-empty linked lists represent two non-negative integers in reverse order. Add them and return the sum as a linked list.
+## Problem 1: Add Two Numbers Represented as Linked List
 
-## Example
+Problem description:
+Two non-empty linked lists represent two non-negative integers. Digits are stored in reverse order, and each node contains one digit. Add the two numbers and return the sum as a linked list in the same reverse-order format.
 
-`(2 -> 4 -> 3) + (5 -> 6 -> 4)` -> `7 -> 0 -> 8`
+What we are solving actually:
+We are adding digit by digit from least significant to most significant, just like manual addition. The hidden complication is that one list can end earlier than the other, and a final carry may still remain after both lists are exhausted.
 
-## Approach
+What we are doing actually:
 
-Traverse both lists together, digit by digit:
-
-- Add current digits and carry
-- Create a node with `sum % 10`
-- Update carry with `sum / 10`
-- Continue until both lists and carry are exhausted
-
-## Java Solution
+1. Walk through both lists at the same time.
+2. Treat a missing node as digit `0` once one list ends.
+3. Compute `sum = x + y + carry`.
+4. Append `sum % 10` to the output and update `carry = sum / 10`.
 
 ```java
 class Solution {
@@ -56,68 +55,137 @@ class Solution {
             int y = (l2 != null) ? l2.val : 0;
             int sum = x + y + carry;
 
-            carry = sum / 10;
-            tail.next = new ListNode(sum % 10);
+            carry = sum / 10; // Carry moves to the next digit position.
+            tail.next = new ListNode(sum % 10); // Current output digit is the ones place.
             tail = tail.next;
 
             if (l1 != null) l1 = l1.next;
             if (l2 != null) l2 = l2.next;
         }
 
-        return dummy.next;
+        return dummy.next; // Skip the helper node and return the real head.
     }
 }
 ```
 
-## Dry Run (Given Example)
+Debug steps:
+
+- print `x`, `y`, `sum`, and `carry` on every loop iteration
+- test `(2->4->3) + (5->6->4)`, `(9) + (1)`, and unequal lengths like `(9->9->9) + (1)`
+- verify the invariant that the built output list always represents the correct sum of digits processed so far
+
+---
+
+## Why Reverse Order Makes It Easier
+
+Because the least significant digit comes first:
+
+- the head nodes are the ones digits
+- the next nodes are the tens digits
+- and so on
+
+That means we can add from head to tail in one pass.
+If digits were stored in forward order, we would need stacks or list reversal first.
+
+---
+
+## Dry Run
 
 Input:
 
 - `l1 = 2 -> 4 -> 3`
 - `l2 = 5 -> 6 -> 4`
 
-Steps:
+Step 1:
 
-1. `2 + 5 + carry(0) = 7` -> node `7`, carry `0`
-2. `4 + 6 + carry(0) = 10` -> node `0`, carry `1`
-3. `3 + 4 + carry(1) = 8` -> node `8`, carry `0`
+- `2 + 5 + carry(0) = 7`
+- output digit = `7`
+- carry = `0`
+
+Step 2:
+
+- `4 + 6 + carry(0) = 10`
+- output digit = `0`
+- carry = `1`
+
+Step 3:
+
+- `3 + 4 + carry(1) = 8`
+- output digit = `8`
+- carry = `0`
 
 Result: `7 -> 0 -> 8`
 
-## Why Dummy Node Helps
+That corresponds to:
 
-`dummy` simplifies list construction by removing special handling for first node.
-Without it, code needs extra branch logic when output is still empty.
+- `342 + 465 = 807`
+
+stored again in reverse order.
+
+---
+
+## Why the Dummy Node Helps
+
+Without a dummy node, the first output digit needs special handling:
+
+- if this is the first node, create head
+- otherwise append normally
+
+The dummy node removes that branch entirely.
+You always attach the next node to `tail.next` and move `tail` forward.
+
+That keeps the pointer logic much cleaner.
+
+---
+
+## Final Carry Case
+
+The loop condition includes:
+
+`|| carry != 0`
+
+That part is essential.
+
+Example:
+
+- `(9) + (1)`
+- `9 + 1 = 10`
+
+Output must become:
+
+- `0 -> 1`
+
+If the loop stopped as soon as both lists ended, the final carry node would be lost.
+
+---
 
 ## Common Mistakes
 
-1. Forgetting final carry node (`carry != 0`).
-2. Advancing list pointers before reading current values.
-3. Mishandling unequal list lengths.
-4. Reusing input nodes and corrupting original lists unintentionally.
+1. forgetting to include the final carry in the loop condition
+2. advancing pointers before reading their current values
+3. mishandling unequal list lengths
+4. trying to modify and reuse input nodes in a way that corrupts the original lists
 
-## Variant: Digits in Forward Order
+---
 
-If digits are stored most-significant-first, this direct loop does not work.
-Common solutions:
-
-- reverse both lists first, then reuse this method
-- or use stacks to process from the end
-
-## Testing Checklist
+## Boundary Cases
 
 - `0 + 0` -> `0`
-- `[9] + [1]` -> `[0,1]`
-- unequal lengths: `[9,9,9] + [1]` -> `[0,0,0,1]`
-- long random lists cross-checked with big integer conversion in tests
+- one extra carry at the end -> like `9 + 1`
+- one list longer than the other -> still fine because missing digits are treated as `0`
+- many carry chains -> like `9->9->9 + 1`
+
+---
 
 ## Complexity
 
 - Time: `O(max(m, n))`
-- Space: `O(max(m, n))` for output list
+- Space: `O(max(m, n))` for the output list
+
+---
 
 ## Key Takeaways
 
-- dummy node simplifies output list construction and removes first-node special cases.
-- loop condition must include carry so final overflow digit is not lost.
-- this pattern generalizes to many digit-by-digit linked-list arithmetic problems.
+- this is digit-by-digit addition with carry, expressed through linked lists
+- reverse order allows one forward traversal
+- dummy node plus carry handling makes the implementation compact and reliable

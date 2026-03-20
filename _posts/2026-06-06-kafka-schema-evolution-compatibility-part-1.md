@@ -24,13 +24,32 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Baseline compatibility workflow**.
+Part goal: **Establish a baseline schema-compatibility workflow before rollout automation**.
 
 ---
 
-## Real-World Scenario
+## Problem 1: Change Event Schemas Without Breaking Existing Consumers
 
-Schema changes can break consumers unless compatibility is enforced in registry and CI.
+Problem description:
+Kafka event schemas evolve over time as products add fields, retire old ones, or reshape payloads.
+Without explicit compatibility discipline, one producer change can break live consumers at deserialization time.
+
+What we are solving actually:
+We are solving safe evolution of shared contracts.
+The goal is not just “version the schema”; it is making sure old and new producers and consumers can coexist during real deployments.
+
+What we are doing actually:
+
+1. Register a baseline schema version.
+2. Introduce only compatibility-preserving changes first.
+3. Test mixed-version producers and consumers before operational rollout.
+
+```mermaid
+flowchart LR
+    A[Schema v1] --> B[Add compatible change]
+    B --> C[Registry compatibility check]
+    C --> D[Mixed-version consumer test]
+```
 
 ---
 
@@ -89,6 +108,9 @@ message PaymentCreated {
 }
 ~~~
 
+The important first lesson is that “compatible” usually means additive and well-ordered.
+Renumbering or changing existing field meaning is where teams create real breakage.
+
 ---
 
 ## Verify
@@ -97,16 +119,42 @@ message PaymentCreated {
 curl -s http://localhost:8081/subjects/payment-value/versions/latest
 ~~~
 
+Also consume both v1 and v2 payloads through the same reader to confirm deserialization behavior, not just registry acceptance.
+
 ---
 
 ## Failure Drill
 
-Attempt remove/renumber field; confirm compatibility check fails.
+Attempt to remove or renumber a field and confirm the compatibility check fails.
+That failure is valuable because it turns a future production incident into an earlier CI or pre-merge event.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- verify the registry subject and compatibility mode you think you are testing is actually the one being used
+- test mixed-version producer and consumer combinations, not only latest-to-latest
+- treat field renumbering or meaning changes as dangerous even if names look similar
+- record a concrete list of allowed versus prohibited schema changes for the team
 
 ---
 
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- schema evolution is a contract-management problem, not just a serialization detail
+- additive changes are the safest baseline starting point
+- registry checks matter, but runtime mixed-version tests matter too
+
+---
+
+## Operator Prompt
+
+For schema evolution with avro and protobuf compatibility contracts (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

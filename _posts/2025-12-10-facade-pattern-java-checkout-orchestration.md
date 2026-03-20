@@ -27,8 +27,9 @@ That is why it shows up so often in application services and orchestration layer
 
 ---
 
-## What Becomes Messy Without It
+## Problem 1: One Checkout Use Case, Many Subsystems
 
+Problem description:
 Checkout requires multiple subsystems:
 
 - inventory reservation
@@ -37,6 +38,16 @@ Checkout requires multiple subsystems:
 - invoice generation
 
 Most callers should not coordinate these pieces manually.
+
+What we are solving actually:
+We are solving for use-case orchestration at one clear boundary.
+If every caller coordinates inventory, payment, shipping, and invoice generation independently, the application ends up with duplicated sequencing and inconsistent failure behavior.
+
+What we are doing actually:
+
+1. Expose one `checkout` entry point to callers.
+2. Keep subsystem sequencing inside the facade.
+3. Centralize orchestration policy, logging, and compensation decisions around that boundary.
 
 ---
 
@@ -99,7 +110,7 @@ public final class CheckoutFacade {
     }
 
     public CheckoutResult checkout(CheckoutCommand command) {
-        inventoryService.reserve(command.getItems());
+        inventoryService.reserve(command.getItems()); // First secure inventory for the order.
         String paymentRef = paymentService.authorize(command.getOrderId(), command.getAmount());
         String shipmentId = shippingService.createShipment(command.getOrderId(), command.getAddress());
         String invoiceId = invoiceService.generate(command.getOrderId(), command.getAmount());
@@ -154,3 +165,14 @@ At that point the class is no longer simplifying the subsystem.
 It is becoming a second subsystem.
 
 My rule is simple: split facades by use case boundary, not by the fact that several services exist underneath.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- trace one checkout request end-to-end and confirm sequencing is owned only by the facade
+- test partial-failure paths, not just the happy path
+- inspect whether validation, pricing, or reporting logic is leaking into the facade unnecessarily
+- split the facade when one use-case boundary grows into a catch-all orchestration class

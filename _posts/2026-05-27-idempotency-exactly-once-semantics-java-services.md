@@ -134,3 +134,64 @@ This is the core business guarantee users care about.
 - idempotency is the practical path to effectively-once outcomes.
 - correctness depends on key scope, payload validation, and durable dedupe storage.
 - design retries and deduplication together, not as separate concerns.
+
+---
+
+        ## Problem 1: Design for Repeatability Even When the Network Lies
+
+        Problem description:
+        Service clients retry naturally during timeouts and disconnects, which means a write path without idempotency can create duplicates even when everything looks correct locally.
+
+        What we are solving actually:
+        We are solving externally visible repeatability. Exactly-once semantics usually depend on scoped guarantees, but idempotency keys let a service behave predictably even when requests are replayed.
+
+        What we are doing actually:
+
+        1. accept an idempotency key at the request boundary
+2. persist the processing outcome against that key before returning success
+3. treat replays as lookup and replay of the prior decision, not a second execution
+4. expire keys with business-aware retention rather than an arbitrary short TTL
+
+        ```mermaid
+flowchart LR
+    A[Client request + key] --> B[Idempotency store]
+    B -->|miss| C[Process command]
+    C --> D[Persist result]
+    D --> B
+    B -->|hit| E[Replay previous result]
+```
+
+        This section is worth making concrete because architecture advice around idempotency exactly once semantics java services often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        public PaymentResponse create(PaymentRequest request, String key) {
+    return repository.findByKey(key)
+        .map(IdempotencyRecord::response)
+        .orElseGet(() -> executeOnce(request, key));
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Replay the same request after a client timeout and verify the response is stable without duplicating side effects. If the second call re-runs business logic, the endpoint is not idempotent yet.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - store enough response metadata to replay deterministic results
+- define the exact scope of uniqueness for the key
+- treat external side effects and DB writes as one design conversation
+- monitor duplicate-hit rate so clients abusing retries become visible
+
+        ## Review Checklist
+
+        - Own the idempotency key at the API boundary.
+- Persist the outcome before success is reported.
+- Make replay behavior deterministic.

@@ -23,6 +23,32 @@ toc_icon: cog
 ---
 This deep dive explains the problem model, concurrency contract, Java implementation, and real-world caveats you should know before using this pattern in production.
 
+## Problem description:
+
+We want to understand how a simple mutual-exclusion lock can be built using `wait()` and `notify`.
+
+What we are solving actually:
+
+We are solving thread ownership of a critical section.
+The purpose is educational: to understand the mechanics behind locking before relying on the JDK implementations.
+
+What we are doing actually:
+
+1. Block a thread while the lock is owned.
+2. Wake waiting threads when the owner releases the lock.
+3. Add owner tracking to prevent invalid unlocks.
+
+```mermaid
+flowchart LR
+    A[Thread calls lock] --> B{Lock free?}
+    B -->|Yes| C[Acquire lock]
+    B -->|No| D[wait()]
+    C --> E[Critical section]
+    E --> F[unlock()]
+    F --> G[notify / notifyAll]
+    G --> A
+```
+
 ## Lock implementation
 
 ```java
@@ -158,6 +184,13 @@ A lock implementation should optimize for correctness and debuggability first.
 - interruption tests while waiting on lock
 - reentrancy tests if supported
 - ownership violation tests (`unlock` by wrong thread)
+
+## Debug steps:
+
+- test unlock by a non-owner thread and confirm it fails
+- inspect whether `notify()` should really be `notifyAll()` for the chosen design
+- keep lock usage wrapped in `try/finally` so failures do not strand waiters
+- prefer `ReentrantLock` in real code once the learning goal is satisfied
 
 ## Key Takeaways
 

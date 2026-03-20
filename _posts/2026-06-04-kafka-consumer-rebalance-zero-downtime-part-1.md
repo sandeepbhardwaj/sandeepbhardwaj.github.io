@@ -24,25 +24,65 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Measure eager rebalance baseline**.
+Part goal: **Measure the eager rebalance baseline before tuning anything**.
 
 ---
 
-## Real-World Scenario
+## Problem 1: Why Rolling Deploys Cause Lag Spikes
 
-Rolling deploys can trigger long rebalances and lag spikes unless membership and assignor are tuned.
+Problem description:
+During a rolling deploy, one consumer instance leaves the group and another joins.
+With the default eager rebalance behavior, Kafka may revoke all partitions for the group before assigning them again.
+That pause can show up as lag spikes, stalled processing, and noisy deploys.
+
+What we are solving actually:
+We are not trying to "remove rebalances."
+We are trying to understand the baseline cost of eager rebalancing so we can measure improvement later.
+If we do not capture that baseline first, we cannot prove whether cooperative rebalancing or static membership actually helped.
+
+What we are doing actually:
+
+1. Start with the default eager-style assignment behavior.
+2. Run a small consumer group on a multi-partition topic.
+3. Restart one consumer during active processing.
+4. Measure how much work pauses, how lag grows, and how long the rebalance takes.
+
+---
+
+## Rebalance Timeline
+
+```mermaid
+sequenceDiagram
+    participant C1 as Consumer 1
+    participant C2 as Consumer 2
+    participant C3 as Consumer 3
+    participant G as Group Coordinator
+
+    C2->>G: Leave / restart
+    G-->>C1: Revoke assigned partitions
+    G-->>C3: Revoke assigned partitions
+    Note over C1,C3: Processing pauses for the whole group
+    C2->>G: Rejoin group
+    G-->>C1: New assignment
+    G-->>C2: New assignment
+    G-->>C3: New assignment
+```
+
+This is the pain we want to capture in Part 1.
+With eager rebalancing, revocation is broad and disruptive.
+Even consumers that were healthy may stop briefly while ownership is recalculated.
 
 ---
 
 ## Run It Locally
 
-### Prerequisites
+Prerequisites:
 
 - Docker Desktop
 - Java 21
 - Kafka CLI tools
 
-### Local Stack
+Local stack:
 
 ~~~yaml
 services:
@@ -69,19 +109,70 @@ docker compose up -d
 
 ---
 
-## Lab Steps
+## Topic and Consumer Setup
 
-1. Run 3 consumers in one group.
-2. Restart one consumer.
-3. Measure pause and lag increase.
+Create a topic with enough partitions to make movement obvious:
+
+~~~bash
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic orders \
+  --partitions 6 \
+  --replication-factor 1
+~~~
+
+Use a consumer configuration that keeps the baseline intentionally simple:
+
+~~~properties
+group.id=orders-cg
+partition.assignment.strategy=org.apache.kafka.clients.consumer.RangeAssignor
+enable.auto.commit=false
+auto.offset.reset=earliest
+session.timeout.ms=10000
+heartbeat.interval.ms=3000
+~~~
+
+The important setting here is `RangeAssignor`.
+It gives us a clean eager-rebalance baseline before we move to cooperative behavior in Part 2.
 
 ---
 
-## Runnable Code Block
+## Lab Steps
 
-~~~properties
-partition.assignment.strategy=org.apache.kafka.clients.consumer.RangeAssignor
+1. Run 3 consumers in one group.
+2. Produce a steady stream of messages to `orders`.
+3. Restart one consumer while the group is busy.
+4. Measure pause duration and lag increase.
+
+If you want application-level visibility, log partition revocation and assignment in a rebalance listener:
+
+~~~java
+consumer.subscribe(List.of("orders"), new ConsumerRebalanceListener() {
+    @Override
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        log.info("revoked partitions={}", partitions); // Work pauses around this moment.
+    }
+
+    @Override
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        log.info("assigned partitions={}", partitions); // Processing resumes with new ownership.
+    }
+});
 ~~~
+
+---
+
+## What to Measure
+
+Capture at least these signals:
+
+- rebalance duration
+- consumer lag before restart
+- peak lag during rebalance
+- time to return to steady-state lag
+- number of revoked and reassigned partitions
+
+These metrics turn "deploy felt noisy" into evidence you can compare later.
 
 ---
 
@@ -91,16 +182,32 @@ partition.assignment.strategy=org.apache.kafka.clients.consumer.RangeAssignor
 kafka-consumer-groups --bootstrap-server localhost:9092 --group orders-cg --describe
 ~~~
 
+Look for lag growth and partition movement around the restart window.
+If your application exposes Micrometer or Prometheus metrics, snapshot them before, during, and after the restart.
+
 ---
 
 ## Failure Drill
 
-Restart two consumers quickly and observe stop-the-world reassignment impact.
+Restart two consumers quickly and observe how much worse the stop-the-world reassignment becomes.
+This failure drill matters because staggered rollouts are not the only thing that can trigger rebalances.
+Crash loops and readiness flapping can create the same symptoms much faster.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- confirm all consumers use the same `group.id`
+- verify the topic has more than one partition, otherwise rebalance movement will look trivial
+- log `onPartitionsRevoked` and `onPartitionsAssigned` timestamps
+- compare lag immediately before restart, during rebalance, and after recovery
 
 ---
 
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- eager rebalancing can pause more work than the restarted instance alone
+- rolling deploy pain is measurable through lag and rebalance duration
+- you need this baseline before cooperative or static-membership tuning means anything

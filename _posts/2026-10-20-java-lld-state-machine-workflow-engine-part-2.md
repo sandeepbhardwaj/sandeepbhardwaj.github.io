@@ -24,95 +24,95 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-This post covers production-focused design decisions for **State-machine-driven workflow engines in Java (Part 2)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
+State-machine-driven workflow engines in Java (Part 2) matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+
+---
+
+## Problem 1: State-machine-driven workflow engines in Java (Part 2)
+
+Problem description:
+We want state-machine-driven workflow engines in java (part 2) to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+
+What we are solving actually:
+We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+
+What we are doing actually:
+
+1. make the domain model explicit: stress the baseline with the most likely failure or contention mode
+2. make the domain model explicit: introduce one hardening mechanism at a time
+3. make the domain model explicit: measure the operational trade-off instead of trusting intuition
+4. make the domain model explicit: document where the pattern should stop and another pattern should begin
 
 ---
 
 ## Why This Topic Matters
 
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+- object design has to preserve invariants under change, not just look elegant initially
+- good boundaries reduce rewrite cost when behavior expands later
+- testability often reveals whether the model is actually cohesive
 
 ---
 
 ## Architecture Model
 
-Use this structure while implementing the design:
+```mermaid
+flowchart TD
+    A[Baseline from part 1] --> B[Hard failure mode]
+    B --> C[Refined design for State-machine-driven workflow engines in Java (Part 2)]
+    C --> D[Trade-off measurement]
+    D --> E[Operational decision]
+```
 
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+The model is deliberately centered on boundary, invariant, and change pressure so state-machine-driven workflow engines in java (part 2) reads like a design decision instead of an object diagram.
+That helps keep future refactors anchored to one rule the team actually cares about preserving.
 
 ---
 
-## Practical Implementation Pattern
+## Practical Design Pattern
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
-
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
-
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
-
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
+```java
+public final class DesignBoundary {
+    public void apply(Command command) {
+        // Preserve invariants for: State-machine-driven workflow engines in Java (Part 2)
     }
 }
-~~~
+```
+
+The code stays compact so the design boundary for state-machine-driven workflow engines in java (part 2) is visible without framework noise.
+A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
 
 ---
 
-## Dry Run Scenario
+## Failure Drill
 
-Example rollout checklist:
+Hardening drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for state-machine-driven workflow engines in java (part 2).
 
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+That drill matters while the design is being stressed by mixed versions, retries, or recovery edge cases because object designs for state-machine-driven workflow engines in java (part 2) often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
 
 ---
 
-## Common Pitfalls
+## Debug Steps
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Debug steps:
+
+- write one failing invariant test before changing the design while validating state-machine-driven workflow engines in java (part 2)
+- inspect whether responsibilities are gathering in one object for convenience while validating state-machine-driven workflow engines in java (part 2)
+- prefer boundaries that stay understandable during refactor pressure while validating state-machine-driven workflow engines in java (part 2)
+- use tests to expose temporal coupling or hidden dependencies while validating state-machine-driven workflow engines in java (part 2)
 
 ---
 
 ## Production Checklist
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+- edge-case rule encoded as a failing test before refactor
+- coupling increase measured against the promised design benefit
+- debug path still shorter after the extra abstraction
+- design notes updated with the new invariant pressure
 
 ---
 
 ## Key Takeaways
 
-- State-machine-driven workflow engines in Java (Part 2) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- State-machine-driven workflow engines in Java (Part 2) should be designed as a production decision, not just an implementation detail
+- object design should preserve invariants and reduce long-term change cost
+- harden one failure mode at a time instead of stacking speculative complexity

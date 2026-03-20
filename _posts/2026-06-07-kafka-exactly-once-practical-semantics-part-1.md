@@ -107,3 +107,67 @@ Without dedupe table, duplicates appear after restart reprocessing.
 - where this pattern fails under load or restart conditions
 - which metrics prove correctness and stability
 - how to convert this into a production runbook
+
+---
+
+        ## Problem 1: Exactly Once Is a Scoped Guarantee, Not a Marketing Phrase
+
+        Problem description:
+        Teams hear 'exactly once' and assume the whole workflow is protected, even when external databases, HTTP calls, or side effects still sit outside Kafka's atomic boundary. Build the baseline and make the risky default behavior visible.
+
+        What we are solving actually:
+        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
+
+        What we are doing actually:
+
+        1. build the smallest working topology that demonstrates the problem clearly
+2. capture one concrete correctness or latency metric before tuning
+3. exercise the happy path and one controlled failure path
+4. write down what a clean operator signal looks like before the system grows
+
+        ```mermaid
+flowchart LR
+    A[Consume] --> B[Kafka transaction]
+    B --> C[Produce output]
+    C --> D[Send offsets]
+    D --> E[Commit]
+```
+
+        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
+
+        ## Runnable Deep-Dive Snippet
+
+        ```java
+        producer.beginTransaction();
+for (ConsumerRecord<String, OrderEvent> record : records) {
+    producer.send(transform(record));
+}
+producer.sendOffsetsToTransaction(offsets, consumer.groupMetadata());
+producer.commitTransaction();
+        ```
+
+        The snippet is not meant to be a full application.
+        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
+
+        ## Verification Notes
+
+        Use `read_committed` consumers and crash the processor at different points so you can observe where Kafka guarantees stop and where the wider workflow still needs idempotency.
+
+        ## Failure Drill
+
+        Introduce an external side effect beside Kafka publication and replay the transaction. The mismatch is the exact reason teams still need compensation or idempotency around outside systems.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - separate Kafka-only guarantees from end-to-end business guarantees in the docs
+- test crashes before commit and after output send
+- check transactional IDs are stable across restarts of the same processor identity
+- review how external effects are de-duplicated because Kafka cannot do that part for you
+
+---
+
+## Operator Prompt
+
+For exactly once semantics myths versus practical guarantees (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

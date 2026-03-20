@@ -29,6 +29,29 @@ It is widely used for customer segmentation, pattern discovery, exploratory anal
 
 ---
 
+## Problem 1: Group Similar Data Without Labels
+
+Problem description:
+We want to discover meaningful structure in data even when no class labels are available.
+
+What we are solving actually:
+We are solving for representation-driven grouping, not “finding true classes.”
+Clustering quality depends on features, distance choice, and what the business plans to do with the resulting groups.
+
+What we are doing actually:
+
+1. Choose a representation and similarity notion.
+2. Pick a clustering family that matches expected structure.
+3. Validate the result for both stability and business usefulness.
+
+```mermaid
+flowchart LR
+    A[Raw Data] --> B[Feature Representation]
+    B --> C[Similarity / Distance Choice]
+    C --> D[Clustering Algorithm]
+    D --> E[Stability + Business Validation]
+```
+
 ## What Clustering Can and Cannot Do
 
 Clustering can:
@@ -158,6 +181,15 @@ Clustering is useful only when it drives action.
 5. no downstream validation with business outcomes
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- rerun clustering across seeds and nearby hyperparameters to test stability
+- inspect cluster size distribution so one giant cluster or many tiny clusters do not go unnoticed
+- validate clusters against downstream actions, not just silhouette or elbow scores
+- revisit feature engineering first if every algorithm yields unstable or uninterpretable groups
 
 ## Key Takeaways
 

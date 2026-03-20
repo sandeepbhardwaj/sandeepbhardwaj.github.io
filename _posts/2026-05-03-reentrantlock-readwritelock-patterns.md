@@ -155,3 +155,80 @@ Mitigations:
 - fair lock mode where needed
 - shorter read critical sections
 - periodic write-priority design at higher layer
+
+---
+
+        ## Problem 1: When Explicit Locks Beat Implicit Synchronization
+
+        Problem description:
+        A service under read-heavy load often needs more control than `synchronized` gives, but teams frequently add explicit locks without defining fairness, upgrade rules, or failure behavior.
+
+        What we are solving actually:
+        We are choosing the smallest locking model that preserves correctness while keeping contention visible. The real problem is not how to lock; it is how to avoid hidden writer starvation, forgotten unlock paths, and lock ordering bugs.
+
+        What we are doing actually:
+
+        1. map which fields are protected by one lock and which state can stay lock-free
+2. use `ReadWriteLock` only when reads dominate and write sections are short
+3. treat lock acquisition order as part of the design, not an implementation detail
+4. instrument wait time so contention becomes visible before latency incidents do
+
+        ```mermaid
+flowchart LR
+    A[Readers arrive] --> B[Read lock]
+    B --> C[Shared read section]
+    D[Writer arrives] --> E[Write lock queue]
+    E --> F[Exclusive write section]
+```
+
+        This section is worth making concrete because architecture advice around reentrantlock readwritelock patterns often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        final class PricingCache {
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Map<String, BigDecimal> values = Map.of();
+
+    BigDecimal get(String key) {
+        lock.readLock().lock();
+        try {
+            return values.get(key);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    void reload(Map<String, BigDecimal> latest) {
+        lock.writeLock().lock();
+        try {
+            values = Map.copyOf(latest);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Run a synthetic workload with 95 percent reads and long writer sections. If reader latency stays flat but writes never complete, you have a starvation or lock-ordering problem, not a throughput win.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - capture thread dumps and look for threads blocked on the same monitor or write lock
+- time lock acquisition separately from business logic execution
+- verify every lock path releases in `finally`, especially early returns and exceptions
+- review whether a single immutable snapshot can replace one of the lock-protected paths
+
+        ## Review Checklist
+
+        - Document which lock protects which state.
+- Avoid upgrading from read lock to write lock inside the same code path.
+- Fail code review if lock ordering is implicit or inconsistent.

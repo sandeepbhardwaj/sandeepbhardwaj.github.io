@@ -122,3 +122,63 @@ This directly prevents cross-request context leakage.
 - scoped values provide immutable, bounded context propagation.
 - they reduce thread-local leakage risk, especially with concurrency.
 - use them for observability and security metadata with strict scope boundaries.
+
+---
+
+        ## Problem 1: Make Request Context Lifetimes Visible in Code
+
+        Problem description:
+        Cross-cutting request metadata such as request ID, tenant, and auth context tends to leak across thread pools or async boundaries when it is stored in mutable thread-local state.
+
+        What we are solving actually:
+        We are solving bounded context propagation. Scoped values matter because they align context lifetime with lexical scope, which is much easier to review and much harder to leak.
+
+        What we are doing actually:
+
+        1. bind immutable context once at the protocol boundary
+2. read it from nested services only when it is truly cross-cutting metadata
+3. keep domain data as parameters instead of smuggling it through context
+4. test that one request cannot see another request's values on reused threads
+
+        ```mermaid
+flowchart TD
+    A[HTTP filter] --> B[Bind scoped values]
+    B --> C[Controller]
+    C --> D[Service]
+    D --> E[Repository / logger]
+```
+
+        This section is worth making concrete because architecture advice around scoped values request context propagation often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
+
+void doFilter(Request request, Runnable next) {
+    ScopedValue.where(REQUEST_ID, request.header("X-Request-Id")).run(next);
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Drive two requests with different request IDs through the same worker pool and verify no log line crosses the boundary. That is the regression ThreadLocal-based systems are most likely to hide.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - bind scoped values only at request entry, not deep in business logic
+- keep bound objects immutable so nested code cannot create hidden coupling
+- fail fast when required scoped values are missing instead of silently defaulting
+- review test fixtures for parallel execution because context bugs are timing-sensitive
+
+        ## Review Checklist
+
+        - Use scoped values for metadata, not business payload transport.
+- Prefer lexical scope over manual cleanup.
+- Verify isolation with concurrent integration tests.

@@ -2,6 +2,7 @@
 title: "Contact"
 permalink: /contact/
 author_profile: false
+ads: false
 ---
 
 Reach me at:

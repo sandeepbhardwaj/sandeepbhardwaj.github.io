@@ -107,3 +107,63 @@ Send out-of-order events beyond grace and verify explicit drop handling.
 - where this pattern fails under load or restart conditions
 - which metrics prove correctness and stability
 - how to convert this into a production runbook
+
+---
+
+        ## Problem 1: Choose Time Semantics Before You Tune Windows
+
+        Problem description:
+        Late events, out-of-order delivery, and backfills create different answers depending on whether the topology uses processing time or event time. Harden the baseline against the edge cases that appear under load and replay.
+
+        What we are solving actually:
+        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
+
+        What we are doing actually:
+
+        1. introduce the hardening mechanism one layer at a time
+2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
+3. measure what becomes safer and what becomes more complex
+4. leave behind a rule the team can apply during future changes
+
+        ```mermaid
+flowchart LR
+    A[Event timestamp] --> B[Window assignment]
+    C[Processing timestamp] --> D[Alternative window assignment]
+    B --> E[Aggregation result]
+    D --> F[Different result]
+```
+
+        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
+
+        ## Runnable Deep-Dive Snippet
+
+        ```java
+        Consumed.with(Serdes.String(), eventSerde)
+    .withTimestampExtractor((record, partitionTime) -> record.value().eventTimeEpochMs());
+        ```
+
+        The snippet is not meant to be a full application.
+        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
+
+        ## Verification Notes
+
+        Feed the same event set in order and out of order, then compare the window results. If the answers surprise the team, the time model still is not explicit enough.
+
+        ## Failure Drill
+
+        Backfill yesterday's events into a topology configured for processing time and inspect the aggregates. The wrong answer teaches more than a definition paragraph ever will.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - write down the late-arrival policy before choosing grace periods
+- separate event timestamp extraction from business parsing logic
+- test backfill and replay flows, not only live ordered traffic
+- monitor dropped late events so data loss is visible
+
+---
+
+## Operator Prompt
+
+For event time versus processing time tradeoffs in stream pipelines (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

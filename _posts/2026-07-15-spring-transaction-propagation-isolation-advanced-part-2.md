@@ -25,95 +25,98 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-This post covers production-focused design decisions for **Advanced transactional boundaries: propagation and isolation (Part 2)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
+'Advanced transactional boundaries: propagation and isolation (Part 2)' becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+
+---
+
+## Problem 1: 'Advanced transactional boundaries: propagation and isolation (Part 2)'
+
+Problem description:
+We want to apply 'advanced transactional boundaries: propagation and isolation (part 2)' in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+
+What we are solving actually:
+We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+
+What we are doing actually:
+
+1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
+2. make Spring Boot explicit: introduce one hardening mechanism at a time
+3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
+4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
 
 ---
 
 ## Why This Topic Matters
 
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+- startup order and bean wiring become operational concerns in large services
+- safe customization matters more than clever override tricks
+- rollback and configuration drift should be considered before production rollout
 
 ---
 
 ## Architecture Model
 
-Use this structure while implementing the design:
+```mermaid
+flowchart TD
+    A[Baseline from part 1] --> B[Hard failure mode]
+    B --> C[Refined design for 'Advanced transactional boundaries: propagation and isolation (Part 2)']
+    C --> D[Trade-off measurement]
+    D --> E[Operational decision]
+```
 
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+The model keeps bean lifecycle, override points, and rollout behavior in one frame so 'advanced transactional boundaries: propagation and isolation (part 2)' stays reviewable under pressure.
+Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
 
 ---
 
-## Practical Implementation Pattern
+## Practical Design Pattern
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+```java
+@Configuration
+class TopicConfiguration {
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
-
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
-
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
+    @Bean
+    TopicPolicy topicPolicy() {
+        return new TopicPolicy("'Advanced transactional boundaries: propagation and isolation (Part 2)'", 2);
     }
 }
-~~~
+```
+
+This code sketch stays intentionally narrow because the real value in 'advanced transactional boundaries: propagation and isolation (part 2)' is choosing one safe extension point and one predictable fallback path.
+If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
 
 ---
 
-## Dry Run Scenario
+## Failure Drill
 
-Example rollout checklist:
+Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for 'advanced transactional boundaries: propagation and isolation (part 2)'.
 
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around 'advanced transactional boundaries: propagation and isolation (part 2)' often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
 
 ---
 
-## Common Pitfalls
+## Debug Steps
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Debug steps:
+
+- trace bean creation, condition evaluation, and configuration precedence while validating 'advanced transactional boundaries: propagation and isolation (part 2)'
+- keep customization close to the intended extension point instead of scattered overrides while validating 'advanced transactional boundaries: propagation and isolation (part 2)'
+- observe startup, request, and shutdown phases separately while validating 'advanced transactional boundaries: propagation and isolation (part 2)'
+- verify rollback by disabling the new behavior, not by rewriting it live while validating 'advanced transactional boundaries: propagation and isolation (part 2)'
 
 ---
 
 ## Production Checklist
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+- mixed-config or mixed-version behavior exercised once
+- error or timeout path measured under real startup/runtime timing
+- override and rollback rules still simple after hardening
+- incident notes updated with the real failure signature
 
 ---
 
 ## Key Takeaways
 
-- Advanced transactional boundaries: propagation and isolation (Part 2) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- 'Advanced transactional boundaries: propagation and isolation (Part 2)' should be designed as a production decision, not just an implementation detail
+- framework behavior should stay observable and override paths should stay intentional
+- harden one failure mode at a time instead of stacking speculative complexity

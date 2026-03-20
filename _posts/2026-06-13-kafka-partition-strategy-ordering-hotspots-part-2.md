@@ -24,9 +24,31 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Harden with key bucketing**.
+Part goal: **Harden the strategy with key bucketing where strict ordering is not required**.
 
 ---
+
+## Problem 1: Reduce Hotspots Without Breaking the Wrong Kind of Ordering
+
+Problem description:
+Some streams need strict per-entity ordering, while others only need good distribution for analytics or secondary processing.
+
+What we are solving actually:
+We are solving selective relaxation of ordering.
+The goal is to keep strict keys for ordering-critical flows and use bucketing only where more even spread is worth the trade.
+
+What we are doing actually:
+
+1. Keep strict keys on the primary ordered stream.
+2. Use bucketed keys on the stream that can tolerate relaxed ordering.
+3. Compare skew and lag before and after bucketing.
+
+```mermaid
+flowchart LR
+    A[customerId] --> B[Strict ordered topic]
+    A --> C[Hash to bucket]
+    C --> D[Bucketed analytics topic]
+```
 
 ## Real-World Scenario
 
@@ -102,8 +124,34 @@ Replay same load profile and verify lag spread is more uniform.
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- document clearly which topic keeps strict ordering and which one does not
+- compare max partition lag and skew ratio before and after bucketing
+- validate consumer logic against the weaker ordering guarantee on the bucketed stream
+- avoid bucket counts that are too low to matter or too high to manage
+
+## Operational Note
+
+Bucketing should be a product and platform decision together.
+It changes the behavior of downstream consumers, so the gain in distribution should be weighed against the cost of weaker replay and ordering semantics.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- bucketing is a targeted mitigation, not a universal answer
+- the right place to relax ordering is the stream that can tolerate it operationally
+- skew reduction should be measured, not assumed
+
+---
+
+## Operator Prompt
+
+For kafka partition strategy for ordering and hotspot mitigation (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

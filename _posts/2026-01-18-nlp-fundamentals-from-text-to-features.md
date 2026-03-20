@@ -28,6 +28,32 @@ Good results depend on robust data preparation, task framing, and evaluation dis
 
 ---
 
+## Problem 1: Turn Messy Text Into Useful Signals for a Real Task
+
+Problem description:
+We want to transform raw language data into features or representations that support reliable downstream tasks such as classification, retrieval, or extraction.
+
+What we are solving actually:
+We are solving pipeline quality more than model novelty.
+In NLP, poor labeling, careless preprocessing, or the wrong task framing often cause more damage than choosing the wrong algorithm family.
+
+What we are doing actually:
+
+1. Define the task and tolerated failure modes first.
+2. Build a task-aware preprocessing pipeline.
+3. Compare classical sparse features with embedding-based representations.
+4. Evaluate with slice analysis, not only aggregate scores.
+
+```mermaid
+flowchart LR
+    A[Raw Text] --> B[Task-Aware Preprocessing]
+    B --> C{Representation}
+    C -->|Sparse| D[TF-IDF / n-grams]
+    C -->|Dense| E[Embeddings]
+    D --> F[Model + Evaluation]
+    E --> F
+```
+
 ## Task Framing Comes First
 
 Different NLP tasks need different pipelines:
@@ -142,6 +168,15 @@ NLP systems should include guardrails and policy-aware filtering.
 4. weak labeling governance
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- verify preprocessing choices preserve the signal that matters for the task
+- benchmark sparse baselines before assuming embeddings are necessary
+- slice errors by domain vocabulary, text length, and noise patterns
+- review annotation consistency before blaming the model for unstable results
 
 ## Key Takeaways
 

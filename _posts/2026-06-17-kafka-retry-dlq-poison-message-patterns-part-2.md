@@ -24,9 +24,31 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Metadata and replay controls**.
+Part goal: **Add metadata and replay controls so retry behavior stays governable**.
 
 ---
+
+## Problem 1: Make Retries and DLQ Entries Traceable
+
+Problem description:
+A retry topology is much less useful when operators cannot tell how many attempts happened, what failed, or which messages are safe to replay.
+
+What we are solving actually:
+We are solving observability and control of failed-event handling.
+Without metadata, the DLQ becomes a pile of opaque records and replay turns into guesswork.
+
+What we are doing actually:
+
+1. Attach structured metadata such as attempt count and error code.
+2. Enforce max-attempt rules consistently.
+3. Build replay filters using event identity and failure class.
+
+```mermaid
+flowchart LR
+    A[Failed event] --> B[Add headers / metadata]
+    B --> C[Retry or DLQ]
+    C --> D[Replay by eventId / errorCode]
+```
 
 ## Real-World Scenario
 
@@ -104,8 +126,46 @@ Replay only fixed error class; ensure unrepaired poison messages remain quaranti
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- verify attempt counters increment correctly across retry hops
+- keep event ids stable so replay and dedupe tools can reason about one logical message
+- replay only a repaired failure class instead of draining the whole DLQ blindly
+- monitor DLQ growth by error code so repeated failure modes are visible
+
+## Operational Note
+
+Metadata discipline pays off most during incident recovery.
+When the DLQ already tells you what failed, how often, and when, replay decisions get faster and much safer.
+
+That makes the metadata schema part of the recovery design, not just an implementation detail.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- retry metadata turns failure handling into an operable system instead of a black box
+- replay should be filterable and selective, not all-or-nothing
+- max-attempt policy is only useful when it is visible in the event record itself
+
+---
+
+        ## Production Checklist
+
+        Inspect retry topics and the DLQ together so you can confirm the record moves forward through the policy rather than bouncing forever.
+
+        ## Incident Drill
+
+        Publish one malformed record followed by valid records on the same key and verify healthy traffic continues while the poison message is isolated with context.
+
+        ## Extra Debug Cues
+
+        - carry attempt count and original topic metadata in headers
+- set a maximum attempt count before the first message ever ships
+- keep DLQ payloads rich enough for replay or manual repair
+
+---
+
+## Operator Prompt
+
+For retry topics dlq design and poison message governance (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

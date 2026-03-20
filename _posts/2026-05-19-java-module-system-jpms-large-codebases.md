@@ -118,3 +118,61 @@ jdeps --recursive --multi-release 21 build/libs/app.jar
 - JPMS is an architectural enforcement tool, not just packaging syntax.
 - success depends on disciplined `exports`/`opens` boundaries.
 - migrate incrementally, starting from leaf modules with strong CI checks.
+
+---
+
+        ## Problem 1: Use JPMS to Clarify Boundaries, Not to Create Packaging Drama
+
+        Problem description:
+        Large codebases want stronger encapsulation, but JPMS adoption often stalls because reflection, split packages, and build tooling are not mapped before the first migration step.
+
+        What we are solving actually:
+        We are solving architectural boundaries in a codebase that already has history. JPMS is useful when it exposes ownership and dependencies incrementally, not when it is introduced as a big-bang purity project.
+
+        What we are doing actually:
+
+        1. start with one boundary where package ownership is already relatively clean
+2. remove split packages before introducing module descriptors
+3. catalog reflection and deep framework access that will need `opens` or redesign
+4. migrate in slices so tests and builds keep giving feedback after each step
+
+        ```mermaid
+flowchart LR
+    A[module orders.api] --> B[module orders.core]
+    B --> C[module orders.persistence]
+    C --> D[explicit exports / opens]
+```
+
+        This section is worth making concrete because architecture advice around java module system jpms large codebases often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        module com.example.orders.core {
+    exports com.example.orders.api;
+    requires com.example.orders.persistence;
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Try to modularize a package graph with reflection-heavy frameworks and split packages in one step. The result is usually confusion, not encapsulation, and that is precisely why incremental migration matters.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - scan for reflective access before locking packages down
+- avoid using `open module` as a blanket escape hatch without documenting why
+- fix package ownership first so module boundaries reflect real architecture
+- run integration tests with the module path early in the migration, not at the end
+
+        ## Review Checklist
+
+        - Start where package ownership is already clean.
+- Document every `opens` with a reason.
+- Treat JPMS as boundary work, not syntax work.

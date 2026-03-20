@@ -23,22 +23,25 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-Given a sorted array, remove duplicates in-place so each unique value appears once.
-Return the number of unique elements.
+This is the array version of sorted duplicate compaction.
+Because the input is sorted, duplicates appear in blocks, which makes one-pass in-place deduplication possible.
 
 ---
 
-## Two-Pointer Invariant
+## Problem 1: Remove Duplicates from Sorted Array
 
-- `slow` marks last unique element position
-- `fast` scans from left to right
-- when `nums[fast] != nums[slow]`, move `slow` forward and copy value
+Problem description:
+Given a sorted array `nums`, remove the duplicates in place so that each unique value appears only once, and return the number of unique elements.
 
-Because array is sorted, duplicates are adjacent, so this one pass is enough.
+What we are solving actually:
+We are not cleaning the whole array in the sense of physically shrinking it. We are building a valid unique prefix at the front. Only the first `k` positions matter after the operation.
 
----
+What we are doing actually:
 
-## Java Solution
+1. Let `slow` mark the end of the unique prefix.
+2. Let `fast` scan the array from left to right.
+3. When `nums[fast]` is a new value, grow the unique prefix and copy it there.
+4. Return the length of that prefix as `slow + 1`.
 
 ```java
 class Solution {
@@ -51,7 +54,7 @@ class Solution {
         for (int fast = 1; fast < nums.length; fast++) {
             if (nums[fast] != nums[slow]) {
                 slow++;
-                nums[slow] = nums[fast];
+                nums[slow] = nums[fast]; // Write the next unique value at the end of the unique prefix.
             }
         }
 
@@ -60,37 +63,71 @@ class Solution {
 }
 ```
 
+Debug steps:
+
+- print `slow`, `fast`, and the prefix `nums[0..slow]` after each unique write
+- test `[]`, `[1,1,1]`, and `[0,0,1,1,1,2,2,3,3,4]`
+- verify the invariant that `nums[0..slow]` always contains the unique values seen so far in sorted order
+
+---
+
+## Why Sorted Order Makes This Easy
+
+If the array were unsorted, duplicates could appear anywhere and we would need a set or sorting first.
+
+Because the array is sorted:
+
+- all equal values are adjacent
+- once `fast` moves past a value block, we never need to revisit it
+
+That turns the problem into simple compaction:
+
+- keep one copy
+- skip the rest
+
 ---
 
 ## Dry Run
 
 Input: `[0,0,1,1,1,2,2,3,3,4]`
 
-- start: `slow=0` (`0` is first unique)
-- `fast=1` value `0` equals `nums[slow]`, skip
-- `fast=2` value `1` differs, `slow=1`, write `nums[1]=1`
-- `fast=3,4` both `1`, skip
-- `fast=5` value `2` differs, `slow=2`, write `nums[2]=2`
-- `fast=7` value `3` differs, `slow=3`, write `nums[3]=3`
-- `fast=9` value `4` differs, `slow=4`, write `nums[4]=4`
+1. start: `slow=0` and unique prefix is `[0]`
+2. `fast=1`, value `0` -> duplicate, skip
+3. `fast=2`, value `1` -> new value
+   increment `slow` to `1`
+   write `nums[1] = 1`
+4. `fast=3,4`, values `1` -> duplicates, skip
+5. `fast=5`, value `2` -> new value
+   write at next unique slot
+6. continue similarly
 
-Return `slow + 1 = 5`.
-Valid prefix becomes `[0,1,2,3,4]`.
+Final unique prefix:
+
+- `[0,1,2,3,4]`
+
+Return value:
+
+- `5`
 
 ---
 
-## Important Note About Output Array
+## Important Output Rule
 
-Only first `k` positions are meaningful after operation.
-Elements beyond `k` can contain old values and should be ignored.
+After the function returns `k`:
+
+- only indices `0..k-1` are guaranteed meaningful
+
+The rest of the array may still contain old values.
+That is normal and allowed by the problem.
 
 ---
 
 ## Common Mistakes
 
-1. forgetting empty-array check
-2. comparing with `nums[fast - 1]` after in-place writes
-3. assuming full array is cleaned instead of only prefix `[0..k-1]`
+1. forgetting the empty-array check
+2. expecting the entire array after `k` to be cleaned
+3. comparing with `nums[fast - 1]` after in-place writes instead of with the confirmed unique boundary
+4. not recognizing that this is prefix compaction
 
 ---
 
@@ -103,6 +140,12 @@ Elements beyond `k` can contain old values and should be ignored.
 
 ## Key Takeaways
 
-- sorted order makes adjacent duplicate compaction possible.
-- `slow` always points to end of unique prefix.
-- two pointers give in-place deduplication in linear time.
+- sorted order turns deduplication into one-pass prefix compaction
+- `slow` marks the end of the unique prefix
+- the answer is the new prefix length, not a resized array
+
+---
+
+## Pattern Extension
+
+One good review question for remove duplicates from sorted array in java is whether the same invariant still holds when the input becomes degenerate: empty arrays, repeated values, already-sorted data, or the smallest possible string. That quick pressure test usually reveals whether we truly understood the pattern or only copied the happy path.

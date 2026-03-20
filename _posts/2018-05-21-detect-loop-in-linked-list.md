@@ -22,109 +22,124 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for detect a loop in linked list (floyd cycle detection), with practical tips for interviews and production coding standards.
+Cycle detection is a classic linked-list pattern because it turns an apparently tricky structural problem into a pointer-speed problem. Floyd's algorithm is short, efficient, and shows up often in interviews.
 
-## Problem
+## Problem 1: Detect a Loop in Linked List
 
-Determine whether a linked list contains a cycle.
+Problem description:
+Given the head of a singly linked list, determine whether the list contains a cycle.
 
-## Approach: Slow and Fast Pointers
+Example:
 
-- `slow` moves one step
-- `fast` moves two steps
-- If there is a cycle, they must meet
-- If `fast` reaches `null`, no cycle exists
+- Input: `3 -> 2 -> 0 -> -4`, with tail pointing back to node `2`
+- Output: `true`
 
-## Java Solution
+What we are solving actually:
+We are trying to detect whether following `next` pointers can keep us moving forever. If the list is acyclic, traversal must eventually hit `null`. If the list has a cycle, a pointer that moves faster will eventually lap a slower pointer and they will meet.
+
+What we are doing actually:
+
+1. Use `slow` to move one step at a time.
+2. Use `fast` to move two steps at a time.
+3. If `fast` reaches `null`, there is no cycle.
+4. If `slow` and `fast` ever point to the same node, a cycle exists.
 
 ```java
 class Solution {
     public boolean hasCycle(ListNode head) {
-        if (head == null) return false;
-
         ListNode slow = head;
         ListNode fast = head;
 
         while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
+            slow = slow.next; // Slow pointer moves one step.
+            fast = fast.next.next; // Fast pointer moves two steps.
 
-            if (slow == fast) {
+            if (slow == fast) { // Meeting means the fast pointer lapped the slow one.
                 return true;
             }
         }
 
-        return false;
+        return false; // Fast reached the end, so the list is acyclic.
     }
 }
 ```
 
-## Extension: Find Cycle Start Node
+## Why This Works
 
-After `slow` and `fast` meet, move one pointer to head.
-Then move both one step at a time; meeting point is cycle start.
+If there is no cycle, `fast` keeps moving toward `null` and the loop ends.
+If there is a cycle, both pointers eventually enter the cycle.
+Inside the cycle, the distance between them changes by one node per step, so `fast` must eventually catch `slow`.
+
+The key detail is that we compare node references, not node values.
+Two different nodes can have the same value and still not mean there is a cycle.
+
+## Dry Run
+
+Consider `1 -> 2 -> 3 -> 4 -> 5`, where `5.next = 3`.
+
+1. Start: `slow = 1`, `fast = 1`
+2. Move: `slow = 2`, `fast = 3`
+3. Move: `slow = 3`, `fast = 5`
+4. Move: `slow = 4`, `fast = 4`
+
+They meet at node `4`, so the list has a cycle.
+
+## Common Mistakes
+
+1. Forgetting to check both `fast != null` and `fast.next != null`
+2. Comparing `slow.val == fast.val` instead of `slow == fast`
+3. Returning `true` for a single-node list without a self-loop
+4. Assuming the first meeting point is always the cycle start
+
+## Debug Steps
+
+Debug steps:
+
+- print the values or identities of `slow` and `fast` each loop
+- test an empty list and a one-node non-cycle list
+- test a one-node self-cycle list
+- test a cycle that starts in the middle, not only at the head
+
+## Useful Extension: Find the Cycle Start
+
+If the problem asks for the node where the cycle begins, do this after `slow` and `fast` meet:
+
+1. Move one pointer back to `head`
+2. Move both pointers one step at a time
+3. The node where they meet again is the cycle entry
 
 ```java
-ListNode detectCycleStart(ListNode head) {
-    ListNode slow = head, fast = head;
+ListNode detectCycle(ListNode head) {
+    ListNode slow = head;
+    ListNode fast = head;
 
     while (fast != null && fast.next != null) {
         slow = slow.next;
         fast = fast.next.next;
+
         if (slow == fast) {
-            ListNode p1 = head, p2 = slow;
-            while (p1 != p2) {
-                p1 = p1.next;
-                p2 = p2.next;
+            ListNode start = head;
+
+            while (start != slow) {
+                start = start.next; // Move from head toward cycle entry.
+                slow = slow.next; // Move from meeting point at same speed.
             }
-            return p1;
+
+            return start;
         }
     }
+
     return null;
 }
 ```
-
-## Extension: Cycle Length
-
-Once a meeting point is found, loop once around cycle to count length.
-
-```java
-int cycleLength(ListNode meet) {
-    int len = 1;
-    ListNode curr = meet.next;
-    while (curr != meet) {
-        len++;
-        curr = curr.next;
-    }
-    return len;
-}
-```
-
-## Common Mistakes
-
-1. Advancing `fast = fast.next.next` without `fast.next` null check.
-2. Comparing node values instead of node references.
-3. Returning true for single-node non-cycle lists.
-
-## Testing Checklist
-
-- empty list
-- one node without cycle
-- one node with self-cycle
-- cycle in middle (`1->2->3->4->2`)
-- long acyclic list
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
-## Why This Is Better Than HashSet
-
-HashSet approach works but uses extra memory `O(n)`. Floyd’s algorithm gives constant-space detection.
-
 ## Key Takeaways
 
-- Floyd's fast/slow pointers detect cycles without extra memory.
-- meeting of pointers proves cycle existence, not just chance overlap.
-- always include empty and single-node cases in cycle tests.
+- Floyd cycle detection turns structure into pointer-speed reasoning
+- `fast` hitting `null` proves there is no cycle
+- `slow == fast` proves there is a cycle, but not necessarily at the entry node

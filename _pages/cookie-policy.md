@@ -2,6 +2,7 @@
 title: "Cookie Policy"
 permalink: /cookie-policy/
 author_profile: false
+ads: false
 ---
 
 Last updated: March 2, 2026
@@ -33,4 +34,3 @@ Disabling some cookies may affect site functionality or ad relevance.
 - [Privacy Policy](/privacy-policy/)
 - [Terms of Use](/terms/)
 - [Disclaimer](/disclaimer/)
-

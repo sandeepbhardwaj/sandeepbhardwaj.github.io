@@ -24,34 +24,45 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for linked list cycle ii in java (find cycle start), with practical tips for interviews and production coding standards.
+This is one of the best fast-and-slow pointer problems because it has two phases:
+first prove a cycle exists, then find the exact node where the cycle begins.
 
-## Problem
+---
 
-If a linked list has a cycle, return the node where cycle begins. Otherwise return `null`.
+## Problem 1: Linked List Cycle II
 
-## Floyd’s Two-Phase Method
+Problem description:
+Given the head of a linked list, return the node where the cycle begins. If there is no cycle, return `null`.
 
-1. Detect meeting point with slow/fast pointers.
-2. Move one pointer to head and step both by 1. Their next meeting point is cycle start.
+What we are solving actually:
+Detecting that a cycle exists is not enough. The first meeting point of slow and fast pointers is usually somewhere inside the cycle, not necessarily at the entry. So the real challenge is using that meeting point to recover the cycle start.
 
-## Java Solution
+What we are doing actually:
+
+1. Run slow and fast pointers to detect whether a cycle exists.
+2. If they never meet, return `null`.
+3. If they do meet, place one pointer back at the head.
+4. Move both pointers one step at a time; their next meeting point is the cycle entry.
 
 ```java
 class Solution {
     public ListNode detectCycle(ListNode head) {
-        ListNode slow = head, fast = head;
+        ListNode slow = head;
+        ListNode fast = head;
 
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
-            if (slow == fast) {
+
+            if (slow == fast) { // Meeting point somewhere inside the cycle.
                 ListNode p1 = head;
                 ListNode p2 = slow;
+
                 while (p1 != p2) {
-                    p1 = p1.next;
-                    p2 = p2.next;
+                    p1 = p1.next; // Move from head toward the cycle start.
+                    p2 = p2.next; // Move from meeting point toward the same cycle start.
                 }
+
                 return p1;
             }
         }
@@ -61,55 +72,107 @@ class Solution {
 }
 ```
 
-## Why Phase 2 Finds Cycle Start (Intuition)
+Debug steps:
+
+- print pointer identities, not just values, while slow and fast move
+- test no-cycle, self-cycle, and cycle-starts-in-middle cases
+- verify the invariant that phase two moves both pointers at the same speed toward the entry node
+
+---
+
+## Phase 1: Detect a Cycle
+
+The standard Floyd argument applies:
+
+- `slow` moves 1 step
+- `fast` moves 2 steps
+
+If there is a cycle, `fast` eventually laps `slow` and they meet.
+If there is no cycle, `fast` reaches `null`.
+
+That tells us whether a cycle exists at all.
+
+---
+
+## Phase 2: Find the Entry
 
 Let:
 
 - `a` = distance from head to cycle start
-- `b` = distance from cycle start to meeting point
-- `c` = remaining cycle distance (`cycleLen - b`)
+- `b` = distance from cycle start to first meeting point
+- `c` = remaining distance in the cycle
 
-At meeting:
+At the meeting point:
 
-- slow distance = `a + b`
-- fast distance = `a + b + k * cycleLen`
+- slow traveled `a + b`
+- fast traveled `a + b + k(b + c)`
 
-Since fast moves twice as fast, `a + b` is a multiple of cycle length offset, which implies moving one pointer from head and one from meeting point one step at a time makes them meet at cycle start.
+Because fast moves twice as fast, the difference between their distances is a whole number of cycle lengths.
+That leads to the key result:
+
+- distance from head to cycle start
+- equals distance from meeting point to cycle start when walking forward
+
+So resetting one pointer to head and moving both one step at a time makes them meet exactly at the cycle start.
+
+---
 
 ## Dry Run Pattern
 
-For list: `3 -> 2 -> 0 -> -4 -> (back to 2)`
+List:
 
-1. slow/fast meet inside cycle
-2. reset pointer `p1=head`, keep `p2=meeting`
-3. move both one step each
-4. first node where `p1==p2` is node `2` (cycle start)
+`3 -> 2 -> 0 -> -4`
+
+and `-4` points back to node `2`
+
+Phase 1:
+
+- slow and fast meet somewhere inside the cycle
+
+Phase 2:
+
+- set `p1 = head`
+- set `p2 = meetingPoint`
+- move both one step at a time
+
+They meet at node `2`, which is the cycle start.
+
+---
+
+## Why You Must Compare Node References
+
+Do not compare node values.
+
+Different nodes can hold the same value, so:
+
+- `node1.val == node2.val`
+
+does not mean:
+
+- `node1 == node2`
+
+This problem is about meeting at the exact same node object.
+
+---
 
 ## Common Mistakes
 
-1. Returning first meeting point directly (it is not always cycle start).
-2. Comparing node values instead of node references.
-3. Missing null checks for `fast` and `fast.next`.
+1. returning the first slow/fast meeting point directly
+2. comparing node values instead of node references
+3. missing null checks on `fast` and `fast.next`
+4. memorizing the formula without understanding the two-phase pointer logic
 
-## Testing Checklist
-
-- no cycle
-- cycle starts at head
-- cycle starts in middle
-- single-node self-cycle
-- two-node cycle
+---
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
-## Interview Note
-
-This is one of the best examples of math + pointer invariants in linked lists.
+---
 
 ## Key Takeaways
 
-- after fast/slow meet, resetting one pointer to head finds cycle entry.
-- this works because distances traveled by pointers satisfy a modular relation in cycle length.
-- handle no-cycle lists early to avoid null dereference paths.
+- Floyd's algorithm solves both detection and entry-finding
+- the first meeting point is inside the cycle, not necessarily at the start
+- resetting one pointer to head is the key step that turns detection into exact entry recovery

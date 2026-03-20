@@ -24,13 +24,33 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Rollout and deprecation policy**.
+Part goal: **Turn compatibility rules into a safe production rollout and deprecation policy**.
 
 ---
 
-## Real-World Scenario
+## Problem 1: How Do We Roll Out Schema Changes Safely in Production?
 
-Schema changes can break consumers unless compatibility is enforced in registry and CI.
+Problem description:
+Passing registry checks and CI gates is necessary, but not sufficient.
+Production rollout still fails when producers move too early, deprecated fields are removed too soon, or rollback paths are unclear.
+
+What we are solving actually:
+We are solving operational sequencing for contract changes.
+The hard part is not adding a new field; it is coordinating consumers, producers, retention windows, and deprecation timing without service interruption.
+
+What we are doing actually:
+
+1. Deploy consumers that can read both old and new forms first.
+2. Move producers to the new schema only after that compatibility is live.
+3. Remove deprecated fields only after the retention and migration window is truly over.
+
+```mermaid
+flowchart LR
+    A[Consumer supports old + new] --> B[Producer emits new schema]
+    B --> C[Observe deserialization and lag]
+    C --> D[Retention window passes]
+    D --> E[Remove deprecated field]
+```
 
 ---
 
@@ -84,6 +104,9 @@ Rollout order is non-negotiable for safety.
 Consumer-first prevents runtime decode failures.
 ~~~
 
+This is the most important operational rule in the series.
+If the producer moves first, compatibility may still look “fine” in theory while live consumers fail in practice.
+
 ---
 
 ## Verify
@@ -92,16 +115,46 @@ Consumer-first prevents runtime decode failures.
 # monitor deserialization error rate during rollout
 ~~~
 
+Also watch consumer lag, dead-letter queues if present, and any fallback or replay paths that depend on event decoding.
+
 ---
 
 ## Failure Drill
 
-Rollback producer to old schema during rollout and verify consumers remain backward-compatible.
+Rollback the producer to the old schema during rollout and verify consumers remain backward-compatible.
+Then simulate a premature removal of a deprecated field and confirm your guardrails catch it before full rollout.
+
+---
+
+## Rollout Checklist
+
+1. Confirm consumers are deployed with dual-read compatibility.
+2. Shift producers to the new schema.
+3. Monitor deserialization errors and lag during the change window.
+4. Keep deprecated fields until the retention and rollback window is complete.
+5. Remove old fields only after consumers no longer depend on them.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- validate rollout order in staging with old and new consumer versions running together
+- monitor deserialization failures directly, not only aggregate application errors
+- document field deprecation dates so “temporary compatibility” does not become indefinite clutter
+- rehearse rollback paths before a production contract change, not during one
 
 ---
 
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- compatibility checks prevent many failures, but rollout order prevents the rest
+- consumer-first rollout is the safest default for evolving event contracts
+- deprecation needs a real operational policy, not just good intentions
+
+---
+
+## Operator Prompt
+
+For schema evolution with avro and protobuf compatibility contracts (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

@@ -27,10 +27,21 @@ That is common in backend systems that support multiple output formats or provid
 
 ---
 
-## Problem
+## Problem 1: Stable Export Workflow with Variable Exporter Creation
 
+Problem description:
 We want to export a sales report as `CSV`, `JSON`, or `PDF`.
 Validation, orchestration, and audit logging should remain unchanged.
+
+What we are solving actually:
+We are solving for variation in one creation choice without duplicating the surrounding use-case flow.
+If every caller decides exporter type on its own, the export workflow spreads across the codebase and becomes inconsistent.
+
+What we are doing actually:
+
+1. Keep the export workflow in one place.
+2. Move the product-selection decision into a factory method.
+3. Let new export types extend creation logic without rewriting validation and audit behavior.
 
 The pressure here is not “how do I instantiate an object?”
 The pressure is “how do I keep one stable export workflow while allowing one creation choice to vary?”
@@ -92,7 +103,7 @@ public final class PdfReportExporter implements ReportExporter {
 public class ExportService {
     public String run(SalesReport report, ExportType type) {
         validate(report);
-        ReportExporter exporter = createExporter(type);
+        ReportExporter exporter = createExporter(type); // Only this creation decision varies.
         String payload = exporter.export(report);
         audit(type, report);
         return payload;
@@ -144,6 +155,17 @@ If later we add `XML`, we touch creation logic only.
 That is the exact pressure Factory Method is meant to absorb.
 
 This is the real payoff: not fewer lines in one class, but fewer decision points across the codebase.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- verify every supported `ExportType` resolves to exactly one exporter
+- add tests that new exporter types do not change validation or audit sequencing
+- inspect callers to ensure they do not branch again after factory creation
+- check whether the problem has grown into a multi-object family, which may signal Abstract Factory instead
 
 ---
 

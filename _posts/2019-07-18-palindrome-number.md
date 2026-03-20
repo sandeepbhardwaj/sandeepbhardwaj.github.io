@@ -22,96 +22,154 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for palindrome number in java (without string conversion), with practical tips for interviews and production coding standards.
+This problem looks like a string problem at first, but there is a neat numeric solution.
+The clean trick is to reverse only half of the digits instead of reversing the whole number.
 
-## Problem
+---
 
-Determine if integer `x` is palindrome.
+## Problem 1: Palindrome Number
 
-## Better Approach
+Problem description:
+Given an integer `x`, return `true` if it reads the same forward and backward; otherwise return `false`. Solve it without converting the number to a string.
 
-Instead of reversing full number (risk overflow), reverse only half and compare.
+What we are solving actually:
+Reversing the full number works, but it can overflow and does extra work. We only need enough reversed digits to compare the left half with the right half.
 
-## Java Solution
+What we are doing actually:
+
+1. Reject numbers that can never be palindromes, like negatives and numbers ending in `0` (except `0` itself).
+2. Build `reversedHalf` one digit at a time from the right side.
+3. Stop once `reversedHalf` is greater than or equal to the remaining left half.
+4. Compare the two halves, ignoring the middle digit for odd-length numbers.
 
 ```java
 class Solution {
     public boolean isPalindrome(int x) {
-        if (x < 0 || (x % 10 == 0 && x != 0)) return false;
+        if (x < 0 || (x % 10 == 0 && x != 0)) return false; // Negative numbers and trailing-zero numbers cannot mirror correctly.
 
         int reversedHalf = 0;
         while (x > reversedHalf) {
-            reversedHalf = reversedHalf * 10 + x % 10;
-            x /= 10;
+            reversedHalf = reversedHalf * 10 + x % 10; // Pull one digit from the right into the reversed half.
+            x /= 10; // Remove that digit from the original left half.
         }
 
-        return x == reversedHalf || x == reversedHalf / 10;
+        return x == reversedHalf || x == reversedHalf / 10; // Odd-length numbers have one extra middle digit in reversedHalf.
     }
 }
 ```
+
+Debug steps:
+
+- print `x` and `reversedHalf` each loop iteration
+- test `121`, `1221`, `10`, `0`, and `-121`
+- verify the invariant that `reversedHalf` is always the reverse of the digits removed from the original number so far
+
+---
 
 ## Why Half Reversal Works
 
-For palindrome numbers, left half mirrors right half.
-Once reversed right-half becomes greater than or equal to remaining left-half, enough digits are processed.
+For a palindrome:
 
-- even digits: compare `x == reversedHalf`
-- odd digits: middle digit is irrelevant, compare `x == reversedHalf / 10`
+- left half mirrors right half
 
-This avoids full reversal and overflow concerns.
+So once we reverse the right half, we do not need the entire reversed number.
+We only need enough digits to compare both halves.
 
-## Dry Run (`x = 1221`)
+That gives two cases:
 
-1. `x=1221`, `reversedHalf=0`
-2. -> `x=122`, `reversedHalf=1`
-3. -> `x=12`, `reversedHalf=12`
-4. stop (`x` not greater than `reversedHalf`)
-5. `x == reversedHalf` => palindrome
+- even number of digits:
+  compare `x == reversedHalf`
 
-## Common Mistakes
+- odd number of digits:
+  compare `x == reversedHalf / 10`
 
-1. Reversing whole number and risking overflow.
-2. Forgetting early rejection for numbers ending in `0` (except zero).
-3. Missing odd-digit handling (`reversedHalf / 10` comparison).
+The middle digit does not matter in a palindrome, so we can drop it.
+
+---
+
+## Dry Run
+
+Input: `1221`
+
+1. start: `x = 1221`, `reversedHalf = 0`
+2. move one digit:
+   `reversedHalf = 1`
+   `x = 122`
+3. move one digit:
+   `reversedHalf = 12`
+   `x = 12`
+4. stop because `x` is no longer greater than `reversedHalf`
+
+Now:
+
+- `x == reversedHalf`
+- `12 == 12`
+
+Answer: `true`
+
+Odd-length example: `121`
+
+At the end:
+
+- `x = 1`
+- `reversedHalf = 12`
+
+Drop the middle digit:
+
+- `reversedHalf / 10 = 1`
+
+So it is also a palindrome.
+
+---
+
+## Early Rejections
+
+These quick checks are important:
+
+- `x < 0` -> false, because the minus sign appears only on one side
+- `x % 10 == 0 && x != 0` -> false, because a non-zero palindrome cannot start with `0`
+
+Example:
+
+- `10` ends in `0`
+- reversed form would need to start with `0`
+- that is impossible for a normal integer representation
+
+---
 
 ## String-Based Alternative
 
-Converting to string is valid and simpler:
+A string solution is completely valid when the problem allows it:
 
-```java
-boolean isPalString(int x) {
-    String s = Integer.toString(x);
-    int l = 0, r = s.length() - 1;
-    while (l < r) {
-        if (s.charAt(l++) != s.charAt(r--)) return false;
-    }
-    return true;
-}
-```
+- convert number to string
+- compare from both ends
 
-Use numeric method when interview asks explicitly “without string conversion.”
+The numeric half-reversal method is useful when:
 
-## Testing Checklist
+- the interviewer explicitly forbids string conversion
+- you want constant extra space
+- you want to avoid whole-number reversal overflow concerns
 
-- `121` -> true
-- `-121` -> false
-- `10` -> false
-- `0` -> true
-- large palindrome and non-palindrome values
+---
+
+## Common Mistakes
+
+1. reversing the full number and risking overflow
+2. forgetting the trailing-zero rejection rule
+3. missing the odd-digit comparison with `reversedHalf / 10`
+4. treating negative numbers as possible palindromes
+
+---
 
 ## Complexity
 
 - Time: `O(log10 n)`
 - Space: `O(1)`
 
-## Edge Cases
-
-- Negative numbers -> false
-- `0` -> true
-- Numbers ending with `0` (except `0`) -> false
+---
 
 ## Key Takeaways
 
-- reversing only half the digits avoids overflow risk and keeps space constant.
-- early rejection rules (`x < 0`, trailing zero except zero itself) remove invalid cases quickly.
-- odd and even digit counts are handled cleanly by comparing `x` with `reversedHalf` or `reversedHalf / 10`.
+- reverse only half the digits, not the whole number
+- odd-length palindromes need the middle digit ignored
+- early rejection rules remove impossible cases before the loop starts

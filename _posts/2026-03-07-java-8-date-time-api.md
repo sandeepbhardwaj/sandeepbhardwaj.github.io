@@ -194,3 +194,36 @@ Clock fixed = Clock.fixed(Instant.parse("2026-03-07T00:00:00Z"), ZoneOffset.UTC)
 - [CompletableFuture Error Handling](/java/java-8-completablefuture-error-handling/)
 - [Parallel Streams Performance](/java/java-8-parallel-streams-performance/)
 - [Stream API Deep Dive](/java/java-8-stream-api-deep-dive/)
+
+---
+
+        ## Problem 1: Turn Java 8 Date & Time API — Production & Distributed Systems Guide Into a Reusable Engineering Choice
+
+        Problem description:
+        The surface syntax is usually not the hard part. Teams run into trouble when they adopt the idea without deciding where it fits, what trade-off it introduces, and how they will validate the result after shipping.
+
+        What we are solving actually:
+        We are turning java 8 date & time api — production & distributed systems guide into a bounded design decision instead of a memorized feature summary.
+
+        What we are doing actually:
+
+        1. choose one concrete use case for the feature or pattern
+        2. define the invariant or compatibility rule that must stay true
+        3. validate the behavior with one failure-oriented check
+        4. keep a note on when the simpler alternative is still the better choice
+
+        ```mermaid
+flowchart LR
+    A[Concept] --> B[Concrete use case]
+    B --> C[Validation rule]
+    C --> D[Operational confidence]
+```
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - check the feature under upgrade, rollback, or mixed-version conditions
+        - keep the smallest possible example that reproduces the intended rule
+        - prefer explicit behavior over magical convenience when trade-offs are unclear
+        - document one misuse pattern so future edits do not repeat it

@@ -121,3 +121,65 @@ Bytecode assumptions can break silently after JDK upgrades.
 - ASM is a precision tool for framework/platform engineering.
 - verify every transformation and keep scope narrow.
 - treat bytecode tooling like compiler infrastructure with strong test gates.
+
+---
+
+        ## Problem 1: Transform Bytecode Only When the Contract Is Precise
+
+        Problem description:
+        ASM gives full control, which also means it can create invalid frames, verifier errors, or unreadable instrumentation when the transformation contract is vague.
+
+        What we are solving actually:
+        We are solving low-level class transformation with discipline. The important question is not whether ASM can do it; it is whether the transformation remains testable, minimal, and understandable six months later.
+
+        What we are doing actually:
+
+        1. define exactly which method or field shape the visitor expects
+2. keep transformations narrow and local rather than building a generic mini-framework
+3. run verification and bytecode diff tests as part of CI
+4. pair ASM usage with plain-language documentation of the intent
+
+        ```mermaid
+flowchart LR
+    A[Original .class] --> B[ASM visitor]
+    B --> C[Modified bytecode]
+    C --> D[Verifier + tests]
+```
+
+        This section is worth making concrete because architecture advice around bytecode engineering asm practical intro often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        ClassReader reader = new ClassReader(bytes);
+ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
+reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc, String sig, String[] ex) {
+        return super.visitMethod(access, name, desc, sig, ex);
+    }
+}, 0);
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Deliberately run the transformed class through the verifier and a smoke test. If the only validation is that the code compiled, the transformation is not production-ready.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - use `COMPUTE_FRAMES` carefully and understand when it changes behavior
+- diff input and output class structures during development
+- test on the exact bytecode level you deploy
+- avoid broad transformation rules that match more classes over time
+
+        ## Review Checklist
+
+        - Keep visitors narrow.
+- Verify transformed classes automatically.
+- Document the bytecode contract in plain language.

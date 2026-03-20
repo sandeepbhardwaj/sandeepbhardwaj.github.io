@@ -23,28 +23,28 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for reverse linked list iteratively in java, with practical tips for interviews and production coding standards.
+Reversing a linked list is one of the cleanest pointer problems in DSA. It looks simple, but it teaches an important lesson: when we change links in place, the order of updates matters more than the updates themselves.
 
-## Problem
+## Problem 1: Reverse Linked List Iteratively
 
+Problem description:
 Given the head of a singly linked list, reverse the list and return the new head.
 
-## Example
+Example:
 
-Input: `1 -> 2 -> 3 -> 4 -> 5`  
-Output: `5 -> 4 -> 3 -> 2 -> 1`
+- Input: `1 -> 2 -> 3 -> 4 -> 5`
+- Output: `5 -> 4 -> 3 -> 2 -> 1`
 
-## Intuition
+What we are solving actually:
+We are not just "reading the list backward." We are changing the direction of every `next` pointer so the list can be traversed from the old tail back toward the old head. The tricky part is making those changes without losing access to the remaining nodes.
 
-Keep three pointers:
+What we are doing actually:
 
-- `prev` (already reversed part)
-- `current` (node being processed)
-- `next` (saved reference so list is not lost)
-
-At each step, reverse one link and move forward.
-
-## Java Solution
+1. Keep `prev` as the head of the already reversed portion.
+2. Keep `current` as the node we are currently processing.
+3. Save `current.next` in `nextNode` before changing anything.
+4. Reverse one link by pointing `current.next` to `prev`.
+5. Move all pointers one step forward and repeat.
 
 ```java
 class Solution {
@@ -53,88 +53,80 @@ class Solution {
         ListNode current = head;
 
         while (current != null) {
-            ListNode next = current.next;
-            current.next = prev;
-            prev = current;
-            current = next;
+            ListNode nextNode = current.next; // Save the rest of the list before rewiring.
+            current.next = prev; // Reverse the current link.
+            prev = current; // Current node becomes the new front of reversed part.
+            current = nextNode; // Continue with the untouched remainder.
         }
 
-        return prev;
+        return prev; // Prev ends at the new head.
     }
 }
 ```
 
-## Dry Run (First 3 Steps)
+## Why This Works
 
-Initial:
+At any moment:
 
-- `prev = null`
-- `current = 1 -> 2 -> 3 -> 4 -> 5`
+- `prev` points to a correctly reversed partial list
+- `current` points to the first node not processed yet
+- everything after `current` is still in its original order
 
-Step 1:
+Each loop iteration moves exactly one node from the original part into the reversed part. Because we save `nextNode` first, we never lose the remaining list.
 
-- `next = 2`
-- reverse `1.next = null`
-- move: `prev = 1`, `current = 2`
+## Dry Run
 
-Step 2:
+For `1 -> 2 -> 3 -> 4 -> 5`:
 
-- `next = 3`
-- reverse `2.next = 1`
-- move: `prev = 2 -> 1`, `current = 3`
+1. Start with `prev = null`, `current = 1`
+2. Save `nextNode = 2`, set `1.next = null`, move `prev = 1`, `current = 2`
+3. Save `nextNode = 3`, set `2.next = 1`, move `prev = 2 -> 1`, `current = 3`
+4. Save `nextNode = 4`, set `3.next = 2`, move `prev = 3 -> 2 -> 1`, `current = 4`
+5. Continue until `current = null`
 
-Step 3:
-
-- `next = 4`
-- reverse `3.next = 2`
-- move: `prev = 3 -> 2 -> 1`, `current = 4`
-
-Continue until `current == null`. Final `prev` is new head.
+At the end, `prev` points to `5 -> 4 -> 3 -> 2 -> 1`, which is the answer.
 
 ## Common Mistakes
 
-1. Forgetting to store `next` before rewiring `current.next`.
-2. Returning `head` instead of `prev`.
-3. Accidentally creating a cycle by wrong pointer update order.
+1. Forgetting to save `nextNode` before changing `current.next`
+2. Returning `head` instead of `prev`
+3. Updating `current` before reversing the pointer
+4. Thinking a second pass is needed when one pass is enough
 
-## Useful Variant: Reverse First K Nodes
+## Debug Steps
 
-```java
-ListNode reverseFirstK(ListNode head, int k) {
-    ListNode prev = null, curr = head;
-    while (curr != null && k-- > 0) {
-        ListNode next = curr.next;
-        curr.next = prev;
-        prev = curr;
-        curr = next;
-    }
-    head.next = curr; // connect remainder
-    return prev;
-}
-```
+Debug steps:
 
-This pattern is reused in problems like reversing in groups.
+- print `prev`, `current`, and `nextNode` at each iteration
+- test `null`, one-node, and two-node lists first
+- check that no node is skipped and no cycle is created
+- verify that the final returned node is the old tail
 
-## Testing Checklist
+## Boundary Cases
 
-- `[]` -> `[]`
-- `[1]` -> `[1]`
-- `[1,2]` -> `[2,1]`
-- `[1,2,3,4,5]` -> `[5,4,3,2,1]`
+- empty list returns `null`
+- single node returns the same node
+- two nodes should simply swap direction
+- large lists still work in one pass with constant extra space
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
-## Edge Cases
+## Why Iterative Reversal Is a Core Pattern
 
-- Empty list -> return `null`
-- Single node -> same node returned
-- Long list -> still linear scan
+This same pointer update pattern appears in:
+
+- reverse a sublist
+- reverse nodes in `k` groups
+- reorder list style problems
+- palindrome linked-list checks
+
+So this is more than one interview question. It is a reusable linked-list building block.
 
 ## Key Takeaways
 
-- iterative reversal is pointer choreography using `prev`, `curr`, and `next`.
-- update order matters: save `next` before changing `curr.next`.
-- iterative approach is production-safe for long lists due to constant stack usage.
+- iterative reversal is controlled pointer rewiring, not value swapping
+- the order `save next`, `reverse link`, `move pointers` is the whole algorithm
+- `prev` becomes the new head after the traversal finishes

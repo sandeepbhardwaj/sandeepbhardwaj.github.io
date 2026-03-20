@@ -2,6 +2,7 @@
 title: "Privacy Policy"
 permalink: /privacy-policy/
 author_profile: false
+ads: false
 ---
 
 Last updated: March 2, 2026
@@ -67,4 +68,3 @@ You may:
 For privacy-related questions, contact:
 
 - Email: [hello@sandeepbhardwaj.dev](mailto:hello@sandeepbhardwaj.dev)
-

@@ -152,3 +152,62 @@ Outbox is both a data consistency pattern and an ops pattern.
 - outbox gives reliable publish intent without distributed transactions.
 - relay is at-least-once by design; consumer idempotency completes correctness.
 - observe backlog and failure metrics continuously to prevent silent drift.
+
+---
+
+        ## Problem 1: Treat the Outbox as a Reliability Boundary, Not a Convenience Table
+
+        Problem description:
+        Publishing events directly after a database commit creates a classic dual-write gap where state changes and message emission can diverge under failure.
+
+        What we are solving actually:
+        We are solving atomic business-state change plus eventual publication. The outbox pattern works because it turns one hard distributed write into a local transaction followed by a replayable relay step.
+
+        What we are doing actually:
+
+        1. write domain state and the outbox row in the same database transaction
+2. make the relay idempotent so crashes and replays are harmless
+3. track publication status separately from business state
+4. monitor relay lag because delayed emission is still an operational incident
+
+        ```mermaid
+flowchart LR
+    A[Service transaction] --> B[(Business tables)]
+    A --> C[(Outbox table)]
+    C --> D[Relay / CDC]
+    D --> E[Kafka topic]
+```
+
+        This section is worth making concrete because architecture advice around outbox pattern java microservices often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        transactionTemplate.executeWithoutResult(status -> {
+    orderRepository.save(order);
+    outboxRepository.save(OutboxMessage.forEvent(orderPlaced));
+});
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Crash the service after the transaction commits but before the relay publishes. If the event still reaches Kafka after restart without duplication, the boundary is doing its job.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - store event type, key, payload, and publication metadata explicitly
+- monitor outbox backlog age and relay throughput
+- keep business transaction size reasonable so the outbox does not hide slow writes
+- test recovery with the relay down, not only when everything is healthy
+
+        ## Review Checklist
+
+        - One local transaction for state plus outbox.
+- Relay must be replay-safe.
+- Lag on the outbox is a first-class metric.

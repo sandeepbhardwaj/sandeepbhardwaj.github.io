@@ -24,9 +24,33 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Transactional consume-transform-produce**.
+Part goal: **Use Kafka transactions for consume-transform-produce atomically**.
 
 ---
+
+## Problem 1: Avoid Partial Visibility When Reading, Writing, and Committing Offsets
+
+Problem description:
+A processor that consumes input, writes transformed output, and commits offsets can leave the system inconsistent if it crashes between those steps.
+
+What we are solving actually:
+We are solving atomicity across output publication and offset progress.
+Without transactions, downstream topics can contain partial work or consumers can advance offsets without corresponding output.
+
+What we are doing actually:
+
+1. Begin a Kafka transaction.
+2. Produce output records.
+3. Send consumer offsets to the same transaction.
+4. Commit or abort the whole unit together.
+
+```mermaid
+flowchart LR
+    A[Consume input] --> B[beginTransaction]
+    B --> C[Produce transformed output]
+    C --> D[sendOffsetsToTransaction]
+    D --> E[commitTransaction or abort]
+```
 
 ## Real-World Scenario
 
@@ -105,8 +129,47 @@ Kill app before commitTransaction and verify no partial output visibility.
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- use `read_committed` consumers when verifying transaction behavior
+- test crash timing before commit, after output send, and around offset commit
+- confirm the consumer group metadata used for `sendOffsetsToTransaction` is correct
+- remember that transaction success still depends on consumer idempotency around external side effects
+
+## Operational Note
+
+This pattern is strongest when the processor owns only Kafka-side state transitions.
+As soon as external databases or side effects are mixed in, transactional guarantees need another layer of design and compensating controls.
+
+That boundary should be explained explicitly in team docs.
+It prevents “exactly once” from becoming a misleading label for a wider workflow.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- transactions make output and offset progression one atomic decision
+- verification requires committed-read semantics, not default consumption behavior
+- partial visibility bugs only disappear when the full consume-transform-produce unit is transactional
+
+---
+
+        ## Production Checklist
+
+        Verify both broker configuration and consumer isolation level. Transactional semantics are easy to misread when downstream readers still use default isolation.
+
+        ## Incident Drill
+
+        Restart the processor with the wrong transactional identity and inspect the resulting fencing or duplicate risk. That is the boundary operators have to understand before incident day.
+
+        ## Extra Debug Cues
+
+        - keep the transactional ID stable for one processor identity
+- check fencing events during rolling deploys
+- verify all downstream validation reads use `read_committed`
+
+---
+
+## Operator Prompt
+
+For idempotent producers and kafka transactions in practice (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

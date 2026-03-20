@@ -24,9 +24,32 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **DLQ governance playbook**.
+Part goal: **Turn DLQ handling into an owned operational playbook**.
 
 ---
+
+## Problem 1: Stop Treating the DLQ as a Dumping Ground
+
+Problem description:
+A DLQ is helpful only when teams know what kinds of failures belong there, who owns them, and what replay policy applies after a fix.
+
+What we are solving actually:
+We are solving governance of failed events after they are isolated.
+The hard problem is not sending a message to DLQ; it is deciding what to do next in a way that is fast, safe, and repeatable.
+
+What we are doing actually:
+
+1. Classify DLQ records by failure type.
+2. Assign owners and SLAs for each class.
+3. Automate safe replay where policy allows it.
+
+```mermaid
+flowchart LR
+    A[DLQ event] --> B{Classify root cause}
+    B -->|Transient infra| C[Auto-replay]
+    B -->|Schema / contract| D[Replay after fix]
+    B -->|Business reject| E[No replay]
+```
 
 ## Real-World Scenario
 
@@ -104,8 +127,34 @@ Run synthetic DLQ drill and verify playbook completion within target recovery wi
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- confirm every DLQ class has an owner and response expectation
+- keep replay rules explicit so “just replay it” does not become the default answer
+- audit replay outcomes to prove whether fixes really resolved the issue
+- run synthetic DLQ drills so the playbook is practiced before a real incident
+
+## Operational Note
+
+The best DLQ playbooks are short, explicit, and practiced.
+If responders need to rediscover policy during an incident, the DLQ is still functioning as storage rather than governance.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- a DLQ is only useful when replay policy and ownership are clear
+- not every failed message should be replayed
+- governance turns DLQ handling from improvisation into operations
+
+---
+
+## Operator Prompt
+
+For retry topics dlq design and poison message governance (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

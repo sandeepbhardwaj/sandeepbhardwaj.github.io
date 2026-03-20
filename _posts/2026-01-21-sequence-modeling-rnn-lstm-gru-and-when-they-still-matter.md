@@ -29,6 +29,31 @@ Understanding RNN/LSTM/GRU remains useful for strong engineering decisions.
 
 ---
 
+## Problem 1: Model Sequential Dependencies Under Tight Resource Constraints
+
+Problem description:
+We want sequence models that can process ordered data effectively without always paying the compute and memory cost of transformer-style architectures.
+
+What we are solving actually:
+We are solving for the right architecture under deployment constraints.
+The question is not whether recurrent models win every benchmark, but whether they remain the right trade-off for streaming, edge, or moderate-length sequence tasks.
+
+What we are doing actually:
+
+1. Start from the recurrent state-update idea.
+2. Understand why vanilla RNNs struggle on long dependencies.
+3. Use LSTM or GRU when gated memory control is needed.
+4. Compare against transformer alternatives with latency and memory included in the decision.
+
+```mermaid
+flowchart LR
+    A[Sequence Input] --> B[Recurrent State Updates]
+    B --> C{Architecture Choice}
+    C -->|Simple / short context| D[RNN]
+    C -->|Longer dependencies| E[LSTM or GRU]
+    E --> F[Quality + Latency Evaluation]
+```
+
 ## Recurrent Modeling Basics
 
 RNNs process sequence elements step-by-step:
@@ -129,6 +154,15 @@ Also evaluate latency and memory, not only predictive score.
 4. benchmarking only accuracy, not latency/memory
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- inspect gradient behavior and add clipping before unstable training spirals
+- compare LSTM and GRU on the same latency budget instead of picking by habit
+- evaluate batching strategy against real sequence-length distribution
+- include serving memory and token-by-token latency in the final architecture decision
 
 ## Key Takeaways
 

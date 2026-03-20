@@ -24,9 +24,32 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Operational governance and replay**.
+Part goal: **Operate outbox plus CDC with backlog governance and replay discipline**.
 
 ---
+
+## Problem 1: Keep Outbox Publishing Healthy After Day One
+
+Problem description:
+Even a correct outbox design can fail operationally if backlog ages grow, connectors stall silently, or replay procedures are improvised during incidents.
+
+What we are solving actually:
+We are solving operational governance of the pattern.
+The pattern is only production-ready when teams can observe backlog health, replay safely, and retire old outbox rows without losing traceability.
+
+What we are doing actually:
+
+1. Monitor outbox backlog and connector lag continuously.
+2. Define replay workflows by event id or time range.
+3. Archive or purge outbox rows with a deliberate retention policy.
+
+```mermaid
+flowchart LR
+    A[Outbox rows] --> B[CDC connector]
+    B --> C[Kafka topic]
+    A --> D[Backlog age metric]
+    C --> E[Replay tooling]
+```
 
 ## Real-World Scenario
 
@@ -102,8 +125,34 @@ Pause connector for 10 minutes, build backlog, resume, and measure drain time + 
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- alert on oldest outbox-row age, not just total row count
+- test connector pause and recovery so drain-time behavior is known in advance
+- keep replay targeted by event id or safe filters instead of replaying everything blindly
+- tie retention policy to audit and recovery requirements before purging rows
+
+## Operational Note
+
+Replay safety depends on restraint as much as tooling.
+The ability to replay everything is powerful, but the ability to replay only the right slice is what protects downstream systems during real incidents.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- outbox success depends on backlog observability and replay procedures, not just design purity
+- connector lag and oldest-row age are core operating metrics
+- retention and replay policy should be defined before the first real incident
+
+---
+
+## Operator Prompt
+
+For outbox plus cdc with debezium for reliable event publishing (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

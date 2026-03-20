@@ -155,3 +155,36 @@ Without steps 5-6, latency spikes into timeouts and memory pressure grows until 
 - Netty performance is mostly execution-model correctness, not magic socket flags.
 - keep event loops non-blocking and treat backpressure as first-class.
 - define explicit memory and queue limits before load testing.
+
+---
+
+            ## Problem 1: Make Netty Fundamentals for High-Performance Networking Operationally Explainable
+
+            Problem description:
+            Backend topics sound straightforward until the runtime boundary becomes fuzzy. Teams usually know the API surface, but they often skip the part where ownership, rollback, and the main production signal are written down explicitly.
+
+            What we are solving actually:
+            We are turning netty fundamentals for high-performance networking into an engineering choice with a clear boundary, one measurable success signal, and one failure mode the team is ready to debug.
+
+            What we are doing actually:
+
+            1. define where this technique starts and where another subsystem takes over
+            2. attach one metric or invariant that proves the design is helping
+            3. rehearse one failure or rollout scenario before scaling the pattern
+            4. keep the implementation small enough that operators can still explain it during an incident
+
+            ```mermaid
+flowchart TD
+    A[Request or event] --> B[Core boundary]
+    B --> C[Resource or dependency]
+    C --> D[Observability and rollback]
+```
+
+            ## Debug Steps
+
+            Debug steps:
+
+            - identify the first metric that should move when the design works
+            - record the rollback trigger before production rollout
+            - keep dependency boundaries and timeouts explicit in code and docs
+            - prefer one clear safety rule over several implicit assumptions

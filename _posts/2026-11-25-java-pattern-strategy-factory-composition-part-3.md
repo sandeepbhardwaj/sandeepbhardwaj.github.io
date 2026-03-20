@@ -26,95 +26,100 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Design Patterns with Java
 ---
-This post covers production-focused design decisions for **Strategy + factory composition for runtime pluggable behavior (Part 3)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
+Strategy + factory composition for runtime pluggable behavior (Part 3) is most useful when the pattern clarifies a real design pressure instead of decorating the codebase with abstractions. The production value comes from making extension, composition, and debugging easier.
+
+---
+
+## Problem 1: Strategy + factory composition for runtime pluggable behavior (Part 3)
+
+Problem description:
+We want strategy + factory composition for runtime pluggable behavior (part 3) to solve a specific design problem without turning the code into ceremonial abstraction. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+
+What we are solving actually:
+We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For design patterns, the hidden risk is choosing abstraction because it sounds elegant instead of because it absorbs a real source of change.
+
+What we are doing actually:
+
+1. make the pattern assembly explicit: define a staged rollout or migration plan
+2. make the pattern assembly explicit: attach clear ownership and rollback rules
+3. make the pattern assembly explicit: codify verification gates around latency, errors, or correctness
+4. make the pattern assembly explicit: write the operator playbook before the first real incident forces it
 
 ---
 
 ## Why This Topic Matters
 
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+- patterns should absorb a real source of change or composition pressure
+- the cost of abstraction is justified only when it simplifies evolution or debugging
+- clear pattern boundaries reduce accidental responsibility overlap
 
 ---
 
 ## Architecture Model
 
-Use this structure while implementing the design:
+```mermaid
+flowchart TD
+    A[Approved design] --> B[Canary rollout]
+    B --> C{SLO and correctness gates pass?}
+    C -->|Yes| D[Promote Strategy + factory composition for runtime pluggable behavior (Part 3)]
+    C -->|No| E[Rollback / revise]
+```
 
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+The diagram highlights composition points and responsibility flow because strategy + factory composition for runtime pluggable behavior (part 3) only pays off when abstraction reduces debugging and change cost.
+Keeping that flow visible prevents the pattern from turning into decorative indirection.
 
 ---
 
-## Practical Implementation Pattern
+## Practical Design Pattern
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+```java
+public interface TopicBehavior {
+    Result execute(Command command);
+}
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
-
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
-
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
+public final class TopicResolver {
+    TopicBehavior resolve(Context context) {
+        // Compose the right behavior for: Strategy + factory composition for runtime pluggable behavior (Part 3)
+        return command -> Result.success();
     }
 }
-~~~
+```
+
+This pattern example is intentionally modest because strategy + factory composition for runtime pluggable behavior (part 3) should clarify one source of change before it introduces any new layers.
+When the abstraction does not make responsibilities easier to follow, adding more pattern machinery rarely helps.
 
 ---
 
-## Dry Run Scenario
+## Failure Drill
 
-Example rollout checklist:
+Rollout drill: add one new behavior variant and verify the pattern extension path stays clearer than editing one giant class for strategy + factory composition for runtime pluggable behavior (part 3).
 
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+That drill matters before the operator playbook is treated as trustworthy because strategy + factory composition for runtime pluggable behavior (part 3) should prove it reduces change friction under pressure, not just that the abstraction reads nicely in isolation.
 
 ---
 
-## Common Pitfalls
+## Debug Steps
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Debug steps:
+
+- name the exact design pressure before choosing the pattern vocabulary while validating strategy + factory composition for runtime pluggable behavior (part 3)
+- keep one place where the composition order is visible while validating strategy + factory composition for runtime pluggable behavior (part 3)
+- check whether the pattern reduces change cost or merely moves it around while validating strategy + factory composition for runtime pluggable behavior (part 3)
+- remove abstraction if the extension path is still harder than plain code while validating strategy + factory composition for runtime pluggable behavior (part 3)
 
 ---
 
 ## Production Checklist
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+- pattern remains the easiest explanation of the change pressure
+- promotion gates cover both correctness and maintainability
+- operator or debugger path is documented where relevant
+- future contributors know when not to extend the abstraction
 
 ---
 
 ## Key Takeaways
 
-- Strategy + factory composition for runtime pluggable behavior (Part 3) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- Strategy + factory composition for runtime pluggable behavior (Part 3) should be designed as a production decision, not just an implementation detail
+- patterns should clarify the source of change, not decorate the code
+- the runbook and rollout policy are part of the design itself

@@ -124,3 +124,62 @@ Without step 5, duplicate execution happens.
 - distributed locking is a failure-sensitive coordination mechanism.
 - lease ownership checks and lock-loss handling are mandatory.
 - use partitioned/idempotent designs first; lock only where truly required.
+
+---
+
+        ## Problem 1: Use Distributed Locks Only With Ownership Proof
+
+        Problem description:
+        Distributed locks are often used as if they were perfect mutexes, but network partitions, lease expiry, and slow clients make naive locking unsafe.
+
+        What we are solving actually:
+        We are solving coordinated access to a scarce external resource. The correct design usually depends on leases, fencing tokens, and a clear understanding of what happens when lock holders become slow or disconnected.
+
+        What we are doing actually:
+
+        1. define the protected resource and the exact critical section first
+2. treat lease expiry as normal and require downstream fencing where correctness matters
+3. keep the lock scope small and never hold it across long uncertain I/O
+4. prefer consensus-backed coordination when ownership accuracy matters more than simplicity
+
+        ```mermaid
+flowchart LR
+    A[Client acquires lease] --> B[Fencing token]
+    B --> C[Protected resource]
+    C --> D[Reject stale token]
+```
+
+        This section is worth making concrete because architecture advice around distributed locking patterns java redis zookeeper often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        record Lease(String ownerId, long fencingToken, Instant expiresAt) {}
+
+void write(Lease lease, Command command) {
+    repository.applyIfTokenAtLeast(lease.fencingToken(), command);
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Pause a lock holder so its lease expires, then let it wake up and attempt a write. If the resource cannot reject the stale owner, the lock is not strong enough for the use case.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - track lease duration, renewal latency, and lock handoff failures
+- never trust client clocks for correctness decisions
+- separate liveness from ownership in design discussions
+- challenge whether a queue or partitioned ownership model would remove the lock entirely
+
+        ## Review Checklist
+
+        - Prefer fencing when correctness matters.
+- Keep lock scope tiny.
+- Design explicitly for stale owners.
