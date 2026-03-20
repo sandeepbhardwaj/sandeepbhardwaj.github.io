@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-27
 seo_title: 'Model Serving Architectures: Batch, Online, and Streaming'
 seo_description: A practical architecture guide to model serving patterns, latency

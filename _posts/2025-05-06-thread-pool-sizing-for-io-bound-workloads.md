@@ -270,4 +270,4 @@ If the workload is mostly waiting, a small CPU-style pool is usually too conserv
 - A larger pool only helps if downstream dependencies and memory budgets can tolerate the extra concurrency.
 - Pool sizing, queue limits, and overload behavior must be designed together.
 
-Next post: [Queue Choice in ThreadPoolExecutor](/2025/05/07/queue-choice-in-threadpoolexecutor/)
+Next post: [Queue Choice in ThreadPoolExecutor](/java/concurrency/queue-choice-in-threadpoolexecutor/)

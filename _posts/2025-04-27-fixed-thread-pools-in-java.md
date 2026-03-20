@@ -237,4 +237,4 @@ Move to an explicit `ThreadPoolExecutor` when:
 - They are strong for predictable bounded parallelism, but not automatically for bounded backlog.
 - Active thread count and queue pressure are different operational dimensions.
 
-Next post: [Cached Thread Pools in Java](/2025/04/28/cached-thread-pools-in-java/)
+Next post: [Cached Thread Pools in Java](/java/concurrency/cached-thread-pools-in-java/)

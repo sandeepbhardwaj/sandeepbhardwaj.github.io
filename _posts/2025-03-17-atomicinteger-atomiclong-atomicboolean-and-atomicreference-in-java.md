@@ -267,4 +267,4 @@ That is a different use case from counters or snapshot references, and it helps 
 - `AtomicReference` is especially useful for immutable snapshot replacement.
 - Once the invariant spans several fields, move beyond a single atomic variable.
 
-Next post: [Compare And Set and CAS Loops in Java](/2025/03/18/compare-and-set-and-cas-loops-in-java/)
+Next post: [Compare And Set and CAS Loops in Java](/java/concurrency/compare-and-set-and-cas-loops-in-java/)

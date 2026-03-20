@@ -268,4 +268,4 @@ Do not use them when:
 - They are runtime scheduling tools, not durable external schedulers.
 - Timing policy is part of correctness for recurring work.
 
-Next post: [Future in Java Deep Dive](/2025/05/01/future-in-java-deep-dive/)
+Next post: [Future in Java Deep Dive](/java/concurrency/future-in-java-deep-dive/)

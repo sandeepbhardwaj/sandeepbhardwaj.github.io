@@ -222,4 +222,4 @@ In those cases:
 - They are useful batch coordination tools for local executor workloads.
 - Their value comes from matching the result-ownership pattern correctly, not just from reducing boilerplate.
 
-Next post: [CompletionService in Java for Fastest Result Collection](/2025/05/04/completionservice-in-java-for-fastest-result-collection/)
+Next post: [CompletionService in Java for Fastest Result Collection](/java/concurrency/completionservice-in-java-for-fastest-result-collection/)

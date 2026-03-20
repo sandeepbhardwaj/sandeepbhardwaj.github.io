@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-31
 seo_title: End-to-End ML System Design Playbook
 seo_description: A complete practical playbook for designing, deploying, and operating
@@ -263,6 +264,6 @@ This completes the full AI/ML January sequence with end-to-end design principles
 
 - [RAG Architecture: Retrieval-Augmented Generation](/ai/ml/rag-architecture-retrieval-augmentation-and-grounded-generation/)
 - [Vector Databases for RAG in Production](/ai/ml/vector-databases-for-rag-in-production/)
-- [Embeddings in Practice: Model Choice, Evaluation, and Lifecycle](/ai/ml/embeddings-in-practice-model-choice-evaluation-and-lifecycle/)
+- [Embeddings in Practice: Model Choice, Evaluation, and Lifecycle](/ai/ml/mlops/embeddings-in-practice-model-choice-evaluation-and-lifecycle/)
 - [Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops](/ai/ml/agentic-ai-fundamentals-planning-tools-memory-control-loops/)
-- [Building Production AI Agents: Architecture, Guardrails, and Evaluation](/ai/ml/building-production-ai-agents-architecture-guardrails-evaluation/)
+- [Building Production AI Agents: Architecture, Guardrails, and Evaluation](/ai/ml/mlops/building-production-ai-agents-architecture-guardrails-evaluation/)

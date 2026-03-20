@@ -234,4 +234,4 @@ Small code paths deadlock all the time if lock order is inconsistent.
 - Thread dumps are the primary production diagnostic tool.
 - Consistent ordering, fewer nested locks, and simpler ownership models are the main prevention strategies.
 
-Next post: [Livelock in Java and How It Differs from Deadlock](/2025/02/12/livelock-in-java-and-how-it-differs-from-deadlock/)
+Next post: [Livelock in Java and How It Differs from Deadlock](/java/concurrency/livelock-in-java-and-how-it-differs-from-deadlock/)

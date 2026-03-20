@@ -3,6 +3,7 @@ title: Async Orchestration Patterns for Service Aggregation in Java
 date: 2025-05-26
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -236,4 +237,4 @@ This is a very different orchestration pattern from fan-out and combine:
 - Optional and required dependencies should not share the same failure strategy by default.
 - The best async aggregation design optimizes for bounded latency and graceful degradation, not just raw concurrency.
 
-Next post: [How to Test Concurrent Code Without Fooling Yourself](/2025/05/27/how-to-test-concurrent-code-without-fooling-yourself/)
+Next post: [How to Test Concurrent Code Without Fooling Yourself](/java/concurrency/how-to-test-concurrent-code-without-fooling-yourself/)

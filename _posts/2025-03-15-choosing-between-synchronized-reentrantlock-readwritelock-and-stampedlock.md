@@ -234,4 +234,4 @@ If you skip that order, you usually add risk before you add value.
 - `ReentrantLock`, `ReadWriteLock`, and `StampedLock` each earn their complexity only in narrower cases.
 - Simpler concurrency designs usually win unless measurement proves otherwise.
 
-Next post: [Atomic Classes in Java Overview](/2025/03/16/atomic-classes-in-java-overview/)
+Next post: [Atomic Classes in Java Overview](/java/concurrency/atomic-classes-in-java-overview/)

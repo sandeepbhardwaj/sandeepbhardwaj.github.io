@@ -285,4 +285,4 @@ Do not use it when:
 - Its iterators are weakly consistent, not snapshot-based.
 - It protects the map, not the thread safety of mutable values stored inside it.
 
-Next post: [Compound Actions on ConcurrentHashMap Done Correctly](/2025/04/10/compound-actions-on-concurrenthashmap-done-correctly/)
+Next post: [Compound Actions on ConcurrentHashMap Done Correctly](/java/concurrency/compound-actions-on-concurrenthashmap-done-correctly/)

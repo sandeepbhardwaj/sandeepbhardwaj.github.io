@@ -262,4 +262,4 @@ The shorter keyword is not the safer choice if the problem shape is wrong.
 - It does not make compound actions atomic.
 - Correct concurrency design starts by matching the primitive to the invariant.
 
-Next post: [Using volatile for Visibility in Java](/2025/02/19/using-volatile-for-visibility-in-java/)
+Next post: [Using volatile for Visibility in Java](/java/concurrency/using-volatile-for-visibility-in-java/)

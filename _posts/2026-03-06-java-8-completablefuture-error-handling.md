@@ -3,6 +3,7 @@ title: CompletableFuture — Error Handling & Thread Pool Architecture
 date: 2026-03-06
 categories:
 - Java
+- CompletableFuture
 tags:
 - java
 - java8
@@ -711,6 +712,6 @@ Without timing/error metrics, async failures remain invisible until incidents.
 
 # Related Posts
 
-- [CompletableFuture Deep Dive](/java/java-8-completablefuture-deep-dive/)
+- [CompletableFuture Deep Dive](/java/completablefuture/java-8-completablefuture-deep-dive/)
 - [Parallel Streams Performance](/java/java-8-parallel-streams-performance/)
 - [Java 8 Date & Time API](/java/java-8-date-time-api/)

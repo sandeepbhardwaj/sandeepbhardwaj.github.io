@@ -336,4 +336,4 @@ That decision process is much more reliable than memorizing slogans.
 - locks solve compound invariants and critical sections.
 - Pick the primitive based on the real boundary of the state you must protect.
 
-Next post: [Immutable Classes in Java and Why They Simplify Concurrency](/2025/02/23/immutable-classes-in-java-and-why-they-simplify-concurrency/)
+Next post: [Immutable Classes in Java and Why They Simplify Concurrency](/java/concurrency/immutable-classes-in-java-and-why-they-simplify-concurrency/)

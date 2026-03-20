@@ -245,4 +245,4 @@ The field may be visible while the surrounding design is still broken.
 - It works best when the field represents one clear piece of truth.
 - Once the logic becomes compound or multi-field, move to atomics or locking.
 
-Next post: [Why volatile Does Not Make Compound Actions Atomic](/2025/02/20/why-volatile-does-not-make-compound-actions-atomic/)
+Next post: [Why volatile Does Not Make Compound Actions Atomic](/java/concurrency/why-volatile-does-not-make-compound-actions-atomic/)

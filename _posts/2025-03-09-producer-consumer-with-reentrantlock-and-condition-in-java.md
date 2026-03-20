@@ -211,4 +211,4 @@ If the custom version is not clearly buying something specific, the safer choice
 - Bounded buffers are about both correctness and backpressure.
 - In production, prefer standard concurrent queues unless you truly need custom coordination.
 
-Next post: [ReadWriteLock Mental Model in Java](/2025/03/10/readwritelock-mental-model-in-java/)
+Next post: [ReadWriteLock Mental Model in Java](/java/concurrency/readwritelock-mental-model-in-java/)

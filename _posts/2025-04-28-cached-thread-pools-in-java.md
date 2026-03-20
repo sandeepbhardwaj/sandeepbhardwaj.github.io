@@ -235,4 +235,4 @@ For server code, elastic thread creation is powerful only when paired with a rea
 - Their main risk is uncontrolled thread growth rather than queue buildup.
 - Elasticity is only safe when another boundary already limits demand.
 
-Next post: [Single Thread Executors in Java](/2025/04/29/single-thread-executors-in-java/)
+Next post: [Single Thread Executors in Java](/java/concurrency/single-thread-executors-in-java/)

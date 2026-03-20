@@ -260,4 +260,4 @@ This example is useful because it shows a different atomic style:
 - They do not solve compound invariants across multiple fields.
 - Use them where the state boundary is truly small and clear.
 
-Next post: [AtomicInteger AtomicLong AtomicBoolean and AtomicReference in Java](/2025/03/17/atomicinteger-atomiclong-atomicboolean-and-atomicreference-in-java/)
+Next post: [AtomicInteger AtomicLong AtomicBoolean and AtomicReference in Java](/java/concurrency/atomicinteger-atomiclong-atomicboolean-and-atomicreference-in-java/)

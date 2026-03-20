@@ -242,4 +242,4 @@ Do not use it when:
 - It is a poor fit for write-heavy or large constantly changing lists.
 - The right question is not whether copying is expensive in theory, but whether the workload is read-mostly enough to justify the trade.
 
-Next post: [ConcurrentLinkedQueue in Java](/2025/04/12/concurrentlinkedqueue-in-java/)
+Next post: [ConcurrentLinkedQueue in Java](/java/concurrency/concurrentlinkedqueue-in-java/)

@@ -238,4 +238,4 @@ Avoid it when:
 - It works best for CPU-bound workloads with many independent subproblems.
 - If the workload does not decompose naturally, another concurrency model is usually better.
 
-Next post: [Work Stealing in Java Fork Join Pool](/2025/05/13/work-stealing-in-java-fork-join-pool/)
+Next post: [Work Stealing in Java Fork Join Pool](/java/concurrency/work-stealing-in-java-fork-join-pool/)

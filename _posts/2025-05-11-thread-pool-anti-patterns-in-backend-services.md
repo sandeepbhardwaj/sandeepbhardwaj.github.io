@@ -227,4 +227,4 @@ If those questions are unanswered, the design is not finished.
 - Queue, sizing, rejection, and lifecycle choices must be designed together.
 - A good thread-pool design is explicit about workload class, capacity, observability, and shutdown.
 
-Next post: [Fork Join Framework Mental Model](/2025/05/12/fork-join-framework-mental-model/)
+Next post: [Fork Join Framework Mental Model](/java/concurrency/fork-join-framework-mental-model/)

@@ -241,4 +241,4 @@ This is a useful contrast with the custom stack:
 - Avoiding locks does not remove correctness and maintenance cost.
 - In production code, prefer standard concurrent collections unless you truly need a custom structure.
 
-Next post: [Practical Limits of Lock Free Programming in Application Code](/2025/03/26/practical-limits-of-lock-free-programming-in-application-code/)
+Next post: [Practical Limits of Lock Free Programming in Application Code](/java/concurrency/practical-limits-of-lock-free-programming-in-application-code/)

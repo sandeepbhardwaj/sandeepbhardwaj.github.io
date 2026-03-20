@@ -252,4 +252,4 @@ This scenario is what ordinary atomic wrappers cannot express as clearly:
 - It belongs mainly in infrastructure and advanced concurrency code.
 - Prefer higher-level primitives unless you truly need low-level access-mode control.
 
-Next post: [Lock Free vs Wait Free vs Obstruction Free Explained](/2025/03/24/lock-free-vs-wait-free-vs-obstruction-free-explained/)
+Next post: [Lock Free vs Wait Free vs Obstruction Free Explained](/java/concurrency/lock-free-vs-wait-free-vs-obstruction-free-explained/)

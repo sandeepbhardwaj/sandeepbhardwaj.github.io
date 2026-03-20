@@ -202,4 +202,4 @@ If the team cannot explain why this particular pipeline should parallelize well,
 - Their overhead must be justified by meaningful parallel work.
 - Measure before and after; do not assume `parallel()` is a free optimization.
 
-Next post: [CompletableFuture Fundamentals in Java](/2025/05/20/completablefuture-fundamentals-in-java/)
+Next post: [CompletableFuture Fundamentals in Java](/java/completablefuture/concurrency/completablefuture-fundamentals-in-java/)

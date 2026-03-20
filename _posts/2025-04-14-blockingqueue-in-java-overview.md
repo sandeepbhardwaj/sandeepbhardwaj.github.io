@@ -306,4 +306,4 @@ Do not use it when:
 - Bounded vs unbounded capacity is an operational design choice, not a minor detail.
 - The queue solves handoff and waiting, but broader overload and shutdown policy still require deliberate design.
 
-Next post: [ArrayBlockingQueue in Java](/2025/04/15/arrayblockingqueue-in-java/)
+Next post: [ArrayBlockingQueue in Java](/java/concurrency/arrayblockingqueue-in-java/)

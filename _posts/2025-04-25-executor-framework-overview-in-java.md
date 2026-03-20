@@ -240,4 +240,4 @@ Avoid reinventing it with raw threads unless the case is unusually small and exp
 - Executors are not just API convenience; they are concurrency policy boundaries.
 - Choosing the right executor is really choosing queueing, sizing, shutdown, and overload behavior.
 
-Next post: [Executor vs ExecutorService in Java](/2025/04/26/executor-vs-executorservice-in-java/)
+Next post: [Executor vs ExecutorService in Java](/java/concurrency/executor-vs-executorservice-in-java/)

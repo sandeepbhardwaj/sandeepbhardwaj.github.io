@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-02-02
 seo_title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
 seo_description: A practical deep-dive into embedding model selection, domain adaptation,

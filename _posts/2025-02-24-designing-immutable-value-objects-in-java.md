@@ -251,4 +251,4 @@ If the class starts behaving like a workflow coordinator or resource manager, it
 - Mutable collections and nested objects need special care.
 - Good immutable value-object design pays off directly in concurrent systems because safe sharing becomes much easier.
 
-Next post: [Mutable vs Immutable Classes in Concurrent Systems](/2025/02/25/mutable-vs-immutable-classes-in-concurrent-systems/)
+Next post: [Mutable vs Immutable Classes in Concurrent Systems](/java/concurrency/mutable-vs-immutable-classes-in-concurrent-systems/)

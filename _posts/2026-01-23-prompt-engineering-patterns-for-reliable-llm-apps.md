@@ -190,9 +190,9 @@ This makes prompt changes auditable and repeatable.
 ## Further Reading
 
 - [Vector Databases for RAG in Production](/ai/ml/vector-databases-for-rag-in-production/)
-- [Embeddings in Practice: Model Choice, Evaluation, and Lifecycle](/ai/ml/embeddings-in-practice-model-choice-evaluation-and-lifecycle/)
+- [Embeddings in Practice: Model Choice, Evaluation, and Lifecycle](/ai/ml/mlops/embeddings-in-practice-model-choice-evaluation-and-lifecycle/)
 - [Agentic AI Fundamentals: Planning, Tools, Memory, and Control Loops](/ai/ml/agentic-ai-fundamentals-planning-tools-memory-control-loops/)
-- [Building Production AI Agents: Architecture, Guardrails, and Evaluation](/ai/ml/building-production-ai-agents-architecture-guardrails-evaluation/)
+- [Building Production AI Agents: Architecture, Guardrails, and Evaluation](/ai/ml/mlops/building-production-ai-agents-architecture-guardrails-evaluation/)
 
 ---
 

@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-26
 seo_title: Feature Stores and Training-Serving Consistency
 seo_description: A practical guide to feature stores, point-in-time correctness, online/offline

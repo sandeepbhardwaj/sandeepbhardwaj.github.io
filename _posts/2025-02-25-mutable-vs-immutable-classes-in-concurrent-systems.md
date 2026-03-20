@@ -293,4 +293,4 @@ Immutability reduces concurrency burden a lot, but publication still matters.
 - Default toward immutability for shared values and snapshots.
 - Choose mutability deliberately, with a clear ownership and coordination model.
 
-Next post: [Thread Confinement and Stack Confinement in Java](/2025/02/26/thread-confinement-and-stack-confinement-in-java/)
+Next post: [Thread Confinement and Stack Confinement in Java](/java/concurrency/thread-confinement-and-stack-confinement-in-java/)

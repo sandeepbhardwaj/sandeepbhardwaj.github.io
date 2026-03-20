@@ -229,4 +229,4 @@ The fastest-looking primitive is not always the best system design.
 - Correctness depends on validating optimistic reads and falling back when needed.
 - Use it selectively, with measurement and discipline, not as a blanket upgrade.
 
-Next post: [When StampedLock Helps and When It Hurts](/2025/03/14/when-stampedlock-helps-and-when-it-hurts/)
+Next post: [When StampedLock Helps and When It Hurts](/java/concurrency/when-stampedlock-helps-and-when-it-hurts/)

@@ -243,4 +243,4 @@ Executors should be observed in context, not isolation.
 - Metrics are most useful when tied to specific executor roles rather than one generic thread-pool graph.
 - A thread pool without instrumentation is a capacity control point you cannot reason about during incidents.
 
-Next post: [Thread Pool Anti Patterns in Backend Services](/2025/05/11/thread-pool-anti-patterns-in-backend-services/)
+Next post: [Thread Pool Anti Patterns in Backend Services](/java/concurrency/thread-pool-anti-patterns-in-backend-services/)

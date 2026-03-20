@@ -266,4 +266,4 @@ If those questions are unanswered, the queue design is incomplete no matter how 
 - Queue depth alone is not enough; queue age and throughput matter just as much.
 - A healthy queue design requires explicit capacity, overload, lifecycle, and observability choices.
 
-Next post: [Why Raw Thread Creation Does Not Scale](/2025/04/24/why-raw-thread-creation-does-not-scale/)
+Next post: [Why Raw Thread Creation Does Not Scale](/java/concurrency/why-raw-thread-creation-does-not-scale/)

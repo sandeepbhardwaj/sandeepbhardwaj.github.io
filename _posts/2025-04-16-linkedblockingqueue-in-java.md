@@ -237,4 +237,4 @@ Do not use it when:
 - In production, choosing a deliberate capacity is usually better than leaving overload to heap growth.
 - Queue growth is not free resilience; it is stored latency and memory pressure.
 
-Next post: [PriorityBlockingQueue in Java](/2025/04/17/priorityblockingqueue-in-java/)
+Next post: [PriorityBlockingQueue in Java](/java/concurrency/priorityblockingqueue-in-java/)

@@ -219,4 +219,4 @@ That combination catches both obvious protocol bugs and rare schedule-dependent 
 - Better tests coordinate starts, use timeouts, assert invariants, and explore multiple schedules.
 - The goal is not just "run some threads" but to produce meaningful evidence about correctness under concurrency.
 
-Next post: [Deterministic Testing Techniques for Concurrent Java Code](/2025/05/28/deterministic-testing-techniques-for-concurrent-java-code/)
+Next post: [Deterministic Testing Techniques for Concurrent Java Code](/java/concurrency/deterministic-testing-techniques-for-concurrent-java-code/)

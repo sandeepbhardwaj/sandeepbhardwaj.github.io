@@ -301,4 +301,4 @@ Avoid it when:
 - Keep barrier actions short and avoid blocking I/O in them.
 - If the action fails, treat it as a group-level coordination failure.
 
-Next post: [Phaser in Java for Reusable Phase Coordination](/2025/03/31/phaser-in-java-for-reusable-phase-coordination/)
+Next post: [Phaser in Java for Reusable Phase Coordination](/java/concurrency/phaser-in-java-for-reusable-phase-coordination/)

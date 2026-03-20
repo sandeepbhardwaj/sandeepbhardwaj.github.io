@@ -219,4 +219,4 @@ Mode transition complexity is often a sign to re-evaluate whether the design nee
 - In practice, release read, acquire write, and recheck the state under write protection.
 - Read-write locks are useful only when the workload and discipline justify the added complexity.
 
-Next post: [StampedLock in Java Optimistic Read Read Lock and Write Lock](/2025/03/13/stampedlock-in-java-optimistic-read-read-lock-and-write-lock/)
+Next post: [StampedLock in Java Optimistic Read Read Lock and Write Lock](/java/concurrency/stampedlock-in-java-optimistic-read-read-lock-and-write-lock/)

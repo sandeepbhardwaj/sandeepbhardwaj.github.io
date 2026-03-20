@@ -200,4 +200,4 @@ Use other tools when:
 - It sits between plain futures and richer async composition APIs in complexity.
 - Its value is highest when early results are useful before the full batch completes.
 
-Next post: [Thread Pool Sizing for CPU Bound Workloads](/2025/05/05/thread-pool-sizing-for-cpu-bound-workloads/)
+Next post: [Thread Pool Sizing for CPU Bound Workloads](/java/concurrency/thread-pool-sizing-for-cpu-bound-workloads/)

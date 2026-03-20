@@ -258,4 +258,4 @@ Bad fit scenarios:
 - [Java 8 Collectors Deep Dive](/java/java-8-collectors-deep-dive/)
 - [Optional in Java 8: Best Practices](/java/java-8-optional-best-practices/)
 - [Parallel Streams Performance Guide](/java/java-8-parallel-streams-performance/)
-- [CompletableFuture Deep Dive](/java/java-8-completablefuture-deep-dive/)
+- [CompletableFuture Deep Dive](/java/completablefuture/java-8-completablefuture-deep-dive/)

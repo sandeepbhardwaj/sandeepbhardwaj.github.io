@@ -235,4 +235,4 @@ This contrast is important:
 - They are excellent for metrics and hot counters, but not for IDs or exact transactional totals.
 - Choose them when update throughput matters more than a perfectly simple single-cell model.
 
-Next post: [Counters Under Contention in Java](/2025/03/21/counters-under-contention-in-java/)
+Next post: [Counters Under Contention in Java](/java/concurrency/counters-under-contention-in-java/)

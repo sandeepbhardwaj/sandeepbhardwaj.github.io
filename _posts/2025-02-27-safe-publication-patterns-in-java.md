@@ -241,4 +241,4 @@ It is part of the object's lifecycle design.
 - Immutable snapshots are especially easy to publish safely.
 - Unsafe publication can break code that otherwise looks completely reasonable.
 
-Next post: [Final Fields and Initialization Safety in Java](/2025/02/28/final-fields-and-initialization-safety-in-java/)
+Next post: [Final Fields and Initialization Safety in Java](/java/concurrency/final-fields-and-initialization-safety-in-java/)

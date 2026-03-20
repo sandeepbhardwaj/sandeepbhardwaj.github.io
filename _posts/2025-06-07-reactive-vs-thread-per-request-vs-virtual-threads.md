@@ -202,4 +202,4 @@ The best choice is the one whose operational model the team can sustain.
 - Virtual threads make thread-per-request viable again for many high-concurrency Java backends.
 - The best choice depends on workload, team skill, dependency behavior, and operational priorities.
 
-Next post: [How Modern Java Changes Concurrency Design Choices](/2025/06/08/how-modern-java-changes-concurrency-design-choices/)
+Next post: [How Modern Java Changes Concurrency Design Choices](/java/concurrency/how-modern-java-changes-concurrency-design-choices/)

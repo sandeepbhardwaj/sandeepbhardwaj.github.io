@@ -220,4 +220,4 @@ Those review questions turn a one-off incident into a design improvement instead
 - Multiple dumps and good thread names make diagnosis much easier.
 - Not every blocked thread indicates deadlock, but deadlocks leave a recognizable ownership pattern in dumps.
 
-Next post: [Reading Thread Dumps Effectively for Java Incidents](/2025/05/31/reading-thread-dumps-effectively-for-java-incidents/)
+Next post: [Reading Thread Dumps Effectively for Java Incidents](/java/concurrency/reading-thread-dumps-effectively-for-java-incidents/)

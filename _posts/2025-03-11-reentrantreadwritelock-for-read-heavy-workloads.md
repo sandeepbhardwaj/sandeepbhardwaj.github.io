@@ -265,4 +265,4 @@ Prefer immutable snapshots when:
 - Its benefit depends on read/write ratio, lock hold time, and actual contention.
 - Measure before adopting it, and compare it against simpler alternatives like plain locking or immutable snapshot replacement.
 
-Next post: [Lock Downgrading and Lock Upgrade Limitations in Java](/2025/03/12/lock-downgrading-and-lock-upgrade-limitations-in-java/)
+Next post: [Lock Downgrading and Lock Upgrade Limitations in Java](/java/concurrency/lock-downgrading-and-lock-upgrade-limitations-in-java/)

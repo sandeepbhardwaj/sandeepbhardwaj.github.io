@@ -198,4 +198,4 @@ Most teams discover that the correct answer is not "implement wait-free from scr
 - Retry loops alone do not tell you which guarantee an algorithm provides.
 - In application code, prefer the simplest correct primitive unless you truly need a specific progress property.
 
-Next post: [Building a Non Blocking Stack or Queue in Java](/2025/03/25/building-a-non-blocking-stack-or-queue-in-java/)
+Next post: [Building a Non Blocking Stack or Queue in Java](/java/concurrency/building-a-non-blocking-stack-or-queue-in-java/)

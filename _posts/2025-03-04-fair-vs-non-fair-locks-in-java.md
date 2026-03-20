@@ -204,4 +204,4 @@ Use data, not instinct.
 - The right choice depends on observed workload behavior, especially contention and tail latency.
 - Enable fairness when starvation or unacceptable waiting is a real problem, not by default.
 
-Next post: [tryLock and Timed Lock Acquisition in Java](/2025/03/05/trylock-and-timed-lock-acquisition-in-java/)
+Next post: [tryLock and Timed Lock Acquisition in Java](/java/concurrency/trylock-and-timed-lock-acquisition-in-java/)

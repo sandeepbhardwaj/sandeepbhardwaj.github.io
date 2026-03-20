@@ -225,4 +225,4 @@ This is deliberately simple, but it highlights another application-level alterna
 - Standard library concurrent structures and small locked critical sections often win in maintainability.
 - Choose lock-free techniques only when the state is small, the need is proven, and the complexity is justified.
 
-Next post: [CountDownLatch in Java Deep Dive](/2025/03/27/countdownlatch-in-java-deep-dive/)
+Next post: [CountDownLatch in Java Deep Dive](/java/concurrency/countdownlatch-in-java-deep-dive/)

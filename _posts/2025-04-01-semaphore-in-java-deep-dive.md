@@ -303,4 +303,4 @@ Choose:
 - Always pair `acquire()` with `release()` in `finally`.
 - It limits concurrency naturally, but by itself it does not implement precise time-based rate limiting.
 
-Next post: [Binary Semaphore vs Counting Semaphore in Java](/2025/04/02/binary-semaphore-vs-counting-semaphore-in-java/)
+Next post: [Binary Semaphore vs Counting Semaphore in Java](/java/concurrency/binary-semaphore-vs-counting-semaphore-in-java/)

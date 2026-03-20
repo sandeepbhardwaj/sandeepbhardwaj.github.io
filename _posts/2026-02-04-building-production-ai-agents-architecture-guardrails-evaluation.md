@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-02-04
 seo_title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
 seo_description: 'A production-focused guide for AI agents: system architecture, safety

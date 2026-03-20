@@ -262,4 +262,4 @@ What matters is that rejection is:
 - Bounded queues plus explicit rejection create more predictable systems than unlimited buffering.
 - The right policy depends on whether late work, dropped work, or slowed callers are acceptable for the business flow.
 
-Next post: [Custom ThreadFactory in Java](/2025/05/09/custom-threadfactory-in-java/)
+Next post: [Custom ThreadFactory in Java](/java/concurrency/custom-threadfactory-in-java/)

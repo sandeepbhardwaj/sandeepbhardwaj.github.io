@@ -281,4 +281,4 @@ Useful ways to expose them:
 - `volatile` is not enough for this pattern.
 - Many business invariant bugs are just check-then-act races wearing business language.
 
-Next post: [Read-Modify-Write Race Condition in Java](/2025/02/06/read-modify-write-race-condition-in-java/)
+Next post: [Read-Modify-Write Race Condition in Java](/java/concurrency/read-modify-write-race-condition-in-java/)

@@ -220,7 +220,7 @@ Also verify side effects are not executed on empty values when using `map` chain
 
 - [Collectors Deep Dive](/java/java-8-collectors-deep-dive/)
 - [Functional Interfaces Advanced](/java/java-8-functional-interfaces-advanced/)
-- [CompletableFuture Deep Dive](/java/java-8-completablefuture-deep-dive/)
+- [CompletableFuture Deep Dive](/java/completablefuture/java-8-completablefuture-deep-dive/)
 
 ---
 

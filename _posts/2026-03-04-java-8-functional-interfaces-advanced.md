@@ -208,5 +208,5 @@ They are a poor fit for highly stateful workflows needing explicit lifecycle and
 # Related Posts
 
 - [Optional Best Practices](/java/java-8-optional-best-practices/)
-- [CompletableFuture Deep Dive](/java/java-8-completablefuture-deep-dive/)
-- [CompletableFuture Error Handling](/java/java-8-completablefuture-error-handling/)
+- [CompletableFuture Deep Dive](/java/completablefuture/java-8-completablefuture-deep-dive/)
+- [CompletableFuture Error Handling](/java/completablefuture/java-8-completablefuture-error-handling/)

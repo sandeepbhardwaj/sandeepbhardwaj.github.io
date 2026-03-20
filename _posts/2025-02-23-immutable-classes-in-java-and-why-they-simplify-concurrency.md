@@ -264,4 +264,4 @@ Immutability is valuable only when the whole state boundary is actually stable.
 - They are especially strong for configuration, DTOs, and value objects.
 - In concurrent design, preventing mutation is often better than coordinating mutation.
 
-Next post: [Designing Immutable Value Objects in Java](/2025/02/24/designing-immutable-value-objects-in-java/)
+Next post: [Designing Immutable Value Objects in Java](/java/concurrency/designing-immutable-value-objects-in-java/)

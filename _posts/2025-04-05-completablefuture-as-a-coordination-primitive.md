@@ -3,6 +3,7 @@ title: CompletableFuture as a Coordination Primitive
 date: 2025-04-05
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -246,4 +247,4 @@ Do not use it when:
 - It coordinates values and stages, not shared-state invariants.
 - Choose it when the workflow is about "when this result is ready, do the next thing."
 
-Next post: [Choosing the Right Coordination Utility in Java](/2025/04/06/choosing-the-right-coordination-utility-in-java/)
+Next post: [Choosing the Right Coordination Utility in Java](/java/concurrency/choosing-the-right-coordination-utility-in-java/)

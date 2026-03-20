@@ -200,4 +200,4 @@ If there is only one simple monitor boundary, `synchronized` plus guarded blocks
 - The underlying guarded-wait rules still apply: hold the lock, wait in a loop, and signal after changing state.
 - Use it when monitor-based wait/notify starts becoming hard to scale or reason about.
 
-Next post: [Multiple Condition Queues with Condition in Java](/2025/03/08/multiple-condition-queues-with-condition-in-java/)
+Next post: [Multiple Condition Queues with Condition in Java](/java/concurrency/multiple-condition-queues-with-condition-in-java/)

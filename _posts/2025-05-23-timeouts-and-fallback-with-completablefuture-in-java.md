@@ -3,6 +3,7 @@ title: Timeouts and Fallback with CompletableFuture in Java
 date: 2025-05-23
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -269,4 +270,4 @@ Now the contrast is explicit:
 - Fallback is appropriate only when degraded data is genuinely acceptable.
 - Timeout handling is incomplete if underlying abandoned work continues to consume resources invisibly.
 
-Next post: [Thread Pool Architecture for Async Backends in Java](/2025/05/24/thread-pool-architecture-for-async-backends-in-java/)
+Next post: [Thread Pool Architecture for Async Backends in Java](/java/completablefuture/concurrency/thread-pool-architecture-for-async-backends-in-java/)

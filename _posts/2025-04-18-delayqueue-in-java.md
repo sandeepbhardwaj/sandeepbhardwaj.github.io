@@ -219,4 +219,4 @@ Do not use it when:
 - It is not a durable distributed scheduler and it is not bounded.
 - Correct `Delayed` implementation is part of correctness, not a minor detail.
 
-Next post: [SynchronousQueue in Java](/2025/04/19/synchronousqueue-in-java/)
+Next post: [SynchronousQueue in Java](/java/concurrency/synchronousqueue-in-java/)

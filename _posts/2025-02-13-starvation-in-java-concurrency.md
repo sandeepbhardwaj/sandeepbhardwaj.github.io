@@ -197,4 +197,4 @@ That is why queue ownership and workload separation are design decisions, not ju
 - A system can appear alive while specific work classes are effectively starved.
 - Executor separation, timeout discipline, and workload-aware sizing are major defenses.
 
-Next post: [Priority Inversion in Concurrent Systems](/2025/02/14/priority-inversion-in-concurrent-systems/)
+Next post: [Priority Inversion in Concurrent Systems](/java/concurrency/priority-inversion-in-concurrent-systems/)

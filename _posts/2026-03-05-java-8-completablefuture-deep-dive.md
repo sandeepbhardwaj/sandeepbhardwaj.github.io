@@ -3,6 +3,7 @@ title: CompletableFuture in Java 8 — Asynchronous Backend Design
 date: 2026-03-05
 categories:
 - Java
+- CompletableFuture
 tags:
 - java
 - java8
@@ -601,6 +602,6 @@ ExecutorService ioExecutor = Executors.newFixedThreadPool(32);
 
 # Related Posts
 
-- [CompletableFuture Error Handling & Thread Pools](/java/java-8-completablefuture-error-handling/)
+- [CompletableFuture Error Handling & Thread Pools](/java/completablefuture/java-8-completablefuture-error-handling/)
 - [Functional Interfaces Advanced](/java/java-8-functional-interfaces-advanced/)
 - [Parallel Streams Performance](/java/java-8-parallel-streams-performance/)

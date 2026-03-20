@@ -221,4 +221,4 @@ If the pool needs to be much larger to stay busy, the work may not be as CPU-bou
 - Too many runnable CPU-bound threads usually reduce efficiency through scheduler and cache costs.
 - Measure throughput and tail latency together when tuning.
 
-Next post: [Thread Pool Sizing for IO Bound Workloads](/2025/05/06/thread-pool-sizing-for-io-bound-workloads/)
+Next post: [Thread Pool Sizing for IO Bound Workloads](/java/concurrency/thread-pool-sizing-for-io-bound-workloads/)

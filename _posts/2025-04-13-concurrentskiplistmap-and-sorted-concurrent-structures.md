@@ -230,4 +230,4 @@ Do not use them when:
 - They are usually more specialized and heavier than unordered concurrent maps.
 - Choose them for ordered concurrent state, not for ordinary lookup workloads.
 
-Next post: [BlockingQueue in Java Overview](/2025/04/14/blockingqueue-in-java-overview/)
+Next post: [BlockingQueue in Java Overview](/java/concurrency/blockingqueue-in-java-overview/)

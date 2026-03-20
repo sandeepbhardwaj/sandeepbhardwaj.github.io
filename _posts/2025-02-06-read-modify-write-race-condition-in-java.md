@@ -270,4 +270,4 @@ Use `synchronized` or `Lock` when:
 - `volatile` does not fix lost increments.
 - Atomics are excellent for simple state transitions, but multi-field invariants still need stronger coordination.
 
-Next post: [Visibility Bugs Without Synchronization in Java](/2025/02/07/visibility-bugs-without-synchronization-in-java/)
+Next post: [Visibility Bugs Without Synchronization in Java](/java/concurrency/visibility-bugs-without-synchronization-in-java/)

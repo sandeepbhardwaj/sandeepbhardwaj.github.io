@@ -267,4 +267,4 @@ Do not use it when:
 - Fairness is optional and should be chosen only when the workload needs it.
 - Capacity is part of your overload design, not just a constructor argument.
 
-Next post: [LinkedBlockingQueue in Java](/2025/04/16/linkedblockingqueue-in-java/)
+Next post: [LinkedBlockingQueue in Java](/java/concurrency/linkedblockingqueue-in-java/)

@@ -229,4 +229,4 @@ Many concurrency problems are really design problems about ownership boundaries.
 - Stack confinement means the state never escapes a single execution context.
 - Ownership is often a stronger simplification tool than adding more synchronization.
 
-Next post: [Safe Publication Patterns in Java](/2025/02/27/safe-publication-patterns-in-java/)
+Next post: [Safe Publication Patterns in Java](/java/concurrency/safe-publication-patterns-in-java/)

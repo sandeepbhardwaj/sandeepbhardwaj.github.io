@@ -207,4 +207,4 @@ That keeps the design grounded in measured need instead of API prestige.
 - It is not reentrant and is easier to misuse than ordinary locks.
 - Treat it as a specialized optimization, not as a default upgrade.
 
-Next post: [Choosing Between synchronized ReentrantLock ReadWriteLock and StampedLock](/2025/03/15/choosing-between-synchronized-reentrantlock-readwritelock-and-stampedlock/)
+Next post: [Choosing Between synchronized ReentrantLock ReadWriteLock and StampedLock](/java/concurrency/choosing-between-synchronized-reentrantlock-readwritelock-and-stampedlock/)

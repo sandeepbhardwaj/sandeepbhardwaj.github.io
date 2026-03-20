@@ -250,4 +250,4 @@ Do not choose it when:
 - It is stronger than `CountDownLatch` and `CyclicBarrier` when workflow phases and party lifecycle both matter.
 - Use it only when that extra flexibility is genuinely part of the problem.
 
-Next post: [Semaphore in Java Deep Dive](/2025/04/01/semaphore-in-java-deep-dive/)
+Next post: [Semaphore in Java Deep Dive](/java/concurrency/semaphore-in-java-deep-dive/)

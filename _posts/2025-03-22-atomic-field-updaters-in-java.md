@@ -197,4 +197,4 @@ If the whole team can reason about an `AtomicReference` instantly but only one p
 - They are more brittle and less readable than standard atomic wrapper fields.
 - Use them deliberately, not as the default atomic style.
 
-Next post: [VarHandle in Java as the Modern Low Level Concurrency Mechanism](/2025/03/23/varhandle-in-java-as-the-modern-low-level-concurrency-mechanism/)
+Next post: [VarHandle in Java as the Modern Low Level Concurrency Mechanism](/java/concurrency/varhandle-in-java-as-the-modern-low-level-concurrency-mechanism/)

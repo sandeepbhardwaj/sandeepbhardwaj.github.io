@@ -224,4 +224,4 @@ Do not use it when:
 - Their main risk is backlog and head-of-line blocking, not races.
 - If serialization is a correctness feature, this executor can be one of the simplest robust designs in the JDK.
 
-Next post: [Scheduled Executors in Java](/2025/04/30/scheduled-executors-in-java/)
+Next post: [Scheduled Executors in Java](/java/concurrency/scheduled-executors-in-java/)

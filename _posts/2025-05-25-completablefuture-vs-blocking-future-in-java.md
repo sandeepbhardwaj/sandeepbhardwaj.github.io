@@ -3,6 +3,7 @@ title: CompletableFuture vs Blocking Future in Java
 date: 2025-05-25
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -201,4 +202,4 @@ That line of questioning often reveals that some paths are genuinely simple enou
 - Plain `Future` remains a reasonable choice for simple submit-and-wait patterns.
 - The more expressive tool is not automatically the better one if the workflow is simple.
 
-Next post: [Async Orchestration Patterns for Service Aggregation in Java](/2025/05/26/async-orchestration-patterns-for-service-aggregation-in-java/)
+Next post: [Async Orchestration Patterns for Service Aggregation in Java](/java/completablefuture/concurrency/async-orchestration-patterns-for-service-aggregation-in-java/)

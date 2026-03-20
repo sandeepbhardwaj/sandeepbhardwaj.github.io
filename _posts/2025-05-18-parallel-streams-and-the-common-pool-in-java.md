@@ -215,4 +215,4 @@ If the measured win is tiny or unstable, the clearer sequential pipeline is usua
 - They fit best for large, CPU-bound, side-effect-free data processing.
 - Blocking work and hidden common-pool contention are the main operational hazards.
 
-Next post: [When Parallel Streams Help and When They Hurt](/2025/05/19/when-parallel-streams-help-and-when-they-hurt/)
+Next post: [When Parallel Streams Help and When They Hurt](/java/concurrency/when-parallel-streams-help-and-when-they-hurt/)
