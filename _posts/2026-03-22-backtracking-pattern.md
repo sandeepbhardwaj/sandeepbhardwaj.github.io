@@ -40,21 +40,43 @@ At each step:
 
 ## Template: Subset-Style Backtracking
 
+What we are doing actually:
+
+1. Add the current path as one valid partial answer.
+2. Try each next choice.
+3. Recurse deeper.
+4. Roll back before trying the next sibling branch.
+
 ```java
 public void dfs(int start, int[] nums, List<Integer> path, List<List<Integer>> ans) {
-    ans.add(new ArrayList<>(path));
+    ans.add(new ArrayList<>(path)); // Snapshot current path before branching further.
 
     for (int i = start; i < nums.length; i++) {
-        path.add(nums[i]);
-        dfs(i + 1, nums, path, ans);
-        path.remove(path.size() - 1);
+        path.add(nums[i]); // Choose.
+        dfs(i + 1, nums, path, ans); // Explore.
+        path.remove(path.size() - 1); // Unchoose.
     }
 }
 ```
 
+Debug steps:
+
+- print `path` before choose, after choose, and after rollback
+- verify the copied list goes into `ans`, not the live `path`
+- test with `[1,2]` so the recursion tree is easy to inspect
+
 ---
 
 ## Problem 1: Subsets
+
+Problem description:
+Return all subsets of the given array.
+
+What we are doing actually:
+
+1. At each index, choose whether to include the current element.
+2. Recurse into the include branch.
+3. Roll back and recurse into the exclude branch.
 
 ```java
 public List<List<Integer>> subsets(int[] nums) {
@@ -65,16 +87,22 @@ public List<List<Integer>> subsets(int[] nums) {
 
 private void backtrack(int idx, int[] nums, List<Integer> path, List<List<Integer>> ans) {
     if (idx == nums.length) {
-        ans.add(new ArrayList<>(path));
+        ans.add(new ArrayList<>(path)); // One complete subset.
         return;
     }
-    path.add(nums[idx]);
+    path.add(nums[idx]); // Include current value.
     backtrack(idx + 1, nums, path, ans);
-    path.remove(path.size() - 1);
+    path.remove(path.size() - 1); // Roll back before exclude branch.
 
-    backtrack(idx + 1, nums, path, ans);
+    backtrack(idx + 1, nums, path, ans); // Exclude current value.
 }
 ```
+
+Debug steps:
+
+- print `idx` and `path` at each recursive entry
+- verify rollback happens before the exclude branch
+- compare the recursion tree against the dry run for `[1,2]`
 
 ---
 
@@ -98,6 +126,15 @@ This shows why every level must rollback before exploring sibling branches.
 
 ## Problem 2: Permutations
 
+Problem description:
+Return all possible orderings of the given numbers.
+
+What we are doing actually:
+
+1. Build the permutation one position at a time.
+2. Skip values already used in the current path.
+3. After recursion, unmark the value so another branch can use it.
+
 ```java
 public List<List<Integer>> permute(int[] nums) {
     List<List<Integer>> ans = new ArrayList<>();
@@ -108,23 +145,39 @@ public List<List<Integer>> permute(int[] nums) {
 
 private void dfs(int[] nums, boolean[] used, List<Integer> path, List<List<Integer>> ans) {
     if (path.size() == nums.length) {
-        ans.add(new ArrayList<>(path));
+        ans.add(new ArrayList<>(path)); // One complete ordering.
         return;
     }
     for (int i = 0; i < nums.length; i++) {
         if (used[i]) continue;
-        used[i] = true;
+        used[i] = true; // Reserve this number for current permutation.
         path.add(nums[i]);
         dfs(nums, used, path, ans);
-        path.remove(path.size() - 1);
-        used[i] = false;
+        path.remove(path.size() - 1); // Roll back path.
+        used[i] = false; // Make number available again.
     }
 }
 ```
 
+Debug steps:
+
+- print `path` and `used` at each depth
+- verify every `used[i] = true` has a matching rollback to `false`
+- test `[1,2,3]` and count that the answer size becomes `6`
+
 ---
 
 ## Problem 3: Combination Sum
+
+Problem description:
+Find all combinations whose sum equals the target, where each candidate can be reused.
+
+What we are doing actually:
+
+1. At each index, decide whether to take the current candidate.
+2. If we take it, stay on the same index because reuse is allowed.
+3. If we skip it, move to the next index.
+4. Prune immediately when the remaining sum goes negative.
 
 ```java
 public List<List<Integer>> combinationSum(int[] c, int target) {
@@ -135,18 +188,24 @@ public List<List<Integer>> combinationSum(int[] c, int target) {
 
 private void dfs(int i, int remain, int[] c, List<Integer> path, List<List<Integer>> ans) {
     if (remain == 0) {
-        ans.add(new ArrayList<>(path));
+        ans.add(new ArrayList<>(path)); // Found one valid combination.
         return;
     }
     if (remain < 0 || i == c.length) return;
 
-    path.add(c[i]);
-    dfs(i, remain - c[i], c, path, ans);
-    path.remove(path.size() - 1);
+    path.add(c[i]); // Take current candidate.
+    dfs(i, remain - c[i], c, path, ans); // Stay on same index because reuse is allowed.
+    path.remove(path.size() - 1); // Roll back take branch.
 
-    dfs(i + 1, remain, c, path, ans);
+    dfs(i + 1, remain, c, path, ans); // Skip current candidate.
 }
 ```
+
+Debug steps:
+
+- print `i`, `remain`, and `path` on each recursive call
+- verify negative `remain` branches stop immediately
+- test one case where reuse is essential, like candidates `[2,3,6,7]`, target `7`
 
 ---
 

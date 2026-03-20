@@ -40,17 +40,32 @@ The hardest part is state definition, not coding loops.
 
 ## Pattern 1: 1D DP (House Robber)
 
+Problem description:
+Choose houses to maximize money without robbing adjacent houses.
+
+What we are doing actually:
+
+1. At each house, decide between skipping it or taking it.
+2. `prev1` stores the best answer up to the previous house.
+3. `prev2` stores the best answer up to the house before that.
+
 ```java
 public int rob(int[] nums) {
     int prev2 = 0, prev1 = 0;
     for (int x : nums) {
-        int cur = Math.max(prev1, prev2 + x);
-        prev2 = prev1;
+        int cur = Math.max(prev1, prev2 + x); // Skip current house or rob it.
+        prev2 = prev1; // Shift states forward.
         prev1 = cur;
     }
     return prev1;
 }
 ```
+
+Debug steps:
+
+- print `x`, `prev2`, `prev1`, and `cur` each iteration
+- verify the state shift order is correct
+- test small arrays of size 1, 2, and 3
 
 ---
 
@@ -77,6 +92,15 @@ Answer: `12`
 
 ## Pattern 2: 2D DP (LCS)
 
+Problem description:
+Find the length of the longest common subsequence between two strings.
+
+What we are doing actually:
+
+1. `dp[i][j]` represents the answer for prefixes `a[0..i-1]` and `b[0..j-1]`.
+2. If characters match, extend the diagonal answer.
+3. Otherwise take the better answer from top or left.
+
 ```java
 public int longestCommonSubsequence(String a, String b) {
     int m = a.length(), n = b.length();
@@ -85,9 +109,9 @@ public int longestCommonSubsequence(String a, String b) {
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= n; j++) {
             if (a.charAt(i - 1) == b.charAt(j - 1)) {
-                dp[i][j] = 1 + dp[i - 1][j - 1];
+                dp[i][j] = 1 + dp[i - 1][j - 1]; // Matching character extends subsequence.
             } else {
-                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]); // Skip one char from either string.
             }
         }
     }
@@ -95,9 +119,24 @@ public int longestCommonSubsequence(String a, String b) {
 }
 ```
 
+Debug steps:
+
+- print the DP table for a tiny pair like `"abc"` and `"ac"`
+- verify row `0` and column `0` stay at zero
+- inspect one match cell and one mismatch cell manually
+
 ---
 
 ## Pattern 3: Top-Down Memoization (Climbing Stairs)
+
+Problem description:
+Count how many distinct ways there are to climb `n` stairs when you can take 1 or 2 steps.
+
+What we are doing actually:
+
+1. Express the recurrence recursively.
+2. Cache computed answers in `memo`.
+3. Reuse cached values instead of recomputing the same subproblems.
 
 ```java
 public int climbStairs(int n) {
@@ -108,11 +147,17 @@ public int climbStairs(int n) {
 
 private int solve(int n, int[] memo) {
     if (n <= 2) return n;
-    if (memo[n] != -1) return memo[n];
-    memo[n] = solve(n - 1, memo) + solve(n - 2, memo);
+    if (memo[n] != -1) return memo[n]; // Reuse cached result.
+    memo[n] = solve(n - 1, memo) + solve(n - 2, memo); // Recurrence relation.
     return memo[n];
 }
 ```
+
+Debug steps:
+
+- print `n` and whether the value came from memo or fresh computation
+- verify base cases before memo lookup
+- compare recursion count with and without memoization on a small example
 
 ---
 

@@ -37,32 +37,68 @@ Tree DFS explores nodes depth-first and is ideal for path, subtree, and structur
 
 ## Template: Recursive DFS
 
+What we are doing actually:
+
+1. Stop on `null`.
+2. Decide where the logic belongs: pre-order, in-order, or post-order.
+3. Recurse into left and right subtrees with a clear contract.
+
 ```java
 public void dfs(TreeNode node) {
     if (node == null) return;
 
-    // pre-order work
+    // pre-order work happens before children
     dfs(node.left);
-    // in-order work
+    // in-order work happens between left and right
     dfs(node.right);
-    // post-order work
+    // post-order work happens after children
 }
 ```
+
+Debug steps:
+
+- print node values as you enter and leave recursion
+- trace one tiny tree to see exactly when each traversal position runs
+- test `root = null` first
 
 ---
 
 ## Problem 1: Maximum Depth of Binary Tree
 
+Problem description:
+Return the maximum number of nodes on any root-to-leaf path.
+
+What we are doing actually:
+
+1. Ask each subtree for its own maximum depth.
+2. Take the larger of the two answers.
+3. Add `1` for the current node.
+
 ```java
 public int maxDepth(TreeNode root) {
     if (root == null) return 0;
-    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right)); // Current node + deeper subtree.
 }
 ```
+
+Debug steps:
+
+- print node value and returned depth during unwinding
+- verify the base case returns `0`, not `1`
+- test a skewed tree and a balanced tree
 
 ---
 
 ## Problem 2: Validate Binary Search Tree
+
+Problem description:
+Check whether every node respects BST ordering rules across the whole subtree, not just its direct children.
+
+What we are doing actually:
+
+1. Carry an allowed `(lo, hi)` range down the recursion.
+2. Reject immediately if the current value violates the range.
+3. Narrow the range when moving left or right.
 
 ```java
 public boolean isValidBST(TreeNode root) {
@@ -71,23 +107,44 @@ public boolean isValidBST(TreeNode root) {
 
 private boolean validate(TreeNode node, long lo, long hi) {
     if (node == null) return true;
-    if (node.val <= lo || node.val >= hi) return false;
+    if (node.val <= lo || node.val >= hi) return false; // Violates BST contract.
     return validate(node.left, lo, node.val) && validate(node.right, node.val, hi);
 }
 ```
+
+Debug steps:
+
+- print `node.val`, `lo`, and `hi` at each recursive call
+- test a tree where a deep node breaks BST rules
+- use `long` bounds to avoid edge issues around `Integer.MIN_VALUE` and `Integer.MAX_VALUE`
 
 ---
 
 ## Problem 3: Path Sum
 
+Problem description:
+Return whether some root-to-leaf path adds up to the target sum.
+
+What we are doing actually:
+
+1. Subtract the current node value from the remaining target.
+2. If we reach a leaf, compare the remaining target with that leaf value.
+3. Return true if either subtree finds a valid path.
+
 ```java
 public boolean hasPathSum(TreeNode root, int targetSum) {
     if (root == null) return false;
-    if (root.left == null && root.right == null) return targetSum == root.val;
+    if (root.left == null && root.right == null) return targetSum == root.val; // Leaf decides final match.
     return hasPathSum(root.left, targetSum - root.val)
-            || hasPathSum(root.right, targetSum - root.val);
+            || hasPathSum(root.right, targetSum - root.val); // Remaining target passed down.
 }
 ```
+
+Debug steps:
+
+- print current node and remaining target before recursive calls
+- verify only root-to-leaf paths count, not partial paths
+- test one case where the left branch fails but the right branch succeeds
 
 ---
 

@@ -33,6 +33,15 @@ Choose shortest-path algorithm based on edge weights:
 
 ## Pattern 1: BFS Shortest Path (Unweighted)
 
+Problem description:
+Find the shortest number of edges from `src` to `dst` in an unweighted graph.
+
+What we are doing actually:
+
+1. BFS explores nodes in increasing distance order.
+2. Store the first distance assigned to each node.
+3. The first time we reach `dst`, that distance is optimal.
+
 ```java
 public int shortestPathUnweighted(List<List<Integer>> g, int src, int dst) {
     int n = g.size();
@@ -45,11 +54,11 @@ public int shortestPathUnweighted(List<List<Integer>> g, int src, int dst) {
 
     while (!q.isEmpty()) {
         int u = q.poll();
-        if (u == dst) return dist[u];
+        if (u == dst) return dist[u]; // BFS guarantees first arrival is shortest.
 
         for (int v : g.get(u)) {
             if (dist[v] == -1) {
-                dist[v] = dist[u] + 1;
+                dist[v] = dist[u] + 1; // One more edge than current node.
                 q.offer(v);
             }
         }
@@ -58,9 +67,25 @@ public int shortestPathUnweighted(List<List<Integer>> g, int src, int dst) {
 }
 ```
 
+Debug steps:
+
+- print queue contents and `dist` array after each expansion
+- verify every node gets a distance only once
+- test unreachable destination to confirm `-1`
+
 ---
 
 ## Pattern 2: Dijkstra (Weighted, Non-negative)
+
+Problem description:
+Find shortest distances from a source in a graph with non-negative edge weights.
+
+What we are doing actually:
+
+1. Keep the best known distance for every node.
+2. Pop the currently cheapest node from the heap.
+3. Relax outgoing edges and update neighbors if we found a shorter path.
+4. Skip stale heap entries that no longer match `dist[u]`.
 
 ```java
 public int[] dijkstra(List<List<int[]>> g, int src) {
@@ -75,12 +100,12 @@ public int[] dijkstra(List<List<int[]>> g, int src) {
     while (!pq.isEmpty()) {
         int[] cur = pq.poll();
         int u = cur[0], d = cur[1];
-        if (d != dist[u]) continue;
+        if (d != dist[u]) continue; // Ignore stale entry with outdated distance.
 
         for (int[] edge : g.get(u)) {
             int v = edge[0], w = edge[1];
             if (dist[u] != Integer.MAX_VALUE && dist[u] + w < dist[v]) {
-                dist[v] = dist[u] + w;
+                dist[v] = dist[u] + w; // Better path found through u.
                 pq.offer(new int[]{v, dist[v]});
             }
         }
@@ -88,6 +113,12 @@ public int[] dijkstra(List<List<int[]>> g, int src) {
     return dist;
 }
 ```
+
+Debug steps:
+
+- print `(node, distance)` when polling from the heap
+- trace every successful relaxation `u -> v`
+- verify stale entries are skipped instead of processed
 
 ---
 

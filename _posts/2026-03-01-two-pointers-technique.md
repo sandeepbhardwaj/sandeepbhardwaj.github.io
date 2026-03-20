@@ -75,6 +75,16 @@ Common patterns:
 
 Given a sorted array, find two numbers whose sum equals `target`.
 
+What we are solving actually:
+
+We want to avoid checking every pair. Because the array is already sorted, we can use one pointer at the left and one at the right, then remove impossible pairs after each comparison.
+
+What we are doing actually:
+
+1. Start with the smallest and largest values.
+2. Compare their sum with the target.
+3. Move only one pointer based on whether the sum is too small or too large.
+
 #### Efficient Solution (O(n), O(1))
 
 ```java
@@ -83,19 +93,25 @@ public int[] twoSumSorted(int[] nums, int target) {
     int right = nums.length - 1;
 
     while (left < right) {
-        int sum = nums[left] + nums[right];
+        int sum = nums[left] + nums[right]; // Current pair under consideration.
 
         if (sum == target) {
-            return new int[]{left, right};
+            return new int[]{left, right}; // Found the exact pair.
         } else if (sum < target) {
-            left++;
+            left++; // Need a larger sum, so move toward a bigger value.
         } else {
-            right--;
+            right--; // Need a smaller sum, so move toward a smaller value.
         }
     }
     return new int[]{-1, -1};
 }
 ```
+
+Debug steps:
+
+- print `left`, `right`, and `sum` on each iteration
+- verify the input is sorted before trusting pointer movement
+- test one case where the answer is at the ends and one where no pair exists
 
 #### Why It Works (Invariant Thinking)
 
@@ -135,16 +151,26 @@ This pattern is used to:
 
 ### Example: Remove Duplicates (Sorted Array)
 
+What we are solving actually:
+
+We want to compress a sorted array in place so that each unique value appears once at the front of the array.
+
+What we are doing actually:
+
+1. `fast` scans every element.
+2. `slow` marks the end of the unique compacted region.
+3. When we find a new value, we extend the compacted region by one.
+
 ```java
 public int removeDuplicates(int[] nums) {
     if (nums.length == 0) return 0;
 
-    int slow = 0; // last unique index
+    int slow = 0; // Last index of the unique compacted prefix.
 
     for (int fast = 1; fast < nums.length; fast++) {
         if (nums[fast] != nums[slow]) {
-            slow++;
-            nums[slow] = nums[fast];
+            slow++; // We found a new unique value, so grow the prefix.
+            nums[slow] = nums[fast]; // Copy the new unique value into compacted position.
         }
     }
     return slow + 1;
@@ -156,6 +182,12 @@ Extra space: **O(1)**
 
 **Invariant:** `nums[0..slow]` is always the “unique compacted prefix”.
 
+Debug steps:
+
+- print `fast`, `slow`, and `nums[0..slow]` after each iteration
+- test already-unique input and all-duplicate input separately
+- verify you return `slow + 1`, not `slow`
+
 ---
 
 ## Pattern 3: Two Pointers Over Strings (Symmetry / Palindrome)
@@ -163,6 +195,16 @@ Extra space: **O(1)**
 Classic: validate palindrome by moving inward.
 
 ### Example: Valid Palindrome (Ignoring Non-Alphanumerics)
+
+What we are solving actually:
+
+We want to compare characters from both ends, but we must ignore punctuation, spaces, and case differences.
+
+What we are doing actually:
+
+1. Move inward from both ends.
+2. Skip any character that should not participate in the comparison.
+3. Compare normalized characters and stop immediately on mismatch.
 
 ```java
 public boolean isPalindrome(String s) {
@@ -174,23 +216,29 @@ public boolean isPalindrome(String s) {
         char b = s.charAt(right);
 
         if (!Character.isLetterOrDigit(a)) {
-            left++;
+            left++; // Ignore non-alphanumeric characters on the left.
             continue;
         }
         if (!Character.isLetterOrDigit(b)) {
-            right--;
+            right--; // Ignore non-alphanumeric characters on the right.
             continue;
         }
 
         if (Character.toLowerCase(a) != Character.toLowerCase(b)) {
-            return false;
+            return false; // Real mismatch after normalization.
         }
-        left++;
+        left++; // Matching pair processed.
         right--;
     }
     return true;
 }
 ```
+
+Debug steps:
+
+- print the characters at `left` and `right` before each comparison
+- trace when a pointer moves because of skipping versus matching
+- test `"A man, a plan, a canal: Panama"` and `"race a car"`
 
 ---
 

@@ -104,6 +104,12 @@ Examples:
 
 ## Template 1: Fixed-Size Window (Java)
 
+What we are doing actually:
+
+1. Expand the window with `right`.
+2. Remove the leftmost element only when the window becomes larger than `k`.
+3. Evaluate the answer only when the window size is exactly `k`.
+
 ```java
 public int fixedWindowTemplate(int[] nums, int k) {
     int n = nums.length;
@@ -114,15 +120,15 @@ public int fixedWindowTemplate(int[] nums, int k) {
     int left = 0;
 
     for (int right = 0; right < n; right++) {
-        windowSum += nums[right];
+        windowSum += nums[right]; // Add incoming element to current window.
 
-        // shrink only when size exceeds k
+        // Shrink only when the window becomes too large.
         if (right - left + 1 > k) {
-            windowSum -= nums[left];
+            windowSum -= nums[left]; // Remove outgoing element before moving left.
             left++;
         }
 
-        // exactly size k: evaluate
+        // Exactly size k means this is a valid fixed window.
         if (right - left + 1 == k) {
             best = Math.max(best, windowSum);
         }
@@ -135,6 +141,13 @@ public int fixedWindowTemplate(int[] nums, int k) {
 
 ## Template 2: Variable-Size Window (Java)
 
+What we are doing actually:
+
+1. Expand the window by taking `s[right]`.
+2. Update state so it reflects the current window.
+3. While the window is invalid, keep shrinking from the left.
+4. Once valid, evaluate the current answer.
+
 ```java
 public int variableWindowTemplate(String s) {
     int left = 0, best = 0;
@@ -142,16 +155,16 @@ public int variableWindowTemplate(String s) {
 
     for (int right = 0; right < s.length(); right++) {
         char ch = s.charAt(right);
-        freq.put(ch, freq.getOrDefault(ch, 0) + 1);
+        freq.put(ch, freq.getOrDefault(ch, 0) + 1); // Include incoming character.
 
-        // while invariant is broken, shrink
+        // Shrink until the window becomes valid again.
         while (!isValid(freq)) {
             char out = s.charAt(left++);
             freq.put(out, freq.get(out) - 1);
             if (freq.get(out) == 0) freq.remove(out);
         }
 
-        // invariant holds here
+        // The invariant holds here, so this window can be considered.
         best = Math.max(best, right - left + 1);
     }
     return best;
@@ -168,6 +181,16 @@ Replace `isValid(...)` with your problem-specific rule.
 
 Given an integer array and `k`, return the maximum sum among all subarrays of size `k`.
 
+What we are solving actually:
+
+We need to evaluate every subarray of size `k`, but we do not want to recompute the full sum for each one from scratch.
+
+What we are doing actually:
+
+1. Grow the window by adding `nums[right]`.
+2. If the window becomes larger than `k`, remove `nums[left]`.
+3. When the window size reaches `k`, update the best sum.
+
 ### Java Solution
 
 ```java
@@ -179,14 +202,14 @@ public int maxSumSubarrayOfSizeK(int[] nums, int k) {
     int best = Integer.MIN_VALUE;
 
     for (int right = 0; right < nums.length; right++) {
-        windowSum += nums[right];
+        windowSum += nums[right]; // Expand window to the right.
 
         if (right - left + 1 > k) {
-            windowSum -= nums[left++];
+            windowSum -= nums[left++]; // Drop outgoing element to restore size k.
         }
 
         if (right - left + 1 == k) {
-            best = Math.max(best, windowSum);
+            best = Math.max(best, windowSum); // Valid fixed-size window.
         }
     }
     return best;
@@ -196,6 +219,12 @@ public int maxSumSubarrayOfSizeK(int[] nums, int k) {
 Time: `O(n)`  
 Space: `O(1)`
 
+Debug steps:
+
+- print `left`, `right`, `windowSum`, and `best` after each iteration
+- verify the window size formula is always `right - left + 1`
+- test `k = 1`, `k = nums.length`, and a normal middle case
+
 ---
 
 ## Problem 2: Longest Substring Without Repeating Characters (Variable Window)
@@ -203,6 +232,16 @@ Space: `O(1)`
 ### Problem
 
 Return length of the longest substring with all unique characters.
+
+What we are solving actually:
+
+We want the longest valid substring, so we keep one moving window and repair it whenever a repeated character would make it invalid.
+
+What we are doing actually:
+
+1. Track the last seen position of each character.
+2. When we see a duplicate inside the current window, jump `left` forward.
+3. Update the best window length after each step.
 
 ### Java Solution
 
@@ -214,10 +253,10 @@ public int lengthOfLongestSubstring(String s) {
     for (int right = 0; right < s.length(); right++) {
         char c = s.charAt(right);
         if (lastSeen.containsKey(c)) {
-            left = Math.max(left, lastSeen.get(c) + 1);
+            left = Math.max(left, lastSeen.get(c) + 1); // Keep left moving forward only.
         }
-        lastSeen.put(c, right);
-        best = Math.max(best, right - left + 1);
+        lastSeen.put(c, right); // Most recent index of this character.
+        best = Math.max(best, right - left + 1); // Current valid window length.
     }
     return best;
 }
@@ -226,6 +265,12 @@ public int lengthOfLongestSubstring(String s) {
 Time: `O(n)`  
 Space: `O(min(n, charset))`
 
+Debug steps:
+
+- print `left`, `right`, current character, and `lastSeen`
+- test `"abba"` to confirm `left` never moves backward
+- trace the exact window whenever `best` changes
+
 ---
 
 ## Problem 3: Minimum Size Subarray Sum >= Target (Variable Window)
@@ -233,6 +278,16 @@ Space: `O(min(n, charset))`
 ### Problem
 
 Given positive integers and `target`, return minimum length of a subarray whose sum is at least `target`.
+
+What we are solving actually:
+
+We want the shortest valid window, so every time the running sum becomes large enough, we should shrink aggressively to see how small the window can become.
+
+What we are doing actually:
+
+1. Expand the window until the sum reaches or exceeds `target`.
+2. Record the current window length as a candidate answer.
+3. Shrink from the left while the window is still valid.
 
 ### Java Solution
 
@@ -243,11 +298,11 @@ public int minSubArrayLen(int target, int[] nums) {
     int best = Integer.MAX_VALUE;
 
     for (int right = 0; right < nums.length; right++) {
-        sum += nums[right];
+        sum += nums[right]; // Expand until the window becomes valid.
 
         while (sum >= target) {
-            best = Math.min(best, right - left + 1);
-            sum -= nums[left++];
+            best = Math.min(best, right - left + 1); // Current window satisfies the target.
+            sum -= nums[left++]; // Try to make the valid window smaller.
         }
     }
 
@@ -259,6 +314,12 @@ Important precondition:
 
 - This direct pattern assumes all numbers are positive.
 - If negatives exist, the monotonic shrink rule breaks.
+
+Debug steps:
+
+- print `left`, `right`, `sum`, and `best` whenever the inner `while` runs
+- test one case with no valid subarray to verify the `0` return path
+- remember this pattern is wrong if negative numbers are allowed
 
 ---
 

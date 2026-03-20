@@ -42,6 +42,13 @@ For window maximum:
 
 ## Template: Sliding Window Maximum
 
+What we are doing actually:
+
+1. Remove expired indices from the front.
+2. Remove weaker candidates from the back.
+3. Append the current index.
+4. Once the first full window forms, read the answer from the front.
+
 ```java
 public int[] maxSlidingWindow(int[] nums, int k) {
     if (nums == null || nums.length == 0 || k <= 0) return new int[0];
@@ -52,24 +59,48 @@ public int[] maxSlidingWindow(int[] nums, int k) {
     int idx = 0;
 
     for (int r = 0; r < n; r++) {
-        while (!dq.isEmpty() && dq.peekFirst() <= r - k) dq.pollFirst();
-        while (!dq.isEmpty() && nums[dq.peekLast()] <= nums[r]) dq.pollLast();
-        dq.offerLast(r);
-        if (r >= k - 1) ans[idx++] = nums[dq.peekFirst()];
+        while (!dq.isEmpty() && dq.peekFirst() <= r - k) dq.pollFirst(); // Remove out-of-window index.
+        while (!dq.isEmpty() && nums[dq.peekLast()] <= nums[r]) dq.pollLast(); // Remove smaller values.
+        dq.offerLast(r); // Current index becomes a candidate maximum.
+        if (r >= k - 1) ans[idx++] = nums[dq.peekFirst()]; // Front holds the max for this window.
     }
     return ans;
 }
 ```
 
+Debug steps:
+
+- print deque as `(index:value)` after each iteration
+- verify the front index is always inside the current window
+- test increasing, decreasing, and duplicate-heavy arrays
+
 ---
 
 ## Problem 1: Sliding Window Maximum
 
-Same as template above. Time `O(n)`.
+Problem description:
+For every contiguous window of size `k`, return the maximum element.
+
+What we are doing actually:
+
+1. Use the deque to keep only candidates that could still be the maximum.
+2. Throw away expired indices and smaller values immediately.
+3. Read the maximum in `O(1)` from the front once each full window is formed.
+
+Use the template above directly. Time `O(n)`.
 
 ---
 
 ## Problem 2: Sliding Window Minimum
+
+Problem description:
+For every contiguous window of size `k`, return the minimum element.
+
+What we are doing actually:
+
+1. Keep the deque increasing instead of decreasing.
+2. Remove larger values from the back because they can never become the minimum.
+3. Read the minimum from the front.
 
 ```java
 public int[] minSlidingWindow(int[] nums, int k) {
@@ -79,14 +110,20 @@ public int[] minSlidingWindow(int[] nums, int k) {
     int idx = 0;
 
     for (int r = 0; r < n; r++) {
-        while (!dq.isEmpty() && dq.peekFirst() <= r - k) dq.pollFirst();
-        while (!dq.isEmpty() && nums[dq.peekLast()] >= nums[r]) dq.pollLast();
+        while (!dq.isEmpty() && dq.peekFirst() <= r - k) dq.pollFirst(); // Remove expired index.
+        while (!dq.isEmpty() && nums[dq.peekLast()] >= nums[r]) dq.pollLast(); // Remove worse minimum candidates.
         dq.offerLast(r);
-        if (r >= k - 1) ans[idx++] = nums[dq.peekFirst()];
+        if (r >= k - 1) ans[idx++] = nums[dq.peekFirst()]; // Front is minimum for current window.
     }
     return ans;
 }
 ```
+
+Debug steps:
+
+- print deque state and current minimum after each step
+- verify the comparator direction changed from max-window logic
+- test same input against both max and min variants
 
 ---
 
@@ -94,28 +131,44 @@ public int[] minSlidingWindow(int[] nums, int k) {
 
 This combines prefix sums + increasing deque.
 
+Problem description:
+Find the shortest subarray whose sum is at least `k`, even when negative numbers may exist.
+
+What we are doing actually:
+
+1. Build prefix sums so any subarray sum becomes a prefix difference.
+2. Keep an increasing deque of prefix indices.
+3. Pop from the front when the current prefix makes a valid subarray.
+4. Pop from the back when the current prefix is better than older larger prefixes.
+
 ```java
 public int shortestSubarray(int[] nums, int k) {
     int n = nums.length;
     long[] pre = new long[n + 1];
-    for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + nums[i];
+    for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + nums[i]; // Prefix sums for subarray differences.
 
     int best = n + 1;
     Deque<Integer> dq = new ArrayDeque<>();
 
     for (int i = 0; i <= n; i++) {
         while (!dq.isEmpty() && pre[i] - pre[dq.peekFirst()] >= k) {
-            best = Math.min(best, i - dq.pollFirst());
+            best = Math.min(best, i - dq.pollFirst()); // Found a valid candidate subarray.
         }
         while (!dq.isEmpty() && pre[i] <= pre[dq.peekLast()]) {
-            dq.pollLast();
+            dq.pollLast(); // Current prefix dominates older larger prefix.
         }
-        dq.offerLast(i);
+        dq.offerLast(i); // This prefix index may help future answers.
     }
 
     return best == n + 1 ? -1 : best;
 }
 ```
+
+Debug steps:
+
+- print `i`, `pre[i]`, deque contents, and `best`
+- verify the deque stays increasing by prefix value
+- test a case with negative numbers to see why plain sliding window would fail
 
 ---
 
