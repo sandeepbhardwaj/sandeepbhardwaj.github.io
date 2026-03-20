@@ -1,3 +1,4 @@
+{% assign locale = include.locale | default: site.locale %}
 {% assign items_max = 0 %}
 {% for item in include.taxonomies %}
   {% if item[1].size > items_max %}
@@ -9,9 +10,8 @@
   {% for i in (1..items_max) reversed %}
     {% for item in include.taxonomies %}
       {% if item[1].size == i %}
-        {% assign taxonomy_slug = item[0] | slugify %}
         <li>
-          <a href="/categories/{{ taxonomy_slug }}/" class="taxonomy__archive-link">
+          <a href="#{{ item[0] | slugify }}">
             <strong>{{ item[0] }}</strong> <span class="taxonomy__count">{{ i }}</span>
           </a>
         </li>
@@ -24,18 +24,14 @@
 {% for i in (1..items_max) reversed %}
   {% for taxonomy in include.taxonomies %}
     {% if taxonomy[1].size == i %}
-      {% assign taxonomy_slug = taxonomy[0] | slugify %}
-      <section id="{{ taxonomy_slug }}" class="taxonomy__section">
-        <h2 class="archive__subtitle">
-          <a href="/categories/{{ taxonomy_slug }}/" class="taxonomy__section-link">{{ taxonomy[0] }}</a>
-        </h2>
+      <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section">
+        <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
         <div class="entries-{{ entries_layout }}">
           {% for post in taxonomy.last %}
-            {% include archive-single.html type=entries_layout %}
+            {% include archive-single.html locale=locale type=entries_layout %}
           {% endfor %}
         </div>
-        <a href="/categories/{{ taxonomy_slug }}/" class="taxonomy__browse-link">Browse {{ taxonomy[0] }}</a>
-        <a href="#page-title" class="back-to-top">{{ site.data.ui-text[site.locale].back_to_top | default: 'Back to Top' }} &uarr;</a>
+        <a href="#page-title" class="back-to-top">{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }} &uarr;</a>
       </section>
     {% endif %}
   {% endfor %}
