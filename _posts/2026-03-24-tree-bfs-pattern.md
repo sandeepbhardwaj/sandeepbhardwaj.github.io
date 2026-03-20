@@ -32,6 +32,13 @@ It is ideal for shortest-level decisions and level-grouped output.
 
 Use queue and process nodes by level size.
 
+What we are doing actually:
+
+1. Put the root in a queue.
+2. Snapshot the current queue size before each level.
+3. Process exactly that many nodes to keep levels separated.
+4. Enqueue children for the next round.
+
 ```java
 public List<List<Integer>> levelOrder(TreeNode root) {
     List<List<Integer>> ans = new ArrayList<>();
@@ -46,25 +53,47 @@ public List<List<Integer>> levelOrder(TreeNode root) {
 
         for (int i = 0; i < size; i++) {
             TreeNode node = q.poll();
-            level.add(node.val);
-            if (node.left != null) q.offer(node.left);
+            level.add(node.val); // Current node belongs to this level.
+            if (node.left != null) q.offer(node.left); // Children belong to next level.
             if (node.right != null) q.offer(node.right);
         }
-        ans.add(level);
+        ans.add(level); // One complete level finished.
     }
     return ans;
 }
 ```
 
+Debug steps:
+
+- print queue contents before each level starts
+- verify `size` is captured before the inner loop
+- test a single-node tree and an uneven tree
+
 ---
 
 ## Problem 1: Binary Tree Level Order Traversal
 
-Same as template above.
+Problem description:
+Return the nodes level by level from top to bottom.
+
+What we are doing actually:
+
+1. Use the template above directly.
+2. Treat each queue-size snapshot as one level boundary.
+3. Collect each level into its own list before moving on.
 
 ---
 
 ## Problem 2: Minimum Depth of Binary Tree
+
+Problem description:
+Return the number of nodes in the shortest root-to-leaf path.
+
+What we are doing actually:
+
+1. BFS explores shallower levels before deeper ones.
+2. The first leaf we encounter must be at minimum depth.
+3. Return immediately when that leaf appears.
 
 ```java
 public int minDepth(TreeNode root) {
@@ -78,7 +107,7 @@ public int minDepth(TreeNode root) {
         int size = q.size();
         for (int i = 0; i < size; i++) {
             TreeNode node = q.poll();
-            if (node.left == null && node.right == null) return depth;
+            if (node.left == null && node.right == null) return depth; // First leaf gives minimum depth.
             if (node.left != null) q.offer(node.left);
             if (node.right != null) q.offer(node.right);
         }
@@ -88,9 +117,24 @@ public int minDepth(TreeNode root) {
 }
 ```
 
+Debug steps:
+
+- print queue nodes along with current `depth`
+- verify you return on the first leaf, not after scanning the whole tree
+- test a tree where the shallowest leaf is not on the leftmost branch
+
 ---
 
 ## Problem 3: Right Side View
+
+Problem description:
+Return the value visible from the right side at each tree level.
+
+What we are doing actually:
+
+1. Traverse level by level with BFS.
+2. Process all nodes in the current level.
+3. Record the last node processed in that level.
 
 ```java
 public List<Integer> rightSideView(TreeNode root) {
@@ -106,12 +150,18 @@ public List<Integer> rightSideView(TreeNode root) {
             TreeNode node = q.poll();
             if (node.left != null) q.offer(node.left);
             if (node.right != null) q.offer(node.right);
-            if (i == size - 1) ans.add(node.val);
+            if (i == size - 1) ans.add(node.val); // Last node in this level is rightmost in this traversal order.
         }
     }
     return ans;
 }
 ```
+
+Debug steps:
+
+- print each level and mark which node gets added to `ans`
+- verify `i == size - 1` is checked inside the inner loop
+- test a left-skewed tree and a mixed tree
 
 ---
 

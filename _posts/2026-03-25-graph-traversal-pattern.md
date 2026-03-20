@@ -43,18 +43,36 @@ for (int[] e : edges) {
 
 ## DFS Template
 
+What we are doing actually:
+
+1. Mark the current node as visited as soon as we enter it.
+2. Explore every unvisited neighbor recursively.
+3. Let recursion finish one branch fully before moving to the next.
+
 ```java
 public void dfs(int u, List<List<Integer>> g, boolean[] vis) {
-    vis[u] = true;
+    vis[u] = true; // Mark on entry to avoid revisiting cycles.
     for (int v : g.get(u)) {
         if (!vis[v]) dfs(v, g, vis);
     }
 }
 ```
 
+Debug steps:
+
+- print `u` when entering DFS
+- verify `vis[u]` is set before recursing to neighbors
+- test a cyclic graph to confirm nodes are not revisited
+
 ---
 
 ## BFS Template
+
+What we are doing actually:
+
+1. Start from the source node.
+2. Mark it visited before enqueueing neighbors.
+3. Process nodes in queue order so exploration happens layer by layer.
 
 ```java
 public void bfs(int src, List<List<Integer>> g, boolean[] vis) {
@@ -66,7 +84,7 @@ public void bfs(int src, List<List<Integer>> g, boolean[] vis) {
         int u = q.poll();
         for (int v : g.get(u)) {
             if (!vis[v]) {
-                vis[v] = true;
+                vis[v] = true; // Mark before enqueue to avoid duplicates.
                 q.offer(v);
             }
         }
@@ -74,9 +92,24 @@ public void bfs(int src, List<List<Integer>> g, boolean[] vis) {
 }
 ```
 
+Debug steps:
+
+- print queue contents after each poll
+- verify nodes are marked visited before enqueue, not after dequeue
+- compare DFS order and BFS order on the same small graph
+
 ---
 
 ## Problem 1: Number of Provinces
+
+Problem description:
+Count how many connected components exist in the adjacency-matrix graph.
+
+What we are doing actually:
+
+1. Scan every city.
+2. When we find an unvisited city, it starts a new province.
+3. DFS marks the entire province so it is not counted again.
 
 ```java
 public int findCircleNum(int[][] isConnected) {
@@ -86,7 +119,7 @@ public int findCircleNum(int[][] isConnected) {
 
     for (int i = 0; i < n; i++) {
         if (!vis[i]) {
-            count++;
+            count++; // Found a new connected component.
             dfsMatrix(i, isConnected, vis);
         }
     }
@@ -96,14 +129,29 @@ public int findCircleNum(int[][] isConnected) {
 private void dfsMatrix(int u, int[][] g, boolean[] vis) {
     vis[u] = true;
     for (int v = 0; v < g.length; v++) {
-        if (g[u][v] == 1 && !vis[v]) dfsMatrix(v, g, vis);
+        if (g[u][v] == 1 && !vis[v]) dfsMatrix(v, g, vis); // Visit directly connected city.
     }
 }
 ```
 
+Debug steps:
+
+- print which city starts each new province
+- trace all cities visited from that starting city
+- verify diagonal `g[u][u]` values do not inflate the count
+
 ---
 
 ## Problem 2: Number of Islands
+
+Problem description:
+Count how many disconnected land regions exist in the grid.
+
+What we are doing actually:
+
+1. Scan the grid cell by cell.
+2. When we hit land, count one island.
+3. Flood-fill the whole island to mark it visited.
 
 ```java
 public int numIslands(char[][] grid) {
@@ -111,7 +159,7 @@ public int numIslands(char[][] grid) {
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             if (grid[i][j] == '1') {
-                islands++;
+                islands++; // New island discovered.
                 flood(grid, i, j);
             }
         }
@@ -121,13 +169,19 @@ public int numIslands(char[][] grid) {
 
 private void flood(char[][] g, int r, int c) {
     if (r < 0 || c < 0 || r >= g.length || c >= g[0].length || g[r][c] != '1') return;
-    g[r][c] = '0';
+    g[r][c] = '0'; // Mark visited so this land is not counted again.
     flood(g, r + 1, c);
     flood(g, r - 1, c);
     flood(g, r, c + 1);
     flood(g, r, c - 1);
 }
 ```
+
+Debug steps:
+
+- print the grid coordinates where each island starts
+- trace one flood-fill to confirm all connected land turns to water
+- test isolated single-cell islands and one large island
 
 ---
 

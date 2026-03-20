@@ -41,6 +41,12 @@ class TrieNode {
 
 ## Basic Trie Implementation
 
+What we are doing actually:
+
+1. Walk character by character from the root.
+2. Create missing nodes during insert.
+3. Distinguish “path exists” from “complete word exists” using `isWord`.
+
 ```java
 class Trie {
     private final TrieNode root = new TrieNode();
@@ -49,32 +55,38 @@ class Trie {
         TrieNode cur = root;
         for (char ch : word.toCharArray()) {
             int i = ch - 'a';
-            if (cur.next[i] == null) cur.next[i] = new TrieNode();
+            if (cur.next[i] == null) cur.next[i] = new TrieNode(); // Create missing prefix node.
             cur = cur.next[i];
         }
-        cur.isWord = true;
+        cur.isWord = true; // Mark only the full word end.
     }
 
     public boolean search(String word) {
         TrieNode node = walk(word);
-        return node != null && node.isWord;
+        return node != null && node.isWord; // Full word must end here.
     }
 
     public boolean startsWith(String prefix) {
-        return walk(prefix) != null;
+        return walk(prefix) != null; // Prefix existence is enough.
     }
 
     private TrieNode walk(String s) {
         TrieNode cur = root;
         for (char ch : s.toCharArray()) {
             int i = ch - 'a';
-            if (cur.next[i] == null) return null;
+            if (cur.next[i] == null) return null; // Prefix path breaks here.
             cur = cur.next[i];
         }
         return cur;
     }
 }
 ```
+
+Debug steps:
+
+- print traversed characters during insert and search
+- verify `search("ca")` and `startsWith("ca")` return different results when appropriate
+- test inserting one word that is also a prefix of another
 
 ---
 
@@ -98,13 +110,29 @@ This separation between path existence and word completion is key.
 
 ## Problem 1: Implement Trie
 
-Covered by template above.
+Problem description:
+Support `insert`, `search`, and `startsWith` efficiently on a growing word set.
+
+What we are doing actually:
+
+1. Reuse the template above directly.
+2. Store structure in shared prefix nodes.
+3. Use `isWord` to mark only complete words.
 
 ---
 
 ## Problem 2: Word Dictionary (Wildcard Search)
 
 Use trie + DFS where `.` branches across children.
+
+Problem description:
+Support word insertion plus search where `.` can match any single character.
+
+What we are doing actually:
+
+1. Insert works like a normal trie.
+2. Search becomes DFS because `.` may branch to many children.
+3. Stop early as soon as one branch succeeds.
 
 ```java
 class WordDictionary {
@@ -114,7 +142,7 @@ class WordDictionary {
         TrieNode cur = root;
         for (char c : word.toCharArray()) {
             int i = c - 'a';
-            if (cur.next[i] == null) cur.next[i] = new TrieNode();
+            if (cur.next[i] == null) cur.next[i] = new TrieNode(); // Build missing path.
             cur = cur.next[i];
         }
         cur.isWord = true;
@@ -126,19 +154,25 @@ class WordDictionary {
 
     private boolean dfs(String w, int idx, TrieNode node) {
         if (node == null) return false;
-        if (idx == w.length()) return node.isWord;
+        if (idx == w.length()) return node.isWord; // Reached end of pattern.
 
         char c = w.charAt(idx);
         if (c == '.') {
             for (TrieNode child : node.next) {
-                if (dfs(w, idx + 1, child)) return true;
+                if (dfs(w, idx + 1, child)) return true; // Any matching child is enough.
             }
             return false;
         }
-        return dfs(w, idx + 1, node.next[c - 'a']);
+        return dfs(w, idx + 1, node.next[c - 'a']); // Continue deterministic branch.
     }
 }
 ```
+
+Debug steps:
+
+- print `idx` and current character during DFS
+- test exact-match search and wildcard search separately
+- verify `.` explores all children, not just the first non-null one
 
 ---
 

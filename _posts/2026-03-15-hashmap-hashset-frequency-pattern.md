@@ -73,15 +73,25 @@ public boolean containsDuplicate(int[] nums) {
 
 ## Problem 1: Two Sum
 
+Problem description:
+Given an array and a target, return indices of two numbers whose sum equals the target.
+
+What we are doing actually:
+
+1. Scan the array once from left to right.
+2. For each number, compute the complement we still need.
+3. Check whether that complement was seen earlier.
+4. If not, store the current value and index for future elements.
+
 ```java
 public int[] twoSum(int[] nums, int target) {
     Map<Integer, Integer> index = new HashMap<>();
     for (int i = 0; i < nums.length; i++) {
-        int need = target - nums[i];
+        int need = target - nums[i]; // Value required to complete the target sum.
         if (index.containsKey(need)) {
-            return new int[]{index.get(need), i};
+            return new int[]{index.get(need), i}; // Earlier value + current value = target.
         }
-        index.put(nums[i], i);
+        index.put(nums[i], i); // Save current value for later complements.
     }
     return new int[]{-1, -1};
 }
@@ -90,9 +100,24 @@ public int[] twoSum(int[] nums, int target) {
 Time: `O(n)`  
 Space: `O(n)`
 
+Debug steps:
+
+- print `i`, `nums[i]`, `need`, and current `index` map
+- verify you check the map before inserting the current element
+- test duplicates like `[3,3]` with target `6`
+
 ---
 
 ## Problem 2: Valid Anagram
+
+Problem description:
+Given two strings, decide whether one is an anagram of the other.
+
+What we are doing actually:
+
+1. Reject immediately if lengths differ.
+2. Use one counting array to add letters from the first string and subtract letters from the second.
+3. If all counters end at zero, the strings contain the same characters in different order.
 
 ```java
 public boolean isAnagram(String s, String t) {
@@ -100,8 +125,8 @@ public boolean isAnagram(String s, String t) {
 
     int[] count = new int[26];
     for (int i = 0; i < s.length(); i++) {
-        count[s.charAt(i) - 'a']++;
-        count[t.charAt(i) - 'a']--;
+        count[s.charAt(i) - 'a']++; // Character contributed by s.
+        count[t.charAt(i) - 'a']--; // Matching character removed by t.
     }
     for (int x : count) {
         if (x != 0) return false;
@@ -110,9 +135,24 @@ public boolean isAnagram(String s, String t) {
 }
 ```
 
+Debug steps:
+
+- print the `count` array after processing both strings
+- test same letters in different order and different lengths
+- verify this exact version assumes lowercase English letters
+
 ---
 
 ## Problem 3: Longest Consecutive Sequence
+
+Problem description:
+Given an unsorted array, return the length of the longest sequence of consecutive integers.
+
+What we are doing actually:
+
+1. Put all numbers into a set for constant-time lookup.
+2. Start growing a sequence only from numbers that have no predecessor.
+3. Expand forward until the sequence ends, then update the best length.
 
 ```java
 public int longestConsecutive(int[] nums) {
@@ -121,11 +161,11 @@ public int longestConsecutive(int[] nums) {
 
     int best = 0;
     for (int x : set) {
-        if (!set.contains(x - 1)) { // start of sequence
+        if (!set.contains(x - 1)) { // Real sequence start because x - 1 does not exist.
             int curr = x;
             int len = 1;
             while (set.contains(curr + 1)) {
-                curr++;
+                curr++; // Extend the current consecutive run.
                 len++;
             }
             best = Math.max(best, len);
@@ -135,9 +175,24 @@ public int longestConsecutive(int[] nums) {
 }
 ```
 
+Debug steps:
+
+- print every value that is treated as a sequence start
+- trace `curr` and `len` while the inner loop grows a run
+- test duplicates and negative numbers to confirm the set logic still works
+
 ---
 
 ## Problem 4: Group Anagrams
+
+Problem description:
+Given a list of strings, group together words that are anagrams of each other.
+
+What we are doing actually:
+
+1. Convert each word into a canonical key.
+2. Use that key in a map to collect all matching words.
+3. Return all map values as the grouped result.
 
 ```java
 public List<List<String>> groupAnagrams(String[] strs) {
@@ -145,7 +200,7 @@ public List<List<String>> groupAnagrams(String[] strs) {
 
     for (String s : strs) {
         char[] arr = s.toCharArray();
-        Arrays.sort(arr);
+        Arrays.sort(arr); // Sorted characters form the canonical anagram signature.
         String key = new String(arr);
         groups.computeIfAbsent(key, k -> new ArrayList<>()).add(s);
     }
@@ -153,6 +208,12 @@ public List<List<String>> groupAnagrams(String[] strs) {
     return new ArrayList<>(groups.values());
 }
 ```
+
+Debug steps:
+
+- print each original word and its computed `key`
+- verify different words with the same sorted key land in the same bucket
+- remember `HashMap` output order is not stable, so sort before asserting in tests
 
 ---
 

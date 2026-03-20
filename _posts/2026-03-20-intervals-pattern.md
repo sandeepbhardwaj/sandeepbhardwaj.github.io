@@ -45,15 +45,26 @@ This changes overlap condition (`<` vs `<=`) in edge cases.
 
 ## Template: Merge Intervals
 
+This is the base interval problem: given many ranges, combine every overlapping pair so the final answer contains only disjoint intervals.
+
+What we are doing actually:
+
+1. Sort by start time so related intervals come next to each other.
+2. Keep one output list that represents the merged answer so far.
+3. Compare the current interval only with the last merged interval.
+
 ```java
 public int[][] merge(int[][] intervals) {
-    Arrays.sort(intervals, Comparator.comparingInt(a -> a[0]));
+    Arrays.sort(intervals, Comparator.comparingInt(a -> a[0])); // Process intervals from left to right.
     List<int[]> out = new ArrayList<>();
 
     for (int[] cur : intervals) {
+        // If there is no previous merged interval, or the current interval starts after
+        // the previous one ends, we must start a brand-new merged block.
         if (out.isEmpty() || out.get(out.size() - 1)[1] < cur[0]) {
-            out.add(new int[]{cur[0], cur[1]});
+            out.add(new int[]{cur[0], cur[1]}); // Copy values so output stays independent.
         } else {
+            // Otherwise the two intervals overlap, so extend the previous block if needed.
             out.get(out.size() - 1)[1] = Math.max(out.get(out.size() - 1)[1], cur[1]);
         }
     }
@@ -61,67 +72,140 @@ public int[][] merge(int[][] intervals) {
 }
 ```
 
+Debug steps:
+
+- print the intervals after sorting to verify the scan order
+- after every loop iteration, print the current `out` list
+- test touching intervals like `[1,4]` and `[4,5]` to confirm your overlap rule
+
 ---
 
 ## Problem 1: Insert Interval
+
+Problem description:
+We are given sorted, non-overlapping intervals and one new interval. We need to insert the new interval in the correct position and merge only the ranges that overlap with it.
+
+What we are doing actually:
+
+1. Add all intervals that are fully before the new interval.
+2. Merge every interval that touches the new interval into one bigger interval.
+3. Add the remaining intervals that come after it.
 
 ```java
 public int[][] insert(int[][] intervals, int[] newInterval) {
     List<int[]> ans = new ArrayList<>();
     int i = 0, n = intervals.length;
+    int[] mergedInterval = new int[]{newInterval[0], newInterval[1]}; // Avoid mutating caller input.
 
-    while (i < n && intervals[i][1] < newInterval[0]) ans.add(intervals[i++]);
-
-    while (i < n && intervals[i][0] <= newInterval[1]) {
-        newInterval[0] = Math.min(newInterval[0], intervals[i][0]);
-        newInterval[1] = Math.max(newInterval[1], intervals[i][1]);
+    // These intervals end before the new interval starts, so they stay unchanged.
+    while (i < n && intervals[i][1] < mergedInterval[0]) {
+        ans.add(intervals[i]);
         i++;
     }
-    ans.add(newInterval);
 
-    while (i < n) ans.add(intervals[i++]);
+    // These intervals overlap with the new interval, so merge them into one range.
+    while (i < n && intervals[i][0] <= mergedInterval[1]) {
+        mergedInterval[0] = Math.min(mergedInterval[0], intervals[i][0]); // Expand left boundary.
+        mergedInterval[1] = Math.max(mergedInterval[1], intervals[i][1]); // Expand right boundary.
+        i++;
+    }
+    ans.add(mergedInterval); // Add the merged result exactly once.
+
+    // These intervals start after the merged interval ends, so append them as-is.
+    while (i < n) {
+        ans.add(intervals[i]);
+        i++;
+    }
 
     return ans.toArray(new int[ans.size()][]);
 }
 ```
 
+Debug steps:
+
+- print `mergedInterval` every time it expands to see exactly which overlap changed it
+- log which phase each interval entered: before, overlapping, or after
+- test three cases separately: insert at beginning, insert in middle with merge, insert at end
+
 ---
 
 ## Problem 2: Non-overlapping Intervals (Min Removals)
 
+Problem description:
+We want the minimum number of intervals to remove so that the remaining intervals do not overlap.
+
+What we are doing actually:
+
+1. Sort by end time, not start time.
+2. Greedily keep the interval that finishes earliest because it leaves the most room for future intervals.
+3. If the next interval overlaps, remove it and keep the earlier-ending one.
+
 ```java
 public int eraseOverlapIntervals(int[][] intervals) {
-    Arrays.sort(intervals, Comparator.comparingInt(a -> a[1]));
-    int removals = 0;
-    int end = Integer.MIN_VALUE;
+    if (intervals.length == 0) {
+        return 0;
+    }
 
-    for (int[] in : intervals) {
-        if (in[0] >= end) {
-            end = in[1];
+    Arrays.sort(intervals, Comparator.comparingInt(a -> a[1])); // Greedy choice: earliest end first.
+    int removals = 0;
+    int end = intervals[0][1]; // End time of the last interval we decided to keep.
+
+    for (int i = 1; i < intervals.length; i++) {
+        // Overlap means the current interval starts before the kept interval ends.
+        if (intervals[i][0] < end) {
+            removals++; // Remove current interval; the kept one already ends earlier.
         } else {
-            removals++;
+            end = intervals[i][1]; // No overlap, so keep current interval and move forward.
         }
     }
     return removals;
 }
 ```
 
+Debug steps:
+
+- print intervals after sorting by end time to verify the greedy order
+- for each interval, log: current start/end, previous `end`, and whether you kept or removed it
+- test `[1,2],[2,3]` and `[1,2],[1,3]` to see the difference between touching and overlapping
+
 ---
 
 ## Problem 3: Meeting Rooms II
 
+Problem description:
+Each interval is a meeting with a start and end time. We need the minimum number of rooms required so that all meetings can happen without conflict.
+
+What we are doing actually:
+
+1. Sort meetings by start time.
+2. Use a min-heap to store end times of meetings that are currently using rooms.
+3. Remove every meeting that has already finished before the current one starts.
+4. The largest heap size seen during the scan is the answer.
+
 ```java
 public int minMeetingRooms(int[][] intervals) {
-    Arrays.sort(intervals, Comparator.comparingInt(a -> a[0]));
-    PriorityQueue<Integer> pq = new PriorityQueue<>(); // end times
+    Arrays.sort(intervals, Comparator.comparingInt(a -> a[0])); // Process meetings in start-time order.
+    PriorityQueue<Integer> pq = new PriorityQueue<>(); // Min-heap of active meeting end times.
+    int maxRooms = 0;
 
     for (int[] in : intervals) {
-        if (!pq.isEmpty() && pq.peek() <= in[0]) pq.poll();
-        pq.offer(in[1]);
+        // Free every room whose meeting ended before this meeting starts.
+        while (!pq.isEmpty() && pq.peek() <= in[0]) {
+            pq.poll();
+        }
+
+        pq.offer(in[1]); // Current meeting now occupies one room.
+        maxRooms = Math.max(maxRooms, pq.size()); // Peak active meetings = minimum rooms needed.
     }
-    return pq.size();
+    return maxRooms;
 }
 ```
+
+Debug steps:
+
+- print meetings after sorting by start time
+- before and after each iteration, print the heap to see which rooms got freed and reused
+- test one fully overlapping case and one chain case like `[1,2],[2,3],[3,4]`
 
 ---
 

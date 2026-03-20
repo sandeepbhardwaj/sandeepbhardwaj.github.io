@@ -47,34 +47,64 @@ while (lo <= hi) {
 
 ## Pattern 1: Exact Match
 
+Problem description:
+Given a sorted array and a target value, return the exact index if the target exists.
+
+What we are doing actually:
+
+1. Keep a search range that may still contain the answer.
+2. Look at the middle element.
+3. Discard half the range based on sorted order.
+
 ```java
 public int binarySearch(int[] nums, int target) {
     int lo = 0, hi = nums.length - 1;
     while (lo <= hi) {
         int mid = lo + (hi - lo) / 2;
-        if (nums[mid] == target) return mid;
-        if (nums[mid] < target) lo = mid + 1;
-        else hi = mid - 1;
+        if (nums[mid] == target) return mid; // Exact match found.
+        if (nums[mid] < target) lo = mid + 1; // Target must be on the right half.
+        else hi = mid - 1; // Target must be on the left half.
     }
     return -1;
 }
 ```
 
+Debug steps:
+
+- print `lo`, `hi`, `mid`, and `nums[mid]` each iteration
+- verify the loop condition matches the boundary style you chose
+- test found, not-found, first-index, and last-index cases
+
 ---
 
 ## Pattern 2: First True / Lower Bound
+
+Problem description:
+Return the first index where the array value is greater than or equal to the target.
+
+What we are doing actually:
+
+1. Use a half-open interval `[lo, hi)`.
+2. Treat `nums[mid] >= target` as a true condition.
+3. Move left when true so we keep searching for an earlier valid index.
 
 ```java
 public int lowerBound(int[] nums, int target) {
     int lo = 0, hi = nums.length; // half-open
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (nums[mid] >= target) hi = mid;
-        else lo = mid + 1;
+        if (nums[mid] >= target) hi = mid; // Mid could be the first valid answer.
+        else lo = mid + 1; // Need a larger value, so move right.
     }
     return lo;
 }
 ```
+
+Debug steps:
+
+- print `lo`, `hi`, `mid`, and whether the condition was true
+- test all elements smaller than target and all elements greater than target
+- verify you return `lo` even when the target is missing
 
 ---
 
@@ -84,14 +114,23 @@ When answer is numeric and feasibility is monotonic.
 
 Example: minimum eating speed (Koko).
 
+Problem description:
+We do not search for a value inside an array. We search for the smallest answer that makes the feasibility check pass.
+
+What we are doing actually:
+
+1. Define a numeric answer range.
+2. Write a `canFinish` function that is monotonic.
+3. Binary search for the smallest speed where feasibility becomes true.
+
 ```java
 public int minEatingSpeed(int[] piles, int h) {
     int lo = 1, hi = Arrays.stream(piles).max().orElse(1);
 
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (canFinish(piles, h, mid)) hi = mid;
-        else lo = mid + 1;
+        if (canFinish(piles, h, mid)) hi = mid; // Mid works, so try a smaller answer.
+        else lo = mid + 1; // Mid is too small, so move right.
     }
     return lo;
 }
@@ -99,11 +138,17 @@ public int minEatingSpeed(int[] piles, int h) {
 private boolean canFinish(int[] piles, int h, int k) {
     long hours = 0;
     for (int p : piles) {
-        hours += (p + k - 1) / k;
+        hours += (p + k - 1) / k; // Ceiling division for hours needed at speed k.
     }
     return hours <= h;
 }
 ```
+
+Debug steps:
+
+- print `lo`, `hi`, `mid`, and `canFinish(...)` on each iteration
+- test feasibility on two neighboring answers to confirm monotonicity
+- if binary search seems wrong, inspect the helper first
 
 ---
 
