@@ -107,6 +107,39 @@ Use `long` where shifts or additions can overflow `int`.
 
 ---
 
+## Problem 1: Single Number
+
+Problem description:
+Given an array where every value appears twice except one, return the element that appears only once.
+
+What we are solving actually:
+A hash map works, but the hidden shortcut is that duplicate bits cancel under XOR, so we can compress the whole scan into one running variable.
+
+What we are doing actually:
+
+1. Start with `x = 0`.
+2. XOR every number into `x`.
+3. Let duplicate values cancel automatically.
+4. Return the value left in `x`.
+
+```java
+public int singleNumber(int[] nums) {
+    int x = 0;
+    for (int n : nums) {
+        x ^= n; // Matching values cancel, so only the unique number survives.
+    }
+    return x;
+}
+```
+
+Debug steps:
+
+- print `x` after each XOR to watch duplicates cancel in sequence
+- test `[7]` and `[4,1,2,1,2]` to cover singleton and normal input
+- verify the invariant that `x` equals XOR of all values processed so far
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

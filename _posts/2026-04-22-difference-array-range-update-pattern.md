@@ -86,6 +86,48 @@ Most bugs in this pattern are boundary and indexing mistakes.
 
 ---
 
+## Problem 1: Range Addition
+
+Problem description:
+Apply many range increment updates to an array and return the final array.
+
+What we are solving actually:
+Updating every element inside every range is too slow. Difference array records only where an update starts and where it stops, then one prefix scan reconstructs the final values.
+
+What we are doing actually:
+
+1. Add `delta` at the left boundary.
+2. Subtract `delta` right after the right boundary.
+3. Prefix-sum the difference array.
+4. Read the reconstructed final array.
+
+```java
+public int[] applyUpdates(int n, int[][] updates) {
+    int[] diff = new int[n + 1];
+    for (int[] update : updates) {
+        int left = update[0], right = update[1], delta = update[2];
+        diff[left] += delta; // Range effect starts here.
+        if (right + 1 < n) diff[right + 1] -= delta; // Range effect stops right after the right boundary.
+    }
+
+    int[] ans = new int[n];
+    int running = 0;
+    for (int i = 0; i < n; i++) {
+        running += diff[i]; // Prefix sum reconstructs the real value at index i.
+        ans[i] = running;
+    }
+    return ans;
+}
+```
+
+Debug steps:
+
+- print the `diff` array immediately after applying all updates
+- test one single-element range update like `[3,3,5]`
+- verify the invariant that `running` equals the total effect of all ranges covering the current index
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

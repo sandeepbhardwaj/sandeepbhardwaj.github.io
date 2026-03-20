@@ -106,6 +106,46 @@ For larger inputs, use efficient suffix-array construction (doubling / SA-IS) to
 
 ---
 
+## Problem 1: Longest Repeated Substring
+
+Problem description:
+Given a string, return the longest substring that appears at least twice.
+
+What we are solving actually:
+Comparing every pair of substrings is too expensive. Once suffixes are sorted, the best repeated substring must come from the largest common prefix of two adjacent suffixes.
+
+What we are doing actually:
+
+1. Build the suffix array so suffixes are in lexicographic order.
+2. Build the LCP array for adjacent suffixes.
+3. Scan for the maximum LCP value.
+4. Recover the repeated substring from that suffix start index.
+
+```java
+public String longestRepeatedSubstring(String s) {
+    int[] sa = buildSuffixArray(s);
+    int[] lcp = buildLcp(s, sa);
+    int bestLen = 0;
+    int bestStart = 0;
+
+    for (int i = 1; i < sa.length; i++) {
+        if (lcp[i] > bestLen) {
+            bestLen = lcp[i]; // Adjacent suffixes with the largest LCP define the best repeated substring.
+            bestStart = sa[i];
+        }
+    }
+    return bestLen == 0 ? "" : s.substring(bestStart, bestStart + bestLen);
+}
+```
+
+Debug steps:
+
+- print the suffix array and LCP array for `"banana"` to confirm the ordering by hand
+- test a string with no repetition like `"abcd"`
+- verify the invariant that every `lcp[i]` compares suffix `sa[i - 1]` with suffix `sa[i]`
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

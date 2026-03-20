@@ -100,6 +100,61 @@ This reuse is why algorithm is linear `O(n)`.
 
 ---
 
+## Problem 1: Pattern Matching with the Z Algorithm
+
+Problem description:
+Given `text` and `pattern`, return every index where `pattern` occurs inside `text`.
+
+What we are solving actually:
+We want pattern matches at every text position, but recomputing common prefixes repeatedly is wasteful. The Z-box keeps the best known matching window and reuses it.
+
+What we are doing actually:
+
+1. Build `pattern + "#" + text` so any full match has length `pattern.length()`.
+2. Compute the Z array on the combined string.
+3. Reuse the current `[l, r]` matching window when possible.
+4. Convert full-match positions back into text indices.
+
+```java
+public List<Integer> findOccurrences(String text, String pattern) {
+    String combined = pattern + "#" + text;
+    int[] z = buildZ(combined);
+    List<Integer> ans = new ArrayList<>();
+
+    for (int i = pattern.length() + 1; i < combined.length(); i++) {
+        if (z[i] == pattern.length()) {
+            ans.add(i - pattern.length() - 1); // Translate combined-string index back to the text index.
+        }
+    }
+    return ans;
+}
+
+private int[] buildZ(String s) {
+    int[] z = new int[s.length()];
+    for (int i = 1, l = 0, r = 0; i < s.length(); i++) {
+        if (i <= r) {
+            z[i] = Math.min(r - i + 1, z[i - l]); // Reuse the known matching window when possible.
+        }
+        while (i + z[i] < s.length() && s.charAt(z[i]) == s.charAt(i + z[i])) {
+            z[i]++; // Extend the match beyond the current window.
+        }
+        if (i + z[i] - 1 > r) {
+            l = i;
+            r = i + z[i] - 1; // Record the new rightmost Z-box.
+        }
+    }
+    return z;
+}
+```
+
+Debug steps:
+
+- print the Z array for `"aba#abacaba"` to inspect reused windows
+- test a case where pattern appears multiple times with overlap
+- verify the invariant that `[l, r]` always stores the rightmost segment matching the prefix
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

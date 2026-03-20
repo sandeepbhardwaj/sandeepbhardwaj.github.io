@@ -107,6 +107,59 @@ This significantly speeds up easy graphs while preserving correctness.
 
 ---
 
+## Problem 1: Single-Source Shortest Path with Negative Edges
+
+Problem description:
+Given a weighted directed graph that may contain negative edges, return shortest distances from a source node and detect a reachable negative cycle.
+
+What we are solving actually:
+Dijkstra breaks when negative edges exist. Bellman-Ford instead relaxes all edges repeatedly and uses one extra pass to prove whether a negative cycle is still improving the answer.
+
+What we are doing actually:
+
+1. Start with distance `0` at the source and infinity elsewhere.
+2. Relax every edge `n - 1` times.
+3. Stop early if an entire pass makes no change.
+4. Run one more pass to detect a reachable negative cycle.
+
+```java
+public int[] bellmanFord(int n, int[][] edges, int src) {
+    int INF = 1_000_000_000;
+    int[] dist = new int[n];
+    Arrays.fill(dist, INF);
+    dist[src] = 0;
+
+    for (int i = 1; i < n; i++) {
+        boolean changed = false;
+        for (int[] edge : edges) {
+            int u = edge[0], v = edge[1], w = edge[2];
+            if (dist[u] == INF) continue; // Unreached nodes cannot relax outgoing edges yet.
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w; // Found a shorter path using at most i edges.
+                changed = true;
+            }
+        }
+        if (!changed) break; // No update means all shortest distances are already stable.
+    }
+
+    for (int[] edge : edges) {
+        int u = edge[0], v = edge[1], w = edge[2];
+        if (dist[u] != INF && dist[u] + w < dist[v]) {
+            return null; // One more improvement proves a reachable negative cycle exists.
+        }
+    }
+    return dist;
+}
+```
+
+Debug steps:
+
+- print the `dist` array after each full relaxation pass
+- test one graph with a negative edge but no negative cycle, and one with a reachable negative cycle
+- verify the invariant that each pass only shortens paths that use one more edge than before
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

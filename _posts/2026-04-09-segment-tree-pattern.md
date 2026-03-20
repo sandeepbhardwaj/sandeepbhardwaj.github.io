@@ -92,6 +92,64 @@ Segment tree updates only affected path, not full array.
 
 ---
 
+## Problem 1: Range Sum Query with Updates
+
+Problem description:
+Support point updates and range sum queries on an array while keeping both operations fast.
+
+What we are solving actually:
+Prefix sums answer queries quickly but break on updates. Segment trees keep partial answers for subranges so only the affected path must be rebuilt.
+
+What we are doing actually:
+
+1. Store array values as leaves.
+2. Build parent nodes by merging two child ranges.
+3. On update, rewrite one leaf and rebuild its ancestors.
+4. On query, collect only the segments that exactly cover the requested range.
+
+```java
+class SegmentTree {
+    private final int n;
+    private final long[] tree;
+
+    SegmentTree(int[] nums) {
+        n = nums.length;
+        tree = new long[2 * n];
+        for (int i = 0; i < n; i++) {
+            tree[n + i] = nums[i]; // Leaves store the original array values.
+        }
+        for (int i = n - 1; i > 0; i--) {
+            tree[i] = tree[2 * i] + tree[2 * i + 1]; // Parent stores the merged answer of both children.
+        }
+    }
+
+    void update(int index, int value) {
+        int p = index + n;
+        tree[p] = value; // Overwrite the exact leaf for this array position.
+        for (p /= 2; p > 0; p /= 2) {
+            tree[p] = tree[2 * p] + tree[2 * p + 1]; // Rebuild ancestors because their segment answer changed.
+        }
+    }
+
+    long query(int left, int right) {
+        long ans = 0;
+        for (int l = left + n, r = right + n; l <= r; l /= 2, r /= 2) {
+            if ((l & 1) == 1) ans += tree[l++]; // l is a right child, so that whole segment belongs in the answer.
+            if ((r & 1) == 0) ans += tree[r--]; // r is a left child, so include it before moving upward.
+        }
+        return ans;
+    }
+}
+```
+
+Debug steps:
+
+- print the `tree` array after build and after one update to see which ancestors changed
+- test a single-element query like `[3,3]` and a full-range query like `[0,n-1]`
+- verify the invariant that every internal node equals the merge of its two children
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

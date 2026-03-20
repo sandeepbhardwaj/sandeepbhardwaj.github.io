@@ -82,6 +82,75 @@ Kosaraju first pass gives finish order ensuring SCC roots are processed correctl
 
 ---
 
+## Problem 1: Count Strongly Connected Components
+
+Problem description:
+Given a directed graph, count how many strongly connected components it contains.
+
+What we are solving actually:
+Reachability in directed graphs is asymmetric, so one DFS is not enough. We need finish order from the original graph and component collection on the reversed graph.
+
+What we are doing actually:
+
+1. Run DFS on the original graph and record nodes by finish time.
+2. Reverse all edges.
+3. Process nodes in reverse finish order.
+4. Each DFS on the reversed graph marks exactly one SCC.
+
+```java
+public int countStronglyConnectedComponents(int n, int[][] edges) {
+    List<Integer>[] graph = new ArrayList[n];
+    List<Integer>[] reverse = new ArrayList[n];
+    for (int i = 0; i < n; i++) {
+        graph[i] = new ArrayList<>();
+        reverse[i] = new ArrayList<>();
+    }
+    for (int[] edge : edges) {
+        graph[edge[0]].add(edge[1]);
+        reverse[edge[1]].add(edge[0]); // Reverse graph lets us collect one SCC at a time.
+    }
+
+    boolean[] vis = new boolean[n];
+    List<Integer> order = new ArrayList<>();
+    for (int i = 0; i < n; i++) {
+        if (!vis[i]) dfs1(i, graph, vis, order);
+    }
+
+    Arrays.fill(vis, false);
+    int components = 0;
+    for (int i = order.size() - 1; i >= 0; i--) {
+        int u = order.get(i);
+        if (vis[u]) continue;
+        dfs2(u, reverse, vis); // This reverse DFS stays inside one strongly connected component.
+        components++;
+    }
+    return components;
+}
+
+private void dfs1(int u, List<Integer>[] graph, boolean[] vis, List<Integer> order) {
+    vis[u] = true;
+    for (int v : graph[u]) {
+        if (!vis[v]) dfs1(v, graph, vis, order);
+    }
+    order.add(u); // Finish order matters because sink SCCs must be processed first on the reverse graph.
+}
+
+private void dfs2(int u, List<Integer>[] reverse, boolean[] vis) {
+    vis[u] = true;
+    for (int v : reverse[u]) {
+        if (!vis[v]) dfs2(v, reverse, vis);
+    }
+}
+```
+
+Debug steps:
+
+- print `order` after the first pass to confirm finish times are collected correctly
+- test a graph with one isolated node and one directed cycle
+- verify the invariant that one `dfs2` call never crosses into another SCC
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

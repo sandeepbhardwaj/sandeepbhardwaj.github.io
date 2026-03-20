@@ -96,6 +96,59 @@ Use collision-safe strategy in production-sensitive matching logic.
 
 ---
 
+## Problem 1: Substring Equality Queries
+
+Problem description:
+Given many queries asking whether `s[l1..r1]` equals `s[l2..r2]`, answer each query quickly.
+
+What we are solving actually:
+Direct substring comparison costs linear time per query. Rolling hash turns each substring into a reusable numeric fingerprint so repeated equality checks become constant time after preprocessing.
+
+What we are doing actually:
+
+1. Build prefix hashes and powers of the base.
+2. Remove the left contribution to recover any substring hash.
+3. Normalize the value under the modulus.
+4. Compare hashes only for substrings of the same length.
+
+```java
+class RollingHash {
+    private static final long BASE = 911382323L;
+    private static final long MOD = 1_000_000_007L;
+    private final long[] prefix;
+    private final long[] power;
+
+    RollingHash(String s) {
+        int n = s.length();
+        prefix = new long[n + 1];
+        power = new long[n + 1];
+        power[0] = 1;
+        for (int i = 0; i < n; i++) {
+            prefix[i + 1] = (prefix[i] * BASE + s.charAt(i)) % MOD; // Prefix hash extends the previous window by one character.
+            power[i + 1] = (power[i] * BASE) % MOD;
+        }
+    }
+
+    long hash(int left, int right) {
+        long raw = prefix[right + 1] - (prefix[left] * power[right - left + 1]) % MOD;
+        return raw < 0 ? raw + MOD : raw; // Normalize after removing the left contribution.
+    }
+
+    boolean same(int l1, int r1, int l2, int r2) {
+        if (r1 - l1 != r2 - l2) return false; // Different lengths cannot represent equal substrings.
+        return hash(l1, r1) == hash(l2, r2);
+    }
+}
+```
+
+Debug steps:
+
+- print `prefix` and `power` for a short string like `"abac"`
+- test one equal-query pair and one unequal-query pair of the same length
+- verify the invariant that `hash(l, r)` is derived only from `prefix` values and the corresponding power length
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

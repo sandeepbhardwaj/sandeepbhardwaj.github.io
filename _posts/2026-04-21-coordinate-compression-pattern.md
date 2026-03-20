@@ -80,6 +80,61 @@ Missing a boundary causes subtle off-by-one errors after compression.
 
 ---
 
+## Problem 1: Maximum Overlap on Huge Coordinates
+
+Problem description:
+Given many inclusive intervals with very large endpoint values, return the maximum number of intervals covering any point.
+
+What we are solving actually:
+The coordinates are too large to index directly, but the answer only changes at interval boundaries. Coordinate compression keeps those meaningful points and throws away unused gaps.
+
+What we are doing actually:
+
+1. Collect every start and every `end + 1` boundary.
+2. Sort and deduplicate them.
+3. Map each real coordinate to a compact index.
+4. Run a difference-array scan on the compressed indices.
+
+```java
+public int maxOverlap(int[][] intervals) {
+    List<Integer> coords = new ArrayList<>();
+    for (int[] interval : intervals) {
+        coords.add(interval[0]);
+        coords.add(interval[1] + 1); // Inclusive [l, r] becomes +1 at l and -1 at r + 1.
+    }
+    Collections.sort(coords);
+
+    List<Integer> unique = new ArrayList<>();
+    for (int x : coords) {
+        if (unique.isEmpty() || unique.get(unique.size() - 1) != x) unique.add(x);
+    }
+
+    Map<Integer, Integer> id = new HashMap<>();
+    for (int i = 0; i < unique.size(); i++) id.put(unique.get(i), i);
+
+    int[] diff = new int[unique.size() + 1];
+    for (int[] interval : intervals) {
+        diff[id.get(interval[0])]++;
+        diff[id.get(interval[1] + 1)]--; // The interval stops contributing after the compressed index for r + 1.
+    }
+
+    int active = 0, best = 0;
+    for (int i = 0; i < unique.size(); i++) {
+        active += diff[i];
+        best = Math.max(best, active); // Prefix sum reconstructs overlap count at this compressed point.
+    }
+    return best;
+}
+```
+
+Debug steps:
+
+- print the `unique` coordinate list to verify compression order
+- test two intervals with a huge numeric gap to confirm unused space does not matter
+- verify the invariant that each compressed index stands for a boundary where the overlap count can change
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

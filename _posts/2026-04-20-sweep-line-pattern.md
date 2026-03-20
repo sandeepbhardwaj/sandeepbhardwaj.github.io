@@ -97,6 +97,49 @@ Define interval semantics first, then choose comparator tie-break.
 
 ---
 
+## Problem 1: Minimum Meeting Rooms
+
+Problem description:
+Given meeting intervals, return the minimum number of rooms required so no meetings overlap in the same room.
+
+What we are solving actually:
+We do not care which exact room each meeting uses. We only need the peak number of simultaneous active meetings, which sweep line can compute from start and end events.
+
+What we are doing actually:
+
+1. Convert each interval into a start event `+1` and an end event `-1`.
+2. Sort events by time, processing ends before starts at the same time.
+3. Scan events in order and maintain active meeting count.
+4. Track the maximum active count seen.
+
+```java
+public int minMeetingRooms(int[][] intervals) {
+    List<int[]> events = new ArrayList<>();
+    for (int[] interval : intervals) {
+        events.add(new int[]{interval[0], 1});
+        events.add(new int[]{interval[1], -1});
+    }
+
+    events.sort((a, b) -> a[0] != b[0] ? Integer.compare(a[0], b[0]) : Integer.compare(a[1], b[1]));
+    // At the same timestamp, -1 comes before +1 so a room freed at time t can be reused immediately.
+
+    int active = 0, best = 0;
+    for (int[] event : events) {
+        active += event[1]; // Prefix sum of events equals the number of meetings currently running.
+        best = Math.max(best, active);
+    }
+    return best;
+}
+```
+
+Debug steps:
+
+- print the sorted event list to confirm same-time tie-breaking
+- test one touching case like `[1,2]` and `[2,3]` plus one fully overlapping case
+- verify the invariant that `active` never represents anything except the number of open intervals after the current event
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

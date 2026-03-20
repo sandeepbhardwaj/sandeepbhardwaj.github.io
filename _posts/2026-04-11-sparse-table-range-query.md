@@ -102,6 +102,58 @@ For sum queries, overlapping-block trick does not work; use prefix sums or segme
 
 ---
 
+## Problem 1: Immutable Range Minimum Query
+
+Problem description:
+Given a fixed array, answer many minimum queries on intervals `[l, r]`.
+
+What we are solving actually:
+Re-scanning each query is too slow when the array never changes. Sparse table precomputes answers for power-of-two blocks so each query can be answered with two overlapping blocks.
+
+What we are doing actually:
+
+1. Precompute `log[len]` for block sizes.
+2. Build `st[p][i]` as the minimum over a block of length `2^p` starting at `i`.
+3. For a query, choose the largest power of two that fits inside the range.
+4. Combine the two blocks that cover the interval's left and right ends.
+
+```java
+class SparseTable {
+    private final int[][] st;
+    private final int[] log;
+
+    SparseTable(int[] nums) {
+        int n = nums.length;
+        log = new int[n + 1];
+        for (int i = 2; i <= n; i++) log[i] = log[i / 2] + 1;
+
+        int levels = log[n] + 1;
+        st = new int[levels][n];
+        st[0] = nums.clone();
+
+        for (int p = 1; p < levels; p++) {
+            int len = 1 << p;
+            for (int i = 0; i + len <= n; i++) {
+                st[p][i] = Math.min(st[p - 1][i], st[p - 1][i + (len >> 1)]); // Merge two halves of equal length.
+            }
+        }
+    }
+
+    int queryMin(int left, int right) {
+        int p = log[right - left + 1];
+        return Math.min(st[p][left], st[p][right - (1 << p) + 1]); // Two overlapping blocks still cover the whole range.
+    }
+}
+```
+
+Debug steps:
+
+- print the first two sparse-table levels for a tiny array like `[5,2,4,7]`
+- test one query whose length is exactly a power of two and one that is not
+- verify the invariant that `st[p][i]` stores the answer for exactly `2^p` elements
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

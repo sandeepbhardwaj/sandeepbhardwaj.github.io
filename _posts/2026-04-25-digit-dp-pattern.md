@@ -97,6 +97,52 @@ Tiny manual checks like this are crucial to validate state transitions.
 
 ---
 
+## Problem 1: Count Numbers Up to N with a Target Digit Sum
+
+Problem description:
+Given `n` and a target digit sum, count how many numbers in `[0, n]` have digits summing exactly to that target.
+
+What we are solving actually:
+Brute force checks every number separately. Digit DP builds the number left to right and uses `tight` to know whether we are still forced to match the prefix of `n`.
+
+What we are doing actually:
+
+1. Process digits from left to right.
+2. Track remaining digit sum and whether the prefix is still tight.
+3. Reuse memo only when the state is already loose.
+4. Count all valid completions when we reach the end.
+
+```java
+public int countWithDigitSum(long n, int target) {
+    char[] digits = Long.toString(n).toCharArray();
+    Integer[][] memo = new Integer[digits.length][target + 1];
+    return dfs(0, target, true, digits, memo);
+}
+
+private int dfs(int pos, int remaining, boolean tight, char[] digits, Integer[][] memo) {
+    if (remaining < 0) return 0;
+    if (pos == digits.length) return remaining == 0 ? 1 : 0;
+    if (!tight && memo[pos][remaining] != null) return memo[pos][remaining]; // Loose states repeat across many branches.
+
+    int limit = tight ? digits[pos] - '0' : 9;
+    int ways = 0;
+    for (int d = 0; d <= limit; d++) {
+        ways += dfs(pos + 1, remaining - d, tight && d == limit, digits, memo); // Tight stays true only if we match the prefix exactly.
+    }
+
+    if (!tight) memo[pos][remaining] = ways;
+    return ways;
+}
+```
+
+Debug steps:
+
+- print `(pos, remaining, tight)` for a tiny input like `n = 25`, `target = 4`
+- test target `0` to confirm leading zeros are handled as shorter numbers
+- verify the invariant that loose states never depend on the exact prefix chosen earlier
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

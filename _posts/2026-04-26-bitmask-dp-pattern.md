@@ -94,6 +94,52 @@ Always check `2^n` memory/time before choosing this pattern.
 
 ---
 
+## Problem 1: Traveling Salesman on a Small Graph
+
+Problem description:
+Given a complete graph of small size, return the minimum tour cost that starts at node `0`, visits every node once, and comes back to `0`.
+
+What we are solving actually:
+The order of visited cities matters, but only through two pieces of state: which cities are already used and where we currently stand. Bitmask DP compresses that state efficiently.
+
+What we are doing actually:
+
+1. Let `mask` represent the visited set.
+2. Let `u` represent the current city.
+3. Try every unvisited next city.
+4. Memoize the best completion cost for each `(mask, u)` state.
+
+```java
+public int tsp(int[][] dist) {
+    int n = dist.length;
+    int[][] memo = new int[1 << n][n];
+    for (int[] row : memo) Arrays.fill(row, -1);
+    return dfs(1, 0, dist, memo);
+}
+
+private int dfs(int mask, int u, int[][] dist, int[][] memo) {
+    int n = dist.length;
+    if (mask == (1 << n) - 1) return dist[u][0]; // All cities visited, so close the tour back to the start.
+    if (memo[mask][u] != -1) return memo[mask][u];
+
+    int best = Integer.MAX_VALUE / 2;
+    for (int v = 0; v < n; v++) {
+        if ((mask & (1 << v)) != 0) continue; // Skip cities already present in this visited-set state.
+        int next = dist[u][v] + dfs(mask | (1 << v), v, dist, memo);
+        best = Math.min(best, next); // Try every legal next city and keep the cheapest completion.
+    }
+    return memo[mask][u] = best;
+}
+```
+
+Debug steps:
+
+- print `(mask, u)` in binary for a tiny graph with `n = 4`
+- test one graph where a greedy nearest-city choice is not optimal
+- verify the invariant that `memo[mask][u]` only depends on cities not yet present in `mask`
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

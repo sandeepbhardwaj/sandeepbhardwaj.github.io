@@ -95,6 +95,41 @@ Many “sort then linear scan” problems are greedy at core.
 
 ---
 
+## Problem 1: Jump Game
+
+Problem description:
+Given an array where `nums[i]` is the maximum jump length from index `i`, decide whether the last index is reachable.
+
+What we are solving actually:
+We do not need to commit to one exact jump path. The real question is whether the reachable frontier ever stops moving forward before we reach the end.
+
+What we are doing actually:
+
+1. Track the farthest index we can currently reach.
+2. Walk left to right only while the current index is still reachable.
+3. Greedily expand the frontier with `i + nums[i]`.
+4. Return early once the last index becomes reachable.
+
+```java
+public boolean canJump(int[] nums) {
+    int farthest = 0;
+    for (int i = 0; i < nums.length; i++) {
+        if (i > farthest) return false; // We cannot even stand on this index, so the path already failed.
+        farthest = Math.max(farthest, i + nums[i]); // Keep the best reachable frontier seen so far.
+        if (farthest >= nums.length - 1) return true; // Once the end is inside the frontier, we are done.
+    }
+    return true;
+}
+```
+
+Debug steps:
+
+- print `i` and `farthest` after each iteration to see where progress stalls
+- test `[0]` and `[3,2,1,0,4]` to cover trivial success and classic failure
+- verify the invariant that every index up to `farthest` is reachable from some earlier jump
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

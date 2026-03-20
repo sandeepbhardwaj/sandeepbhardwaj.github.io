@@ -95,6 +95,46 @@ Most tree-DP bugs are wrong state meaning or combine formulas.
 
 ---
 
+## Problem 1: House Robber III
+
+Problem description:
+Given a binary tree of house values, return the maximum amount you can rob without robbing both a node and its direct child.
+
+What we are solving actually:
+Each node has two coupled outcomes: take it or skip it. Tree DP works because a parent only needs the two summarized states from each child, not every full subtree configuration.
+
+What we are doing actually:
+
+1. Run post-order DFS so children are solved before the parent.
+2. Return two values for every node: `take` and `skip`.
+3. If we take the node, children must be skipped.
+4. If we skip the node, each child chooses its own better option.
+
+```java
+public int rob(TreeNode root) {
+    int[] state = dfs(root);
+    return Math.max(state[0], state[1]);
+}
+
+private int[] dfs(TreeNode node) {
+    if (node == null) return new int[]{0, 0};
+
+    int[] left = dfs(node.left);
+    int[] right = dfs(node.right);
+    int take = node.val + left[1] + right[1]; // Taking this node forces both children into their skip state.
+    int skip = Math.max(left[0], left[1]) + Math.max(right[0], right[1]); // Skipping lets each child choose its better outcome.
+    return new int[]{take, skip};
+}
+```
+
+Debug steps:
+
+- print each node's returned `[take, skip]` pair after DFS combines its children
+- test a leaf-only tree and a chain-shaped tree to catch base-case mistakes
+- verify the invariant that a node's result depends only on already-computed child states
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

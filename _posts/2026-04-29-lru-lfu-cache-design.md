@@ -102,6 +102,58 @@ Cache correctness and observability matter as much as asymptotic `O(1)` operatio
 
 ---
 
+## Problem 1: Design an LRU Cache
+
+Problem description:
+Design a cache with `get` and `put` in `O(1)` where the least recently used key is evicted when capacity is full.
+
+What we are solving actually:
+Hash lookup alone is not enough because we must also know the recency order. The clean shortcut in Java is `LinkedHashMap` with access-order enabled.
+
+What we are doing actually:
+
+1. Store key-value pairs in an access-ordered `LinkedHashMap`.
+2. On `get`, return the value and let access-order refresh recency.
+3. On `put`, update existing keys in place.
+4. When full, evict the eldest entry before inserting a new key.
+
+```java
+class LRUCache {
+    private final int capacity;
+    private final LinkedHashMap<Integer, Integer> map;
+
+    LRUCache(int capacity) {
+        this.capacity = capacity;
+        this.map = new LinkedHashMap<>(16, 0.75f, true); // accessOrder=true keeps iteration order aligned with recency.
+    }
+
+    int get(int key) {
+        return map.getOrDefault(key, -1); // A successful access moves the key to the most-recent position.
+    }
+
+    void put(int key, int value) {
+        if (capacity == 0) return;
+        if (map.containsKey(key)) {
+            map.put(key, value); // Updating an existing key also refreshes its recency.
+            return;
+        }
+        if (map.size() == capacity) {
+            int lruKey = map.keySet().iterator().next();
+            map.remove(lruKey); // The eldest access-ordered entry is the one to evict.
+        }
+        map.put(key, value); // New key becomes most recently used.
+    }
+}
+```
+
+Debug steps:
+
+- print the key iteration order after each `get` and `put`
+- test an update on an existing key to confirm it refreshes recency instead of duplicating state
+- verify the invariant that the first key in iteration order is always the next eviction candidate
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.
