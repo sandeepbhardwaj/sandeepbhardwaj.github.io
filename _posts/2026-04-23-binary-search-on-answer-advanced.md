@@ -83,6 +83,55 @@ For some problems, derive bounds from input (`max element`, `sum`, etc.) instead
 
 ---
 
+## Problem 1: Koko Eating Bananas
+
+Problem description:
+Given banana piles and `h` hours, return the minimum integer eating speed that lets Koko finish in time.
+
+What we are solving actually:
+We are not searching over pile positions. We are searching over candidate answers, and feasibility is monotonic: if a speed works, any larger speed also works.
+
+What we are doing actually:
+
+1. Binary-search the speed range from `1` to `max(pile)`.
+2. Check whether a candidate speed finishes within `h` hours.
+3. Move left when the speed is feasible.
+4. Move right when the speed is too slow.
+
+```java
+public int minEatingSpeed(int[] piles, int h) {
+    int left = 1, right = 0;
+    for (int pile : piles) right = Math.max(right, pile);
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        if (canFinish(piles, h, mid)) {
+            right = mid; // mid works, so keep searching for a smaller feasible answer.
+        } else {
+            left = mid + 1; // mid is too slow, so the answer must be larger.
+        }
+    }
+    return left;
+}
+
+private boolean canFinish(int[] piles, int h, int speed) {
+    long hours = 0;
+    for (int pile : piles) {
+        hours += (pile + speed - 1) / speed; // Ceiling division gives hours spent on this pile.
+        if (hours > h) return false;
+    }
+    return true;
+}
+```
+
+Debug steps:
+
+- print `left`, `mid`, `right`, and the computed `hours` each iteration
+- test a case where the answer is exactly `1` and one where it is `max(pile)`
+- verify the invariant that the true answer always stays inside the current search interval
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

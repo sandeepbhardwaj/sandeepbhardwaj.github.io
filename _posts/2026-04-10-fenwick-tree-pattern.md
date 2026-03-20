@@ -88,6 +88,60 @@ Most bugs come from mixing these index systems.
 
 ---
 
+## Problem 1: Prefix Sum with Point Updates
+
+Problem description:
+Support `add(index, delta)` and `sumRange(left, right)` on a mutable array.
+
+What we are solving actually:
+We want prefix-sum speed without rebuilding the whole prefix array after each update. Fenwick tree stores just enough partial sums to update and query in `O(log n)`.
+
+What we are doing actually:
+
+1. Keep a 1-based internal `bit` array.
+2. Move upward with `i += i & -i` during updates.
+3. Move downward with `i -= i & -i` during prefix queries.
+4. Convert a range sum into two prefix sums.
+
+```java
+class Fenwick {
+    private final int n;
+    private final long[] bit;
+
+    Fenwick(int n) {
+        this.n = n;
+        this.bit = new long[n + 1];
+    }
+
+    void add(int index, long delta) {
+        for (int i = index + 1; i <= n; i += i & -i) {
+            bit[i] += delta; // Every touched node covers a range that includes this index.
+        }
+    }
+
+    long sumPrefix(int index) {
+        long sum = 0;
+        for (int i = index + 1; i > 0; i -= i & -i) {
+            sum += bit[i]; // Walk through the disjoint Fenwick blocks that partition [0..index].
+        }
+        return sum;
+    }
+
+    long sumRange(int left, int right) {
+        if (left > right) return 0;
+        return sumPrefix(right) - (left == 0 ? 0 : sumPrefix(left - 1)); // Inclusive range becomes two prefix sums.
+    }
+}
+```
+
+Debug steps:
+
+- print every internal `i` visited during one `add` and one `sumPrefix`
+- test index `0` and index `n - 1` to catch 0-based vs 1-based mistakes
+- verify the invariant that `sumPrefix(i)` matches the real array sum from `0..i`
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

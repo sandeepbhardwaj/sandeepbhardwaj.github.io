@@ -90,6 +90,46 @@ These rules keep simulation stable and debuggable.
 
 ---
 
+## Problem 1: Average Waiting Time in a Single-Service Queue
+
+Problem description:
+Customers arrive over time, each with a service duration. Return the average waiting time if one server processes them in arrival order.
+
+What we are solving actually:
+The important state is not a queue implementation by itself. It is the simulation clock: when the server is idle we jump to the next arrival, and when busy we advance to the next completion event.
+
+What we are doing actually:
+
+1. Track the current simulation clock.
+2. Jump the clock forward when the system is idle.
+3. Add service time to create the next completion event.
+4. Accumulate each customer's finish time minus arrival time.
+
+```java
+public double averageWaitingTime(int[][] customers) {
+    long clock = 0;
+    long totalWait = 0;
+
+    for (int[] customer : customers) {
+        int arrival = customer[0];
+        int service = customer[1];
+
+        clock = Math.max(clock, arrival); // If the server is idle, jump the simulation clock to the next arrival event.
+        clock += service; // Service completion becomes the next event time.
+        totalWait += clock - arrival; // Waiting time includes both queue delay and service time.
+    }
+    return (double) totalWait / customers.length;
+}
+```
+
+Debug steps:
+
+- print `arrival`, `service`, and `clock` after each customer to watch the event timeline evolve
+- test one case with idle gaps between customers and one with continuous backlog
+- verify the invariant that `clock` never moves backward and always equals the current completion time
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

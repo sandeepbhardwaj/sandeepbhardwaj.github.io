@@ -94,6 +94,61 @@ For small `n`, straightforward backtracking may be simpler.
 
 ---
 
+## Problem 1: Closest Subset Sum
+
+Problem description:
+Given up to 40 numbers and a target, return the minimum absolute difference between the target and any subset sum.
+
+What we are solving actually:
+Full subset enumeration is too large, but `2^(n/2)` is still manageable. Meet-in-the-middle splits the search into two smaller exhaustive halves and combines them efficiently.
+
+What we are doing actually:
+
+1. Split the array into two halves.
+2. Enumerate every subset sum in each half.
+3. Sort one half's sums.
+4. For every sum on the other side, binary-search the best partner near the target.
+
+```java
+public int closestSubsetSum(int[] nums, int target) {
+    int mid = nums.length / 2;
+    List<Integer> left = subsetSums(nums, 0, mid);
+    List<Integer> right = subsetSums(nums, mid, nums.length);
+    Collections.sort(right);
+
+    int best = Integer.MAX_VALUE;
+    for (int sumLeft : left) {
+        int need = target - sumLeft;
+        int idx = Collections.binarySearch(right, need);
+        if (idx < 0) idx = -idx - 1;
+        if (idx < right.size()) best = Math.min(best, Math.abs(target - (sumLeft + right.get(idx))));
+        if (idx > 0) best = Math.min(best, Math.abs(target - (sumLeft + right.get(idx - 1)))); // Neighbor on the left can be closer too.
+    }
+    return best;
+}
+
+private List<Integer> subsetSums(int[] nums, int start, int end) {
+    List<Integer> sums = new ArrayList<>();
+    int len = end - start;
+    for (int mask = 0; mask < (1 << len); mask++) {
+        int sum = 0;
+        for (int i = 0; i < len; i++) {
+            if ((mask & (1 << i)) != 0) sum += nums[start + i]; // This bit means the element joins the subset.
+        }
+        sums.add(sum);
+    }
+    return sums;
+}
+```
+
+Debug steps:
+
+- print the generated subset sums of each half for a tiny array like `[1,2,3,4]`
+- test one exact-hit target and one target that cannot be matched exactly
+- verify the invariant that every full-array subset sum equals one left-half sum plus one right-half sum
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

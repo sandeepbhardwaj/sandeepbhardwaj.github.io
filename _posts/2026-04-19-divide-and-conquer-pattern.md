@@ -89,6 +89,55 @@ This helps decide whether divide-and-conquer is actually beneficial versus itera
 
 ---
 
+## Problem 1: Count Inversions
+
+Problem description:
+Given an array, count how many index pairs `(i, j)` satisfy `i < j` and `nums[i] > nums[j]`.
+
+What we are solving actually:
+Checking every pair is quadratic. Divide and conquer sorts both halves first so cross inversions can be counted in bulk during the merge step.
+
+What we are doing actually:
+
+1. Split the array into two halves.
+2. Recursively count inversions inside each half.
+3. Merge the sorted halves.
+4. When the right value wins, add all remaining left values as cross inversions.
+
+```java
+public long countInversions(int[] nums) {
+    return sortAndCount(nums, 0, nums.length - 1, new int[nums.length]);
+}
+
+private long sortAndCount(int[] nums, int left, int right, int[] temp) {
+    if (left >= right) return 0;
+    int mid = left + (right - left) / 2;
+    long inversions = sortAndCount(nums, left, mid, temp) + sortAndCount(nums, mid + 1, right, temp);
+
+    int i = left, j = mid + 1, k = left;
+    while (i <= mid && j <= right) {
+        if (nums[i] <= nums[j]) {
+            temp[k++] = nums[i++]; // Left value keeps sorted order and adds no new cross inversion.
+        } else {
+            temp[k++] = nums[j++];
+            inversions += mid - i + 1; // All remaining left values are greater than nums[j - 1].
+        }
+    }
+    while (i <= mid) temp[k++] = nums[i++];
+    while (j <= right) temp[k++] = nums[j++];
+    for (int p = left; p <= right; p++) nums[p] = temp[p]; // Copy the merged sorted segment back for parent calls.
+    return inversions;
+}
+```
+
+Debug steps:
+
+- print the two halves before each merge to see where cross inversions can appear
+- test `[1,2,3]` and `[3,2,1]` as clean boundary cases
+- verify the invariant that each recursive call returns a sorted subarray to its parent
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

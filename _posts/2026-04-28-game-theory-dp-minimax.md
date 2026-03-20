@@ -91,6 +91,45 @@ return solve(0, n - 1) >= 0;
 
 ---
 
+## Problem 1: Predict the Winner
+
+Problem description:
+Two players alternately take either the leftmost or rightmost number from an array. Return whether the first player can finish with at least as much total score as the second.
+
+What we are solving actually:
+We should not track both players' totals separately. The clean minimax state is the best score difference the current player can force from a subarray.
+
+What we are doing actually:
+
+1. Let `scoreDiff(l, r)` mean current player minus next player on `nums[l..r]`.
+2. Try taking the left end or the right end.
+3. Subtract the opponent's best response because turns alternate.
+4. Memoize the best difference for every interval.
+
+```java
+public boolean predictTheWinner(int[] nums) {
+    Integer[][] memo = new Integer[nums.length][nums.length];
+    return scoreDiff(nums, 0, nums.length - 1, memo) >= 0;
+}
+
+private int scoreDiff(int[] nums, int left, int right, Integer[][] memo) {
+    if (left == right) return nums[left];
+    if (memo[left][right] != null) return memo[left][right];
+
+    int takeLeft = nums[left] - scoreDiff(nums, left + 1, right, memo); // Opponent's best future result reduces our net advantage.
+    int takeRight = nums[right] - scoreDiff(nums, left, right - 1, memo);
+    return memo[left][right] = Math.max(takeLeft, takeRight);
+}
+```
+
+Debug steps:
+
+- print `(left, right)` and the chosen score difference for a tiny array like `[1,5,2]`
+- test one odd-length and one even-length input
+- verify the invariant that positive `scoreDiff` means the current player is ahead on that subarray
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

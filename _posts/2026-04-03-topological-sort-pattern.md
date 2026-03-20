@@ -101,6 +101,61 @@ For cycle detection in DFS, track recursion stack (`visiting` state).
 
 ---
 
+## Problem 1: Course Schedule II
+
+Problem description:
+Given `n` courses and prerequisite pairs, return one valid order to finish all courses or an empty array if a cycle exists.
+
+What we are solving actually:
+We are not just traversing a graph. We must repeatedly find courses whose remaining prerequisites are zero and detect when a cycle prevents any further progress.
+
+What we are doing actually:
+
+1. Build adjacency lists and indegree counts.
+2. Push every zero-indegree course into a queue.
+3. Pop ready courses, append them to the answer, and decrement dependent indegrees.
+4. If we process fewer than `n` courses, a cycle blocked the ordering.
+
+```java
+public int[] findOrder(int n, int[][] prerequisites) {
+    List<List<Integer>> graph = new ArrayList<>();
+    for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
+    int[] indegree = new int[n];
+
+    for (int[] edge : prerequisites) {
+        int course = edge[0], prereq = edge[1];
+        graph.get(prereq).add(course);
+        indegree[course]++; // This course is blocked until one more prerequisite is removed.
+    }
+
+    ArrayDeque<Integer> q = new ArrayDeque<>();
+    for (int i = 0; i < n; i++) {
+        if (indegree[i] == 0) q.offer(i); // Ready-to-take courses enter the queue immediately.
+    }
+
+    int[] order = new int[n];
+    int idx = 0;
+    while (!q.isEmpty()) {
+        int u = q.poll();
+        order[idx++] = u; // Fix the next course in the valid ordering.
+
+        for (int v : graph.get(u)) {
+            indegree[v]--; // One prerequisite for v has now been satisfied.
+            if (indegree[v] == 0) q.offer(v); // v becomes available exactly now.
+        }
+    }
+    return idx == n ? order : new int[0]; // Fewer than n processed courses means a cycle exists.
+}
+```
+
+Debug steps:
+
+- print the initial `indegree` array and queue before the BFS starts
+- after each pop, log the updated indegree values of neighbors
+- verify the invariant that only zero-indegree nodes are ever added to the queue
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

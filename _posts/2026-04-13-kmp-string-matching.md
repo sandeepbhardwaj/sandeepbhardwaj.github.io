@@ -106,6 +106,62 @@ For one-off tiny inputs, simpler built-in search may be sufficient.
 
 ---
 
+## Problem 1: First Occurrence of a Pattern
+
+Problem description:
+Given `haystack` and `needle`, return the first index where `needle` appears in `haystack`, or `-1` if it does not appear.
+
+What we are solving actually:
+Naively restarting from the next text position wastes matched work. KMP keeps the longest reusable prefix with the LPS table and jumps there after a mismatch.
+
+What we are doing actually:
+
+1. Precompute `lps[i]`, the longest proper prefix that is also a suffix for each prefix of the pattern.
+2. Scan the text once with pointer `j` into the pattern.
+3. On mismatch, fall back using `lps` instead of restarting at zero.
+4. When `j` reaches the full pattern length, we found the answer.
+
+```java
+public int strStr(String haystack, String needle) {
+    if (needle.isEmpty()) return 0;
+    int[] lps = buildLps(needle);
+    int j = 0;
+
+    for (int i = 0; i < haystack.length(); i++) {
+        while (j > 0 && haystack.charAt(i) != needle.charAt(j)) {
+            j = lps[j - 1]; // Fall back to the longest prefix that is still a valid partial match.
+        }
+        if (haystack.charAt(i) == needle.charAt(j)) {
+            j++; // Extend the current matched prefix.
+            if (j == needle.length()) return i - j + 1; // Full pattern matched ending at i.
+        }
+    }
+    return -1;
+}
+
+private int[] buildLps(String pattern) {
+    int[] lps = new int[pattern.length()];
+    for (int i = 1, len = 0; i < pattern.length(); ) {
+        if (pattern.charAt(i) == pattern.charAt(len)) {
+            lps[i++] = ++len; // Extend the current border by one matching character.
+        } else if (len > 0) {
+            len = lps[len - 1]; // Reuse the next-smaller border instead of restarting completely.
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+```
+
+Debug steps:
+
+- print the `lps` array for a pattern like `"ababaca"`
+- on each mismatch, log the old and new `j` values to see the fallback jump
+- verify the invariant that `j` always equals the matched prefix length after processing `haystack[0..i]`
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -97,6 +97,59 @@ For very large-scale matching, use double hashing to reduce collision probabilit
 
 ---
 
+## Problem 1: Find All Pattern Occurrences
+
+Problem description:
+Given `text` and `pattern`, return all starting indices where `pattern` appears in `text`.
+
+What we are solving actually:
+We want to compare many same-length windows quickly. Rolling hash lets us update the next window in `O(1)` instead of re-checking every character from scratch.
+
+What we are doing actually:
+
+1. Compute the pattern hash and the first window hash.
+2. Compare hashes for each window.
+3. Verify the substring only when hashes match.
+4. Slide the window by removing the old left character and adding the new right character.
+
+```java
+public List<Integer> search(String text, String pattern) {
+    List<Integer> ans = new ArrayList<>();
+    int m = pattern.length();
+    if (m > text.length()) return ans;
+
+    long base = 911382323L;
+    long mod = 1_000_000_007L;
+    long patternHash = 0, windowHash = 0, power = 1;
+
+    for (int i = 0; i < m; i++) {
+        patternHash = (patternHash * base + pattern.charAt(i)) % mod;
+        windowHash = (windowHash * base + text.charAt(i)) % mod;
+        if (i + 1 < m) power = (power * base) % mod; // base^(m-1) is needed when removing the leftmost character.
+    }
+
+    for (int i = 0; i + m <= text.length(); i++) {
+        if (patternHash == windowHash && text.regionMatches(i, pattern, 0, m)) {
+            ans.add(i); // Verify equal hashes to guard against rare collisions.
+        }
+        if (i + m == text.length()) break;
+
+        windowHash = (windowHash - text.charAt(i) * power) % mod;
+        if (windowHash < 0) windowHash += mod;
+        windowHash = (windowHash * base + text.charAt(i + m)) % mod; // Slide one character to the right.
+    }
+    return ans;
+}
+```
+
+Debug steps:
+
+- print the rolling hash before and after each slide to confirm the update formula
+- test one repeated-text case like `"aaaaa"` with pattern `"aa"`
+- verify the invariant that `windowHash` always represents exactly the current length-`m` window
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

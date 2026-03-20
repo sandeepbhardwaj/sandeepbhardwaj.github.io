@@ -106,6 +106,64 @@ This reuse prevents repeated expansion work and yields linear time.
 
 ---
 
+## Problem 1: Longest Palindromic Substring
+
+Problem description:
+Given a string, return its longest palindromic substring.
+
+What we are solving actually:
+Expanding around every center is already decent, but Manacher avoids repeating the same symmetry work by mirroring palindrome radii inside the current rightmost palindrome.
+
+What we are doing actually:
+
+1. Transform the string so odd and even length palindromes share one format.
+2. Track the current center and right boundary.
+3. Use the mirrored radius as a safe starting point.
+4. Expand only when the palindrome can grow beyond known information.
+
+```java
+public String longestPalindrome(String s) {
+    if (s.isEmpty()) return "";
+
+    StringBuilder t = new StringBuilder("^");
+    for (char ch : s.toCharArray()) t.append('#').append(ch);
+    t.append("#$");
+
+    int[] radius = new int[t.length()];
+    int center = 0, right = 0;
+    int bestCenter = 0, bestRadius = 0;
+
+    for (int i = 1; i < t.length() - 1; i++) {
+        int mirror = 2 * center - i;
+        if (i < right) {
+            radius[i] = Math.min(right - i, radius[mirror]); // Mirror gives a guaranteed lower bound inside the known palindrome.
+        }
+        while (t.charAt(i + 1 + radius[i]) == t.charAt(i - 1 - radius[i])) {
+            radius[i]++; // Expand only beyond the already-confirmed mirrored region.
+        }
+        if (i + radius[i] > right) {
+            center = i;
+            right = i + radius[i]; // Update the rightmost palindrome we know so far.
+        }
+        if (radius[i] > bestRadius) {
+            bestRadius = radius[i];
+            bestCenter = i;
+        }
+    }
+
+    int start = (bestCenter - bestRadius) / 2; // Map transformed indices back to the original string.
+    return s.substring(start, start + bestRadius);
+}
+```
+
+Debug steps:
+
+- print the transformed string and `radius` values for a small input like `"abba"`
+- test both odd and even palindrome winners, such as `"babad"` and `"cbbd"`
+- verify the invariant that `right` is always the farthest confirmed palindrome boundary seen so far
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

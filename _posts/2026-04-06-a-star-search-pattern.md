@@ -105,6 +105,66 @@ A* explores less than plain Dijkstra when heuristic is informative.
 
 ---
 
+## Problem 1: Shortest Path in a Grid
+
+Problem description:
+Given a grid with blocked cells, a start cell, and a goal cell, return the minimum number of moves needed to reach the goal.
+
+What we are solving actually:
+Plain BFS explores every equally-short frontier, but A* tries to reach the goal faster by prioritizing states that already look promising under an admissible heuristic.
+
+What we are doing actually:
+
+1. Track the best known distance `g` to each cell.
+2. Order the heap by `f = g + heuristic`.
+3. Skip stale states whose `g` is no longer optimal.
+4. Stop when the goal is popped because that path is then optimal.
+
+```java
+public int shortestPath(int[][] grid, int[] start, int[] goal) {
+    int m = grid.length, n = grid[0].length;
+    int[][] best = new int[m][n];
+    for (int i = 0; i < m; i++) Arrays.fill(best[i], Integer.MAX_VALUE);
+
+    int sr = start[0], sc = start[1], tr = goal[0], tc = goal[1];
+    PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+    best[sr][sc] = 0;
+    pq.offer(new int[]{heuristic(sr, sc, tr, tc), 0, sr, sc}); // {f, g, row, col}
+
+    int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    while (!pq.isEmpty()) {
+        int[] cur = pq.poll();
+        int g = cur[1], r = cur[2], c = cur[3];
+        if (g != best[r][c]) continue; // Ignore stale entries that lost to a better path later.
+        if (r == tr && c == tc) return g; // First goal pop is optimal with an admissible heuristic.
+
+        for (int[] d : dirs) {
+            int nr = r + d[0], nc = c + d[1];
+            if (nr < 0 || nr >= m || nc < 0 || nc >= n || grid[nr][nc] == 1) continue;
+            int ng = g + 1;
+            if (ng < best[nr][nc]) {
+                best[nr][nc] = ng;
+                int f = ng + heuristic(nr, nc, tr, tc);
+                pq.offer(new int[]{f, ng, nr, nc}); // Smaller f means this state looks closer to an optimal solution.
+            }
+        }
+    }
+    return -1;
+}
+
+private int heuristic(int r, int c, int tr, int tc) {
+    return Math.abs(r - tr) + Math.abs(c - tc); // Manhattan distance never overestimates 4-direction grid cost.
+}
+```
+
+Debug steps:
+
+- print heap states as `{f, g, row, col}` to see how the heuristic reorders exploration
+- test one case where BFS and A* return the same distance but explore different cells
+- verify the invariant that `best[r][c]` only decreases when a strictly shorter path is found
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

@@ -94,6 +94,55 @@ Optimize space only after correctness is locked.
 
 ---
 
+## Problem 1: Climbing Stairs
+
+Problem description:
+Count how many distinct ways there are to climb `n` stairs when you may take either 1 or 2 steps.
+
+What we are solving actually:
+The recurrence is simple, but the real lesson is how the same state graph can be solved top-down with caching or bottom-up with an explicit fill order.
+
+What we are doing actually:
+
+1. Define the recurrence `ways(n) = ways(n - 1) + ways(n - 2)`.
+2. Memoization computes states on demand and caches them.
+3. Tabulation fills the states iteratively from smallest to largest.
+4. Both methods rely on the same base cases.
+
+```java
+public int climbStairsMemo(int n) {
+    int[] memo = new int[n + 1];
+    Arrays.fill(memo, -1);
+    return solve(n, memo);
+}
+
+private int solve(int n, int[] memo) {
+    if (n <= 2) return n;
+    if (memo[n] != -1) return memo[n]; // Memoization reuses the first computed answer for this state.
+    memo[n] = solve(n - 1, memo) + solve(n - 2, memo);
+    return memo[n];
+}
+
+public int climbStairsTab(int n) {
+    if (n <= 2) return n;
+    int[] dp = new int[n + 1];
+    dp[1] = 1;
+    dp[2] = 2;
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2]; // Tabulation fills a state only after its dependencies are ready.
+    }
+    return dp[n];
+}
+```
+
+Debug steps:
+
+- log memo hits vs fresh computations in the top-down version
+- print the `dp` array as it fills in the bottom-up version
+- verify the invariant that both versions return the same answer for small inputs like `n = 1..6`
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

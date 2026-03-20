@@ -98,6 +98,55 @@ Skipping this check returns incorrect partial-forest cost.
 
 ---
 
+## Problem 1: Minimum Cost to Connect All Nodes
+
+Problem description:
+Given a connected weighted undirected graph, return the total weight of its minimum spanning tree, or `-1` if the graph is disconnected.
+
+What we are solving actually:
+We need one cheapest edge set that connects every node without cycles. The hidden challenge is expanding the tree only with edges that add a brand-new node.
+
+What we are doing actually:
+
+1. Start Prim's algorithm from any node.
+2. Use a min-heap to always choose the cheapest edge leaving the current tree.
+3. Ignore edges that point to already-included nodes.
+4. Count cost only when an edge truly expands the tree.
+
+```java
+public int minimumSpanningTreeCost(int n, List<List<int[]>> graph) {
+    boolean[] used = new boolean[n];
+    PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+    pq.offer(new int[]{0, 0}); // {node, edgeWeight} with a zero-cost virtual start edge.
+
+    int cost = 0;
+    int seen = 0;
+    while (!pq.isEmpty() && seen < n) {
+        int[] cur = pq.poll();
+        int u = cur[0], w = cur[1];
+        if (used[u]) continue; // Skip stale edges that point back into the existing tree.
+
+        used[u] = true;
+        cost += w; // The cheapest edge that reaches a new node becomes part of the MST.
+        seen++;
+
+        for (int[] edge : graph.get(u)) {
+            int v = edge[0], weight = edge[1];
+            if (!used[v]) pq.offer(new int[]{v, weight}); // Offer every outward edge from the growing tree.
+        }
+    }
+    return seen == n ? cost : -1; // If some node was never reached, one spanning tree does not exist.
+}
+```
+
+Debug steps:
+
+- print heap entries as `{node, weight}` to confirm the cheapest outgoing edge is chosen next
+- test one disconnected graph to ensure the method returns `-1`
+- verify the invariant that `cost` only grows when `seen` grows
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.

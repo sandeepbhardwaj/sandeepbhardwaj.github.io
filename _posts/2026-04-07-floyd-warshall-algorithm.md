@@ -98,6 +98,55 @@ A negative diagonal entry indicates a negative cycle.
 
 ---
 
+## Problem 1: All-Pairs Shortest Paths
+
+Problem description:
+Given a weighted directed graph, compute the shortest distance between every pair of nodes.
+
+What we are solving actually:
+Re-running single-source shortest path from every node works, but Floyd-Warshall has a cleaner DP view: after step `k`, paths may only use intermediate nodes from `0..k`.
+
+What we are doing actually:
+
+1. Initialize `dist[i][j]` with direct edge weights and `0` on the diagonal.
+2. Pick each node `k` as the newest allowed intermediate node.
+3. Try routing every `i -> j` path through `k`.
+4. Keep the shorter of the old route and the `i -> k -> j` route.
+
+```java
+public int[][] floydWarshall(int n, int[][] edges) {
+    int INF = 1_000_000_000;
+    int[][] dist = new int[n][n];
+    for (int i = 0; i < n; i++) {
+        Arrays.fill(dist[i], INF);
+        dist[i][i] = 0;
+    }
+    for (int[] edge : edges) {
+        int u = edge[0], v = edge[1], w = edge[2];
+        dist[u][v] = Math.min(dist[u][v], w); // Keep the lightest direct edge if duplicates exist.
+    }
+
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            if (dist[i][k] == INF) continue; // No path to k means this intermediate route cannot help.
+            for (int j = 0; j < n; j++) {
+                if (dist[k][j] == INF) continue;
+                dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]); // Allow k inside the path.
+            }
+        }
+    }
+    return dist;
+}
+```
+
+Debug steps:
+
+- print the matrix after each `k` iteration to see which paths improved
+- test one triangle graph where the indirect path beats the direct edge
+- verify the invariant that after processing `k`, no shortest path uses intermediates larger than `k`
+
+---
+
 ## Problem-Fit Checklist
 
 - Identify whether input size or query count requires preprocessing or specialized data structures.
