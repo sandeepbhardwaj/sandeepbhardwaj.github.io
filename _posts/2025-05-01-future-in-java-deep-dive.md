@@ -237,4 +237,4 @@ Move beyond `Future` when:
 - It is useful but intentionally limited, especially around composition.
 - For simple async result ownership, it is still a solid primitive.
 
-Next post: [Cancellation and Interruption with Future in Java](/2025/05/02/cancellation-and-interruption-with-future-in-java/)
+Next post: [Cancellation and Interruption with Future in Java](/java/concurrency/cancellation-and-interruption-with-future-in-java/)

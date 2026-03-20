@@ -223,4 +223,4 @@ This is a different scenario from `ShutdownOnFailure`:
 - Its main value is clearer cancellation, failure propagation, and reasoning for request-scoped parallel work.
 - It fits best when child tasks are conceptually part of one parent operation and should end together.
 
-Next post: [ThreadLocal Pitfalls and Context Propagation in Java](/2025/06/06/threadlocal-pitfalls-and-context-propagation-in-java/)
+Next post: [ThreadLocal Pitfalls and Context Propagation in Java](/java/concurrency/threadlocal-pitfalls-and-context-propagation-in-java/)

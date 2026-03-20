@@ -263,4 +263,4 @@ This shows the same CAS pattern in a very different scenario:
 - They work best for small local state transitions.
 - When the invariant grows beyond one small atomic boundary, simpler locking often wins.
 
-Next post: [ABA Problem Explained for Java Engineers](/2025/03/19/aba-problem-explained-for-java-engineers/)
+Next post: [ABA Problem Explained for Java Engineers](/java/concurrency/aba-problem-explained-for-java-engineers/)

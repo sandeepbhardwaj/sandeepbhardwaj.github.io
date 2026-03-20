@@ -223,4 +223,4 @@ Do not use it when:
 - It is useful when queueing is undesirable and immediate transfer is the real design.
 - If you need buffering, choose another queue type.
 
-Next post: [Producer Consumer with BlockingQueue in Java](/2025/04/20/producer-consumer-with-blockingqueue-in-java/)
+Next post: [Producer Consumer with BlockingQueue in Java](/java/concurrency/producer-consumer-with-blockingqueue-in-java/)

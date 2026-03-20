@@ -199,4 +199,4 @@ Add jitter, bounded retries, or an ownership rule so that "be polite and retry" 
 - Deadlock blocks; livelock spins and reacts.
 - Jitter, bounded retries, and clearer ownership rules are common fixes.
 
-Next post: [Starvation in Java Concurrency](/2025/02/13/starvation-in-java-concurrency/)
+Next post: [Starvation in Java Concurrency](/java/concurrency/starvation-in-java-concurrency/)

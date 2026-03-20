@@ -263,4 +263,4 @@ The right tool follows from the shape of the shared state.
 - `synchronized` also provides visibility, which is why it can protect richer invariants.
 - Pick based on the actual guarantee required, not on shorthand rules about “lighter” vs “heavier.”
 
-Next post: [volatile vs Locks vs Atomics in Java](/2025/02/22/volatile-vs-locks-vs-atomics-in-java/)
+Next post: [volatile vs Locks vs Atomics in Java](/java/concurrency/volatile-vs-locks-vs-atomics-in-java/)

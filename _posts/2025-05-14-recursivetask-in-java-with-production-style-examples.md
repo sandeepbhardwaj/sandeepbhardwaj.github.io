@@ -220,4 +220,4 @@ Avoid it when:
 - Shared accumulators often make this pattern worse, not better.
 - Threshold selection and sequential-baseline comparison are essential parts of using it well.
 
-Next post: [RecursiveAction in Java with Production Style Examples](/2025/05/15/recursiveaction-in-java-with-production-style-examples/)
+Next post: [RecursiveAction in Java with Production Style Examples](/java/concurrency/recursiveaction-in-java-with-production-style-examples/)

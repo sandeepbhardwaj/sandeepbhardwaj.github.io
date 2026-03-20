@@ -3,6 +3,7 @@ title: Thread Pool Architecture for Async Backends in Java
 date: 2025-05-24
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -223,4 +224,4 @@ The point of separate pools is not only performance tuning; it is predictable fa
 - Blocking I/O, compute work, scheduling, and background maintenance usually should not all share one pool.
 - Executor roles, queue policy, and observability should be part of the service design, not left to defaults.
 
-Next post: [CompletableFuture vs Blocking Future in Java](/2025/05/25/completablefuture-vs-blocking-future-in-java/)
+Next post: [CompletableFuture vs Blocking Future in Java](/java/completablefuture/concurrency/completablefuture-vs-blocking-future-in-java/)

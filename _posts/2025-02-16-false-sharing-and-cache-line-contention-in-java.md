@@ -199,4 +199,4 @@ The right response depends on whether false sharing is actually present, not mer
 - It matters most in hot write-heavy shared structures.
 - Profile first, then reduce hot shared mutable state or separate heavily contended fields.
 
-Next post: [Contention Collapse Under Load in Java Services](/2025/02/17/contention-collapse-under-load-in-java-services/)
+Next post: [Contention Collapse Under Load in Java Services](/java/concurrency/contention-collapse-under-load-in-java-services/)

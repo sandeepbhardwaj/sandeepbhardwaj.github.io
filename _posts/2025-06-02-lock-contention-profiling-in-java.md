@@ -209,4 +209,4 @@ The important outcome is understanding why that piece of shared state became a b
 - JFR, thread dumps, and executor metrics together give a much clearer picture than any one signal alone.
 - Fixes usually involve shrinking lock scope, partitioning state, or choosing a better concurrency design.
 
-Next post: [Benchmarking Concurrency Correctly with JMH](/2025/06/03/benchmarking-concurrency-correctly-with-jmh/)
+Next post: [Benchmarking Concurrency Correctly with JMH](/java/concurrency/benchmarking-concurrency-correctly-with-jmh/)

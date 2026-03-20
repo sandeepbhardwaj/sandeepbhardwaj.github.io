@@ -3,6 +3,7 @@ title: thenApply thenCompose thenCombine allOf and anyOf in CompletableFuture
 date: 2025-05-21
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -239,4 +240,4 @@ That small contrast explains why `thenCompose` exists much better than prose alo
 - Choosing the wrong composition method makes async workflows much harder to read and reason about.
 - Most `CompletableFuture` design improves once you name the exact dependency shape first.
 
-Next post: [Error Handling with CompletableFuture in Java](/2025/05/22/error-handling-with-completablefuture-in-java/)
+Next post: [Error Handling with CompletableFuture in Java](/java/completablefuture/concurrency/error-handling-with-completablefuture-in-java/)

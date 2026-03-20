@@ -316,4 +316,4 @@ When the invariant is larger than one key-level map action, step back and redesi
 - Keep mapping functions focused and avoid heavyweight blocking work inside them.
 - Map safety and value-object safety are different boundaries.
 
-Next post: [CopyOnWriteArrayList in Java and When It Fits](/2025/04/11/copyonwritearraylist-in-java-and-when-it-fits/)
+Next post: [CopyOnWriteArrayList in Java and When It Fits](/java/concurrency/copyonwritearraylist-in-java-and-when-it-fits/)

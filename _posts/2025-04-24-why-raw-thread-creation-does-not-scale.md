@@ -303,4 +303,4 @@ For backend systems, that usually means:
 - Executors exist to centralize worker management and concurrency policy.
 - `new Thread(...).start()` is not wrong in isolation; it is wrong as a default system-wide execution model.
 
-Next post: [Executor Framework Overview in Java](/2025/04/25/executor-framework-overview-in-java/)
+Next post: [Executor Framework Overview in Java](/java/concurrency/executor-framework-overview-in-java/)

@@ -226,4 +226,4 @@ You need confidence that thread identity and configuration are what operations t
 - Daemon settings and uncaught exception handlers should be deliberate, not accidental.
 - Keep custom factories simple; their value is consistency, not cleverness.
 
-Next post: [Metrics and Instrumentation for Executors in Production](/2025/05/10/metrics-and-instrumentation-for-executors-in-production/)
+Next post: [Metrics and Instrumentation for Executors in Production](/java/concurrency/metrics-and-instrumentation-for-executors-in-production/)

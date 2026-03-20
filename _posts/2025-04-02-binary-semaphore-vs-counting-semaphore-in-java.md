@@ -249,4 +249,4 @@ Choose a lock when:
 - Counting semaphores are natural for bounded-capacity access.
 - If the real requirement is state protection rather than admission control, a lock is usually clearer.
 
-Next post: [Rate Limiting and Concurrency Limiting with Semaphore](/2025/04/03/rate-limiting-and-concurrency-limiting-with-semaphore/)
+Next post: [Rate Limiting and Concurrency Limiting with Semaphore](/java/concurrency/rate-limiting-and-concurrency-limiting-with-semaphore/)

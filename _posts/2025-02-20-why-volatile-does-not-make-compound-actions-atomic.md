@@ -197,4 +197,4 @@ They are the review language that catches many mistaken `volatile` designs early
 - If your logic has several dependent steps, `volatile` alone is not enough.
 - Pick the primitive that matches the invariant, not the shortest keyword.
 
-Next post: [volatile vs synchronized in Java](/2025/02/21/volatile-vs-synchronized-in-java/)
+Next post: [volatile vs synchronized in Java](/java/concurrency/volatile-vs-synchronized-in-java/)

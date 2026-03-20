@@ -252,4 +252,4 @@ Avoid hand-rolled broken laziness in all cases.
 - `synchronized`, the holder idiom, and enum singletons are common correct patterns.
 - The simplest correct singleton design is usually better than clever broken laziness.
 
-Next post: [Lock Interface in Java and Why It Exists](/2025/03/02/lock-interface-in-java-and-why-it-exists/)
+Next post: [Lock Interface in Java and Why It Exists](/java/concurrency/lock-interface-in-java-and-why-it-exists/)

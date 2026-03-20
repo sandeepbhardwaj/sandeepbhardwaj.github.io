@@ -271,4 +271,4 @@ Seeing both examples side by side makes the utility boundary much clearer.
 - If the primitive does not match the workflow shape, the code becomes awkward long before it becomes correct.
 - The best concurrency design usually starts by naming the exact coordination contract in plain language first.
 
-Next post: [Why Ordinary Collections Are Unsafe Under Concurrent Mutation](/2025/04/07/why-ordinary-collections-are-unsafe-under-concurrent-mutation/)
+Next post: [Why Ordinary Collections Are Unsafe Under Concurrent Mutation](/java/concurrency/why-ordinary-collections-are-unsafe-under-concurrent-mutation/)

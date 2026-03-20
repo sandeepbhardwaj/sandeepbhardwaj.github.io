@@ -265,4 +265,4 @@ That difference is another sign that these primitives solve structurally differe
 - `CyclicBarrier` models repeated rendezvous for a fixed set of parties.
 - `Phaser` extends barrier-style coordination when phases and party membership are more dynamic.
 
-Next post: [CyclicBarrier in Java Deep Dive](/2025/03/29/cyclicbarrier-in-java-deep-dive/)
+Next post: [CyclicBarrier in Java Deep Dive](/java/concurrency/cyclicbarrier-in-java-deep-dive/)

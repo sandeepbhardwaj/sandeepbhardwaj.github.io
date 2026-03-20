@@ -191,7 +191,7 @@ Clock fixed = Clock.fixed(Instant.parse("2026-03-07T00:00:00Z"), ZoneOffset.UTC)
 
 # Related Posts
 
-- [CompletableFuture Error Handling](/java/java-8-completablefuture-error-handling/)
+- [CompletableFuture Error Handling](/java/completablefuture/java-8-completablefuture-error-handling/)
 - [Parallel Streams Performance](/java/java-8-parallel-streams-performance/)
 - [Stream API Deep Dive](/java/java-8-stream-api-deep-dive/)
 

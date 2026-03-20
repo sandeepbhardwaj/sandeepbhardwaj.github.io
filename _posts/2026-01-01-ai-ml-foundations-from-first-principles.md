@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-01
 seo_title: AI/ML Foundations from First Principles
 seo_description: A thorough beginner-to-practitioner guide to AI, ML, deep learning,

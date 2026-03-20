@@ -200,4 +200,4 @@ That comparison helps readers choose by workload and maintainability, not by API
 - The main gain is avoiding unnecessary reader-reader blocking.
 - If writes are frequent or the state is simple, a normal lock may still be better.
 
-Next post: [ReentrantReadWriteLock for Read Heavy Workloads](/2025/03/11/reentrantreadwritelock-for-read-heavy-workloads/)
+Next post: [ReentrantReadWriteLock for Read Heavy Workloads](/java/concurrency/reentrantreadwritelock-for-read-heavy-workloads/)

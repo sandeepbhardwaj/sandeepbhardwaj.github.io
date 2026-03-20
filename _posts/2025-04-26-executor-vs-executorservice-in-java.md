@@ -197,4 +197,4 @@ The narrower type often protects the rest of the code from unnecessary coupling 
 - Choose `Executor` for narrow fire-and-forget dependencies and `ExecutorService` for managed execution ownership.
 - The right type is not just about features; it is about expressing responsibility honestly.
 
-Next post: [Fixed Thread Pools in Java](/2025/04/27/fixed-thread-pools-in-java/)
+Next post: [Fixed Thread Pools in Java](/java/concurrency/fixed-thread-pools-in-java/)

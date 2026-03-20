@@ -359,4 +359,4 @@ In those cases, look at:
 - Put `countDown()` in `finally` when the latch models task termination.
 - If you need reuse, dynamic registration, or richer result handling, use a different coordination tool.
 
-Next post: [One Shot Gates vs Reusable Barriers in Java](/2025/03/28/one-shot-gates-vs-reusable-barriers-in-java/)
+Next post: [One Shot Gates vs Reusable Barriers in Java](/java/concurrency/one-shot-gates-vs-reusable-barriers-in-java/)

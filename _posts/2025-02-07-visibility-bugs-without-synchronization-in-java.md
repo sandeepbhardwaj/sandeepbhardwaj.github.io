@@ -268,4 +268,4 @@ Sometimes logging accidentally changes timing enough to hide the bug.
 - `volatile` is appropriate for simple visibility use cases like stop flags and published immutable references.
 - `volatile` does not fix compound atomicity problems.
 
-Next post: [Lost Updates in Concurrent Java Code](/2025/02/08/lost-updates-in-concurrent-java-code/)
+Next post: [Lost Updates in Concurrent Java Code](/java/concurrency/lost-updates-in-concurrent-java-code/)

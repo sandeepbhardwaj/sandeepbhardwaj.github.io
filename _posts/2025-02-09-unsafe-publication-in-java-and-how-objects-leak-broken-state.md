@@ -250,4 +250,4 @@ That last category is important enough to deserve its own article.
 - `volatile`, synchronization, static initialization, and immutable snapshots are common safe-publication tools.
 - Publishing a reference safely does not automatically make later mutation safe.
 
-Next post: [Escaping this During Construction in Java](/2025/02/10/escaping-this-during-construction-in-java/)
+Next post: [Escaping this During Construction in Java](/java/concurrency/escaping-this-during-construction-in-java/)

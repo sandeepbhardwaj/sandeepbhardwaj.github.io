@@ -317,4 +317,4 @@ If you need:
 - `ConcurrentModificationException` is only a diagnostic symptom, not a safety guarantee.
 - Once a collection is shared across threads, choose an explicit concurrency strategy rather than hoping the structure will tolerate interleavings.
 
-Next post: [Synchronized Wrappers vs Concurrent Collections in Java](/2025/04/08/synchronized-wrappers-vs-concurrent-collections-in-java/)
+Next post: [Synchronized Wrappers vs Concurrent Collections in Java](/java/concurrency/synchronized-wrappers-vs-concurrent-collections-in-java/)

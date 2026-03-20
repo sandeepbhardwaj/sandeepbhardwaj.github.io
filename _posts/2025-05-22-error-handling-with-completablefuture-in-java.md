@@ -3,6 +3,7 @@ title: Error Handling with CompletableFuture in Java
 date: 2025-05-22
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -246,4 +247,4 @@ This example makes the roles easier to separate:
 - Error handling is clearer when recovery, transformation, and diagnostics have separate roles.
 - The best `CompletableFuture` code makes exceptional completion part of the workflow design, not an afterthought.
 
-Next post: [Timeouts and Fallback with CompletableFuture in Java](/2025/05/23/timeouts-and-fallback-with-completablefuture-in-java/)
+Next post: [Timeouts and Fallback with CompletableFuture in Java](/java/completablefuture/concurrency/timeouts-and-fallback-with-completablefuture-in-java/)

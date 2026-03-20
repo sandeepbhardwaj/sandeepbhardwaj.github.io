@@ -243,4 +243,4 @@ Do not use it when:
 - It does not block on empty and does not limit growth.
 - If the workflow needs waiting or bounded capacity, move to the `BlockingQueue` family instead.
 
-Next post: [ConcurrentSkipListMap and Sorted Concurrent Structures](/2025/04/13/concurrentskiplistmap-and-sorted-concurrent-structures/)
+Next post: [ConcurrentSkipListMap and Sorted Concurrent Structures](/java/concurrency/concurrentskiplistmap-and-sorted-concurrent-structures/)

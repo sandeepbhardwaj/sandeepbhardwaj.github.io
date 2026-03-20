@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-05
 seo_title: Feature Engineering Patterns for Real-World ML
 seo_description: A practical deep dive into feature engineering patterns, leakage

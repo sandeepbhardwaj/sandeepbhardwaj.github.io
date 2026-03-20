@@ -221,4 +221,4 @@ Stress testing becomes much more practical when it produces artifacts the team c
 - Iteration counts, timeouts, and failure diagnostics matter as much as raw thread count.
 - Stress testing increases confidence; it does not replace reasoning or deterministic tests.
 
-Next post: [Detecting Deadlocks with Thread Dumps in Java](/2025/05/30/detecting-deadlocks-with-thread-dumps-in-java/)
+Next post: [Detecting Deadlocks with Thread Dumps in Java](/java/concurrency/detecting-deadlocks-with-thread-dumps-in-java/)

@@ -207,4 +207,4 @@ It is using deterministic tests for protocol guarantees and stress runs for sche
 - Better testability often starts with better production design seams.
 - Deterministic tests and probabilistic stress tests solve different problems and complement each other well.
 
-Next post: [Stress Testing and Repeated Run Strategy for Concurrency Bugs](/2025/05/29/stress-testing-and-repeated-run-strategy-for-concurrency-bugs/)
+Next post: [Stress Testing and Repeated Run Strategy for Concurrency Bugs](/java/concurrency/stress-testing-and-repeated-run-strategy-for-concurrency-bugs/)

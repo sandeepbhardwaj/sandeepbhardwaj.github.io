@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-25
 seo_title: 'MLOps Foundations: Pipelines, Versioning, Reproducibility'
 seo_description: A practical guide to MLOps fundamentals including data and model

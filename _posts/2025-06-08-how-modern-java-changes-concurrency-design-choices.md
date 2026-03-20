@@ -213,4 +213,4 @@ This highlights a different modern-Java shift:
 - Old lessons about shared state, contention, and downstream limits remain fully relevant.
 - The best modern design often comes from re-evaluating old complexity rather than automatically adding new abstraction.
 
-Next post: [How to Choose the Right Concurrency Primitive in Java](/2025/06/09/how-to-choose-the-right-concurrency-primitive-in-java/)
+Next post: [How to Choose the Right Concurrency Primitive in Java](/java/concurrency/how-to-choose-the-right-concurrency-primitive-in-java/)

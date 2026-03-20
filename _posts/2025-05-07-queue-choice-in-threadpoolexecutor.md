@@ -269,4 +269,4 @@ Many queue choices look fine during short spikes and fail only during long overl
 - Unbounded queues often hide overload by buffering it.
 - A bounded queue is frequently the most operationally honest option for production services.
 
-Next post: [Rejection Policies and Overload Behavior in ThreadPoolExecutor](/2025/05/08/rejection-policies-and-overload-behavior-in-threadpoolexecutor/)
+Next post: [Rejection Policies and Overload Behavior in ThreadPoolExecutor](/java/concurrency/rejection-policies-and-overload-behavior-in-threadpoolexecutor/)

@@ -211,4 +211,4 @@ Avoid it when:
 - If subtasks need to coordinate over shared mutable data, the design becomes much weaker.
 - As with all Fork/Join work, threshold tuning and sequential comparison still matter.
 
-Next post: [Choosing Task Granularity in Fork Join Workloads](/2025/05/16/choosing-task-granularity-in-fork-join-workloads/)
+Next post: [Choosing Task Granularity in Fork Join Workloads](/java/concurrency/choosing-task-granularity-in-fork-join-workloads/)

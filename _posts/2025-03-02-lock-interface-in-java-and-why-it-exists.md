@@ -226,4 +226,4 @@ Prefer `Lock` when:
 - `synchronized` is still a good default for simple mutual exclusion.
 - Choose explicit locks when the problem actually needs the extra control.
 
-Next post: [ReentrantLock in Java Deep Dive](/2025/03/03/reentrantlock-in-java-deep-dive/)
+Next post: [ReentrantLock in Java Deep Dive](/java/concurrency/reentrantlock-in-java-deep-dive/)

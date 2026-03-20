@@ -252,4 +252,4 @@ Do not overuse it when:
 - Queue type, capacity, and shutdown policy are part of the design, not incidental details.
 - A producer-consumer pipeline is only as healthy as its overload and lifecycle strategy.
 
-Next post: [Bounded Queues and Backpressure in Java Systems](/2025/04/21/bounded-queues-and-backpressure-in-java-systems/)
+Next post: [Bounded Queues and Backpressure in Java Systems](/java/concurrency/bounded-queues-and-backpressure-in-java-systems/)

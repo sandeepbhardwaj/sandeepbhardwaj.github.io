@@ -206,4 +206,4 @@ Any service with mixed-priority work and shared bottlenecks can suffer from inve
 - Executor separation, shorter lock hold times, and cleaner ownership boundaries are the main defenses.
 - Treat priorities as hints, not correctness mechanisms.
 
-Next post: [Thread Leakage and Executor Leakage in Java Services](/2025/02/15/thread-leakage-and-executor-leakage-in-java-services/)
+Next post: [Thread Leakage and Executor Leakage in Java Services](/java/concurrency/thread-leakage-and-executor-leakage-in-java-services/)

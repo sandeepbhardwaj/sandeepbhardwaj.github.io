@@ -197,4 +197,4 @@ That matrix often teaches more than one heroic result because it shows where the
 - Warmup, measurement discipline, and benchmark design all matter.
 - Benchmark numbers are useful only if the benchmark matches the concurrency question you actually care about.
 
-Next post: [Virtual Threads in Java 21 for Backend Engineers](/2025/06/04/virtual-threads-in-java-21-for-backend-engineers/)
+Next post: [Virtual Threads in Java 21 for Backend Engineers](/java/concurrency/virtual-threads-in-java-21-for-backend-engineers/)

@@ -315,4 +315,4 @@ Choose:
 - One failing or timing-out party can break the barrier for everyone.
 - It is strongest for phase-aligned parallel workflows, not for one-shot startup gates.
 
-Next post: [Barrier Action Patterns with CyclicBarrier](/2025/03/30/barrier-action-patterns-with-cyclicbarrier/)
+Next post: [Barrier Action Patterns with CyclicBarrier](/java/concurrency/barrier-action-patterns-with-cyclicbarrier/)

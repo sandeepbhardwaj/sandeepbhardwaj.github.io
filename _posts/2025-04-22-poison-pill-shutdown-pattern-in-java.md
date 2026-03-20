@@ -236,4 +236,4 @@ Do not use it when:
 - The number of poison pills must match the number of consumers that need to exit.
 - It is a graceful shutdown pattern, not a universal lifecycle solution.
 
-Next post: [Work Queue Design Mistakes in Backend Systems](/2025/04/23/work-queue-design-mistakes-in-backend-systems/)
+Next post: [Work Queue Design Mistakes in Backend Systems](/java/concurrency/work-queue-design-mistakes-in-backend-systems/)

@@ -248,4 +248,4 @@ That is the propagation problem in one small example.
 - Async execution and executor handoffs make context propagation much harder than basic examples suggest.
 - Virtual threads change some trade-offs, but they do not remove the need for deliberate context design.
 
-Next post: [Reactive vs Thread Per Request vs Virtual Threads](/2025/06/07/reactive-vs-thread-per-request-vs-virtual-threads/)
+Next post: [Reactive vs Thread Per Request vs Virtual Threads](/java/concurrency/reactive-vs-thread-per-request-vs-virtual-threads/)

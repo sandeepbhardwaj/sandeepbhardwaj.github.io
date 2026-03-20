@@ -229,4 +229,4 @@ This is exactly the issue:
 - Stamps or version numbers restore the missing freshness signal.
 - ABA mainly matters in custom lock-free structures, not in every atomic use case.
 
-Next post: [LongAdder and LongAccumulator Under Contention](/2025/03/20/longadder-and-longaccumulator-under-contention/)
+Next post: [LongAdder and LongAccumulator Under Contention](/java/concurrency/longadder-and-longaccumulator-under-contention/)

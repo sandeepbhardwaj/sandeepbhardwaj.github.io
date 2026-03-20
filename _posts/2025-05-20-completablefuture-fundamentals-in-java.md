@@ -3,6 +3,7 @@ title: CompletableFuture Fundamentals in Java
 date: 2025-05-20
 categories:
 - Java
+- CompletableFuture
 - Concurrency
 tags:
 - java
@@ -247,4 +248,4 @@ This example teaches a different lesson from the first one:
 - Async and non-async stage methods differ in execution behavior, so executor choice still matters.
 - The main value is workflow composition, not merely replacing one blocking call with another.
 
-Next post: [thenApply thenCompose thenCombine allOf and anyOf in CompletableFuture](/2025/05/21/thenapply-thencompose-thencombine-allof-and-anyof-in-completablefuture/)
+Next post: [thenApply thenCompose thenCombine allOf and anyOf in CompletableFuture](/java/completablefuture/concurrency/thenapply-thencompose-thencombine-allof-and-anyof-in-completablefuture/)

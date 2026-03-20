@@ -249,4 +249,4 @@ The lesson is that once counts must move together, the problem is bigger than on
 - `LongAdder` is strong for hot metrics under contention.
 - If the counter participates in a larger invariant, step back and solve the whole state problem instead.
 
-Next post: [Atomic Field Updaters in Java](/2025/03/22/atomic-field-updaters-in-java/)
+Next post: [Atomic Field Updaters in Java](/java/concurrency/atomic-field-updaters-in-java/)

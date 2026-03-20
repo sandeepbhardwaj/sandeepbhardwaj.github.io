@@ -217,4 +217,4 @@ This scenario is useful when the incident timing is uncertain and you want more 
 - JFR works best when paired with metrics, good thread naming, and incident timestamps.
 - Use it to replace guesswork with evidence about how threads actually behaved over the slowdown window.
 
-Next post: [Lock Contention Profiling in Java](/2025/06/02/lock-contention-profiling-in-java/)
+Next post: [Lock Contention Profiling in Java](/java/concurrency/lock-contention-profiling-in-java/)

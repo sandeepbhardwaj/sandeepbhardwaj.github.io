@@ -204,4 +204,4 @@ Resilience does not come from the API alone; it comes from the fallback or timeo
 - These tools are useful when indefinite blocking is not part of the design.
 - A lock timeout without a clear fallback is incomplete design, not resilience.
 
-Next post: [Interruptible Lock Acquisition in Java](/2025/03/06/interruptible-lock-acquisition-in-java/)
+Next post: [Interruptible Lock Acquisition in Java](/java/concurrency/interruptible-lock-acquisition-in-java/)

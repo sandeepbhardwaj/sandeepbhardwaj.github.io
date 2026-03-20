@@ -200,4 +200,4 @@ Tests should exercise both sides under contention so that wrong-condition signal
 - It improves both code clarity and wake-up precision.
 - The correctness still depends on the protected state and the loop-based predicate check.
 
-Next post: [Producer Consumer with ReentrantLock and Condition in Java](/2025/03/09/producer-consumer-with-reentrantlock-and-condition-in-java/)
+Next post: [Producer Consumer with ReentrantLock and Condition in Java](/java/concurrency/producer-consumer-with-reentrantlock-and-condition-in-java/)

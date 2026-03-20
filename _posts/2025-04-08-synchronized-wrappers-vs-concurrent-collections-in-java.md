@@ -277,4 +277,4 @@ If you need:
 - Wrapper iteration still typically requires external synchronization.
 - Choose based on workload shape and semantics, not just on the generic label "thread-safe."
 
-Next post: [ConcurrentHashMap in Java Deep Dive](/2025/04/09/concurrenthashmap-in-java-deep-dive/)
+Next post: [ConcurrentHashMap in Java Deep Dive](/java/concurrency/concurrenthashmap-in-java-deep-dive/)

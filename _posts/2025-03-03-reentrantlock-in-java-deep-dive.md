@@ -197,4 +197,4 @@ Reentrancy is a capability, not a recommendation to create deep lock-heavy call 
 - The main reasons to choose it are timed acquisition, interruptible acquisition, fairness, and `Condition`.
 - Always pair acquisition and release in the same logical ownership boundary.
 
-Next post: [Fair vs Non Fair Locks in Java](/2025/03/04/fair-vs-non-fair-locks-in-java/)
+Next post: [Fair vs Non Fair Locks in Java](/java/concurrency/fair-vs-non-fair-locks-in-java/)

@@ -231,4 +231,4 @@ If tuning still looks fragile, consider whether the workload is a weak fit for F
 - Thresholds should be measured against a sequential baseline, not chosen by folklore.
 - A practical threshold is workload-specific and worth tuning deliberately.
 
-Next post: [Performance Traps in Fork Join Code](/2025/05/17/performance-traps-in-fork-join-code/)
+Next post: [Performance Traps in Fork Join Code](/java/concurrency/performance-traps-in-fork-join-code/)

@@ -218,4 +218,4 @@ Do not assume cancellation is enough if:
 - Task code must respond to interruption for cancellation to be effective.
 - Cancellation control is useful only when task implementation, executor behavior, and caller intent all line up.
 
-Next post: [invokeAll and invokeAny in Java](/2025/05/03/invokeall-and-invokeany-in-java/)
+Next post: [invokeAll and invokeAny in Java](/java/concurrency/invokeall-and-invokeany-in-java/)

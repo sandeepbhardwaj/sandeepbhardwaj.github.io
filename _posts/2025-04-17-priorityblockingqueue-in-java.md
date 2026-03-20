@@ -239,4 +239,4 @@ Do not use it when:
 - It is effectively unbounded, so it does not solve overload by itself.
 - Priority ordering is powerful, but it introduces starvation and policy trade-offs that FIFO queues avoid.
 
-Next post: [DelayQueue in Java](/2025/04/18/delayqueue-in-java/)
+Next post: [DelayQueue in Java](/java/concurrency/delayqueue-in-java/)

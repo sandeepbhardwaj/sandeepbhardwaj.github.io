@@ -239,4 +239,4 @@ The main win from `final` comes when the object design itself respects snapshot-
 - They do not eliminate the need for safe publication or protection from mutable internals.
 - In concurrent systems, complete construction plus `final` fields is usually a much stronger design than piecemeal initialization.
 
-Next post: [Singleton Publication Done Correctly in Java](/2025/03/01/singleton-publication-done-correctly-in-java/)
+Next post: [Singleton Publication Done Correctly in Java](/java/concurrency/singleton-publication-done-correctly-in-java/)

@@ -246,4 +246,4 @@ Use both when:
 - A semaphore can approximate simple token-style throttling, but dedicated rate-control designs are better for real quotas and burst policies.
 - In production systems, the best answer is often both a concurrency limit and a rate limit.
 
-Next post: [Exchanger in Java and When It Is Useful](/2025/04/04/exchanger-in-java-and-when-it-is-useful/)
+Next post: [Exchanger in Java and When It Is Useful](/java/concurrency/exchanger-in-java-and-when-it-is-useful/)

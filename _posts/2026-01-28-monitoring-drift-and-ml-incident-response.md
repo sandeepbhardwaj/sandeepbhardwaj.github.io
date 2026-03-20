@@ -3,6 +3,7 @@ author_profile: true
 categories:
 - AI
 - ML
+- MLOps
 date: 2026-01-28
 seo_title: Monitoring Drift and ML Incident Response
 seo_description: A practical guide to production ML monitoring, data and concept drift

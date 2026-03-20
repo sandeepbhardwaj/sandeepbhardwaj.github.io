@@ -240,4 +240,4 @@ That discipline keeps the team from preserving parallel complexity that never ac
 - Parallel code must be judged against a sequential baseline, not against intuition.
 - Fork/Join rewards clean divide-and-conquer design more than it rewards "making everything parallel."
 
-Next post: [Parallel Streams and the Common Pool in Java](/2025/05/18/parallel-streams-and-the-common-pool-in-java/)
+Next post: [Parallel Streams and the Common Pool in Java](/java/concurrency/parallel-streams-and-the-common-pool-in-java/)

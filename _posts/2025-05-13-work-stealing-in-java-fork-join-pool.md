@@ -247,4 +247,4 @@ That kind of review is what turns work stealing from a buzzword into an actual e
 - The design still depends on good task granularity and mostly independent CPU-bound work.
 - Work stealing is an optimization for the right workload shape, not a cure for blocking or shared-state problems.
 
-Next post: [RecursiveTask in Java with Production Style Examples](/2025/05/14/recursivetask-in-java-with-production-style-examples/)
+Next post: [RecursiveTask in Java with Production Style Examples](/java/concurrency/recursivetask-in-java-with-production-style-examples/)

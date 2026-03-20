@@ -255,4 +255,4 @@ Choose an unbounded queue only when:
 - Unbounded queues often trade immediate pain for larger delayed pain in memory and latency.
 - Queue capacity and overload policy are core system design decisions, not tuning afterthoughts.
 
-Next post: [Poison Pill Shutdown Pattern in Java](/2025/04/22/poison-pill-shutdown-pattern-in-java/)
+Next post: [Poison Pill Shutdown Pattern in Java](/java/concurrency/poison-pill-shutdown-pattern-in-java/)

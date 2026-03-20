@@ -192,4 +192,4 @@ That is the broader lesson behind this failure mode.
 - Adding threads to a serialized hot path usually makes the situation worse.
 - Reduce hot shared state, shard ownership, and control concurrency at the real bottleneck.
 
-Next post: [What volatile Does and Does Not Do in Java](/2025/02/18/what-volatile-does-and-does-not-do-in-java/)
+Next post: [What volatile Does and Does Not Do in Java](/java/concurrency/what-volatile-does-and-does-not-do-in-java/)

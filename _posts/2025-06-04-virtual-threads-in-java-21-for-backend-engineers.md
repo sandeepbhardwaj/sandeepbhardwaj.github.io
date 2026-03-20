@@ -238,4 +238,4 @@ This shows the modern rule more honestly:
 - Simpler code becomes viable again, but downstream limits, backpressure, and contention still matter.
 - Virtual threads change the economics of threads; they do not eliminate the need for good concurrency architecture.
 
-Next post: [Structured Concurrency in Java 21](/2025/06/05/structured-concurrency-in-java-21/)
+Next post: [Structured Concurrency in Java 21](/java/concurrency/structured-concurrency-in-java-21/)

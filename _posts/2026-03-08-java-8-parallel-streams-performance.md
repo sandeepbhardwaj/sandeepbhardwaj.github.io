@@ -394,5 +394,5 @@ It only means the work is eligible for fork-join style execution, and that is a 
 # Related Posts
 
 - [Stream API Deep Dive](/java/java-8-stream-api-deep-dive/)
-- [CompletableFuture Deep Dive](/java/java-8-completablefuture-deep-dive/)
-- [CompletableFuture Error Handling](/java/java-8-completablefuture-error-handling/)
+- [CompletableFuture Deep Dive](/java/completablefuture/java-8-completablefuture-deep-dive/)
+- [CompletableFuture Error Handling](/java/completablefuture/java-8-completablefuture-error-handling/)

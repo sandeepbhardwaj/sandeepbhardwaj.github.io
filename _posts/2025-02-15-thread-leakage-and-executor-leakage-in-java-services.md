@@ -205,4 +205,4 @@ A service that looks fine after one request can still leak badly after ten thous
 - Prefer shared application-owned executors with explicit close logic.
 - Monitor thread count and executor growth before leakage becomes an outage.
 
-Next post: [False Sharing and Cache Line Contention in Java](/2025/02/16/false-sharing-and-cache-line-contention-in-java/)
+Next post: [False Sharing and Cache Line Contention in Java](/java/concurrency/false-sharing-and-cache-line-contention-in-java/)

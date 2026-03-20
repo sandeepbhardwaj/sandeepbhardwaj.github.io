@@ -199,4 +199,4 @@ This is a policy decision, not just an API preference.
 - This is one of the clearest operational advantages of explicit locks over intrinsic monitors.
 - Handle interruption deliberately instead of burying it.
 
-Next post: [Condition in Java as a Structured wait notify Alternative](/2025/03/07/condition-in-java-as-a-structured-wait-notify-alternative/)
+Next post: [Condition in Java as a Structured wait notify Alternative](/java/concurrency/condition-in-java-as-a-structured-wait-notify-alternative/)

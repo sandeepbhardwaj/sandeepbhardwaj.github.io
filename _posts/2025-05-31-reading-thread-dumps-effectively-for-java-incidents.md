@@ -245,4 +245,4 @@ This pattern suggests a different story:
 - Thread names and repeated stack patterns are often the fastest path to the root cause.
 - Thread dumps become far more useful when combined with runtime metrics and a clean executor architecture.
 
-Next post: [Using JFR to Diagnose Concurrency Issues in Java](/2025/06/01/using-jfr-to-diagnose-concurrency-issues-in-java/)
+Next post: [Using JFR to Diagnose Concurrency Issues in Java](/java/concurrency/using-jfr-to-diagnose-concurrency-issues-in-java/)

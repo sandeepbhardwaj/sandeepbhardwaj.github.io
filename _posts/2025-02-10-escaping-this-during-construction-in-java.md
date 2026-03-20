@@ -298,4 +298,4 @@ They reduce timing-dependent behavior.
 - Listener registration, thread startup, and executor submission from constructors are common real-world sources.
 - The safest pattern is to finish construction first and publish later through an explicit startup step.
 
-Next post: [Deadlock in Java Reproduction Detection and Prevention](/2025/02/11/deadlock-in-java-reproduction-detection-and-prevention/)
+Next post: [Deadlock in Java Reproduction Detection and Prevention](/java/concurrency/deadlock-in-java-reproduction-detection-and-prevention/)

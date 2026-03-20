@@ -242,4 +242,4 @@ Do not use it when:
 - It is not a queue, not a many-party barrier, and not a general async messaging tool.
 - Use it when the two-party handoff model is the design, not when you are trying to force a broader coordination problem into a narrow primitive.
 
-Next post: [CompletableFuture as a Coordination Primitive](/2025/04/05/completablefuture-as-a-coordination-primitive/)
+Next post: [CompletableFuture as a Coordination Primitive](/java/completablefuture/concurrency/completablefuture-as-a-coordination-primitive/)

@@ -242,4 +242,4 @@ It does not magically make every value update atomic unless the value design is 
 - Atomics are good for single-variable totals and counters.
 - For richer invariants, use stronger coordination or redesign ownership.
 
-Next post: [Unsafe Publication in Java and How Objects Leak Broken State](/2025/02/09/unsafe-publication-in-java-and-how-objects-leak-broken-state/)
+Next post: [Unsafe Publication in Java and How Objects Leak Broken State](/java/concurrency/unsafe-publication-in-java-and-how-objects-leak-broken-state/)
