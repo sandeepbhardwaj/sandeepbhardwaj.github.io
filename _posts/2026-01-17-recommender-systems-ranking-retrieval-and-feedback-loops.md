@@ -28,6 +28,32 @@ They are multi-stage decision pipelines balancing relevance, diversity, freshnes
 
 ---
 
+## Problem 1: Recommend the Right Item Under Tight Latency and Feedback Pressure
+
+Problem description:
+Modern recommendation systems must choose useful items from very large catalogs while staying fast enough for interactive products.
+
+What we are solving actually:
+We are solving pipeline design, not just model scoring.
+A recommender must retrieve candidates quickly, rank them intelligently, and avoid reinforcing unhealthy feedback loops.
+
+What we are doing actually:
+
+1. Retrieve a manageable candidate set.
+2. Rank those candidates with richer features and objectives.
+3. Monitor feedback loops, diversity, freshness, and fairness as first-class system behavior.
+
+```mermaid
+flowchart LR
+    A[Large Catalog] --> B[Candidate Retrieval]
+    B --> C[Ranking Model]
+    C --> D[Business / Diversity Constraints]
+    D --> E[Shown Recommendations]
+    E --> F[User Feedback]
+    F --> B
+    F --> C
+```
+
 ## Standard Two-Stage Architecture
 
 Most production recommenders use:
@@ -156,6 +182,15 @@ Recommendation engines are high-throughput critical systems.
 4. no fairness checks for catalog exposure
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- measure retrieval recall separately from ranking quality so pipeline failures are not conflated
+- inspect recommendation exposure skew to detect popularity collapse early
+- compare short-term engagement gains with longer-term retention or satisfaction trends
+- test cold-start fallbacks explicitly because production traffic always contains new users and new items
 
 ## Key Takeaways
 

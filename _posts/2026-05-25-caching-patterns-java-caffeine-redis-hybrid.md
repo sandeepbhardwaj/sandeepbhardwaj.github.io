@@ -133,3 +133,63 @@ Without these metrics, cache issues stay invisible until incidents.
 - hybrid caching improves latency and resilience when invalidation is explicit.
 - design keys, TTLs, and stampede controls before scaling traffic.
 - treat cache correctness as a data consistency problem, not just a speed feature.
+
+---
+
+        ## Problem 1: Make Cache Hierarchy and Invalidation Explicit
+
+        Problem description:
+        Hybrid caching can reduce latency dramatically, but it also creates multiple truth surfaces unless ownership and invalidation rules are designed first.
+
+        What we are solving actually:
+        We are solving latency with bounded staleness. The value of a Caffeine plus Redis design is not the extra layer by itself; it is the ability to decide which reads can be local, which data must be shared, and how invalidation propagates.
+
+        What we are doing actually:
+
+        1. treat the local cache as a short-lived acceleration layer with strict size limits
+2. keep Redis as the shared distributed cache with observable TTL and invalidation policy
+3. attach version or event-based invalidation when correctness matters
+4. measure hit ratio and stale-read rate together instead of celebrating hit ratio alone
+
+        ```mermaid
+flowchart LR
+    A[Application] --> B[L1 Caffeine]
+    B -->|miss| C[L2 Redis]
+    C -->|miss| D[Primary store]
+    D --> C
+    C --> B
+```
+
+        This section is worth making concrete because architecture advice around caching patterns java caffeine redis hybrid often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        LoadingCache<String, ProductView> local = Caffeine.newBuilder()
+    .maximumSize(20_000)
+    .expireAfterWrite(Duration.ofSeconds(30))
+    .build(key -> redisBackedLoader.load(key));
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Invalidate a hot key during sustained traffic and observe how long stale data remains in each layer. That experiment tells you more than a dashboard full of hit-rate graphs.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - define whether invalidation is event-driven, TTL-driven, or version-checked
+- protect Redis from stampedes with request coalescing or loader controls
+- separate not-found caching from positive caching behavior
+- measure stale-read incidents during deployments and failover, not just steady state
+
+        ## Review Checklist
+
+        - Document ownership of truth versus acceleration layers.
+- Measure staleness, not only hit rate.
+- Keep invalidation explainable to operators.

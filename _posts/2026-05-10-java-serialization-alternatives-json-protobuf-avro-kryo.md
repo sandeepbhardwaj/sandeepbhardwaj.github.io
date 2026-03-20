@@ -157,3 +157,36 @@ Report at least p50, p95, p99 latency and bytes per message.
 - pick format based on contract and evolution model first, raw speed second.
 - most production failures come from schema governance gaps, not codec APIs.
 - compatibility tests in CI are mandatory for multi-service systems.
+
+---
+
+            ## Problem 1: Make Java Serialization Alternatives (JSON Protobuf Avro Kryo) Operationally Explainable
+
+            Problem description:
+            Backend topics sound straightforward until the runtime boundary becomes fuzzy. Teams usually know the API surface, but they often skip the part where ownership, rollback, and the main production signal are written down explicitly.
+
+            What we are solving actually:
+            We are turning java serialization alternatives (json protobuf avro kryo) into an engineering choice with a clear boundary, one measurable success signal, and one failure mode the team is ready to debug.
+
+            What we are doing actually:
+
+            1. define where this technique starts and where another subsystem takes over
+            2. attach one metric or invariant that proves the design is helping
+            3. rehearse one failure or rollout scenario before scaling the pattern
+            4. keep the implementation small enough that operators can still explain it during an incident
+
+            ```mermaid
+flowchart TD
+    A[Request or event] --> B[Core boundary]
+    B --> C[Resource or dependency]
+    C --> D[Observability and rollback]
+```
+
+            ## Debug Steps
+
+            Debug steps:
+
+            - identify the first metric that should move when the design works
+            - record the rollback trigger before production rollout
+            - keep dependency boundaries and timeouts explicit in code and docs
+            - prefer one clear safety rule over several implicit assumptions

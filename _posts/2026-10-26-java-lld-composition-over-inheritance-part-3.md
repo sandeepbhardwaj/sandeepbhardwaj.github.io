@@ -25,95 +25,95 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-This post covers production-focused design decisions for **Composition over inheritance in extensible Java systems (Part 3)**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
+Composition over inheritance in extensible Java systems (Part 3) matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+
+---
+
+## Problem 1: Composition over inheritance in extensible Java systems (Part 3)
+
+Problem description:
+We want composition over inheritance in extensible java systems (part 3) to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+
+What we are solving actually:
+We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+
+What we are doing actually:
+
+1. make the domain model explicit: define a staged rollout or migration plan
+2. make the domain model explicit: attach clear ownership and rollback rules
+3. make the domain model explicit: codify verification gates around latency, errors, or correctness
+4. make the domain model explicit: write the operator playbook before the first real incident forces it
 
 ---
 
 ## Why This Topic Matters
 
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+- object design has to preserve invariants under change, not just look elegant initially
+- good boundaries reduce rewrite cost when behavior expands later
+- testability often reveals whether the model is actually cohesive
 
 ---
 
 ## Architecture Model
 
-Use this structure while implementing the design:
+```mermaid
+flowchart TD
+    A[Approved design] --> B[Canary rollout]
+    B --> C{SLO and correctness gates pass?}
+    C -->|Yes| D[Promote Composition over inheritance in extensible Java systems (Part 3)]
+    C -->|No| E[Rollback / revise]
+```
 
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+The model is deliberately centered on boundary, invariant, and change pressure so composition over inheritance in extensible java systems (part 3) reads like a design decision instead of an object diagram.
+That helps keep future refactors anchored to one rule the team actually cares about preserving.
 
 ---
 
-## Practical Implementation Pattern
+## Practical Design Pattern
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
-
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
-
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
-
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
+```java
+public final class DesignBoundary {
+    public void apply(Command command) {
+        // Preserve invariants for: Composition over inheritance in extensible Java systems (Part 3)
     }
 }
-~~~
+```
+
+The code stays compact so the design boundary for composition over inheritance in extensible java systems (part 3) is visible without framework noise.
+A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
 
 ---
 
-## Dry Run Scenario
+## Failure Drill
 
-Example rollout checklist:
+Rollout drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for composition over inheritance in extensible java systems (part 3).
 
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+That drill matters before the operator playbook is treated as trustworthy because object designs for composition over inheritance in extensible java systems (part 3) often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
 
 ---
 
-## Common Pitfalls
+## Debug Steps
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Debug steps:
+
+- write one failing invariant test before changing the design while validating composition over inheritance in extensible java systems (part 3)
+- inspect whether responsibilities are gathering in one object for convenience while validating composition over inheritance in extensible java systems (part 3)
+- prefer boundaries that stay understandable during refactor pressure while validating composition over inheritance in extensible java systems (part 3)
+- use tests to expose temporal coupling or hidden dependencies while validating composition over inheritance in extensible java systems (part 3)
 
 ---
 
 ## Production Checklist
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+- long-term owner of the invariant is explicit
+- tests protect the final design from regression during maintenance
+- debug and onboarding path stayed simpler after the refactor
+- future extension rule is written so the model does not decay quietly
 
 ---
 
 ## Key Takeaways
 
-- Composition over inheritance in extensible Java systems (Part 3) should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- Composition over inheritance in extensible Java systems (Part 3) should be designed as a production decision, not just an implementation detail
+- object design should preserve invariants and reduce long-term change cost
+- the runbook and rollout policy are part of the design itself

@@ -221,3 +221,36 @@ Also verify side effects are not executed on empty values when using `map` chain
 - [Collectors Deep Dive](/java/java-8-collectors-deep-dive/)
 - [Functional Interfaces Advanced](/java/java-8-functional-interfaces-advanced/)
 - [CompletableFuture Deep Dive](/java/java-8-completablefuture-deep-dive/)
+
+---
+
+        ## Problem 1: Turn Optional in Java 8 — Correct Usage in Production Systems Into a Reusable Engineering Choice
+
+        Problem description:
+        The surface syntax is usually not the hard part. Teams run into trouble when they adopt the idea without deciding where it fits, what trade-off it introduces, and how they will validate the result after shipping.
+
+        What we are solving actually:
+        We are turning optional in java 8 — correct usage in production systems into a bounded design decision instead of a memorized feature summary.
+
+        What we are doing actually:
+
+        1. choose one concrete use case for the feature or pattern
+        2. define the invariant or compatibility rule that must stay true
+        3. validate the behavior with one failure-oriented check
+        4. keep a note on when the simpler alternative is still the better choice
+
+        ```mermaid
+flowchart LR
+    A[Concept] --> B[Concrete use case]
+    B --> C[Validation rule]
+    C --> D[Operational confidence]
+```
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - check the feature under upgrade, rollback, or mixed-version conditions
+        - keep the smallest possible example that reproduces the intended rule
+        - prefer explicit behavior over magical convenience when trade-offs are unclear
+        - document one misuse pattern so future edits do not repeat it

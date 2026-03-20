@@ -2,6 +2,7 @@
 title: "Terms of Use"
 permalink: /terms/
 author_profile: false
+ads: false
 ---
 
 Last updated: March 2, 2026
@@ -47,4 +48,3 @@ Continued use of the site after updates means you accept the revised terms.
 For questions about these terms:
 
 - Email: [hello@sandeepbhardwaj.dev](mailto:hello@sandeepbhardwaj.dev)
-

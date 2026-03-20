@@ -27,6 +27,26 @@ That does not make it useless. It means it must be applied carefully and only wh
 
 ---
 
+## Problem 1: Shared Configuration Registry Without Hidden Mutable State
+
+Problem description:
+Our application loads environment-specific feature flags and service endpoints once during startup.
+Many parts of the application need read-only access to that configuration.
+
+What we are solving actually:
+We are solving controlled shared access, not “easy global access.”
+If configuration is loaded once, remains immutable, and is genuinely process-wide, a singleton can be a reasonable boundary.
+If the object starts holding mutable runtime state, the same pattern quickly turns into hidden global coupling.
+
+What we are doing actually:
+
+1. Create one immutable configuration holder.
+2. Initialize it lazily and safely.
+3. Expose read-only accessors only.
+4. Keep mutation and runtime refresh logic out of the singleton itself.
+
+---
+
 ## When Singleton Is Legitimate
 
 Good use cases:
@@ -84,7 +104,7 @@ public final class AppConfigurationRegistry {
     }
 
     private static final class Holder {
-        private static final AppConfigurationRegistry INSTANCE = new AppConfigurationRegistry();
+        private static final AppConfigurationRegistry INSTANCE = new AppConfigurationRegistry(); // Lazy, classloader-safe initialization.
     }
 
     public static AppConfigurationRegistry getInstance() {
@@ -157,6 +177,17 @@ If tests need alternative configuration, a better design is:
 That way the singleton is a startup detail, not a deep runtime dependency.
 
 That distinction is what usually separates acceptable singleton usage from the kind that makes a codebase harder to test and reason about.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- confirm the singleton is immutable after construction
+- verify tests do not depend on hidden state left by previous test cases
+- inspect whether `getInstance()` is being used as a shortcut instead of proper dependency wiring
+- check whether different classloaders or test runners create multiple logical singleton instances
 
 ---
 

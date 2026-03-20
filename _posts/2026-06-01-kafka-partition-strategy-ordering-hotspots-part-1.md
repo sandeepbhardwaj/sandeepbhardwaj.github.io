@@ -24,9 +24,34 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Build baseline key strategy**.
+Part goal: **Build the baseline partition-key strategy and measure skew**.
 
 ---
+
+## Problem 1: Keep Ordering Without Creating Hot Partitions
+
+Problem description:
+Kafka preserves ordering only within a partition, so key choice directly affects both correctness and load distribution.
+
+What we are solving actually:
+We are solving a trade-off between ordering guarantees and partition balance.
+If we key too broadly, we lose useful ordering. If we key too narrowly, one hot tenant or customer can overload a single partition.
+
+What we are doing actually:
+
+1. Start with a business key that preserves the ordering we truly need.
+2. Observe how that key maps traffic across partitions.
+3. Measure whether a real hotspot appears before “optimizing” the strategy.
+
+```mermaid
+flowchart LR
+    A[Events keyed by customerId] --> B[Kafka partitioner]
+    B --> C1[Partition 1]
+    B --> C2[Partition 2]
+    B --> C3[Partition 3]
+    A --> D[One hot customer]
+    D --> C2
+```
 
 ## Real-World Scenario
 
@@ -103,8 +128,34 @@ Send 70% traffic for one customerId. Verify one partition lags heavily.
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- record per-partition lag, not just total group lag
+- confirm the chosen key actually matches the ordering requirement
+- replay a skewed workload to see whether one tenant dominates one partition
+- avoid changing key strategy before you have a measured baseline
+
+## Operational Note
+
+The baseline experiment is worth keeping around even after mitigation work starts.
+Teams often forget what “normal skew” looked like before redesigning keys, which makes later tuning debates subjective instead of evidence-based.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- partition-key design is a correctness and load-distribution decision at the same time
+- a clean baseline measurement is necessary before applying mitigation strategies
+- hotspot diagnosis starts with per-partition lag and skew visibility
+
+---
+
+## Operator Prompt
+
+For kafka partition strategy for ordering and hotspot mitigation (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

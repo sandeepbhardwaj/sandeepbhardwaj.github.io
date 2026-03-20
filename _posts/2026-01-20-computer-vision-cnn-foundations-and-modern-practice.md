@@ -28,6 +28,30 @@ CNNs remain foundational in many practical vision pipelines due to efficiency an
 
 ---
 
+## Problem 1: Learn Visual Patterns That Hold Up Outside the Lab
+
+Problem description:
+We want image models that do more than score well on curated datasets; they should remain useful under real-world lighting, device, and deployment constraints.
+
+What we are solving actually:
+We are solving dataset realism and deployment robustness, not just architecture choice.
+In practice, transfer learning, augmentation strategy, and evaluation slices usually matter more than inventing a novel CNN block.
+
+What we are doing actually:
+
+1. Define the vision task precisely.
+2. Start from a pretrained backbone.
+3. Train with task-appropriate augmentation.
+4. Validate across real deployment conditions and hardware constraints.
+
+```mermaid
+flowchart LR
+    A[Images] --> B[Task Definition]
+    B --> C[Pretrained CNN Backbone]
+    C --> D[Task-Specific Head]
+    D --> E[Evaluation by Shift + Hardware Constraints]
+```
+
 ## CNN Intuition
 
 Convolution applies learned filters across spatial neighborhoods.
@@ -140,6 +164,15 @@ Vision deployments need explicit fail-safe behavior.
 4. focusing on model architecture before dataset quality
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- inspect failures by lighting, background, occlusion, and device source
+- compare validation data conditions with real capture conditions before trusting metrics
+- benchmark accuracy together with latency and memory on target hardware
+- validate augmentation choices against actual field distortions instead of synthetic guesses
 
 ## Key Takeaways
 

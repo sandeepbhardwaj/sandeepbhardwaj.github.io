@@ -28,6 +28,28 @@ It reduces variance of decision trees through bagging and feature randomness.
 
 ---
 
+## Problem 1: Build a Strong Tabular Baseline Without Heavy Feature Engineering
+
+Problem description:
+Many real-world business datasets are tabular, messy, partially nonlinear, and not worth jumping straight into a highly complex modeling stack.
+
+What we are solving actually:
+We are solving for a robust baseline that handles nonlinear interactions and noisy features without demanding perfect preprocessing or fragile assumptions.
+
+What we are doing actually:
+
+1. Train many decision trees on bootstrapped samples.
+2. Randomize feature choice at split time.
+3. Aggregate the trees to reduce variance and overreaction to small data changes.
+
+```mermaid
+flowchart LR
+    A[Training Data] --> B[Bootstrap Samples]
+    B --> C[Many Trees]
+    C --> D[Vote or Average]
+    D --> E[Stable Ensemble Prediction]
+```
+
 ## From Single Tree to Forest
 
 A single tree is high variance.
@@ -131,6 +153,15 @@ This keeps model quality grounded in operational constraints.
 4. skipping segment-level evaluation
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- compare train score, out-of-bag estimate, and holdout performance to spot overfitting
+- inspect probability calibration if predictions drive ranking or policy thresholds
+- benchmark inference latency before increasing `n_estimators` blindly
+- compare feature-importance conclusions across resamples before trusting them
 
 ## Key Takeaways
 

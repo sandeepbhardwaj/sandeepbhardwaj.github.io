@@ -130,3 +130,61 @@ Throughput alone hides correctness failures.
 - Kafka architecture success depends on strong contracts and idempotent consumers.
 - partition-key choice defines your ordering guarantees and scaling limits.
 - explicit retry/DLQ/replay strategy is essential for production reliability.
+
+---
+
+        ## Problem 1: Model Event Flow Around Ownership and Recovery
+
+        Problem description:
+        Event-driven systems become noisy and fragile when events are published without clear ownership, schema contracts, or replay expectations.
+
+        What we are solving actually:
+        We are solving loose coupling without losing accountability. Kafka helps when events represent meaningful domain facts and when consumers know how to recover, replay, and version them safely.
+
+        What we are doing actually:
+
+        1. define the owner that is allowed to publish each event type
+2. keep event payloads factual and stable instead of embedding mutable query views
+3. design consumers to tolerate replay and delayed delivery
+4. make dead-letter, schema evolution, and replay rules part of the architecture story
+
+        ```mermaid
+flowchart LR
+    A[Order service] --> B[orders.events]
+    B --> C[Billing consumer]
+    B --> D[Inventory consumer]
+    B --> E[Analytics consumer]
+```
+
+        This section is worth making concrete because architecture advice around event driven architecture kafka java often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        public record OrderPlaced(String orderId, String customerId, long totalMinor) {}
+
+producer.send(new ProducerRecord<>("orders.events", orderId, event));
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Replay one topic from the beginning into a staging environment. If consumers cannot tolerate duplicates or historical messages, the architecture is only pretending to be event-driven.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - review whether events encode facts or command-like requests
+- keep producer ownership explicit so multiple teams do not evolve the same stream ad hoc
+- measure consumer lag and replay behavior before scaling the number of consumers
+- document how consumers handle schema changes and poison records
+
+        ## Review Checklist
+
+        - One clear owner per event type.
+- Facts over mutable read models.
+- Replay-tolerant consumers.

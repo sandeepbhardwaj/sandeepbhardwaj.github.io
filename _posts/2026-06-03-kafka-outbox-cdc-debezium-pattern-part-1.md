@@ -24,9 +24,33 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Transactional outbox baseline**.
+Part goal: **Establish the transactional outbox baseline and close the dual-write gap**.
 
 ---
+
+## Problem 1: Persist Business State and Publish Events Reliably
+
+Problem description:
+An application often needs to update its database and publish an event about that change.
+Doing those two writes separately creates a classic dual-write failure window.
+
+What we are solving actually:
+We are solving reliability between database commit and event publication.
+The goal is to guarantee that once business state is committed, the corresponding event can still be emitted even if the application crashes immediately after the commit.
+
+What we are doing actually:
+
+1. Write business data and an outbox row in the same database transaction.
+2. Use CDC to publish the outbox row to Kafka.
+3. Verify that app crashes after commit do not lose the event.
+
+```mermaid
+flowchart LR
+    A[DB transaction] --> B[Business row]
+    A --> C[Outbox row]
+    C --> D[Debezium CDC]
+    D --> E[Kafka event]
+```
 
 ## Real-World Scenario
 
@@ -105,8 +129,34 @@ Stop application after DB commit; Debezium should still publish the outbox event
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- prove business-row and outbox-row insertion happen in the same transaction
+- simulate app crash after commit to validate the whole reason for the pattern
+- check connector offsets and topic output, not just database state
+- treat outbox backlog growth as an operational health signal
+
+## Operational Note
+
+Outbox is easiest to defend when the write path stays boring and predictable.
+Complex branching inside the transaction usually creates more reliability risk than the pattern removes.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- the outbox pattern closes the gap between state change and event publication
+- CDC is valuable because it moves publish reliability out of the application process
+- correctness should be tested with crash timing, not only happy-path success
+
+---
+
+## Operator Prompt
+
+For outbox plus cdc with debezium for reliable event publishing (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

@@ -198,3 +198,36 @@ Start with high-value features, not full migration of everything.
 - Point-in-time correctness is the cornerstone of valid training data.
 - Training-serving consistency requires shared contracts, not just shared storage.
 - Governance, monitoring, and ownership are essential for long-term platform health.
+
+---
+
+            ## Problem 1: Turn Feature Stores and Training-Serving Consistency Into a Repeatable ML Decision
+
+            Problem description:
+            Topics like feature stores and training-serving consistency are easy to understand conceptually and still easy to misuse in practice when the team tunes offline metrics without checking validation stability, calibration, and serving behavior together.
+
+            What we are solving actually:
+            We are deciding how this idea should change model quality on unseen data and what evidence would prove the change was worth shipping.
+
+            What we are doing actually:
+
+            1. define the failure mode this technique is supposed to reduce
+            2. compare train, validation, and serving behavior instead of one score in isolation
+            3. keep a small experiment log so parameter changes stay explainable
+            4. re-check latency, drift, and threshold behavior before rollout
+
+            ```mermaid
+flowchart LR
+    A[Training data] --> B[Model training]
+    B --> C[Validation check]
+    C --> D[Serving decision]
+```
+
+            ## Debug Steps
+
+            Debug steps:
+
+            - compare training and validation curves before deciding the model is better
+            - inspect whether the improvement survives a different split or time window
+            - verify that threshold or calibration changes still match the product objective
+            - record the production metric that should move if the offline change is real

@@ -123,3 +123,65 @@ These metrics should feed alerts and capacity reviews.
 - resilience is controlled load-shedding and recovery, not just retry logic.
 - enforce strict time, concurrency, and retry budgets per dependency.
 - validate policies in failure drills before production incidents.
+
+---
+
+        ## Problem 1: Coordinate Resilience Controls as One Load-Shedding Policy
+
+        Problem description:
+        Retries, breakers, and bulkheads often get introduced independently, which means the system can still overload itself even though every individual mechanism looks sensible.
+
+        What we are solving actually:
+        We are solving controlled failure behavior under dependency trouble. The key is policy order and bounded budgets, not the presence of resilience libraries alone.
+
+        What we are doing actually:
+
+        1. set the timeout and concurrency ceiling before discussing retries
+2. apply retry only to idempotent, transient failure classes
+3. use separate bulkheads for dependencies with different latency and capacity profiles
+4. treat fallback as a product decision with observable degraded behavior
+
+        ```mermaid
+flowchart LR
+    A[Caller] --> B[Bulkhead]
+    B --> C[Timeout]
+    C --> D[Circuit breaker]
+    D --> E[Retry policy]
+    E --> F[Dependency]
+```
+
+        This section is worth making concrete because architecture advice around resilience patterns java retries bulkheads circuit breakers often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        Supplier<Response> guarded = Decorators.ofSupplier(() -> client.fetch(orderId))
+    .withBulkhead(bulkhead)
+    .withTimeLimiter(timeLimiter)
+    .withCircuitBreaker(circuitBreaker)
+    .withRetry(retry)
+    .decorate();
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Induce 503s and timeouts together, then inspect whether retry traffic overwhelms the same dependency. If it does, the composition is still amplifying failure instead of containing it.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - plot retry count beside breaker transitions and queue depth
+- use per-dependency budgets rather than one shared resilience profile
+- cap fallback use when degraded data can become misleading
+- simulate brownouts, not only total outages, during resilience drills
+
+        ## Review Checklist
+
+        - Timeout before retry.
+- Bulkhead by dependency.
+- Retry only what is safe and transient.

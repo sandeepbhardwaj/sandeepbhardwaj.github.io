@@ -25,95 +25,100 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Design Patterns with Java
 ---
-This post covers production-focused design decisions for **Template method vs composition in framework extension points**.
-The emphasis is on correctness, scalability, and operational behavior under failure.
+Template method vs composition in framework extension points is most useful when the pattern clarifies a real design pressure instead of decorating the codebase with abstractions. The production value comes from making extension, composition, and debugging easier.
+
+---
+
+## Problem 1: Template method vs composition in framework extension points
+
+Problem description:
+We want template method vs composition in framework extension points to solve a specific design problem without turning the code into ceremonial abstraction. This part focuses on the baseline model and the safe default shape.
+
+What we are solving actually:
+We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For design patterns, the hidden risk is choosing abstraction because it sounds elegant instead of because it absorbs a real source of change.
+
+What we are doing actually:
+
+1. make the pattern assembly explicit: identify the ownership boundary and the non-negotiable invariant
+2. make the pattern assembly explicit: choose the simplest baseline design that preserves correctness
+3. make the pattern assembly explicit: make observability visible from the first implementation
+4. make the pattern assembly explicit: validate the baseline with one concrete failure drill
 
 ---
 
 ## Why This Topic Matters
 
-In advanced systems, this area usually impacts at least one of these constraints:
-
-- p95/p99 latency consistency
-- data correctness and replay safety
-- resilience under partial outage
-- rollout and rollback safety
-
-A good implementation is not only fast, but debuggable and recoverable.
+- patterns should absorb a real source of change or composition pressure
+- the cost of abstraction is justified only when it simplifies evolution or debugging
+- clear pattern boundaries reduce accidental responsibility overlap
 
 ---
 
 ## Architecture Model
 
-Use this structure while implementing the design:
+```mermaid
+flowchart LR
+    A[Production pressure] --> B[Template method vs composition in framework extension points]
+    B --> C[Baseline design]
+    C --> D[Observability]
+    D --> E[Failure drill]
+```
 
-1. define boundary contracts and ownership clearly
-2. codify failure semantics (retry, timeout, fallback, reject)
-3. enforce observability from day one (metrics, logs, traces)
-4. validate behavior with load and failure drills before full rollout
+The diagram highlights composition points and responsibility flow because template method vs composition in framework extension points only pays off when abstraction reduces debugging and change cost.
+Keeping that flow visible prevents the pattern from turning into decorative indirection.
 
 ---
 
-## Practical Implementation Pattern
+## Practical Design Pattern
 
-~~~java
-// Replace with your concrete implementation for this topic.
-// Keep boundary logic deterministic and side effects explicit.
-public final class ProductionPattern {
+```java
+public interface TopicBehavior {
+    Result execute(Command command);
+}
 
-    public Result execute(Command command) {
-        validate(command);
-        return applyWithPolicy(command);
-    }
-
-    private void validate(Command command) {
-        // Input validation + invariant checks
-    }
-
-    private Result applyWithPolicy(Command command) {
-        // Timeout/bulkhead/retry/idempotency/ordering policy as needed
-        return Result.success();
+public final class TopicResolver {
+    TopicBehavior resolve(Context context) {
+        // Compose the right behavior for: Template method vs composition in framework extension points
+        return command -> Result.success();
     }
 }
-~~~
+```
+
+This pattern example is intentionally modest because template method vs composition in framework extension points should clarify one source of change before it introduces any new layers.
+When the abstraction does not make responsibilities easier to follow, adding more pattern machinery rarely helps.
 
 ---
 
-## Dry Run Scenario
+## Failure Drill
 
-Example rollout checklist:
+Baseline drill: add one new behavior variant and verify the pattern extension path stays clearer than editing one giant class for template method vs composition in framework extension points.
 
-1. baseline current behavior and SLOs.
-2. deploy new pattern to canary scope.
-3. inject one controlled failure mode.
-4. verify expected behavior (degrade, retry, or fail-fast).
-5. roll forward only after telemetry confirms stability.
-
-This makes architecture decisions measurable, not theoretical.
+That drill matters early, before rollout assumptions harden into defaults because template method vs composition in framework extension points should prove it reduces change friction under pressure, not just that the abstraction reads nicely in isolation.
 
 ---
 
-## Common Pitfalls
+## Debug Steps
 
-1. introducing the pattern without a clear ownership boundary
-2. mixing business logic and infrastructure policy in one layer
-3. missing idempotency/replay rules in distributed paths
-4. adding complexity without objective performance or reliability gain
+Debug steps:
+
+- name the exact design pressure before choosing the pattern vocabulary while validating template method vs composition in framework extension points
+- keep one place where the composition order is visible while validating template method vs composition in framework extension points
+- check whether the pattern reduces change cost or merely moves it around while validating template method vs composition in framework extension points
+- remove abstraction if the extension path is still harder than plain code while validating template method vs composition in framework extension points
 
 ---
 
 ## Production Checklist
 
-- deterministic behavior under retry and duplicate delivery
-- explicit timeout and backpressure boundaries
-- operational dashboards for saturation, errors, and lag
-- documented rollback strategy
-- integration tests for unhappy-path behavior
+- source of change that justifies the abstraction written down
+- composition boundary visible in code review
+- debugging path clearer after the pattern than before
+- fallback simpler implementation still understood by the team
 
 ---
 
 ## Key Takeaways
 
-- Template method vs composition in framework extension points should be implemented as an **operational pattern**, not only a code pattern.
-- correctness and failure semantics must be designed before optimization.
-- production readiness depends on observability, bounded risk, and staged rollout.
+- Template method vs composition in framework extension points should be designed as a production decision, not just an implementation detail
+- patterns should clarify the source of change, not decorate the code
+- start from a measurable baseline before optimizing

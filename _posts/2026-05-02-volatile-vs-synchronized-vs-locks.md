@@ -170,3 +170,36 @@ Correctness first, then contention optimization.
 - Need timed/interruptible acquisition or multiple conditions? `ReentrantLock`
 
 Use the simplest primitive that preserves correctness; complexity should be justified by coordination requirements.
+
+---
+
+            ## Problem 1: Make volatile vs synchronized vs Locks in Java — Practical Guide Operationally Explainable
+
+            Problem description:
+            Backend topics sound straightforward until the runtime boundary becomes fuzzy. Teams usually know the API surface, but they often skip the part where ownership, rollback, and the main production signal are written down explicitly.
+
+            What we are solving actually:
+            We are turning volatile vs synchronized vs locks in java — practical guide into an engineering choice with a clear boundary, one measurable success signal, and one failure mode the team is ready to debug.
+
+            What we are doing actually:
+
+            1. define where this technique starts and where another subsystem takes over
+            2. attach one metric or invariant that proves the design is helping
+            3. rehearse one failure or rollout scenario before scaling the pattern
+            4. keep the implementation small enough that operators can still explain it during an incident
+
+            ```mermaid
+flowchart TD
+    A[Request or event] --> B[Core boundary]
+    B --> C[Resource or dependency]
+    C --> D[Observability and rollback]
+```
+
+            ## Debug Steps
+
+            Debug steps:
+
+            - identify the first metric that should move when the design works
+            - record the rollback trigger before production rollout
+            - keep dependency boundaries and timeouts explicit in code and docs
+            - prefer one clear safety rule over several implicit assumptions

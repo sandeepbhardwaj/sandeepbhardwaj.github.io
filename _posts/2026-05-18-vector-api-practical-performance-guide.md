@@ -131,3 +131,63 @@ Do not extrapolate laptop benchmark gains directly to production.
 - Vector API is a targeted optimization tool for numeric hotspots.
 - real gains depend on data layout, loop shape, and branch behavior.
 - require correctness parity and reproducible benchmarks before rollout.
+
+---
+
+        ## Problem 1: Treat SIMD as a Measured Optimization, Not a Badge
+
+        Problem description:
+        The Vector API can speed up tight numeric loops, but it only pays off when the data layout, hot path, and benchmark discipline are all aligned.
+
+        What we are solving actually:
+        We are solving CPU efficiency in the right place. The real job is to identify vector-friendly workloads and prove the benefit with measurements that survive production reality.
+
+        What we are doing actually:
+
+        1. start with a hot loop that already shows up in profiling
+2. use contiguous primitive arrays rather than object-heavy structures
+3. handle the tail path clearly so correctness does not depend on hidden assumptions
+4. benchmark with JMH before and after every vectorized change
+
+        ```mermaid
+flowchart LR
+    A[Primitive array] --> B[Vector lanes]
+    B --> C[SIMD operation]
+    C --> D[Scalar tail handling]
+```
+
+        This section is worth making concrete because architecture advice around vector api practical performance guide often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        var species = jdk.incubator.vector.FloatVector.SPECIES_PREFERRED;
+for (int i = 0; i < species.loopBound(length); i += species.length()) {
+    var left = jdk.incubator.vector.FloatVector.fromArray(species, a, i);
+    var right = jdk.incubator.vector.FloatVector.fromArray(species, b, i);
+    left.mul(right).intoArray(out, i);
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Benchmark a vectorized path that uses boxed numbers or irregular memory access. If results barely move, the algorithm or data layout is the problem, not the API.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - confirm the workload is CPU-bound before reaching for SIMD
+- benchmark on the deployment hardware because vector support varies
+- keep a scalar fallback and verify identical numerical results
+- watch for hidden allocations around buffers and conversions
+
+        ## Review Checklist
+
+        - Vectorize only profiled hot paths.
+- Prefer primitive contiguous data.
+- Use JMH and production-like data sizes.

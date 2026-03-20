@@ -24,9 +24,33 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Operational migration runbook**.
+Part goal: **Turn the new partition strategy into a safe migration runbook**.
 
 ---
+
+## Problem 1: Migrate to a New Key Strategy Without Losing Events or Semantics
+
+Problem description:
+Changing key strategy in production can improve hotspot behavior, but it can also create gaps, duplicate processing, or confusing ordering semantics during cutover.
+
+What we are solving actually:
+We are solving migration safety.
+The new strategy is only valuable if we can compare it under real traffic and cut over without corrupting downstream behavior.
+
+What we are doing actually:
+
+1. Dual-write old and new strategies.
+2. Compare lag, skew, and ordering signals side by side.
+3. Cut consumers over only after the new path is stable.
+
+```mermaid
+flowchart LR
+    A[Producer] --> B[Old topic / old key]
+    A --> C[New topic / new key]
+    B --> D[Compare metrics]
+    C --> D
+    D --> E[Consumer cutover]
+```
 
 ## Real-World Scenario
 
@@ -104,8 +128,34 @@ Force producer restart during dual-write and verify no data gap in either topic.
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- verify dual-write covers the entire cutover window and not just a sample period
+- compare ordering violation counts as well as lag metrics
+- keep rollback to the old topic straightforward until the new path is trusted
+- remove the old path only after retention and replay needs are satisfied
+
+## Operational Note
+
+Migration plans fail most often when the old path is removed too quickly.
+Keeping the rollback path cheap and obvious is part of the design, not an afterthought for the release checklist.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- migration is a measurement problem as much as an implementation problem
+- dual-write is useful only when the comparison metrics are explicit
+- safe cutover depends on observability, rollback, and patience
+
+---
+
+## Operator Prompt
+
+For kafka partition strategy for ordering and hotspot mitigation (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+
+---
+
+## Final Operations Note
+
+One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.

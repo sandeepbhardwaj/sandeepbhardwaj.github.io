@@ -24,22 +24,25 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for maximum subarray in java (kadane algorithm), with practical tips for interviews and production coding standards.
+Kadane's algorithm is one of the best examples of dynamic programming hidden inside a very small loop.
+The trick is to track the best subarray ending at the current position, not every possible subarray.
 
-## Problem
+---
 
-Find contiguous subarray with largest sum.
+## Problem 1: Maximum Subarray
 
-## Kadane Intuition
+Problem description:
+Given an integer array `nums`, find the contiguous subarray with the largest possible sum and return that sum.
 
-For each index, decide:
+What we are solving actually:
+Brute force tries every start and end pair, which is too slow. The real insight is that when a running sum becomes harmful, we should drop it immediately and start fresh from the current element.
 
-- Start new subarray at current value
-- Extend previous best ending here
+What we are doing actually:
 
-Recurrence: `current = max(nums[i], current + nums[i])`
-
-## Java Solution
+1. Track `current`, the best subarray sum ending exactly at the current index.
+2. Track `best`, the best sum seen anywhere so far.
+3. For each new value, decide whether to extend the previous subarray or start a new one.
+4. Update the global best after each step.
 
 ```java
 class Solution {
@@ -48,8 +51,8 @@ class Solution {
         int best = nums[0];
 
         for (int i = 1; i < nums.length; i++) {
-            current = Math.max(nums[i], current + nums[i]);
-            best = Math.max(best, current);
+            current = Math.max(nums[i], current + nums[i]); // Either start fresh here or extend the old run.
+            best = Math.max(best, current); // Keep the strongest subarray sum seen so far.
         }
 
         return best;
@@ -57,58 +60,126 @@ class Solution {
 }
 ```
 
+Debug steps:
+
+- print `nums[i]`, `current`, and `best` after each iteration
+- test `[-2,1,-3,4,-1,2,1,-5,4]`, `[-3,-2,-5]`, and `[5]`
+- verify the invariant that `current` is always the best subarray sum ending at the current index
+
+---
+
+## Kadane Intuition
+
+At each index `i`, there are only two meaningful choices:
+
+- start a brand-new subarray at `nums[i]`
+- extend the best subarray that ended at `i - 1`
+
+So the recurrence is:
+
+`current = max(nums[i], current + nums[i])`
+
+If the old running sum hurts more than it helps, discard it.
+That local decision is enough to reach the global optimum.
+
+---
+
 ## Dry Run
 
 Input: `[-2,1,-3,4,-1,2,1,-5,4]`
 
-- start: `current=-2`, `best=-2`
-- `1`: `current=max(1,-1)=1`, `best=1`
-- `-3`: `current=max(-3,-2)=-2`, `best=1`
-- `4`: `current=4`, `best=4`
-- `-1`: `current=3`, `best=4`
-- `2`: `current=5`, `best=5`
-- `1`: `current=6`, `best=6`
-- `-5`: `current=1`, `best=6`
-- `4`: `current=5`, `best=6`
+1. start: `current=-2`, `best=-2`
+2. read `1` -> `current=max(1,-1)=1`, `best=1`
+3. read `-3` -> `current=max(-3,-2)=-2`, `best=1`
+4. read `4` -> `current=max(4,2)=4`, `best=4`
+5. read `-1` -> `current=max(-1,3)=3`, `best=4`
+6. read `2` -> `current=max(2,5)=5`, `best=5`
+7. read `1` -> `current=max(1,6)=6`, `best=6`
+8. read `-5` -> `current=max(-5,1)=1`, `best=6`
+9. read `4` -> `current=max(4,5)=5`, `best=6`
 
-Answer: `6` (`[4,-1,2,1]`)
+Final answer: `6`
+
+The winning subarray is `[4,-1,2,1]`.
+
+---
 
 ## Why This Works
 
-If `current + nums[i]` is worse than `nums[i]` itself, any subarray ending at `i-1` is harmful.
-So the optimal subarray ending at `i` either:
+Suppose the best subarray ending at index `i - 1` has sum `current`.
+When we process `nums[i]`, any optimal subarray ending at `i` must be one of these:
 
-- extends previous optimal ending at `i-1`, or
-- starts fresh at `i`
+- `nums[i]` alone
+- that previous best-ending-at-`i-1` plus `nums[i]`
 
-This local choice leads to global optimum in one pass.
+There is no third useful option.
+That is why one small recurrence is enough.
+
+This is the key DP interpretation:
+
+- `current` = best answer for subarrays ending here
+- `best` = best answer over all endings seen so far
+
+---
+
+## Important Initialization Rule
+
+Do not initialize `current` and `best` to `0`.
+
+Why?
+
+Because arrays can contain only negative numbers.
+
+Example:
+
+- input: `[-3, -2, -5]`
+- correct answer: `-2`
+
+If you start from `0`, you incorrectly return `0`, which is not even a subarray sum here.
+
+So initialize from `nums[0]`.
+
+---
+
+## Boundary Cases
+
+- single element -> answer is that element
+- all positive -> answer is the full array sum
+- all negative -> answer is the least negative value
+- best subarray in the middle -> still handled naturally
+
+---
 
 ## Common Mistakes
 
-1. Initializing `current` and `best` to `0` (fails on all-negative arrays).
-2. Using prefix-sum brute force (`O(n^2)`) for this problem.
-3. Forgetting to handle single-element input.
+1. initializing `current` and `best` to `0`
+2. thinking Kadane works only when there are positive numbers
+3. using a quadratic brute-force prefix-sum approach unnecessarily
+4. forgetting that the subarray must be contiguous
 
-## Variant: Return Subarray Indices
+---
 
-Track start candidate and best range while applying Kadane updates.
-Useful when problem asks for the actual subarray, not just sum.
+## Variant: Return the Subarray Itself
 
-## Testing Checklist
+If the problem asks for indices or the actual subarray:
 
-- all positive values
-- all negative values
-- mix with best subarray in middle
-- single element
-- large random arrays
+- track a candidate start index when you restart at `nums[i]`
+- update best range whenever `best` improves
+
+The same Kadane decision still drives the solution.
+You just store a little more metadata.
+
+---
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- Kadane tracks best subarray ending at current index, then upgrades global best.
-- initialize from first element, not zero, to correctly handle all-negative arrays.
-- this is a one-pass dynamic programming pattern with constant extra space.
+- Kadane's algorithm is dynamic programming in constant space
+- `current` means "best subarray ending here," which is the whole mental model
+- initialize from the first element so all-negative arrays are handled correctly

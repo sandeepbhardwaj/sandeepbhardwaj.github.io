@@ -22,6 +22,35 @@ header:
 ---
 `CyclicBarrier` lets a fixed number of threads wait until all participants reach the same synchronization point.
 
+## Problem description:
+
+We need multiple worker threads to finish one phase of work before any of them can safely move to the next phase.
+
+What we are solving actually:
+
+We are solving phased coordination, not mutual exclusion.
+The goal is to pause progress until all required workers reach the same checkpoint.
+
+What we are doing actually:
+
+1. Create a barrier with the exact number of participating workers.
+2. Let each worker call `await()` after finishing the current phase.
+3. Release the whole group only when every worker has arrived.
+
+```mermaid
+sequenceDiagram
+    participant W1 as Worker 1
+    participant W2 as Worker 2
+    participant W3 as Worker 3
+    participant B as Barrier
+    W1->>B: await()
+    W2->>B: await()
+    W3->>B: await()
+    B-->>W1: release next phase
+    B-->>W2: release next phase
+    B-->>W3: release next phase
+```
+
 ## Real-World Use Cases
 
 - phased simulation systems
@@ -106,6 +135,13 @@ Choose `Phaser` when parties can join/leave dynamically.
 2. Long-running or blocking barrier actions.
 3. Ignoring broken-barrier state after failures.
 4. No timeout policy, causing infinite waits.
+
+## Debug steps:
+
+- verify the configured party count matches the real number of workers
+- log when each thread reaches `await()` and when it resumes
+- use timeout-based `await()` in tests to catch stuck phases quickly
+- inspect broken-barrier handling after interruption or timeout
 
 ## JDK 11 and Java 17 Notes
 

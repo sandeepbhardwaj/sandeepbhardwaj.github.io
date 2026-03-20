@@ -124,3 +124,61 @@ Typical result: lower CPU and fewer allocations with no API behavior change.
 - reflection is acceptable when localized and cached.
 - optimize only measured hotspots.
 - use method handles or code generation when reflective dispatch dominates critical paths.
+
+---
+
+        ## Problem 1: Pay Reflection Costs Once, Not on Every Request
+
+        Problem description:
+        Reflection is often blamed broadly, but the real pain usually comes from repeated lookups, accessibility checks, and conversion work inside hot request paths.
+
+        What we are solving actually:
+        We are solving hot-path introspection overhead. The practical move is to front-load metadata discovery and replace repeated reflective lookups with cached handles or precomputed plans.
+
+        What we are doing actually:
+
+        1. separate one-time metadata discovery from per-request invocation
+2. cache field, method, or constructor lookups aggressively
+3. switch to `MethodHandle` where the call site is hot and stable
+4. reconsider whether generated code removes the need for reflection entirely
+
+        ```mermaid
+flowchart TD
+    A[Startup scan] --> B[Metadata cache]
+    B --> C[MethodHandle / accessor]
+    C --> D[Request path]
+```
+
+        This section is worth making concrete because architecture advice around reflection costs optimization strategies java often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        MethodHandle handle = MethodHandles.lookup()
+    .findVirtual(Order.class, "status", MethodType.methodType(String.class));
+
+String status = (String) handle.invokeExact(order);
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Profile a mapper or serializer before and after caching reflective metadata. If latency barely moves, reflection was not the bottleneck and the optimization should stop there.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - profile first so reflection work is measured in context
+- cache reflective metadata in immutable registries built at startup
+- avoid repeated `setAccessible` or member discovery in request code
+- check whether the framework already offers generated or bytecode-based alternatives
+
+        ## Review Checklist
+
+        - Cache metadata once.
+- Use MethodHandles for hot stable paths.
+- Do not optimize reflection in cold code.

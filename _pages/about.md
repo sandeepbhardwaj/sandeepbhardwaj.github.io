@@ -2,6 +2,7 @@
 title: "About"
 permalink: /about/
 author_profile: true
+ads: false
 ---
 
 ## Sandeep Bhardwaj

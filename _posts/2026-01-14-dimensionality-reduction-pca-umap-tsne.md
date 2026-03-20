@@ -29,6 +29,30 @@ Dimensionality reduction can improve model stability, speed, and interpretabilit
 
 ---
 
+## Problem 1: Compress Features Without Throwing Away Useful Signal
+
+Problem description:
+We want lower-dimensional representations that help visualization, denoising, or downstream modeling without creating misleading structure.
+
+What we are solving actually:
+We are solving for a better representation, not a prettier chart.
+Dimensionality reduction only adds value when it improves interpretability, efficiency, or downstream learning behavior.
+
+What we are doing actually:
+
+1. Start with a clear reason for reducing dimensions.
+2. Use PCA for robust linear compression.
+3. Use UMAP or t-SNE mainly for nonlinear exploratory structure analysis.
+
+```mermaid
+flowchart LR
+    A[High-Dimensional Features] --> B{Goal}
+    B -->|Compression / preprocessing| C[PCA]
+    B -->|Exploratory visualization| D[UMAP or t-SNE]
+    C --> E[Downstream Model Check]
+    D --> E
+```
+
 ## Why Reduce Dimensions?
 
 Main reasons:
@@ -118,6 +142,15 @@ If reduced representation does not improve quality or efficiency, skip it.
 4. ignoring reproducibility settings
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- fit reducers only inside training folds to avoid leakage
+- compare downstream metrics with and without reduction before keeping it
+- rerun UMAP or t-SNE with different seeds and parameters to test interpretive stability
+- avoid treating visually separated clusters as proof of real operational segments
 
 ## Key Takeaways
 

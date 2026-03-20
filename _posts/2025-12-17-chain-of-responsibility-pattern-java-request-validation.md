@@ -27,8 +27,9 @@ The promise is simple: separate each rule, keep the flow modular, and stop letti
 
 ---
 
-## Where The Monolith Starts Cracking
+## Problem 1: Validation Rules That Need to Stay Modular
 
+Problem description:
 Before creating an order, we want to verify:
 
 - request is authenticated
@@ -37,6 +38,17 @@ Before creating an order, we want to verify:
 - shipping address is serviceable
 
 Each rule should stay modular.
+
+What we are solving actually:
+We are solving maintainability of validation logic.
+As rules grow, one big validator method becomes hard to read, hard to reorder, and easy to break when new compliance or fraud checks are added.
+
+What we are doing actually:
+
+1. Put each rule in its own handler.
+2. Link handlers into an explicit pipeline.
+3. Let each handler either fail or pass control onward.
+4. Keep assembly order visible so the validation flow is explainable.
 
 ---
 
@@ -86,7 +98,7 @@ public abstract class ValidationHandler {
     }
 
     public final void handle(OrderRequest request) {
-        check(request);
+        check(request); // Current handler owns exactly one validation rule.
         if (next != null) {
             next.handle(request);
         }
@@ -163,3 +175,14 @@ Before using this pattern in production, lock down three things:
 
 If those rules are explicit, Chain of Responsibility stays readable.
 If they are implicit, it turns into middleware folklore very quickly.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- make the chain order explicit in one assembly location
+- decide and document whether the chain is fail-fast or collects errors
+- test inserting a new validation rule without rewriting existing handlers
+- avoid hidden state mutation that makes later handlers depend on side effects

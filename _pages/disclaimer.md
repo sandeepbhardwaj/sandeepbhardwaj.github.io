@@ -2,6 +2,7 @@
 title: "Disclaimer"
 permalink: /disclaimer/
 author_profile: false
+ads: false
 ---
 
 Last updated: March 2, 2026
@@ -29,4 +30,3 @@ The site owner is not responsible for content, policies, or availability of thir
 ## Use at Your Own Risk
 
 Any action you take based on site content is strictly at your own risk.
-

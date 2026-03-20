@@ -23,22 +23,25 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for remove duplicates from sorted list ii in java, with practical tips for interviews and production coding standards.
+This variant is more subtle than the simpler sorted-list deduplication problem.
+We are not keeping one copy of repeated values. We are removing every value that appears more than once.
 
-## Problem
+---
 
-Remove all values that appear more than once in a sorted linked list.
+## Problem 1: Remove Duplicates from Sorted List II
 
-Example: `1->2->3->3->4->4->5` -> `1->2->5`
+Problem description:
+Given the head of a sorted linked list, delete all nodes that have duplicate numbers, leaving only nodes whose values appear exactly once.
 
-## Approach
+What we are solving actually:
+In the simpler version, duplicates are collapsed to one node. Here, duplicate values must disappear completely. That means we need to detect an entire duplicate block first, then decide whether to keep it or skip all of it.
 
-Use a dummy node and two pointers:
+What we are doing actually:
 
-- `prev` points to last confirmed unique node
-- `current` scans duplicates block
-
-## Java Solution
+1. Use a dummy node so we can safely remove duplicates even if they start at the head.
+2. Let `prev` point to the last confirmed unique node.
+3. Let `current` scan through the list and detect duplicate runs.
+4. If a duplicate run is found, connect `prev.next` to the first node after that run.
 
 ```java
 class Solution {
@@ -51,13 +54,17 @@ class Solution {
 
         while (current != null) {
             boolean duplicate = false;
+
             while (current.next != null && current.val == current.next.val) {
-                current = current.next;
+                current = current.next; // Walk through the whole duplicate block.
                 duplicate = true;
             }
 
-            if (duplicate) prev.next = current.next;
-            else prev = prev.next;
+            if (duplicate) {
+                prev.next = current.next; // Skip the entire duplicate value block.
+            } else {
+                prev = prev.next; // Current value is unique, so lock it in.
+            }
 
             current = current.next;
         }
@@ -67,46 +74,113 @@ class Solution {
 }
 ```
 
-## Difference from LeetCode 83
+Debug steps:
 
-- LeetCode 83 keeps one copy of duplicates.
-- LeetCode 82 removes all duplicate-valued nodes entirely.
+- print `prev.val` and `current.val` before each outer loop iteration
+- test `1->2->3->3->4->4->5`, `1->1->1->2`, and `1->2->3`
+- verify the invariant that all nodes before `prev` are already confirmed unique and final
 
-That is why this solution needs `prev` + dummy node and duplicate-block detection.
+---
+
+## Difference from the Easier Variant
+
+For LeetCode 83:
+
+- `1 -> 1 -> 2 -> 3 -> 3`
+- becomes `1 -> 2 -> 3`
+
+For this problem:
+
+- `1 -> 1 -> 2 -> 3 -> 3`
+- becomes `2`
+
+That difference changes the pointer strategy completely.
+Here we need:
+
+- a dummy node
+- a `prev` pointer to the last safe node
+- full duplicate-block detection
+
+---
 
 ## Dry Run
 
-Input: `1->2->3->3->4->4->5`
+Input: `1 -> 2 -> 3 -> 3 -> 4 -> 4 -> 5`
 
-1. `1` unique -> keep (`prev` moves)
-2. `2` unique -> keep
-3. detect duplicate block `3->3` -> skip all 3s
-4. detect duplicate block `4->4` -> skip all 4s
-5. `5` unique -> keep
+1. `1` is unique
+   move `prev` to `1`
 
-Result: `1->2->5`
+2. `2` is unique
+   move `prev` to `2`
+
+3. detect duplicate block `3 -> 3`
+   skip all `3`s
+   list becomes `1 -> 2 -> 4 -> 4 -> 5` from the connection point
+
+4. detect duplicate block `4 -> 4`
+   skip all `4`s
+
+5. `5` is unique
+   keep it
+
+Result: `1 -> 2 -> 5`
+
+---
+
+## Why the Dummy Node Is Essential
+
+Consider:
+
+- `1 -> 1 -> 2 -> 3`
+
+The duplicates start at the original head.
+If we do not use a dummy node, removing that block makes head handling awkward.
+
+The dummy node gives us one stable pointer before the real list.
+So even if the original head must disappear, we can still relink cleanly.
+
+---
+
+## Why `prev` Must Not Move on Duplicates
+
+This is the most common bug.
+
+If `current` is part of a duplicate block, `prev` should stay where it is.
+Why?
+
+Because `prev.next` still needs to be rewired to the first node after the whole duplicate run.
+
+Only truly unique values let `prev` move forward.
+
+---
 
 ## Common Mistakes
 
-1. Advancing `prev` even when duplicate block detected.
-2. Missing dummy node and failing when head value is duplicated.
-3. Confusing this with “keep one duplicate” variant.
+1. moving `prev` even after a duplicate block is detected
+2. forgetting the dummy node and breaking head-removal cases
+3. confusing this problem with the "keep one copy" variant
+4. skipping only one duplicate node instead of the full block
 
-## Testing Checklist
+---
 
-- all unique list
-- duplicates only at head
-- duplicates only at tail
-- all nodes duplicated (result should be empty)
-- mixed blocks of duplicates and uniques
+## Boundary Cases
+
+- all unique list -> unchanged
+- duplicates only at head -> head shifts
+- duplicates only at tail -> tail block disappears
+- every node duplicated -> result is empty
+
+---
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- unlike LeetCode 83, this variant removes all values that appear more than once.
-- dummy node is essential because duplicates may include the original head.
-- keep prev pointer at last confirmed-unique node while scanning duplicate runs.
+- this variant removes duplicate values entirely, not just extra copies
+- dummy node plus `prev` pointer makes head deletion safe
+- the key move is detecting and skipping the whole duplicate block

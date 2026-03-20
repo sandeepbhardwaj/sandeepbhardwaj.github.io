@@ -22,24 +22,28 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-Given a sorted linked list, remove duplicate nodes so each value appears exactly once.
+This is one of the cleanest linked-list problems where sorted order removes most of the complexity.
+Because equal values appear next to each other, we can delete duplicates in one pass without extra memory.
 
 Input: `1 -> 1 -> 2 -> 3 -> 3`  
 Output: `1 -> 2 -> 3`
 
 ---
 
-## Core Idea
+## Problem 1: Remove Duplicates from Sorted List
 
-Because list is sorted, duplicates are always adjacent.
-Use one pointer `current`:
+Problem description:
+Given the head of a sorted singly linked list, delete duplicate nodes so each value appears exactly once, and return the updated head.
 
-- if `current.val == current.next.val`, skip next node
-- otherwise move `current` forward
+What we are solving actually:
+The hard part in linked lists is usually searching backward or managing many pointers. Sorted order removes that pain: duplicates only appear right next to each other. So the real job is not "find all duplicates anywhere," but "compare each node only with its immediate next node and relink when needed."
 
----
+What we are doing actually:
 
-## Java Solution
+1. Start from the head with one pointer `current`.
+2. Compare `current.val` with `current.next.val`.
+3. If the values are equal, bypass the duplicate node by changing `current.next`.
+4. If the values differ, move `current` forward.
 
 ```java
 class Solution {
@@ -48,8 +52,11 @@ class Solution {
 
         while (current != null && current.next != null) {
             if (current.val == current.next.val) {
+                // Duplicate found, so skip the next node and keep checking
+                // the same value in case there are more duplicates after it.
                 current.next = current.next.next;
             } else {
+                // Values differ, so current is already clean and we can move forward.
                 current = current.next;
             }
         }
@@ -59,34 +66,101 @@ class Solution {
 }
 ```
 
+Debug steps:
+
+- print `current.val` and `current.next.val` before each comparison
+- test `1->1->1`, `1->2->3`, and `1->1->2->3->3` to cover repeated duplicates and no-duplicate cases
+- verify the invariant that every node before `current` is already deduplicated
+
+---
+
+## Why Sorted Order Changes Everything
+
+If the list were unsorted, duplicates could appear anywhere and we would need a `HashSet` or some more complex tracking.
+
+Because the list is sorted:
+
+- all duplicates of a value form one adjacent block
+- once we leave a value, we never need to think about it again
+- one pointer is enough
+
+That makes this an in-place pointer-update problem, not a search problem.
+
 ---
 
 ## Dry Run
 
 Input: `1 -> 1 -> 2 -> 3 -> 3`
 
-1. `current=1`, next `1` -> duplicate, skip next  
+1. `current = 1`, next is `1`  
+   duplicate found -> skip next  
    list becomes `1 -> 2 -> 3 -> 3`
-2. `current=1`, next `2` -> move to `2`
-3. `current=2`, next `3` -> move to `3`
-4. `current=3`, next `3` -> duplicate, skip next
 
-Result: `1 -> 2 -> 3`
+2. `current = 1`, next is `2`  
+   values differ -> move `current` to `2`
+
+3. `current = 2`, next is `3`  
+   values differ -> move `current` to `3`
+
+4. `current = 3`, next is `3`  
+   duplicate found -> skip next  
+   list becomes `1 -> 2 -> 3`
+
+5. `current.next == null`  
+   stop
+
+Final answer: `1 -> 2 -> 3`
 
 ---
 
 ## Important Pointer Rule
 
-After deletion, do not move `current` immediately.
-Reason: there may be more duplicates of same value (for example `1 -> 1 -> 1`).
+After deleting a duplicate, do not move `current` immediately.
+
+Why?
+
+Because there might be more duplicates of the same value:
+
+`1 -> 1 -> 1 -> 2`
+
+If we delete only one duplicate and move forward too early, we can miss the next duplicate in the same block.
+That is why the correct pattern is:
+
+- delete and stay
+- move only when the next value changes
+
+---
+
+## Boundary Cases
+
+- empty list -> return `null`
+- one node -> return that node
+- all nodes equal -> collapse to one node
+- already unique sorted list -> return original list unchanged
+
+The loop condition `current != null && current.next != null` protects all of these cases cleanly.
 
 ---
 
 ## Common Mistakes
 
-1. advancing pointer after deletion and skipping checks
-2. missing loop condition `current.next != null`
-3. applying this logic to unsorted list
+1. moving `current` after deletion and skipping part of a duplicate block
+2. forgetting `current.next != null` in the loop condition
+3. applying this same logic to an unsorted list
+4. confusing this problem with LeetCode 82, where all duplicated values must be removed completely
+
+---
+
+## Related Problem: Remove All Duplicate Values Entirely
+
+This problem keeps one copy of each value.
+
+For LeetCode 82:
+
+- `1 -> 1 -> 2 -> 3 -> 3` becomes `2`
+
+That variant is harder because you need to remove the whole duplicate block, not just extra copies.
+So if your solution here seems "too easy," that is because the requirements are different.
 
 ---
 
@@ -99,6 +173,6 @@ Reason: there may be more duplicates of same value (for example `1 -> 1 -> 1`).
 
 ## Key Takeaways
 
-- sorted order makes duplicates local and easy to remove in one pass.
-- mutation is done by relinking `next` pointers, no extra nodes needed.
-- this differs from LeetCode 82, where all duplicate values must be removed entirely.
+- sorted linked lists turn duplicate removal into a local adjacency check
+- relinking `next` pointers is enough; no extra nodes or arrays are needed
+- the key invariant is: everything before `current` is already clean

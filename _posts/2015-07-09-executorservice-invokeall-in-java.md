@@ -154,3 +154,36 @@ For request-scoped orchestration and cancellation, prefer structured concurrency
 - Combine with timeout to avoid indefinite waiting.
 - Handle partial failures explicitly when aggregating results.
 - Keep result mapping deterministic by relying on task submission order.
+
+---
+
+            ## Problem 1: Use ExecutorService invokeAll Example in Java Without Hiding Concurrency Risk
+
+            Problem description:
+            Concurrency primitives become dangerous when ownership, visibility, and cancellation rules live only in the author's head. That is why bugs in this area often feel random even though the underlying rule was always missing.
+
+            What we are solving actually:
+            We are making the shared-state rule explicit so a reviewer can answer who owns the state, how threads coordinate, and what signal proves contention or visibility is under control.
+
+            What we are doing actually:
+
+            1. define the shared state or work queue involved
+            2. name the exact synchronization or visibility rule protecting it
+            3. observe contention, blocking, or lifecycle behavior under stress
+            4. simplify the design if a snapshot or immutable handoff removes the race entirely
+
+            ```mermaid
+flowchart LR
+    A[Shared state] --> B[Concurrency boundary]
+    B --> C[Visibility or lock rule]
+    C --> D[Observed contention / correctness]
+```
+
+            ## Debug Steps
+
+            Debug steps:
+
+            - take thread dumps while the system is slow, not after it recovers
+            - verify every wait, lock, or signal path has a clear owner
+            - test cancellation and shutdown behavior, not only happy-path throughput
+            - reduce shared mutable state first before adding more synchronization

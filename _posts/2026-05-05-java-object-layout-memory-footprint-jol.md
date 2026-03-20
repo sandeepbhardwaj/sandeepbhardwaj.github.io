@@ -124,3 +124,68 @@ Small per-object savings compound at scale.
 4. multiply per-object delta by objects/request to estimate heap impact
 
 This makes memory tuning concrete and measurable, not guesswork.
+
+---
+
+        ## Problem 1: Measure Object Shape Before Blaming the Garbage Collector
+
+        Problem description:
+        Memory waste often comes from object headers, pointer alignment, padding, and accidental wrapper types that developers never actually inspect.
+
+        What we are solving actually:
+        We are solving memory density, not chasing a vague feeling that the heap is too small. JOL is valuable because it shows the real shape of objects before we start tuning GC flags or heap sizes.
+
+        What we are doing actually:
+
+        1. inspect the layout of hot-path objects with JOL
+2. identify padding, boxing, and duplicated wrapper fields
+3. change the domain shape only when the savings are material
+4. re-verify with heap histograms after the code change lands
+
+        ```mermaid
+flowchart LR
+    A[Object header] --> B[Fields]
+    B --> C[Padding / alignment]
+    C --> D[Total instance size]
+```
+
+        This section is worth making concrete because architecture advice around java object layout memory footprint jol often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        public final class JolExample {
+    public static void main(String[] args) {
+        System.out.println(org.openjdk.jol.info.ClassLayout.parseClass(OrderLine.class).toPrintable());
+    }
+
+    static final class OrderLine {
+        long id;
+        int quantity;
+        boolean discounted;
+    }
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Compare a naive object graph against a flattened variant and confirm whether the reduction actually changes old-gen occupancy or cache locality under load. If not, keep the simpler model.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - pair JOL output with `jcmd GC.class_histogram` so you know which types matter
+- look for accidental boxing in collections and counters
+- check whether field ordering changes readability more than it helps density
+- measure before and after rather than assuming fewer fields always means less memory
+
+        ## Review Checklist
+
+        - Optimize the highest-volume object types first.
+- Prefer clarity unless the footprint reduction is significant.
+- Validate memory wins at workload level, not only in toy examples.

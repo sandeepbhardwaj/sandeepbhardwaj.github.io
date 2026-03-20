@@ -23,98 +23,99 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-Reverse a singly linked list using recursion.
+Recursive linked-list reversal is elegant because it shifts the pointer work to the unwind phase of the call stack. The code is short, but the logic only feels easy once we are clear about what the recursive call returns.
 
-Input: `1 -> 2 -> 3 -> 4`  
-Output: `4 -> 3 -> 2 -> 1`
+## Problem 1: Reverse Linked List Recursively
 
----
+Problem description:
+Given the head of a singly linked list, reverse the list and return the new head using recursion.
 
-## Core Idea
+Example:
 
-Recursively reverse from `head.next` onward.
-After recursion returns, current `head` should be attached at the end of reversed sublist.
+- Input: `1 -> 2 -> 3 -> 4`
+- Output: `4 -> 3 -> 2 -> 1`
 
-Pointer rewiring on unwind:
+What we are solving actually:
+We want the recursive call to reverse the smaller list starting from `head.next`, and then we want to attach the current `head` at the end of that reversed result. In other words, each stack frame asks the next frame to solve the harder part first, then fixes one link while the recursion unwinds.
 
-- `head.next.next = head`
-- `head.next = null`
+What we are doing actually:
 
----
-
-## Java Solution
+1. Stop when the list is empty or has only one node.
+2. Recursively reverse everything after `head`.
+3. When the smaller list comes back reversed, make `head.next.next = head`.
+4. Break the old forward link by setting `head.next = null`.
+5. Return the new head found by the deepest recursive call.
 
 ```java
 class Solution {
     public ListNode reverseList(ListNode head) {
         if (head == null || head.next == null) {
-            return head;
+            return head; // Base case: empty list or single node is already reversed.
         }
 
-        ListNode newHead = reverseList(head.next);
-        head.next.next = head;
-        head.next = null;
-        return newHead;
+        ListNode newHead = reverseList(head.next); // Reverse the rest of the list first.
+        head.next.next = head; // Put current node after its next node.
+        head.next = null; // Break the original forward link to avoid a cycle.
+
+        return newHead; // Deepest node becomes the new head for all callers.
     }
 }
 ```
 
----
+## Why the Recursive Idea Works
 
-## Dry Run (Call Stack)
+Suppose we are at node `2` in `1 -> 2 -> 3 -> 4`.
+If recursion already reversed `3 -> 4` into `4 -> 3`, then the only thing left is to place `2` after `3`.
+That is exactly what `head.next.next = head` does.
 
-List: `1 -> 2 -> 3 -> 4`
+The base case is important because the last node is already the head of the reversed list. That node is the answer every stack frame should return upward.
 
-Recursive descent:
+## Dry Run
 
-- `reverse(1)` calls `reverse(2)`
-- `reverse(2)` calls `reverse(3)`
-- `reverse(3)` calls `reverse(4)`
-- `reverse(4)` hits base case and returns node `4`
+For `1 -> 2 -> 3 -> 4`:
 
-Unwind:
+1. `reverse(1)` calls `reverse(2)`
+2. `reverse(2)` calls `reverse(3)`
+3. `reverse(3)` calls `reverse(4)`
+4. `reverse(4)` returns `4` because it is the base case
 
-- at `3`: make `4.next = 3`, set `3.next = null`
-- at `2`: make `3.next = 2`, set `2.next = null`
-- at `1`: make `2.next = 1`, set `1.next = null`
+Now the stack unwinds:
 
-Return `newHead = 4`.
+1. At node `3`, set `4.next = 3`, then `3.next = null`
+2. At node `2`, set `3.next = 2`, then `2.next = null`
+3. At node `1`, set `2.next = 1`, then `1.next = null`
 
----
-
-## Why `head.next = null` Is Critical
-
-Without this step, old forward links remain and create cycles.
-Example: `2.next` would still point to `3` while `3.next` is rewired to `2`.
-
----
-
-## Recursive vs Iterative
-
-- recursive approach is concise and easy to reason about
-- iterative approach is safer for very long lists (`O(1)` stack)
-
-Java does not guarantee tail-call optimization, so recursion depth can overflow on large input.
-
----
+The returned `newHead` remains `4` the whole time.
 
 ## Common Mistakes
 
-1. returning `head` instead of `newHead`
-2. missing base case `head == null || head.next == null`
-3. forgetting to nullify `head.next`
+1. Returning `head` instead of `newHead`
+2. Forgetting `head.next = null`, which can create a cycle
+3. Missing the base case for empty or one-node lists
+4. Thinking recursion changes node values instead of node links
 
----
+## Debug Steps
+
+Debug steps:
+
+- trace each recursive call with the current node value
+- trace each unwind step where `head.next.next` is reassigned
+- test `null`, one-node, and two-node lists first
+- verify the old head ends with `next = null`
+
+## Recursive vs Iterative
+
+The recursive version is compact and expressive, which makes it great for learning.
+The iterative version is usually safer in production because it uses `O(1)` extra space.
+In Java, very deep recursion can risk stack overflow, so the iterative approach is often preferred for large inputs.
 
 ## Complexity
 
 - Time: `O(n)`
-- Space: `O(n)` due to recursion stack
-
----
+- Space: `O(n)` because of the recursion stack
 
 ## Key Takeaways
 
-- recursion solves reversal by rewiring links during unwind phase.
-- two pointer updates are enough for correctness.
-- prefer iterative version when input size can be very large.
+- recursion reverses the tail first and fixes links during unwind
+- `head.next.next = head` builds the reversed direction
+- `head.next = null` is required to avoid keeping the old link alive

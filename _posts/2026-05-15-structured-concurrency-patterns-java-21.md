@@ -132,3 +132,68 @@ Both are valid, but choose one intentionally.
 - structured concurrency is mainly about lifecycle correctness.
 - scope-based cancellation prevents orphan background work.
 - explicit failure and partial-result policies improve reliability and debuggability.
+
+---
+
+        ## Problem 1: Treat Related Tasks as One Lifecycle
+
+        Problem description:
+        Sibling asynchronous calls often outlive the request that created them, continue after a failure, or leave partial work behind because cancellation is not modeled as part of the workflow.
+
+        What we are solving actually:
+        We are solving request-level coordination. Structured concurrency is valuable because it makes fork, join, failure, and cancellation part of one parent scope instead of scattered futures.
+
+        What we are doing actually:
+
+        1. create a parent scope for the whole request or workflow
+2. fork only the subtasks that genuinely belong to that parent result
+3. cancel siblings when one failure makes the combined result invalid
+4. surface timeout and failure policy at the scope boundary
+
+        ```mermaid
+flowchart TD
+    A[Parent request] --> B[Task scope]
+    B --> C[Call pricing]
+    B --> D[Call inventory]
+    B --> E[Call fraud]
+    C --> F[Join or cancel]
+    D --> F
+    E --> F
+```
+
+        This section is worth making concrete because architecture advice around structured concurrency patterns java 21 often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    var pricing = scope.fork(() -> pricingClient.fetch(orderId));
+    var inventory = scope.fork(() -> inventoryClient.fetch(orderId));
+    scope.join();
+    scope.throwIfFailed();
+    return new CheckoutView(pricing.get(), inventory.get());
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Simulate one dependency timing out and verify sibling tasks are cancelled quickly. If they keep running to completion, you still have unstructured background work.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - set one explicit timeout policy per task scope instead of per nested call
+- verify cancellation is observable in client metrics and logs
+- avoid forking tasks whose results are not required for the same response
+- review how partial successes should be handled before choosing shutdown-on-failure
+
+        ## Review Checklist
+
+        - Fork tasks only when the parent truly owns them.
+- Propagate cancellation intentionally.
+- Prefer one scope per workflow over nested free-form futures.

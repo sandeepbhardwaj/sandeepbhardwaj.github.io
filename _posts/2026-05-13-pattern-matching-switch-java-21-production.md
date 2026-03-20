@@ -135,3 +135,69 @@ Result:
 - pattern matching switch improves type safety and readability for branching-heavy code.
 - pairing with sealed hierarchies gives compile-time exhaustiveness.
 - keep switch branches focused on classification/transformation and delegate side effects.
+
+---
+
+        ## Problem 1: Make Branching Rules Explicit Enough for Code Review
+
+        Problem description:
+        Large `if/else` trees mix type checks, casts, and business conditions so thoroughly that reviewers miss unsupported cases and accidental fall-through behavior.
+
+        What we are solving actually:
+        We are solving maintainable branching logic. Pattern matching helps when it turns a vague decision tree into an exhaustive map of business outcomes with compiler help.
+
+        What we are doing actually:
+
+        1. model the result space with a sealed interface or a small stable hierarchy
+2. keep each switch branch focused on classification or mapping, not side effects
+3. use guards only for local nuance, not hidden workflow orchestration
+4. treat new subtypes as a forcing function for compiler-guided review
+
+        ```mermaid
+flowchart LR
+    A[Sealed result hierarchy] --> B[switch expression]
+    B --> C[Typed branch]
+    C --> D[API / command outcome]
+```
+
+        This section is worth making concrete because architecture advice around pattern matching switch java 21 production often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        sealed interface PaymentOutcome permits Approved, Rejected, RetryLater {}
+record Approved(String id) implements PaymentOutcome {}
+record Rejected(String reason) implements PaymentOutcome {}
+record RetryLater(String code) implements PaymentOutcome {}
+
+String status(PaymentOutcome outcome) {
+    return switch (outcome) {
+        case Approved approved -> "APPROVED:" + approved.id();
+        case Rejected rejected -> "REJECTED:" + rejected.reason();
+        case RetryLater retry -> "RETRY:" + retry.code();
+    };
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Add a new subtype such as `ManualReview` and verify the compiler forces the switch to change. That pressure is exactly what prevents silent production drift.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - avoid a broad `default` branch when the hierarchy is sealed
+- lift blocking calls and mutations out of the switch expression
+- check that guarded patterns still preserve readability under new rules
+- write one focused test per branch so reviewers can reason about intent quickly
+
+        ## Review Checklist
+
+        - Prefer exhaustiveness over defensive default branches.
+- Keep branches small enough to scan in one screen.
+- Pair pattern matching with sealed hierarchies whenever possible.

@@ -27,8 +27,9 @@ This is one of the most practical patterns in backend engineering.
 
 ---
 
-## Problem
+## Problem 1: Payment Gateway Integration with Stable Internal Contracts
 
+Problem description:
 Our checkout code wants this contract:
 
 ```java
@@ -38,6 +39,18 @@ public interface PaymentProcessor {
 ```
 
 But the providers expose incompatible APIs.
+
+What we are solving actually:
+We are solving a boundary problem.
+The checkout domain should talk in business terms such as `PaymentRequest` and `PaymentResult`, while external providers speak in SDK-specific terms, error models, and request shapes.
+Without an adapter, those provider details leak into the core application and make future provider changes expensive.
+
+What we are doing actually:
+
+1. Define a stable internal contract for payment processing.
+2. Keep checkout code dependent only on that contract.
+3. Wrap each provider SDK in an adapter that translates both requests and responses.
+4. Contain provider-specific terminology, exception mapping, and response parsing at the integration edge.
 
 ---
 
@@ -110,7 +123,10 @@ public final class StripePaymentAdapter implements PaymentProcessor {
 
     @Override
     public PaymentResult charge(PaymentRequest request) {
-        String ref = stripeSdkClient.createCharge(request.getAmountInCents(), request.getOrderId());
+        String ref = stripeSdkClient.createCharge(
+                request.getAmountInCents(),
+                request.getOrderId()
+        ); // Translate internal request shape to provider-specific method call.
         return PaymentResult.success(ref);
     }
 }
@@ -149,6 +165,81 @@ Without Adapter, third-party SDK details spread across the codebase:
 With Adapter, those concerns stay at the integration boundary.
 
 That boundary is one of the most valuable habits in backend architecture because it prevents third-party SDK choices from dictating the shape of your internal model.
+
+---
+
+## Translation Flow
+
+```mermaid
+sequenceDiagram
+    participant Checkout as CheckoutService
+    participant Adapter as StripePaymentAdapter
+    participant SDK as StripeSdkClient
+
+    Checkout->>Adapter: charge(PaymentRequest)
+    Adapter->>SDK: createCharge(amountInCents, orderId)
+    SDK-->>Adapter: providerReference
+    Adapter-->>Checkout: PaymentResult.success(ref)
+```
+
+This diagram captures the real value of the pattern.
+Checkout never learns the SDK method names or parameter conventions.
+It only sees the internal contract.
+
+---
+
+## Adapter vs Facade
+
+These patterns are sometimes confused.
+
+- Adapter changes one interface into another interface your code wants
+- Facade simplifies a subsystem behind a higher-level API
+
+In this example, the key problem is interface mismatch, so Adapter is the better fit.
+If the goal were only to simplify a complex internal payment subsystem, Facade would be the closer match.
+
+---
+
+## Practical Production Concerns
+
+Real adapters usually do more than field mapping.
+They often centralize:
+
+- provider exception translation
+- timeout and retry behavior
+- idempotency key handling
+- provider-specific status normalization
+
+Those are good responsibilities for an adapter as long as they remain translation-oriented.
+If the adapter starts deciding discount policy or checkout workflow, the boundary has become muddled.
+
+---
+
+## Common Mistakes
+
+1. Letting provider DTOs leak past the adapter into core business code
+2. Mixing provider selection logic into the adapter itself
+3. Hiding important policy like retries or idempotency without documenting it
+4. Treating the adapter as a place for unrelated business decisions
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- log both the internal request and normalized provider reference at the adapter boundary
+- add tests that verify checkout code never depends on provider SDK types
+- simulate provider errors and confirm they are translated consistently
+- verify swapping one adapter for another does not change checkout service code
+
+---
+
+## Key Takeaways
+
+- Adapter protects the internal model from third-party interface mismatch
+- the real win is boundary control, not just provider swapping
+- use it to translate external contracts into business-friendly internal contracts
 
 ---
 

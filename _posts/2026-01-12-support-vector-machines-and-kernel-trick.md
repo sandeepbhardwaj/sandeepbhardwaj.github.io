@@ -28,6 +28,29 @@ They provide strong geometry-based decision boundaries and good generalization w
 
 ---
 
+## Problem 1: Learn a Strong Margin-Based Classifier for Medium-Scale Data
+
+Problem description:
+We want a classifier that can separate classes cleanly, generalize well, and remain competitive on high-dimensional feature spaces such as sparse text or engineered tabular representations.
+
+What we are solving actually:
+We are solving for decision boundaries with explicit regularization through margin.
+The goal is not just fitting the training data, but fitting it with geometric discipline.
+
+What we are doing actually:
+
+1. Find a separating boundary with maximum margin.
+2. Control misclassification tolerance with `C`.
+3. Use kernels when linear separation is not enough.
+
+```mermaid
+flowchart LR
+    A[Feature Space] --> B[Maximum Margin Boundary]
+    B --> C[Support Vectors Define Boundary]
+    A --> D[Kernel Mapping When Needed]
+    D --> B
+```
+
 ## Maximum Margin Principle
 
 For linearly separable data, many separating hyperplanes exist.
@@ -132,6 +155,15 @@ Linear SVM often performs competitively on sparse text classification.
 4. treating uncalibrated decision score as probability
 
 ---
+
+## Debug Steps
+
+Debug steps:
+
+- standardize features before tuning and verify that step happens inside cross-validation
+- compare linear SVM against RBF before assuming nonlinearity is necessary
+- inspect support-vector count to understand model complexity
+- calibrate and validate scores separately if the application consumes probabilities
 
 ## Key Takeaways
 

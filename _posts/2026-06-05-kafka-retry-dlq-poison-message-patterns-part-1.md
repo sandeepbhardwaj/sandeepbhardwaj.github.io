@@ -24,9 +24,32 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Build retry topology**.
+Part goal: **Build a bounded retry topology and isolate poison messages**.
 
 ---
+
+## Problem 1: Prevent One Bad Event From Blocking Healthy Traffic
+
+Problem description:
+Kafka preserves partition order, which means one poison message can stall every healthy event behind it if retry handling is naive.
+
+What we are solving actually:
+We are solving bounded failure isolation.
+The goal is to retry transient failures without turning permanent failures into infinite loops or partition starvation.
+
+What we are doing actually:
+
+1. Separate main, retry, and DLQ topics.
+2. Route transient errors to controlled retry paths.
+3. Quarantine permanent failures in the DLQ.
+
+```mermaid
+flowchart LR
+    A[Main topic] --> B{Process}
+    B -->|Success| C[Done]
+    B -->|Transient error| D[Retry topic]
+    B -->|Permanent error| E[DLQ]
+```
 
 ## Real-World Scenario
 
@@ -105,8 +128,46 @@ Send one malformed payload + many valid events; verify only bad event reaches DL
 
 ---
 
+## Debug Steps
+
+Debug steps:
+
+- distinguish transient versus permanent exceptions explicitly in code
+- make retry attempts bounded so poison messages cannot loop forever
+- verify valid traffic continues flowing while one bad message is isolated
+- inspect DLQ payloads to ensure enough context is preserved for investigation
+
+## Operational Note
+
+Retry topologies should be visible in architecture diagrams and incident docs.
+If operators cannot explain which topic represents which retry stage, the topology is too clever for production use.
+
+Clarity matters because debugging bad retries is already hard enough without ambiguous topic purpose.
+
 ## What You Should Learn
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+- retry design is about protecting healthy flow, not just “trying again”
+- DLQ is a quarantine mechanism, not an error graveyard
+- transient and permanent failures need different routing behavior
+
+---
+
+        ## Production Checklist
+
+        Inspect retry topics and the DLQ together so you can confirm the record moves forward through the policy rather than bouncing forever.
+
+        ## Incident Drill
+
+        Publish one malformed record followed by valid records on the same key and verify healthy traffic continues while the poison message is isolated with context.
+
+        ## Extra Debug Cues
+
+        - carry attempt count and original topic metadata in headers
+- set a maximum attempt count before the first message ever ships
+- keep DLQ payloads rich enough for replay or manual repair
+
+---
+
+## Operator Prompt
+
+For retry topics dlq design and poison message governance (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.

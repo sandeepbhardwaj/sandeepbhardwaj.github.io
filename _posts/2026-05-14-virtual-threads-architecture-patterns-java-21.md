@@ -135,3 +135,63 @@ Expected result:
 - virtual threads simplify concurrency for blocking I/O services.
 - combine them with strict resource limits and timeout budgets.
 - validate with load testing and pinning diagnostics before broad rollout.
+
+---
+
+        ## Problem 1: Design for Cheap Concurrency, Not Infinite Concurrency
+
+        Problem description:
+        Virtual threads remove a lot of platform-thread scarcity, but services still fail when they keep hidden blocking, unbounded downstream fan-out, or synchronized hot spots.
+
+        What we are solving actually:
+        We are solving the request architecture around virtual threads. The benefit comes from simpler thread-per-task code with explicit backpressure, not from assuming the runtime will absorb every bottleneck.
+
+        What we are doing actually:
+
+        1. use one virtual thread per independent request or task
+2. bound downstream concurrency even if the caller side is cheap
+3. remove synchronized blocks and native calls that pin carriers in hot paths
+4. measure queue depth, DB pool saturation, and external client limits together
+
+        ```mermaid
+flowchart TD
+    A[Incoming request] --> B[Virtual thread]
+    B --> C[Business logic]
+    C --> D[Bounded DB / HTTP client]
+    D --> E[Response]
+```
+
+        This section is worth making concrete because architecture advice around virtual threads architecture patterns java 21 often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+    Future<OrderSummary> summary = executor.submit(() -> orderService.fetch(orderId));
+    Future<List<Shipment>> shipments = executor.submit(() -> shipmentService.fetch(orderId));
+    return new OrderPage(summary.get(), shipments.get());
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Load the service until database or HTTP pools saturate. If latency explodes even though thread creation is cheap, the bottleneck was never thread count in the first place.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - look for pinned-carrier warnings and synchronized hot spots during profiling
+- treat connection pool sizing as the real concurrency ceiling for I/O workloads
+- avoid converting CPU-heavy loops into millions of virtual-thread tasks
+- compare request latency and memory pressure with the old pool model under the same load
+
+        ## Review Checklist
+
+        - Keep concurrency bounded around scarce downstream resources.
+- Prefer structured task orchestration over ad-hoc task spawning.
+- Profile for carrier pinning before declaring success.

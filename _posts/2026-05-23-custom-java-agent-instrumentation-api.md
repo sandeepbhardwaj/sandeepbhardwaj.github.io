@@ -125,3 +125,66 @@ Agents must be tested against the same runtime matrix as production.
 - Java agents are best for cross-cutting runtime instrumentation with strict scope.
 - prioritize deterministic transforms, feature flags, and rollback safety.
 - roll out like an infrastructure change, not a normal library upgrade.
+
+---
+
+        ## Problem 1: Instrument Behavior Without Making Startup Opaque
+
+        Problem description:
+        Java agents are powerful, but teams often use them without defining class-match scope, startup failure behavior, or rollback controls.
+
+        What we are solving actually:
+        We are solving targeted observability or policy injection at JVM startup. The safe design keeps agent intent narrow, startup diagnostics explicit, and transformed classes easy to identify during incidents.
+
+        What we are doing actually:
+
+        1. limit instrumentation to a small, well-named set of packages or classes
+2. log the transformed class names and agent version at startup
+3. treat agent failure mode as a product decision: fail fast or disable safely
+4. validate transformed bytecode in tests before attaching to production services
+
+        ```mermaid
+flowchart LR
+    A[JVM startup] --> B[premain]
+    B --> C[ClassFileTransformer]
+    C --> D[Instrumented classes]
+    D --> E[Runtime telemetry]
+```
+
+        This section is worth making concrete because architecture advice around custom java agent instrumentation api often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        public static void premain(String args, Instrumentation instrumentation) {
+    instrumentation.addTransformer((loader, name, type, domain, bytes) -> {
+        if (name != null && name.startsWith("com/example/service/")) {
+            return bytes;
+        }
+        return null;
+    });
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Start the app with the agent disabled and enabled while comparing startup time and transformed classes. If nobody can explain the delta, the agent is too magical for production.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - log which classes are transformed and which are intentionally skipped
+- keep a fast off-switch for emergencies through config or startup flags
+- verify bytecode compatibility across the JDK versions you support
+- avoid using an agent to hide behavior that should live in application code
+
+        ## Review Checklist
+
+        - Instrument narrowly.
+- Expose agent version and transformed classes.
+- Keep rollback simple.

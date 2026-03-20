@@ -27,9 +27,10 @@ That usually happens in systems where pricing, logging, validation, or policy la
 
 ---
 
-## Where The Pain Starts
+## Problem 1: Compose Optional Pricing Layers Without Class Explosion
 
-Imagine pricing logic that begins simply and then attracts extra responsibilities:
+Problem description:
+Pricing starts simple, then accumulates extra responsibilities such as:
 
 - coupon discount
 - tax
@@ -41,6 +42,18 @@ Then observability shows up.
 Then someone wants one flow with coupon plus tax, another with tax only, and another with metrics around everything.
 
 That is where a plain inheritance hierarchy starts getting silly.
+
+What we are solving actually:
+We are solving for composable layering.
+The business wants some combinations of pricing behavior but not every combination hardcoded into a new subclass.
+The order of layers can also change the meaning, which makes composition explicit and important.
+
+What we are doing actually:
+
+1. Keep one stable `PriceCalculator` contract.
+2. Start from a base calculator.
+3. Wrap it with optional decorators for discounting, tax, and observability.
+4. Make assembly order explicit at composition time.
 
 ---
 
@@ -117,7 +130,7 @@ public final class CouponDecorator extends PriceCalculatorDecorator {
 
     @Override
     public double calculate(Cart cart) {
-        return delegate.calculate(cart) * 0.90;
+        return delegate.calculate(cart) * 0.90; // Wrap the delegate result with coupon logic.
     }
 }
 
@@ -191,3 +204,14 @@ If the behavior is fixed and not optional, a regular service class is usually en
 If the object graph is getting hard to read, a composition factory or policy object is often a better boundary than ten decorators chained together.
 
 Decorator is strongest when variability is real, the contract is stable, and the layering itself expresses useful intent.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- test the same cart with different decorator orderings to confirm business impact is understood
+- log the assembled chain in one place so runtime layering is visible
+- keep technical decorators and domain decorators conceptually separate
+- simplify if the chain becomes so deep that debugging one request is painful

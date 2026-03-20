@@ -22,6 +22,29 @@ header:
 ---
 When developing locally, you often need different settings than production (URL, analytics, Disqus, etc.).
 
+## Problem description:
+
+We want local, staging, and production Jekyll builds to behave differently without duplicating the entire configuration file.
+
+What we are solving actually:
+
+We are solving configuration layering and environment safety.
+The risk is not only inconvenience; it is accidentally running production analytics, wrong URLs, or deployment-specific settings in local builds.
+
+What we are doing actually:
+
+1. Keep shared defaults in `_config.yml`.
+2. Put environment-specific overrides in separate config files.
+3. Use `JEKYLL_ENV` to control template behavior such as analytics and ads.
+
+```mermaid
+flowchart LR
+    A[_config.yml] --> D[Effective Config]
+    B[_config-dev.yml] --> D
+    C[JEKYLL_ENV] --> D
+    D --> E[Local / staging / production build]
+```
+
 ## Typical Local vs Production Difference
 
 ```yaml
@@ -124,9 +147,22 @@ Use this when local behavior differs from CI or GitHub Pages builds.
 
 Use option 2 for cleaner maintenance. Keep shared defaults in `_config.yml` and environment-specific overrides in `_config-dev.yml`.
 
+## Debug steps:
+
+- build with `--verbose` when the effective config does not match expectations
+- keep override files minimal so it is obvious what changes by environment
+- verify production-only template blocks are gated by `jekyll.environment`
+- avoid hardcoding production URLs in markdown or includes
+
 ## Key Takeaways
 
 - Separate defaults from environment overrides.
 - Keep local and production behavior deterministic.
 - Use minimal override files to reduce maintenance overhead.
 - Use `JEKYLL_ENV` + config layering for reliable deploy pipelines.
+
+---
+
+## Practical Checkpoint
+
+A short but valuable final check for jekyll environment variables and multiple config files is to write down the one misuse pattern most likely to appear during maintenance. That small note makes the article more useful when someone revisits it months later under pressure.

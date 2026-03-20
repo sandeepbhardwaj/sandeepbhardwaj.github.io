@@ -135,3 +135,65 @@ This keeps adoption safe and reviewable.
 - annotation processing is powerful for compile-time safety and boilerplate removal.
 - processor quality depends on diagnostics, determinism, and build behavior.
 - treat generated code as production code with tests and review discipline.
+
+---
+
+        ## Problem 1: Move Repetitive Boilerplate to Compile Time, but Keep It Observable
+
+        Problem description:
+        Code generation saves time only when the generated output is deterministic, reviewable, and easier to debug than the boilerplate it replaces.
+
+        What we are solving actually:
+        We are solving repetitive, pattern-based code at build time. Annotation processing is valuable when it removes mechanical work without hiding business rules or making compiler failures impossible to understand.
+
+        What we are doing actually:
+
+        1. generate only code that follows stable conventions and low-ambiguity rules
+2. keep generated packages and naming predictable for IDE and diff visibility
+3. fail compilation with specific messages when the input annotation usage is invalid
+4. treat the processor as public infrastructure with tests, not as a clever side script
+
+        ```mermaid
+flowchart LR
+    A[Annotated source] --> B[Annotation processor]
+    B --> C[Generated source]
+    C --> D[Compile + tests]
+```
+
+        This section is worth making concrete because architecture advice around annotation processing code generation java often stays too abstract.
+        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+
+        ## Production Example
+
+        ```java
+        @SupportedAnnotationTypes("com.example.GenerateMapper")
+public final class MapperProcessor extends AbstractProcessor {
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        // validate input and emit generated type
+        return false;
+    }
+}
+        ```
+
+        The code above is intentionally small.
+        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+
+        ## Failure Drill
+
+        Break an annotation contract intentionally and confirm the processor emits an actionable compile error. If failures are cryptic, the tool is adding friction rather than reducing it.
+
+        ## Debug Steps
+
+        Debug steps:
+
+        - keep generation deterministic so builds are reproducible
+- write golden-file tests for generated output where the shape matters
+- avoid generating business logic that should stay readable in hand-written code
+- version generated APIs carefully when they become consumed by other modules
+
+        ## Review Checklist
+
+        - Generate conventions, not policy-heavy business rules.
+- Make compiler errors precise and human-readable.
+- Test generated output as an API surface.

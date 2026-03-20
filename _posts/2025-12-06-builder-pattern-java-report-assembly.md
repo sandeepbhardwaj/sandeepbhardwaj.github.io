@@ -27,8 +27,9 @@ It is not useful for every three-field DTO.
 
 ---
 
-## Example Problem
+## Problem 1: Assemble an Immutable Report with Optional Parts
 
+Problem description:
 We need to construct an analytics report response with:
 
 - mandatory report identity
@@ -36,6 +37,17 @@ We need to construct an analytics report response with:
 - optional metadata
 - optional warnings
 - immutable final representation
+
+What we are solving actually:
+We are solving readability and invariant enforcement at construction time.
+Without a builder, optional parts either create constructor bloat or force the object into partially initialized states that the rest of the system has to defend against.
+
+What we are doing actually:
+
+1. Keep required fields explicit at builder creation time.
+2. Add optional fields fluently.
+3. Validate invariants in one `build()` method.
+4. Return an immutable object so downstream code never sees half-built state.
 
 ---
 
@@ -104,7 +116,7 @@ public final class AnalyticsReport {
         }
 
         public Builder filter(String key, String value) {
-            filters.put(key, value);
+            filters.put(key, value); // Optional fields are accumulated fluently before final validation.
             return this;
         }
 
@@ -158,6 +170,17 @@ The problem gets worse as optional fields grow.
 Builder makes intent readable at the call site and centralizes validation in one place.
 
 That second part is what often gets missed. A builder without validation is mostly syntax. A builder with validation becomes a reliable construction boundary.
+
+---
+
+## Debug Steps
+
+Debug steps:
+
+- test missing required fields to confirm `build()` fails fast
+- verify the built object cannot be mutated through returned collections
+- inspect whether the builder is solving real optional complexity or just adding ceremony
+- check whether defaults like `generatedAt` are explicit enough for tests and reproducibility
 
 ---
 

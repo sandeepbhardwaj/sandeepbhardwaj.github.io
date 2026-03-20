@@ -23,108 +23,183 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide explains the intuition, optimized approach, and Java implementation for find first and last position of element in sorted array, with practical tips for interviews and production coding standards.
+This problem looks like ordinary binary search, but one match is not enough.
+We need the full boundary of the target block, so we intentionally bias one search left and another search right.
 
-## Problem
+---
 
-Given sorted array `nums`, return start and end indices of target. If missing, return `[-1, -1]`.
+## Problem 1: Find First and Last Position of Element in Sorted Array
 
-## Approach
+Problem description:
+Given a sorted array `nums` and a target value, return the first and last indices where the target appears. If the target does not exist, return `[-1, -1]`.
 
-Run binary search twice:
+What we are solving actually:
+Normal binary search can tell us that the target exists, but it does not guarantee the leftmost or rightmost position. The hidden task is really two boundary queries: "where does the target block start?" and "where does it end?"
 
-- First occurrence (`lower bound`)
-- Last occurrence (`upper bound` style)
+What we are doing actually:
 
-## Java Solution
+1. Run one binary search that keeps searching left after a match to find the first index.
+2. If the target is absent, return `[-1, -1]` immediately.
+3. Run another binary search that keeps searching right after a match to find the last index.
+4. Return both boundaries.
 
 ```java
 class Solution {
     public int[] searchRange(int[] nums, int target) {
         int first = firstIndex(nums, target);
         if (first == -1) return new int[]{-1, -1};
+
         int last = lastIndex(nums, target);
         return new int[]{first, last};
     }
 
     private int firstIndex(int[] nums, int target) {
         int left = 0, right = nums.length - 1, ans = -1;
+
         while (left <= right) {
             int mid = left + (right - left) / 2;
-            if (nums[mid] >= target) right = mid - 1;
-            else left = mid + 1;
-            if (nums[mid] == target) ans = mid;
+
+            if (nums[mid] >= target) {
+                right = mid - 1; // Keep searching left because a boundary might exist earlier.
+            } else {
+                left = mid + 1;
+            }
+
+            if (nums[mid] == target) {
+                ans = mid; // Record match, but do not stop; we still want the leftmost one.
+            }
         }
+
         return ans;
     }
 
     private int lastIndex(int[] nums, int target) {
         int left = 0, right = nums.length - 1, ans = -1;
+
         while (left <= right) {
             int mid = left + (right - left) / 2;
-            if (nums[mid] <= target) left = mid + 1;
-            else right = mid - 1;
-            if (nums[mid] == target) ans = mid;
+
+            if (nums[mid] <= target) {
+                left = mid + 1; // Keep searching right because a later boundary might exist.
+            } else {
+                right = mid - 1;
+            }
+
+            if (nums[mid] == target) {
+                ans = mid; // Record match, but do not stop; we still want the rightmost one.
+            }
         }
+
         return ans;
     }
 }
 ```
 
+Debug steps:
+
+- print `left`, `mid`, `right`, and `ans` during both searches
+- test `[5,7,7,8,8,10]` with targets `8` and `6`
+- verify the invariant that `ans` stores the best boundary found so far while the search continues in the needed direction
+
+---
+
 ## Why Two Binary Searches
 
-A standard binary search can find one matching index, but not guaranteed boundaries.
-Boundary queries need directional bias:
+A plain binary search stops as soon as it finds any matching index.
+That is not enough here because duplicates create a whole block of equal values.
 
-- first index: continue searching left even after match
-- last index: continue searching right even after match
+So we split the problem:
 
-That is why two focused searches are cleaner and safer.
+- first index search = left-biased search
+- last index search = right-biased search
+
+This separation keeps the logic clear and prevents tricky mixed-branch bugs.
+
+---
 
 ## Dry Run
 
-`nums = [5,7,7,8,8,10]`, `target = 8`
+Input: `nums = [5,7,7,8,8,10]`, `target = 8`
 
-- first search returns `3`
-- last search returns `4`
+First-index search:
 
-Output: `[3,4]`
+1. `mid=2`, value `7` -> move right
+2. `mid=4`, value `8` -> record `ans=4`, keep searching left
+3. `mid=3`, value `8` -> record `ans=3`, keep searching left
 
-For `target = 6`, first search returns `-1`, so output is `[-1,-1]`.
+First index = `3`
 
-## Common Mistakes
+Last-index search:
 
-1. Stopping immediately when target is found (misses boundaries).
-2. Reusing one binary-search function without boundary-specific logic.
-3. Forgetting to handle empty input.
-4. Off-by-one errors in `left/right` updates.
+1. `mid=2`, value `7` -> move right
+2. `mid=4`, value `8` -> record `ans=4`, keep searching right
+3. `mid=5`, value `10` -> move left
 
-## Alternative Bound-Based Formulation
+Last index = `4`
 
-You can compute:
+Answer: `[3, 4]`
+
+---
+
+## Why Not Stop on First Match
+
+Stopping on the first match gives the wrong answer when duplicates exist.
+
+Example:
+
+- array: `[2,2,2,2]`
+- target: `2`
+
+Any random match is not enough.
+We need the full range:
+
+- first = `0`
+- last = `3`
+
+That is why the searches continue even after a match is found.
+
+---
+
+## Alternative Bound Formulation
+
+Another common approach is:
 
 - `left = lowerBound(target)`
 - `right = lowerBound(target + 1) - 1`
 
-Then validate `left` is in range and equals target.
+That version is elegant and generalizes well.
+The explicit first/last search approach is often easier to teach because the directional bias is visible in the code.
 
-This approach is concise and generalizes to frequency queries.
+---
 
-## Testing Checklist
+## Common Mistakes
 
-- empty array
-- target absent
-- single occurrence target
-- all elements equal to target
-- target at first index and last index
+1. returning immediately when `nums[mid] == target`
+2. trying to reuse one generic binary-search function without clear boundary rules
+3. forgetting to handle the target-absent case
+4. mixing left-biased and right-biased updates incorrectly
+
+---
+
+## Boundary Cases
+
+- empty array -> `[-1, -1]`
+- target absent -> `[-1, -1]`
+- one occurrence -> both indices are the same
+- all elements equal to target -> answer is full array range
+- target at first or last position -> still handled cleanly
+
+---
 
 ## Complexity
 
 - Time: `O(log n)`
 - Space: `O(1)`
 
+---
+
 ## Key Takeaways
 
-- find first and last positions using two boundary-focused binary searches.
-- lower-bound and upper-bound logic should be implemented separately for clarity.
-- boundary bugs are common, so verify with absent target and duplicate-heavy cases.
+- this is really two boundary binary searches, not one ordinary search
+- after a match, keep searching in the boundary direction you care about
+- duplicate-heavy tests are the best way to catch logic bugs here

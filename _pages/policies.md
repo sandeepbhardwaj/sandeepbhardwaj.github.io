@@ -2,6 +2,7 @@
 title: "Policies"
 permalink: /policies/
 author_profile: false
+ads: false
 ---
 
 This page provides quick access to site policy documents.
@@ -10,4 +11,3 @@ This page provides quick access to site policy documents.
 - [Terms of Use](/terms/)
 - [Disclaimer](/disclaimer/)
 - [Cookie Policy](/cookie-policy/)
-
