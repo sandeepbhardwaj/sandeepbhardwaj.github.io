@@ -4,8 +4,9 @@ categories:
 - Java
 date: 2026-03-14
 seo_title: Prefix Sum Pattern in Java - Interview Preparation Guide
-seo_description: Master Prefix Sum in Java with core templates, hashmap extensions,
-  subarray problems, and production-grade reasoning.
+seo_description: Master the Prefix Sum pattern in Java with interview-ready
+  recognition signals, range-query templates, prefix-plus-hashmap counting, 2D
+  extensions, and practical intuition.
 tags:
 - dsa
 - java
@@ -23,215 +24,175 @@ header:
   caption: Cumulative Thinking for Linear-Time Range Queries
   show_overlay_excerpt: false
 ---
-Prefix Sum is one of the highest-leverage DSA patterns.
-It converts repeated range computations from repeated work into constant-time lookups after linear preprocessing.
+Prefix sum is the interview pattern for shifting repeated aggregation work into one preprocessing pass.
+Once we maintain the invariant `prefix[i] = sum of the first i elements`, many range and subarray problems collapse into subtraction between checkpoints.
 
----
+## 🚀 Pattern Summary Table
 
-## Why Prefix Sum Matters
+| Pattern name | When to use | Key idea | Example |
+| --- | --- | --- | --- |
+| 1D Prefix Sum | repeated range sum queries on an immutable array | precompute cumulative sums once, answer each query by subtraction | Range Sum Query - Immutable |
+| Prefix Sum + HashMap | count subarrays with exact target sum, especially with negative numbers | if `currentPrefix - previousPrefix = k`, then `previousPrefix = currentPrefix - k` | Subarray Sum Equals K |
+| Running Prefix Balance | compare left and right aggregates while scanning once | maintain left sum, derive right sum from total | Find Pivot Index |
+| 2D Prefix Sum | repeated rectangle sum queries in a matrix | extend prefix accumulation with inclusion-exclusion | Range Sum Query 2D - Immutable |
+| Modular Prefix | divisibility or remainder-based subarray conditions | equal remainders imply divisible difference | Continuous Subarray Sum |
 
-Many problems repeatedly ask for:
+## 🎯 Problem Statement
 
-- sum of subarray `[l..r]`
-- count of values in ranges
-- number of subarrays meeting a target condition
+Given an array or matrix, answer repeated range-aggregation queries efficiently, or count subarrays that satisfy a sum-based condition.
 
-Naive range sum query:
+Typical interview constraints:
+
+- `1 <= n, q <= 10^5`
+- values may be positive, zero, or negative
+- multiple queries or all-subarray checks make repeated rescanning too expensive
+- expected solution is usually `O(n + q)` or `O(n)`
+
+> [!NOTE]
+> Always inspect the constraints before coding. If the input is large and the prompt asks for many range sums or exact subarray counts, brute force is almost certainly too slow.
+
+## 🔍 How to Recognize This Pattern
+
+- Keywords in the problem:
+  range sum, cumulative, prefix, subarray sum equals `k`, pivot, region sum, divisible, remainder.
+- Input size and constraints:
+  large arrays, many queries, or a requirement better than `O(n^2)`.
+- Observations:
+  the sum of a range can be expressed as the difference between two cumulative sums.
+- Another strong signal:
+  negative numbers are allowed, so a sliding-window sum approach is no longer reliably monotonic.
+
+> [!IMPORTANT]
+> The strongest signals are:
+> 1. repeated range aggregation,
+> 2. exact-sum subarray counting,
+> 3. negative values that break two-pointer or sliding-window monotonicity,
+> 4. a natural "sum up to this point" interpretation.
+
+## 🧪 Example
+
+Input:
+
+```text
+nums = [3, 1, 4, 2]
+query = [1, 3]
+```
+
+Output:
+
+```text
+7
+```
+
+Explanation:
+
+- Build prefix array: `prefix = [0, 3, 4, 8, 10]`
+- `prefix[i]` stores the sum of elements in the half-open range `[0, i)`
+- Sum of `nums[1..3] = prefix[4] - prefix[1] = 10 - 3 = 7`
+
+The important shift is this:
+we stop recomputing the middle of the range and instead subtract two precomputed boundaries.
+
+## 🐢 Brute Force Approach
+
+Idea:
+
+- For each query `[left, right]`, iterate from `left` to `right` and compute the sum directly.
+- For subarray-count problems, try every start index and every end index.
 
 ```java
 int sum = 0;
-for (int i = l; i <= r; i++) {
+for (int i = left; i <= right; i++) {
     sum += nums[i];
 }
 ```
 
-One query is `O(n)`.  
-If you have many queries, total cost becomes expensive.
+Complexity:
 
-Prefix sum preprocesses once in `O(n)` and answers each sum query in `O(1)`.
+- Range queries: `O(qn)` in the worst case
+- All-subarray checks: `O(n^2)` or even `O(n^3)` if each subarray sum is recomputed from scratch
+- Space: `O(1)`
 
----
+> [!WARNING]
+> This fails when the array is large or the number of queries is high. The repeated work is the problem: neighboring queries or subarrays heavily overlap, but brute force recalculates the same sums again and again.
 
-## Core Idea
+## ⚡ Optimized Approach
 
-Define prefix array:
+### 💡 Key Insight
+
+We optimize by reducing repeated summation into one cumulative pass.
+
+If we define:
 
 `prefix[i] = nums[0] + nums[1] + ... + nums[i - 1]`
 
-Note the indexing choice:
+then:
 
-- `prefix[0] = 0`
-- `prefix` length is `n + 1`
+`sum(left..right) = prefix[right + 1] - prefix[left]`
 
-Then range sum:
+For counting problems, the same logic becomes:
 
-`sum(l..r) = prefix[r + 1] - prefix[l]`
+`currentPrefix - previousPrefix = target`
 
----
+So instead of searching every subarray explicitly, we look up whether the needed earlier prefix has already appeared.
 
-## Template 1: 1D Prefix Sum (Range Sum Queries)
+### 🧠 Mental Model
 
-What we are doing actually:
+Think of the prefix array as a ledger of work already paid for.
+Each range query becomes "take the larger checkpoint and subtract the smaller checkpoint."
 
-1. Build a cumulative array where each position stores the sum before that index.
-2. Convert any range sum into subtraction of two prefix values.
-3. Pay `O(n)` once so each query becomes `O(1)`.
+For prefix plus hashmap, the mental model is:
+the current index asks the past, "How many earlier prefixes would make my current total land exactly on the target?"
+
+### 🛠️ Steps
+
+Core 1D prefix sum:
+
+1. Create a prefix array of length `n + 1`
+2. Set `prefix[0] = 0`
+3. Build the invariant:
+   `prefix[i + 1] = prefix[i] + nums[i]`
+4. Answer any range sum `[left, right]` with:
+   `prefix[right + 1] - prefix[left]`
+
+Prefix plus hashmap for exact-sum subarrays:
+
+1. Maintain a running prefix sum `prefix`
+2. Maintain a frequency map `freq` of prefix sums seen so far
+3. Seed `freq.put(0, 1)` so subarrays starting at index `0` are counted
+4. At each element, add `freq.getOrDefault(prefix - k, 0)` to the answer
+5. Record the current prefix for future positions
+
+Invariant:
+
+- In the range-query version, `prefix[i]` always equals the sum of `[0, i)`
+- In the hashmap version, `freq` contains counts of prefix sums seen strictly before the current position
+
+### 💻 Code (Java)
+
+Range-query template:
 
 ```java
-public class PrefixSum1D {
-    private final long[] prefix; // use long to avoid overflow in large inputs
+public final class PrefixSum1D {
+    private final long[] prefix;
 
     public PrefixSum1D(int[] nums) {
         prefix = new long[nums.length + 1];
         for (int i = 0; i < nums.length; i++) {
-            prefix[i + 1] = prefix[i] + nums[i]; // Sum of elements before index i + 1.
+            prefix[i + 1] = prefix[i] + nums[i];
         }
     }
 
     public long rangeSum(int left, int right) {
-        // Sum of nums[left..right] = prefix up to right minus prefix before left.
         return prefix[right + 1] - prefix[left];
     }
 }
 ```
 
-Time:
-
-- Build: `O(n)`
-- Query: `O(1)`
-
-Space: `O(n)`
-
----
-
-## Problem 1: Range Sum Query - Immutable
-
-### Problem
-
-Given array and multiple range queries, return sum in each range.
-
-What we are solving actually:
-
-The same array will be queried many times, so repeated looping over every requested range would waste work.
-
-What we are doing actually:
-
-1. Precompute prefix sums once in the constructor.
-2. Keep those sums in an extra array of size `n + 1`.
-3. Answer every query by subtracting two prefix positions.
-
-### Java Implementation
-
-```java
-class NumArray {
-    private final int[] prefix;
-
-    public NumArray(int[] nums) {
-        prefix = new int[nums.length + 1];
-        for (int i = 0; i < nums.length; i++) {
-            prefix[i + 1] = prefix[i] + nums[i]; // Build cumulative sum up to i.
-        }
-    }
-
-    public int sumRange(int left, int right) {
-        return prefix[right + 1] - prefix[left]; // Remove the prefix before left.
-    }
-}
-```
-
-Debug steps:
-
-- print the full `prefix` array after construction
-- test `sumRange(0, 0)`, `sumRange(0, n - 1)`, and a middle range
-- verify the class uses `n + 1` positions, not `n`
-
----
-
-## Prefix Sum + HashMap (Most Important Extension)
-
-For subarray counting problems, direct range queries are not enough.
-You need this identity:
-
-If current prefix is `curr` and you need subarray sum = `k`, then:
-
-`curr - previousPrefix = k`
-`previousPrefix = curr - k`
-
-So store frequencies of seen prefix sums in a map.
-
----
-
-## Problem 2: Subarray Sum Equals K
-
-### Problem
-
-Count subarrays whose sum equals `k`.
-
-What we are solving actually:
-
-We need the count of all subarrays with sum `k`, not just one range query. That means we must detect how many earlier prefix sums can pair with the current prefix.
-
-What we are doing actually:
-
-1. Keep a running prefix sum.
-2. For each position, ask how many times `prefix - k` has appeared before.
-3. Add that count to the answer, then record the current prefix.
-
-### Java Implementation
+Most important interview extension: subarray sum equals `k`
 
 ```java
 public int subarraySum(int[] nums, int k) {
-    Map<Integer, Integer> freq = new HashMap<>();
-    freq.put(0, 1); // empty prefix
-
-    int prefix = 0;
-    int count = 0;
-
-    for (int x : nums) {
-        prefix += x; // Prefix sum up to current index.
-        count += freq.getOrDefault(prefix - k, 0); // Earlier prefixes that form sum k.
-        freq.put(prefix, freq.getOrDefault(prefix, 0) + 1); // Record current prefix for future subarrays.
-    }
-    return count;
-}
-```
-
-Time: `O(n)`  
-Space: `O(n)`
-
-Why `freq.put(0,1)`:
-
-- handles subarrays starting at index `0`
-
-Debug steps:
-
-- print `prefix`, `prefix - k`, `count`, and `freq` on each iteration
-- confirm counting happens before incrementing the current prefix frequency
-- test an array where multiple subarrays end at the same index
-
----
-
-## Problem 3: Count Number of Nice Subarrays (Exactly K Odd Numbers)
-
-Transform the problem:
-
-- odd -> `1`
-- even -> `0`
-
-Now it becomes “count subarrays with sum = `k`”.
-
-What we are solving actually:
-
-We convert the original odd/even condition into a simpler counting problem that prefix sum already knows how to solve.
-
-What we are doing actually:
-
-1. Map odd numbers to `1` and even numbers to `0`.
-2. Build a running prefix of odd counts.
-3. Reuse the same prefix-plus-frequency logic from subarray sum equals `k`.
-
-```java
-public int numberOfSubarrays(int[] nums, int k) {
     Map<Integer, Integer> freq = new HashMap<>();
     freq.put(0, 1);
 
@@ -239,74 +200,126 @@ public int numberOfSubarrays(int[] nums, int k) {
     int count = 0;
 
     for (int x : nums) {
-        prefix += (x % 2 != 0) ? 1 : 0; // Odd contributes 1, even contributes 0.
-        count += freq.getOrDefault(prefix - k, 0); // Count earlier prefixes that create exactly k odds.
+        prefix += x;
+        count += freq.getOrDefault(prefix - k, 0);
         freq.put(prefix, freq.getOrDefault(prefix, 0) + 1);
     }
+
     return count;
 }
 ```
 
-Debug steps:
+### ⏱️ Complexity
 
-- first write down the transformed 0/1 array for one sample input
-- trace the running `prefix` and matching `prefix - k`
-- verify that evens still matter because they extend valid ranges without changing the prefix
+Core 1D prefix sum:
 
----
+- Build: `O(n)`
+- Each query: `O(1)`
+- Space: `O(n)`
 
-## Problem 4: Find Pivot Index
+Prefix plus hashmap:
 
-`pivot` is index where left sum equals right sum.
+- Time: `O(n)`
+- Space: `O(n)`
 
-Using prefix sum:
+> [!TIP]
+> This is optimal for immutable range-sum queries because every query is reduced to constant-time subtraction after one linear preprocessing pass. For exact-sum subarray counting, the hashmap extension is usually the interview-optimal answer, especially when negative numbers are present.
 
-- `left = prefix[i]`
-- `right = total - prefix[i + 1]`
+## 🎨 Visual Intuition
 
-What we are solving actually:
+```text
+nums:    [ 3, 1, 4, 2 ]
+index:     0  1  2  3
 
-We want one index where the sum on the left equals the sum on the right, but we do not want to recompute left and right sums for every position.
+prefix: [ 0, 3, 4, 8, 10 ]
+index:    0  1  2  3   4
 
-What we are doing actually:
+Query: sum(1..3)
 
-1. Compute the total array sum once.
-2. Maintain a running left sum while scanning.
-3. Derive the right sum from `total - left - nums[i]`.
+Take everything up to index 3:      prefix[4] = 10
+Remove everything before index 1: - prefix[1] = 3
+                                    -------------
+Result:                             7
+```
+
+For subarray counting:
+
+```text
+If currentPrefix = 12 and target = 5,
+we need an earlier prefix of 7.
+
+Why?
+12 - 7 = 5
+```
+
+That is the whole pattern:
+convert a subarray condition into a relation between two prefix states.
+
+## ⚠️ Common Mistakes
+
+- Using a prefix array of size `n` instead of `n + 1`
+- Mixing inclusive and exclusive boundaries in `prefix[right + 1] - prefix[left]`
+- Forgetting `freq.put(0, 1)` in the hashmap variant
+- Updating prefix frequency before counting matches for the current position
+- Using `int` when the running sum may overflow
+- Forcing sliding window on target-sum problems with negative numbers
+
+> [!CAUTION]
+> The two most common bugs are boundary mistakes and update-order mistakes. If your answer is off by one, inspect the indexing. If your count is wrong, inspect the order of "count first, then store current prefix."
+
+## 🔁 Pattern Variations
+
+### Range Sum Query - Immutable
+
+The purest prefix-sum problem.
+Precompute once, answer many queries in `O(1)`.
+
+### Subarray Sum Equals K
+
+The most important extension.
+You combine prefix sum with a hashmap of seen prefix frequencies.
+
+### Count Number of Nice Subarrays
+
+Transform the array first:
+
+- odd -> `1`
+- even -> `0`
+
+Then the problem becomes:
+"count subarrays with sum exactly `k`."
+
+### Find Pivot Index
+
+You do not need a full prefix array.
+A running left sum plus total sum is enough.
 
 ```java
 public int pivotIndex(int[] nums) {
     int total = 0;
-    for (int x : nums) total += x; // Total sum of entire array.
+    for (int x : nums) total += x;
 
     int left = 0;
     for (int i = 0; i < nums.length; i++) {
-        int right = total - left - nums[i]; // Everything except current value and left side.
-        if (left == right) return i; // Current index balances both sides.
-        left += nums[i]; // Include current value in left sum for next iteration.
+        int right = total - left - nums[i];
+        if (left == right) return i;
+        left += nums[i];
     }
     return -1;
 }
 ```
 
-Debug steps:
+### 2D Prefix Sum
 
-- print `i`, `left`, `nums[i]`, and `right` at each step
-- test pivot at the beginning, in the middle, and no pivot
-- verify `left` updates after the equality check, not before
-
----
-
-## Template 2: 2D Prefix Sum (Matrix Range Queries)
-
-For matrix rectangle sum queries:
+For rectangle queries in a matrix, extend the same idea with inclusion-exclusion:
 
 ```java
-public class PrefixSum2D {
-    private final int[][] pre; // (m+1) x (n+1)
+public final class PrefixSum2D {
+    private final int[][] pre;
 
     public PrefixSum2D(int[][] matrix) {
-        int m = matrix.length, n = matrix[0].length;
+        int m = matrix.length;
+        int n = matrix[0].length;
         pre = new int[m + 1][n + 1];
 
         for (int i = 1; i <= m; i++) {
@@ -328,71 +341,49 @@ public class PrefixSum2D {
 }
 ```
 
----
+### Modular Prefix
 
-## Difference Array vs Prefix Sum
+Some problems care about divisibility rather than an exact sum.
+Then equal remainders become the signal:
 
-These two are frequently paired:
+`(prefix[j] - prefix[i]) % m == 0`
 
-- Prefix Sum: fast range query, point update expensive
-- Difference Array: fast range update, final reconstruction via prefix
+which means:
 
-Use Prefix Sum when queries dominate.
-Use Difference Array when bulk range updates dominate.
+`prefix[j] % m == prefix[i] % m`
 
----
+## 🔗 Pattern Composition (Advanced)
 
-## Common Mistakes
+- Prefix Sum + HashMap:
+  the standard composition for exact-sum subarray counting
+- Prefix Sum + Transformation:
+  convert the input first, such as odd/even to `1/0`, then reuse the same logic
+- Prefix Sum + Modulo Arithmetic:
+  useful for divisibility and remainder-based problems
+- Prefix Sum + Inclusion-Exclusion:
+  this is what makes 2D prefix sums work
+- Prefix Sum + Difference Array:
+  prefix sum makes range queries fast, while difference arrays make range updates fast
 
-1. Wrong prefix indexing (`n` vs `n + 1` array)
-2. Missing `freq.put(0, 1)` in hashmap variant
-3. Integer overflow when sums can exceed `int`
-4. Mixing inclusive/exclusive boundaries in range formulas
-5. Using sliding window where negatives exist and prefix-map is required
+Difference array vs prefix sum:
 
----
+- Prefix Sum:
+  preprocess once, answer range queries fast
+- Difference Array:
+  apply many range updates fast, then reconstruct with a prefix pass
 
-## Debug Checklist for Prefix + HashMap
+> [!IMPORTANT]
+> Prefix sum is rarely an isolated trick. In harder interview problems, it often acts as the accounting layer underneath another pattern such as hashmap counting, matrix inclusion-exclusion, modulo reasoning, or transformed-state modeling.
 
-When counts are off by one, verify these in order:
+## 🧠 Key Takeaways
 
-1. seed map with `freq.put(0, 1)`
-2. update `count` before incrementing current prefix frequency
-3. confirm `prefix - k` lookup (not `k - prefix`)
-4. inspect first few iterations with printed `(prefix, count, freq)` state
+- Prefix sum is the default pattern when repeated range aggregation is the bottleneck.
+- We maintain the invariant that each prefix entry summarizes all work up to that boundary.
+- Prefix plus hashmap is the go-to extension for exact-sum subarray counting.
+- Negative numbers are a strong hint that prefix-sum reasoning may beat sliding window.
+- Most bugs come from indexing mistakes, update order, or forgetting the empty-prefix base case.
 
-Most bugs in this pattern come from update ordering.
-
----
-
-## Modular Prefix Variant (Quick Mention)
-
-Some problems use modulo equality:
-
-`(prefix[j] - prefix[i]) % m == 0`  
-`=> prefix[j] % m == prefix[i] % m`
-
-Then store first/frequency of remainders instead of raw sums.
-This is the core trick behind problems like “continuous subarray sum”.
-
----
-
-## Production Perspective (Backend Systems)
-
-Prefix sum concepts appear in backend systems more often than they seem:
-
-- cumulative metrics (requests, failures, bytes) over time slices
-- fast interval aggregation in analytics APIs
-- event-stream feature engineering for scoring pipelines
-
-The core value is the same:
-
-- convert repeated recomputation into constant-time lookups
-- shift cost to a one-time preprocessing phase
-
----
-
-## Practice Set (Recommended Order)
+## 📌 Practice Problems
 
 1. Range Sum Query - Immutable (LC 303)  
    [LeetCode](https://leetcode.com/problems/range-sum-query-immutable/)
@@ -407,11 +398,5 @@ The core value is the same:
 6. Range Sum Query 2D - Immutable (LC 304)  
    [LeetCode](https://leetcode.com/problems/range-sum-query-2d-immutable/)
 
----
-
-## Key Takeaways
-
-- Prefix Sum is the default pattern for repeated range aggregation.
-- Prefix + HashMap unlocks linear-time subarray counting problems.
-- Index discipline and invariant clarity prevent most bugs.
-- This is a practical backend optimization tool, not just interview prep.
+> [!TIP]
+> Do not practice these as unrelated problems. Solve them in this order and say the invariant out loud each time. Prefix-sum mastery comes from recognizing the same accounting idea in several different shapes.
