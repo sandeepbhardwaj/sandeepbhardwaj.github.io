@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-16
-seo_title: Manacher Algorithm in Java – Complete Guide
+seo_title: Manacher Algorithm in Java - Interview Preparation Guide
 seo_description: Find longest palindromic substrings in linear time in Java with Manacher’s
   algorithm.
 tags:
@@ -12,7 +12,7 @@ tags:
 - manacher
 - palindrome
 - strings
-title: Manacher Algorithm for Palindromes in Java — A Detailed Guide
+title: Manacher Algorithm for Palindromes in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

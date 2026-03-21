@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-17
-seo_title: Rolling Hash Pattern in Java – Complete Guide
+seo_title: Rolling Hash Pattern in Java - Interview Preparation Guide
 seo_description: Apply rolling hash in Java for substring comparison, duplicate detection,
   and string indexing.
 tags:
@@ -12,7 +12,7 @@ tags:
 - rolling-hash
 - strings
 - algorithms
-title: Rolling Hash Pattern in Java — A Detailed Guide
+title: Rolling Hash Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

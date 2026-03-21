@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-18
-seo_title: Monotonic Queue (Deque) Pattern in Java – Complete Guide
+seo_title: Monotonic Queue (Deque) Pattern in Java - Interview Preparation Guide
 seo_description: Learn monotonic deque pattern in Java for sliding window extrema
   and constrained DP optimizations.
 tags:
@@ -12,7 +12,7 @@ tags:
 - monotonic-queue
 - deque
 - sliding-window
-title: Monotonic Queue (Deque) Pattern in Java — A Detailed Guide
+title: Monotonic Queue (Deque) Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

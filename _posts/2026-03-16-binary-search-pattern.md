@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-16
-seo_title: Binary Search Pattern in Java – Complete Guide
+seo_title: Binary Search Pattern in Java - Interview Preparation Guide
 seo_description: Master binary search in Java including index search, first/last occurrence,
   and answer-space binary search.
 tags:
@@ -12,7 +12,7 @@ tags:
 - binary-search
 - algorithms
 - interview-preparation
-title: Binary Search Pattern in Java — A Detailed Guide
+title: Binary Search Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

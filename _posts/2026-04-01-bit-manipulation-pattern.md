@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-01
-seo_title: Bit Manipulation Patterns in Java – Complete Guide
+seo_title: Bit Manipulation Patterns in Java - Interview Preparation Guide
 seo_description: Master bitwise operations in Java for masks, parity, subset states,
   and constant-memory optimizations.
 tags:
@@ -11,7 +11,7 @@ tags:
 - java
 - bit-manipulation
 - algorithms
-title: Bit Manipulation Patterns in Java — A Detailed Guide
+title: Bit Manipulation Patterns in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

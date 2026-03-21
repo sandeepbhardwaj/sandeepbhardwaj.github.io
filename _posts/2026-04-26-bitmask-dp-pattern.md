@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-26
-seo_title: Bitmask DP Pattern in Java – Complete Guide
+seo_title: Bitmask DP Pattern in Java - Interview Preparation Guide
 seo_description: Model subset states in Java with bitmask DP for assignment, TSP-style,
   and covering problems.
 tags:
@@ -11,7 +11,7 @@ tags:
 - java
 - bitmask-dp
 - dynamic-programming
-title: Bitmask DP Pattern in Java — A Detailed Guide
+title: Bitmask DP Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

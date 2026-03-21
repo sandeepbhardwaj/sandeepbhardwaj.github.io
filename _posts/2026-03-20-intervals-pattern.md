@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-20
-seo_title: Intervals Pattern in Java – Complete Guide
+seo_title: Intervals Pattern in Java - Interview Preparation Guide
 seo_description: Learn interval algorithms in Java including merge, insert, overlap
   detection, and meeting room scheduling.
 tags:
@@ -12,7 +12,7 @@ tags:
 - intervals
 - sorting
 - algorithms
-title: Intervals Pattern in Java — A Detailed Guide
+title: Intervals Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

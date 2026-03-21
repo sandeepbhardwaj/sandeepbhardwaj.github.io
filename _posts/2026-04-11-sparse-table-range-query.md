@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-11
-seo_title: Sparse Table Range Query Pattern in Java – Complete Guide
+seo_title: Sparse Table Range Query Pattern in Java - Interview Preparation Guide
 seo_description: Preprocess immutable arrays in Java for constant-time idempotent
   range queries.
 tags:
@@ -12,7 +12,7 @@ tags:
 - sparse-table
 - range-query
 - algorithms
-title: Sparse Table Range Query Pattern in Java — A Detailed Guide
+title: Sparse Table Range Query Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

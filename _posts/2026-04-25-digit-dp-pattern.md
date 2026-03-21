@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-25
-seo_title: Digit DP Pattern in Java – Complete Guide
+seo_title: Digit DP Pattern in Java - Interview Preparation Guide
 seo_description: Count numbers under digit constraints in Java with tight-bound state
   transitions.
 tags:
@@ -12,7 +12,7 @@ tags:
 - digit-dp
 - dynamic-programming
 - algorithms
-title: Digit DP Pattern in Java — A Detailed Guide
+title: Digit DP Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

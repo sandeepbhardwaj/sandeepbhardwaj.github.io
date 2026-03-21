@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-05
-seo_title: SCC Pattern in Java – Complete Guide
+seo_title: SCC Pattern in Java - Interview Preparation Guide
 seo_description: Decompose directed graphs into SCCs in Java using Kosaraju and low-link
   concepts.
 tags:
@@ -12,7 +12,7 @@ tags:
 - scc
 - graph
 - algorithms
-title: Strongly Connected Components Pattern in Java — A Detailed Guide
+title: Strongly Connected Components Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

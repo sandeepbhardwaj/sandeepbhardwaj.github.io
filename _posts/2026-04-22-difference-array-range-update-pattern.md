@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-22
-seo_title: Difference Array Pattern in Java – Complete Guide
+seo_title: Difference Array Pattern in Java - Interview Preparation Guide
 seo_description: Apply multiple range updates efficiently in Java with difference
   arrays and prefix reconstruction.
 tags:
@@ -12,7 +12,7 @@ tags:
 - difference-array
 - prefix-sum
 - algorithms
-title: Difference Array Range Update Pattern in Java — A Detailed Guide
+title: Difference Array Range Update Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

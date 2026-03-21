@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-07
-seo_title: Floyd-Warshall Algorithm in Java – Complete Guide
+seo_title: Floyd-Warshall Algorithm in Java - Interview Preparation Guide
 seo_description: Compute all-pairs shortest paths in Java with dynamic programming
   over intermediate nodes.
 tags:
@@ -12,7 +12,7 @@ tags:
 - floyd-warshall
 - graph
 - algorithms
-title: Floyd-Warshall Algorithm in Java — A Detailed Guide
+title: Floyd-Warshall Algorithm in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

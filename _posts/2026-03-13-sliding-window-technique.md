@@ -13,7 +13,7 @@ tags:
 - deque
 - algorithms
 - interview-preparation
-title: Sliding Window Technique in Java — A Detailed Guide for Serious Engineers
+title: Sliding Window Technique in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

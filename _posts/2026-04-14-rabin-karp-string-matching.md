@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-14
-seo_title: Rabin-Karp String Matching in Java – Complete Guide
+seo_title: Rabin-Karp String Matching in Java - Interview Preparation Guide
 seo_description: Use rolling hash in Java for efficient string matching and multi-pattern
   scanning.
 tags:
@@ -12,7 +12,7 @@ tags:
 - rabin-karp
 - rolling-hash
 - strings
-title: Rabin-Karp String Matching in Java — A Detailed Guide
+title: Rabin-Karp String Matching in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

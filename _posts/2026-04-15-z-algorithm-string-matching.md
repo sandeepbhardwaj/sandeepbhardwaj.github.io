@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-15
-seo_title: Z-Algorithm String Matching in Java – Complete Guide
+seo_title: Z-Algorithm String Matching in Java - Interview Preparation Guide
 seo_description: Compute Z-array in Java for prefix-match based string search and
   border analysis.
 tags:
@@ -12,7 +12,7 @@ tags:
 - z-algorithm
 - strings
 - algorithms
-title: Z-Algorithm for String Matching in Java — A Detailed Guide
+title: Z-Algorithm for String Matching in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

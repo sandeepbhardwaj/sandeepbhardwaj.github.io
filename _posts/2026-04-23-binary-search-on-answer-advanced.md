@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-23
-seo_title: Advanced Binary Search on Answer in Java – Complete Guide
+seo_title: Advanced Binary Search on Answer in Java - Interview Preparation Guide
 seo_description: Solve optimization constraints in Java by binary searching monotonic
   feasible answers.
 tags:
@@ -12,7 +12,7 @@ tags:
 - binary-search
 - optimization
 - algorithms
-title: Advanced Binary Search on Answer in Java — A Detailed Guide
+title: Advanced Binary Search on Answer in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

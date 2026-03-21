@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-20
-seo_title: Sweep Line Pattern in Java – Complete Guide
+seo_title: Sweep Line Pattern in Java - Interview Preparation Guide
 seo_description: Process interval and geometry events in Java with sorted endpoints
   and active-state tracking.
 tags:
@@ -12,7 +12,7 @@ tags:
 - sweep-line
 - intervals
 - algorithms
-title: Sweep Line Pattern in Java — A Detailed Guide
+title: Sweep Line Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

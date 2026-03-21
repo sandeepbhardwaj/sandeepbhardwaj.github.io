@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-30
-seo_title: Discrete Event Simulation Pattern in Java – Complete Guide
+seo_title: Discrete Event Simulation Pattern in Java - Interview Preparation Guide
 seo_description: Simulate asynchronous systems in Java using time-ordered event queues
   and state transitions.
 tags:
@@ -12,7 +12,7 @@ tags:
 - simulation
 - priority-queue
 - algorithms
-title: Discrete Event Simulation Pattern in Java — A Detailed Guide
+title: Discrete Event Simulation Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

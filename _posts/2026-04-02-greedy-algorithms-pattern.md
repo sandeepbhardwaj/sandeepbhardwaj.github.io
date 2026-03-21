@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-02
-seo_title: Greedy Algorithms Pattern in Java – Complete Guide
+seo_title: Greedy Algorithms Pattern in Java - Interview Preparation Guide
 seo_description: Learn greedy strategy design in Java with proof mindset and classic
   scheduling/selection examples.
 tags:
@@ -11,7 +11,7 @@ tags:
 - java
 - greedy
 - algorithms
-title: Greedy Algorithms Pattern in Java — A Detailed Guide
+title: Greedy Algorithms Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

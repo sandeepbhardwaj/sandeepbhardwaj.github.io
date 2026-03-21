@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-29
-seo_title: LRU LFU Cache Design in Java – Complete Guide
+seo_title: LRU LFU Cache Design in Java - Interview Preparation Guide
 seo_description: Design O(1) LRU/LFU caches in Java using hash maps and linked/bucket
   structures.
 tags:
@@ -12,7 +12,7 @@ tags:
 - cache-design
 - lru
 - lfu
-title: LRU and LFU Cache Design in Java — A Detailed Guide
+title: LRU and LFU Cache Design in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

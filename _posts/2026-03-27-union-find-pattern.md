@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-27
-seo_title: Union-Find (Disjoint Set) Pattern in Java – Complete Guide
+seo_title: Union-Find (Disjoint Set) Pattern in Java - Interview Preparation Guide
 seo_description: Learn Union-Find in Java with path compression and union by rank
   for connectivity and dynamic component problems.
 tags:
@@ -12,7 +12,7 @@ tags:
 - union-find
 - disjoint-set
 - graph
-title: Union-Find (Disjoint Set) Pattern in Java — A Detailed Guide
+title: Union-Find (Disjoint Set) Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
