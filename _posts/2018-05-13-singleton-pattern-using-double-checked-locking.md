@@ -8,7 +8,6 @@ tags:
 - java
 - concurrency
 - singleton
-author_profile: true
 seo_title: Double-Checked Locking Singleton in Java (Thread-Safe)
 seo_description: Build a thread-safe singleton in Java using double-checked locking
   and volatile.

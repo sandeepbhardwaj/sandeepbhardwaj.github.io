@@ -10,7 +10,6 @@ tags:
 - backend
 - timezone
 - distributed-systems
-author_profile: true
 toc: true
 seo_title: Java 8 Date & Time API — Production & Distributed Systems Guide
 seo_description: 'Practical Java 8 Date-Time API guide for backend systems: Instant,

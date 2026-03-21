@@ -11,6 +11,9 @@
   --brand-grad-start: #f97316;
   --brand-grad-end: #06b6d4;
   --brand-subtitle-fg: #0f172a;
+  --post-shell-max-width: 1580px;
+  --toc-rail-width-narrow: 200px;
+  --toc-rail-width-wide: 300px;
 }
 
 /* Dark Theme Variables */
@@ -42,6 +45,76 @@
   line-height: 1;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Wide single pages with no primary sidebar need custom shell sizing.
+   Minimal Mistakes does not support a wide content area plus a right TOC rail
+   at the same time, so keep this override narrowly scoped. */
+@media (min-width: 80em) {
+  body.layout--single.wide #main.main--no-sidebar {
+    max-width: var(--post-shell-max-width);
+  }
+}
+
+@media (min-width: 64em) {
+  body.layout--single.wide #main.main--no-sidebar .page {
+    float: none;
+    width: 100%;
+    padding-inline-end: 0;
+  }
+
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc {
+    float: inline-end;
+    width: calc(100% - var(--toc-rail-width-narrow));
+    padding-inline-end: var(--toc-rail-width-narrow);
+  }
+
+  body.layout--single.wide #main.main--no-sidebar .page__related {
+    float: none;
+    width: 100%;
+  }
+}
+
+@media (min-width: 64em) {
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc .page__content > .sidebar__right {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    clear: inline-end;
+    width: var(--toc-rail-width-narrow);
+    margin-inline-start: 1.5rem;
+    margin-inline-end: calc(-1 * var(--toc-rail-width-narrow));
+    padding-inline-start: 1rem;
+    z-index: 10;
+  }
+
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc .page__content > .sidebar__right.sticky {
+    position: sticky;
+    top: 2rem;
+    inset-inline-end: auto;
+    float: inline-end;
+  }
+
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc .page__content > .sidebar__right .toc {
+    margin-bottom: 0;
+  }
+
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc .page__content > .sidebar__right .toc .toc__menu {
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 80em) {
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc {
+    width: calc(100% - var(--toc-rail-width-wide));
+    padding-inline-end: var(--toc-rail-width-wide);
+  }
+
+  body.layout--single.wide #main.main--no-sidebar .page.page--has-toc .page__content > .sidebar__right {
+    width: var(--toc-rail-width-wide);
+    margin-inline-end: calc(-1 * var(--toc-rail-width-wide));
+  }
 }
 
 .theme-toggle:hover {

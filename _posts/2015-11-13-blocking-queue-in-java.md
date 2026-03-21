@@ -9,7 +9,6 @@ tags:
 - concurrency
 - multithreading
 - blockingqueue
-author_profile: true
 seo_title: BlockingQueue in Java with Producer Consumer Example
 seo_description: Learn how Java BlockingQueue works and how to build producer-consumer
   workflows safely.

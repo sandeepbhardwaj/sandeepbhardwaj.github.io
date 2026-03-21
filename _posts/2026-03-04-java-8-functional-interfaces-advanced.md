@@ -10,7 +10,6 @@ tags:
 - backend
 - api-design
 - architecture
-author_profile: true
 toc: true
 seo_title: Functional Interfaces in Java 8 — Advanced Backend Patterns
 seo_description: 'Advanced backend patterns with Java 8 functional interfaces: composition,

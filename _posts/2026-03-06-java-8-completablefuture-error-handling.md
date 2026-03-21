@@ -11,7 +11,6 @@ tags:
 - backend
 - error-handling
 - thread-pool
-author_profile: true
 toc: true
 seo_title: CompletableFuture — Error Handling & Thread Pool Architecture
 seo_description: Production-ready CompletableFuture patterns for exception handling,

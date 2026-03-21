@@ -1,5 +1,4 @@
 ---
-author_profile: true
 categories:
 - Java
 date: 2026-02-27

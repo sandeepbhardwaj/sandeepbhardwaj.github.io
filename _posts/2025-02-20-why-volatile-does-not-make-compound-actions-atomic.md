@@ -11,7 +11,6 @@ tags:
 - atomicity
 - race-condition
 - java-memory-model
-author_profile: true
 toc: true
 toc_label: In This Article
 toc_icon: cog

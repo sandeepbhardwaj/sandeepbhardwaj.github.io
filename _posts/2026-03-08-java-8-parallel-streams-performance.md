@@ -10,7 +10,6 @@ tags:
 - parallel-streams
 - backend
 - performance
-author_profile: true
 toc: true
 seo_title: Parallel Streams in Java 8 — Performance Engineering Guide
 seo_description: 'When parallel streams help and when they hurt in backend services:

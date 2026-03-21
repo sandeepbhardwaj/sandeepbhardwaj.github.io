@@ -10,7 +10,6 @@ tags:
 - threads
 - performance
 - context-switching
-author_profile: true
 toc: true
 toc_label: In This Article
 toc_icon: cog

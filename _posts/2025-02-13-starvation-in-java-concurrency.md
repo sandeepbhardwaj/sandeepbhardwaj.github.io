@@ -11,7 +11,6 @@ tags:
 - fairness
 - executors
 - locks
-author_profile: true
 toc: true
 toc_label: In This Article
 toc_icon: cog

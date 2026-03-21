@@ -7,7 +7,6 @@ tags:
 - java
 - ubuntu
 - maven
-author_profile: true
 seo_title: Set M2_HOME and PATH for Maven on Ubuntu
 seo_description: Configure Maven on Ubuntu by setting M2_HOME and PATH and verify
   with mvn -v.
