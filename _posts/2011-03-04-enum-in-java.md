@@ -6,7 +6,6 @@ categories:
 tags:
 - java
 - enum
-author_profile: true
 seo_title: Enum in Java with Fields, Methods, and Switch Examples
 seo_description: Understand Java enums with custom fields, methods, and real-world
   usage examples.

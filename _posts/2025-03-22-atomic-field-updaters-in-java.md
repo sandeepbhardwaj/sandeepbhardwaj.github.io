@@ -11,7 +11,6 @@ tags:
 - atomics
 - performance
 - memory
-author_profile: true
 toc: true
 toc_label: In This Article
 toc_icon: cog

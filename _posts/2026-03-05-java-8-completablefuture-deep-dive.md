@@ -11,7 +11,6 @@ tags:
 - backend
 - concurrency
 - async
-author_profile: true
 toc: true
 seo_title: CompletableFuture in Java 8 — Asynchronous Backend Design
 seo_description: 'Design production-grade async backend flows using CompletableFuture:

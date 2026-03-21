@@ -6,7 +6,6 @@ categories:
 tags:
 - java
 - java-basics
-author_profile: true
 seo_title: 'Varargs in Java: Variable-Argument Methods with Examples'
 seo_description: Learn Java varargs syntax, overload rules, and common pitfalls with
   practical examples.

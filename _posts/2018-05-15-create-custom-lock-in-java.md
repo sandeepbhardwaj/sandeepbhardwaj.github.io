@@ -8,7 +8,6 @@ tags:
 - java
 - concurrency
 - locks
-author_profile: true
 seo_title: Create a Custom Lock in Java (wait/notify)
 seo_description: Learn lock basics by implementing a simple custom lock using wait
   and notify.

@@ -11,7 +11,6 @@ tags:
 - java-memory-model
 - visibility
 - initialization
-author_profile: true
 toc: true
 toc_label: In This Article
 toc_icon: cog
