@@ -34,17 +34,45 @@ If you remember only one rule, remember this:
 linked lists win when "I already have the node" is the dominant operation.
 They lose when the workload is dominated by indexing, scanning, cache locality, and allocation churn.
 
+> [!NOTE] Interview lens
+> Most linked-list interview questions are not testing syntax. They are testing whether you can identify the right pointer pattern, state the invariant clearly, and mutate links without losing reachability.
+
 ---
+
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Fast-slow pointers | midpoint, split, odd/even structure, topology questions | move two pointers at different speeds to infer shape without extra memory | Middle of the Linked List |
+| Lead-lag or fixed gap | nth-from-end, keep nodes `k` apart, one-pass distance constraints | create a fixed gap, then move both pointers together | Remove Nth Node From End |
+| In-place reversal | reverse a full list or a segment | preserve `next`, then rewire links in place | Reverse Linked List |
+| Dummy or sentinel node | head deletion, insertion at front, edge-case-heavy mutation | place a stable node before the real head so head stops being special | Remove Linked List Elements |
+| Merge and split | merge sorted lists, weave halves, isolate sublists | build a finalized prefix while consuming input streams | Merge Two Sorted Lists |
+| Cycle detection | detect a loop or find its entry | Floyd's meeting argument proves a cycle and can locate the entry | Linked List Cycle II |
 
 ## Architectural Lens
 
-In production, linked-list problems are not about memorizing `slow` and `fast`.
+In interviews and in production, linked-list problems are not about memorizing `slow` and `fast`.
 They are about four engineering concerns:
 
 - topology inspection without extra memory
 - local rewiring without shifting whole collections
 - uniform edge handling through sentinels
 - explicit ownership during mutation
+
+---
+
+## Mental Models That Make Linked List Problems Easier
+
+- Linked list problems are pointer-rewiring problems, not indexing problems.
+- Before changing `current.next`, preserve the reference you will need next.
+- Say the invariant before you code. Most linked-list bugs happen when the mutation order is unclear.
+- A dummy node turns head operations into normal middle-of-list operations.
+- Fast-slow pointers reveal structure. Lead-lag pointers reveal distance.
+- If you lose reachability to the remainder of the list, the algorithm is already wrong even if it still compiles.
+
+> [!IMPORTANT] Pointer safety rule
+> Always preserve the next reference you still need before rewiring a link. In linked-list problems, one incorrect assignment can disconnect the rest of the structure immediately.
 
 ---
 
@@ -70,17 +98,73 @@ In Java specifically, `ArrayList` and `ArrayDeque` beat `LinkedList` surprisingl
 
 ---
 
-## Pattern 1: Fast-Slow Is Topology Inspection
+## Complexity Insights
 
-Senior engineers use fast-slow pointers when the question is about structure, not values.
-Typical examples:
+Most interview-grade linked-list problems follow a familiar complexity profile:
 
-- find a midpoint for split or reorder
-- detect whether traversal can terminate
-- prove a cycle exists without extra memory
+- time is usually `O(n)` because you still have to inspect each node at least once
+- extra space is usually `O(1)` when you iterate and mutate in place
+- recursion often makes space effectively `O(n)` because the call stack grows with the list
 
-In real systems this matters when you want one pass and fixed space, but it only works if the structure is stable during traversal.
-If another thread can mutate links while you walk, the algorithm is not "eventually consistent"; it is simply undefined.
+Useful trade-offs to remember:
+
+- fast-slow and lead-lag patterns save space, but they make loop conditions easier to get wrong
+- reversal is memory-efficient, but it destroys the original direction unless you rebuild it
+- dummy nodes cost one extra object, but they remove a lot of branch-heavy edge handling
+- merge is still `O(n + m)`, but real-world performance can be worse than arrays because linked nodes have poor locality
+
+Interview shortcut:
+if you are solving a linked-list problem optimally, the expected answer is often:
+"One pass or two passes, `O(n)` time, `O(1)` extra space, with careful pointer rewiring."
+
+> [!TIP] What interviewers want to hear
+> State the invariant, explain the mutation order, and mention one trade-off beyond Big-O. That answer sounds much stronger than only quoting `O(n)` and `O(1)`.
+
+---
+
+## Pattern 1: Fast-Slow Pointers for Structure Questions
+
+Use fast-slow pointers when the problem is asking about the shape of the list rather than a value at one position.
+This is the pattern for midpoint, split, odd-vs-even structure, and the first half of several composite problems.
+
+**How to recognize this pattern**
+
+- Signals in the prompt: find the middle, split into two halves, process the second half, do it in one pass, use constant extra space.
+- Keywords that hint at it: middle, midpoint, first half, second half, odd length, even length, reorder, palindrome.
+- Typical problem types: middle of the list, split for merge/reorder, find midpoint before reversal.
+
+**Visual intuition**
+
+```text
+Step 0
+1 -> 2 -> 3 -> 4 -> 5
+s
+f
+
+Step 1
+1 -> 2 -> 3 -> 4 -> 5
+     s
+         f
+
+Step 2
+1 -> 2 -> 3 -> 4 -> 5
+          s
+
+When `fast` reaches the end, `slow` is at the midpoint.
+```
+
+**Mental model**
+
+`slow` is measuring half-speed progress through the list.
+`fast` is measuring full-speed progress.
+The relative distance between them gives you structural information without counting nodes first.
+
+**Core invariant**
+
+At the start of every loop, `slow` has taken `k` steps and `fast` has taken `2k` steps.
+That is why `slow` lands near the middle when `fast` can no longer move two steps.
+
+**Java template**
 
 ```java
 public ListNode splitSecondHalf(ListNode head) {
@@ -93,44 +177,142 @@ public ListNode splitSecondHalf(ListNode head) {
         fast = fast.next.next;
     }
 
-    prev.next = null; // First half is now isolated.
-    return slow; // Head of second half.
+    prev.next = null;
+    return slow;
 }
 ```
 
-Why this pattern matters:
+**Interview note**
 
-- it converts "count first, mutate later" into a single pass
-- it gives you a split point without an extra array or stack
-- it scales in memory, but not necessarily in debuggability
+Be explicit about which middle you want.
+With even-length lists, `fast = head` typically lands `slow` on the second middle, while `fast = head.next` often lands on the first middle.
 
-Failure scenarios at scale:
+**Common mistakes**
 
-- a concurrent writer mutates `next` pointers while traversal is in flight
-- a corrupted tail pointer turns a terminating walk into an accidental cycle
-- a rare odd/even length edge case breaks downstream split logic only in production-sized lists
-
-Trade-off:
-fast-slow is elegant, but it is opaque to readers who do not know the invariant.
-If maintainability matters more than one saved pass, an explicit length count can sometimes be the better choice.
-
-Interview framing:
-say out loud that `slow` marks half-rate progress, `fast` marks full-rate progress, and the algorithm assumes structural stability during the walk.
+- using the wrong loop condition and dereferencing `fast.next` before checking `fast != null`
+- forgetting to keep `prev` when the task needs a physical split
+- not clarifying first-middle vs second-middle behavior for even-length input
 
 ---
 
-## Pattern 2: Reversal Is Ownership Inversion
+## Pattern 2: Lead-Lag or Fixed Gap for Distance Questions
 
-Reversal is not a cute pointer trick.
-It is the simplest example of controlled ownership transfer.
-After each iteration, one node leaves the unreversed region and joins the reversed region.
+This pattern is different from fast-slow.
+Both pointers move at the same speed after setup, but one pointer starts ahead.
+The maintained gap converts a "from the end" problem into a forward-only traversal.
 
-That same mental model appears in:
+**How to recognize this pattern**
 
-- reorder-list style problems
-- reverse-in-k-group
-- iterative backtracking over linked structures
-- log or buffer compaction pipelines that relink segments
+- Signals in the prompt: remove the nth node from the end, find the kth node from the end, keep two pointers `k` nodes apart, do it in one pass.
+- Keywords that hint at it: nth from end, kth from end, distance apart, gap, trailing pointer, one pass.
+- Typical problem types: Remove Nth Node From End, kth node from end, window-like node spacing constraints.
+
+**Visual intuition**
+
+```text
+Create a fixed gap first:
+dummy -> 1 -> 2 -> 3 -> 4 -> 5
+slow
+                          fast
+
+Then move both together:
+dummy -> 1 -> 2 -> 3 -> 4 -> 5
+          slow               fast
+
+When `fast` reaches null, `slow.next` is the node to remove.
+```
+
+**Mental model**
+
+You are not searching backward.
+You are preserving a fixed distance while moving forward once.
+The gap is the real data structure.
+
+**Core invariant**
+
+After initialization, `fast` is always `n + 1` steps ahead of `slow` when using a dummy node for deletion problems.
+That invariant guarantees `slow` stops immediately before the target node.
+
+**Java template**
+
+```java
+public ListNode removeNthFromEnd(ListNode head, int n) {
+    ListNode dummy = new ListNode(0);
+    dummy.next = head;
+
+    ListNode slow = dummy, fast = dummy;
+    for (int i = 0; i <= n; i++) {
+        fast = fast.next;
+    }
+
+    while (fast != null) {
+        slow = slow.next;
+        fast = fast.next;
+    }
+
+    slow.next = slow.next.next;
+    return dummy.next;
+}
+```
+
+**Interview note**
+
+Say why the dummy node is useful: it makes "remove head" and "remove middle" follow the same code path.
+
+> [!TIP] Reliable deletion pattern
+> For removal questions, `dummy + fixed gap` is usually the cleanest one-pass approach because it handles head deletion without any special-case branch.
+
+**Common mistakes**
+
+- advancing `fast` by `n` instead of `n + 1` when using a dummy node
+- forgetting that removing the head is a valid case
+- not handling invalid input if the interviewer allows `n` to exceed the list length
+
+---
+
+## Pattern 3: In-Place Reversal for Direction Changes
+
+Reversal is the fundamental linked-list mutation pattern.
+If you understand reversal deeply, you can solve reverse-a-sublist, reverse-in-k-group, reorder-list, and palindrome-style problems much more confidently.
+
+**How to recognize this pattern**
+
+- Signals in the prompt: reverse the list, reverse between positions, reverse groups, compare from both ends after transforming one half.
+- Keywords that hint at it: reverse, previous, backward, restore order, second half, in place.
+- Typical problem types: Reverse Linked List, Reverse Linked List II, Reverse Nodes in k-Group, Palindrome Linked List.
+
+**Visual intuition**
+
+```text
+Before a step:
+prev -> null    cur -> 1 -> 2 -> 3
+
+Save next first:
+next -> 2
+
+Rewire:
+null <- 1      2 -> 3
+        ^
+       prev
+        cur
+
+After advancing:
+prev -> 1 -> null
+cur  -> 2 -> 3
+```
+
+**Mental model**
+
+Each loop iteration moves exactly one node from the unreversed suffix into the reversed prefix.
+That is why reversal is easier to reason about as ownership transfer, not as traversal.
+
+**Core invariant**
+
+`prev` is the head of the fully reversed prefix.
+`cur` is the first node not yet processed.
+Nothing beyond `cur` should be lost, so `next` must be preserved before rewiring.
+
+**Java template**
 
 ```java
 public ListNode reverseList(ListNode head) {
@@ -145,35 +327,126 @@ public ListNode reverseList(ListNode head) {
 }
 ```
 
-The real invariant is short:
-`prev` is the head of a fully reversed prefix, and `cur` is the first node we have not processed.
+**Interview note**
 
-Performance bottleneck:
-the asymptotic cost is `O(n)`, but the real cost is cache misses and pointer chasing.
-On modern hardware, a contiguous array reversal often beats list reversal by a wide margin because the CPU can prefetch effectively.
+The sentence that signals maturity is:
+"I save `next` first, then point `cur.next` backward, then advance both handles."
 
-Failure scenarios at scale:
+**Common mistakes**
 
-- you lose `next` before rewiring and orphan the remainder of the chain
-- a stale external reference still assumes the old ordering and now observes partial mutation
-- you reverse in place on a structure that should have been immutable for audit or retry semantics
-
-Design trade-off:
-in-place reversal saves memory but destroys history.
-If the original ordering still matters to another component, copy first or redesign ownership boundaries.
-
-Opinionated rule:
-if a hot production path frequently reverses linked nodes, the structure is probably wrong for that path.
-Most high-throughput systems would rather batch into contiguous buffers than pay repeated pointer-chasing penalties.
+- overwriting `cur.next` before saving the remainder of the list
+- returning `head` instead of `prev` after the loop
+- forgetting that recursion uses `O(n)` stack space even though the pointer work is in place
 
 Focused drill: [Reverse Linked List Iteratively in Java](/dsa/java/reverse-linked-list-iteratively/)
 
 ---
 
-## Pattern 3: Sentinel Nodes Remove Special Cases
+## Pattern 4: Dummy or Sentinel Nodes for Edge-Case Control
 
-Senior codebases use sentinel nodes because edge cases are where correctness quietly dies.
-Head removal, empty-list insertion, and merge bootstrapping all become simpler when there is always one stable node before the first real element.
+Dummy nodes are the cleanest way to remove head-specific branching from your code.
+This pattern shows up whenever insertion, deletion, or result construction may need to touch the first real node.
+
+**How to recognize this pattern**
+
+- Signals in the prompt: delete nodes, insert before head, build a new list, merge lists, partition a list, edge cases around the first node.
+- Keywords that hint at it: remove head, delete matching nodes, build output, prepend, stable head handling.
+- Typical problem types: Remove Linked List Elements, Remove Nth Node From End, Partition List, merge-style construction.
+
+**Visual intuition**
+
+```text
+Without a dummy:
+head -> 1 -> 2 -> 3
+
+With a dummy:
+dummy -> 1 -> 2 -> 3
+cur
+
+Now deleting the first real node is just:
+cur.next = cur.next.next
+```
+
+**Mental model**
+
+A dummy node makes the head stop being special.
+Once that happens, "delete the first node" and "delete a middle node" become the same pointer rewrite.
+
+**Core invariant**
+
+Everything before `cur` is already in its final form.
+`cur.next` is the next node whose membership in the list you are deciding.
+
+**Java template**
+
+```java
+public ListNode removeElements(ListNode head, int val) {
+    ListNode dummy = new ListNode(0);
+    dummy.next = head;
+
+    ListNode cur = dummy;
+    while (cur.next != null) {
+        if (cur.next.val == val) {
+            cur.next = cur.next.next;
+        } else {
+            cur = cur.next;
+        }
+    }
+
+    return dummy.next;
+}
+```
+
+**Interview note**
+
+When the prompt has multiple head-related edge cases, reach for a dummy node early instead of patching those cases later with extra `if` branches.
+
+**Common mistakes**
+
+- returning `dummy` instead of `dummy.next`
+- moving `cur` forward immediately after deletion and accidentally skipping consecutive matches
+- mixing dummy-node logic with separate head-special-case logic and creating duplicate behavior
+
+Focused drill: [Remove Linked List Elements in Java](/dsa/java/remove-linked-list-elements/)
+
+---
+
+## Pattern 5: Merge and Split as Streaming Operations
+
+Linked lists feel most natural when you consume from the front of one or more chains and build a finalized prefix.
+That is why merge, split, and weave operations are classic interview patterns.
+
+**How to recognize this pattern**
+
+- Signals in the prompt: merge two sorted lists, interleave halves, split into segments, consume from multiple inputs while preserving order.
+- Keywords that hint at it: merge, sorted lists, weave, interleave, partition, split, consume.
+- Typical problem types: Merge Two Sorted Lists, Merge k Sorted Lists, Reorder List, split-before-merge transformations.
+
+**Visual intuition**
+
+```text
+a:    1 -> 4 -> 7
+b:    2 -> 3 -> 6
+
+out: dummy -> 1 -> 2 -> 3 -> 4 -> 6 -> 7
+                           ^
+                         tail
+
+`tail` marks the finalized output prefix.
+Each step attaches exactly one next node.
+```
+
+**Mental model**
+
+Treat each input list as a stream.
+At every step, choose the next correct node, append it to the output, and move only the pointer that supplied that node.
+
+**Core invariant**
+
+`tail.next` is always the place where the next chosen node will be attached.
+Everything before `tail` is finalized and already in correct order.
+
+**Java template**
 
 ```java
 public ListNode mergeTwoLists(ListNode a, ListNode b) {
@@ -195,85 +468,134 @@ public ListNode mergeTwoLists(ListNode a, ListNode b) {
 }
 ```
 
-This is not about one extra node.
-It is about normalizing control flow so the head is no longer a special branch.
+**Interview note**
 
-Why mature systems like sentinels:
+The easiest way to explain merge is:
+"I maintain a finalized output prefix with `tail`, and I attach the smaller front node from the two remaining input streams."
 
-- fewer branch-heavy edge paths
-- simpler invariants for code review
-- easier extension when the structure later becomes doubly linked or pooled
+**Common mistakes**
 
-Failure scenarios at scale:
-
-- rare head-deletion cases break only under unusual traffic or recovery flows
-- inconsistent tail updates create silent truncation or accidental cycles
-- multiple "if head == ..." branches drift apart over time and become maintenance traps
-
-Design trade-off:
-sentinels add one object and a little ceremony, but they buy back reasoning clarity.
-That is almost always a good trade.
-
-What big systems do differently:
-they often hide sentinels inside the abstraction so callers never see the edge handling.
-Well-engineered queues, deques, caches, and allocators make the invariant local to the data structure, not every call site.
-
-Focused drill: [Remove Linked List Elements in Java](/dsa/java/remove-linked-list-elements/)
+- forgetting to advance `tail` after attaching a node
+- allocating fresh nodes when the problem allows pointer reuse
+- losing the unconsumed remainder after one list finishes
 
 ---
 
-## Pattern 4: Merge and Split Are Streaming Operations
+## Pattern 6: Cycle Detection for Termination and Entry Point
 
-Merge is where linked lists can still feel genuinely elegant.
-If two sorted streams already exist as nodes, you can stitch them together without moving values around.
+Cycle detection is a pattern about termination guarantees.
+It answers two interview questions:
+does a cycle exist, and if it does, where does the cycle start?
 
-That said, the phrase "without copying" can be dangerously seductive.
-If you first allocated one object per element just to reach this moment, the total system cost may still be terrible.
-Pointer-cheap does not mean system-cheap.
+**How to recognize this pattern**
 
-Performance bottlenecks:
+- Signals in the prompt: determine whether traversal terminates, detect a loop, find the cycle entry, use constant extra space.
+- Keywords that hint at it: cycle, loop, repeated node, revisit, entry point, Floyd.
+- Typical problem types: Linked List Cycle, Linked List Cycle II, fast-slow based topology checks.
 
-- one allocation per element if you build fresh nodes
-- poor locality while traversing both chains
-- difficult vectorization or prefetch compared with array-backed runs
+**Visual intuition**
 
-What big-tech style storage systems do differently:
+```text
+1 -> 2 -> 3 -> 4 -> 5
+          ^         |
+          |_________|
 
-- they often merge blocks, pages, or sorted runs rather than individual heap objects
-- they keep metadata contiguous so scans are predictable for the CPU
-- they separate logical ordering from physical representation instead of exposing raw node chains everywhere
+slow: 1 step at a time
+fast: 2 steps at a time
 
-In other words, the production version of "merge lists" is often "merge chunks" rather than "merge millions of scattered objects."
+If they meet, a cycle exists.
+Reset one pointer to head and move both one step to find the entry.
+```
 
----
+**Mental model**
 
-## Cycle Detection Is a Stability Check, Not a Party Trick
+Fast gains one node on slow in each loop iteration inside the cycle.
+That relative motion guarantees a meeting point if a cycle exists.
+The second phase works because the distance from head to cycle entry matches the distance from meeting point to cycle entry modulo the cycle length.
 
-Cycle detection is interview-famous, but its real systems meaning is broader:
-it answers whether your ownership graph can terminate.
-That matters in object retention bugs, corrupted free lists, scheduler queues, and data-structure sanity checks after failure recovery.
+**Core invariant**
+
+Before a meeting, both pointers remain on valid nodes if and only if the structure still allows two-step progress for `fast`.
+After a meeting, moving one pointer from head and one from the meeting point at equal speed converges at the entry.
+
+**Java template**
 
 ```java
-public boolean hasCycle(ListNode head) {
+public ListNode detectCycle(ListNode head) {
     ListNode slow = head, fast = head;
+
     while (fast != null && fast.next != null) {
         slow = slow.next;
         fast = fast.next.next;
-        if (slow == fast) return true;
+
+        if (slow == fast) {
+            ListNode entry = head;
+            while (entry != slow) {
+                entry = entry.next;
+                slow = slow.next;
+            }
+            return entry;
+        }
     }
-    return false;
+
+    return null;
 }
 ```
 
-Practical warning:
-running this against a concurrently mutating structure is false confidence.
-Production sanity checks belong either behind synchronization, behind single-writer ownership, or on immutable snapshots.
+**Interview note**
+
+Use node identity, not node value.
+Two different nodes can hold the same value, but cycle detection is about revisiting the same object.
+
+> [!WARNING] Stability assumption
+> Floyd's cycle detection assumes the list is not being mutated while you traverse it. On a concurrently changing structure, the result is not trustworthy.
+
+**Common mistakes**
+
+- comparing values instead of node references
+- stopping after detection when the interviewer asked for the entry point
+- running Floyd's algorithm on a structure that may be concurrently mutated
 
 Focused drills:
 
 - [Detect a Loop in Linked List](/dsa/java/detect-loop-in-linked-list/)
 - [Middle of the Linked List in Java](/dsa/java/middle-of-the-linked-list/)
 - [Linked List Cycle II](/dsa/java/linked-list-cycle-ii/)
+
+---
+
+## Pattern Composition (Advanced)
+
+Strong interview performance comes from seeing that medium problems are often just two or three simple linked-list patterns combined.
+
+| Combined patterns | What it solves | Example problem |
+| --- | --- | --- |
+| fast-slow + reversal | compare mirrored positions without extra space | Palindrome Linked List |
+| fast-slow + reversal + merge | split, reverse second half, then weave both halves | Reorder List |
+| dummy node + fixed gap | remove a node near the head or middle with one unified flow | Remove Nth Node From End |
+| split + repeated reversal | isolate groups and reverse each segment in place | Reverse Nodes in k-Group |
+| cycle detection + reset-to-head | prove a loop and locate the cycle entry | Linked List Cycle II |
+
+When a problem feels hard, reduce it to these questions:
+
+1. Do I need structure information, distance information, or mutation?
+2. Is the head a special case I can eliminate with a dummy node?
+3. Am I reversing, merging, or splitting as a subroutine?
+
+Most linked-list interview questions become much simpler once you decompose them this way.
+
+---
+
+## Common Mistakes That Break Linked List Solutions
+
+These are the mistakes interviewers see most often:
+
+- Losing references: you overwrite `next` before saving the remainder of the list.
+- Incorrect loop conditions: you access `fast.next` or `cur.next` before proving the node exists.
+- Head-update bugs: the logic works for middle nodes but fails when the first real node changes.
+- Edge-case blindness: empty list, single-node list, and two-node list often behave differently from longer input.
+- Returning the wrong pointer: after reversal the answer is `prev`, after dummy-node workflows the answer is usually `dummy.next`.
+- Mixing patterns incorrectly: for example, using fast-slow when the real problem is fixed distance from the end.
 
 ---
 
@@ -307,6 +629,9 @@ When linked lists hurt in production, the symptoms are usually these:
 
 That is why Java teams often learn this uncomfortable lesson:
 `LinkedList` can be asymptotically fine and still operationally worse than `ArrayDeque`.
+
+> [!CAUTION] Java default-choice trap
+> Do not reach for `LinkedList` just because insertion and deletion are `O(1)` in theory. If the workload is mostly queueing, deque operations, or repeated scans, `ArrayDeque` or `ArrayList` is usually the better default.
 
 Opinionated rule:
 never choose `LinkedList` for a hot queue path just because inserts and deletes are `O(1)` on paper.
@@ -386,7 +711,7 @@ Randomized tests are still valuable, but they work best after the invariant is a
 - [Linked List Cycle II](/dsa/java/linked-list-cycle-ii/)
 
 Use this page as the mental model layer.
-Use the older posts when you want a tighter drill on one specific problem.
+Use the older posts when you want a tighter drill on one specific problem, then use the practice order below to move from single-pattern recognition to multi-pattern composition.
 
 ---
 
@@ -394,19 +719,23 @@ Use the older posts when you want a tighter drill on one specific problem.
 
 1. Middle of the Linked List (LC 876)  
    [LeetCode](https://leetcode.com/problems/middle-of-the-linked-list/)
-2. Reverse Linked List (LC 206)  
-   [LeetCode](https://leetcode.com/problems/reverse-linked-list/)
-3. Remove Nth Node From End (LC 19)  
+2. Remove Nth Node From End (LC 19)  
    [LeetCode](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
-4. Linked List Cycle (LC 141)  
-   [LeetCode](https://leetcode.com/problems/linked-list-cycle/)
+3. Reverse Linked List (LC 206)  
+   [LeetCode](https://leetcode.com/problems/reverse-linked-list/)
+4. Remove Linked List Elements (LC 203)  
+   [LeetCode](https://leetcode.com/problems/remove-linked-list-elements/)
 5. Merge Two Sorted Lists (LC 21)  
    [LeetCode](https://leetcode.com/problems/merge-two-sorted-lists/)
-6. Reorder List (LC 143)  
+6. Linked List Cycle (LC 141)  
+   [LeetCode](https://leetcode.com/problems/linked-list-cycle/)
+7. Palindrome Linked List (LC 234)  
+   [LeetCode](https://leetcode.com/problems/palindrome-linked-list/)
+8. Reorder List (LC 143)  
    [LeetCode](https://leetcode.com/problems/reorder-list/)
-7. Reverse Nodes in k-Group (LC 25)  
+9. Reverse Nodes in k-Group (LC 25)  
    [LeetCode](https://leetcode.com/problems/reverse-nodes-in-k-group/)
-8. Merge k Sorted Lists (LC 23)  
+10. Merge k Sorted Lists (LC 23)  
    [LeetCode](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 ---
@@ -414,6 +743,6 @@ Use the older posts when you want a tighter drill on one specific problem.
 ## Key Takeaways
 
 - Linked lists are a mutation and ownership tool, not a default performance structure.
-- The winning patterns are fast-slow topology checks, controlled reversal, sentinel-based edge normalization, and streaming merge.
+- Most interview questions reduce to a short pattern set: fast-slow, fixed-gap, reversal, dummy-node control, merge/split, and cycle detection.
 - At scale, cache locality, allocation pressure, and mutation safety matter more than textbook `O(1)` claims.
-- Strong interview answers pair the invariant with one real-world trade-off.
+- Strong interview answers pair the invariant with one real-world trade-off, and the best medium-level solutions are usually compositions of simpler patterns.
