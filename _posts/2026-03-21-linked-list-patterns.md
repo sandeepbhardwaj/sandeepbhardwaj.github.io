@@ -34,6 +34,9 @@ If you remember only one rule, remember this:
 linked lists win when "I already have the node" is the dominant operation.
 They lose when the workload is dominated by indexing, scanning, cache locality, and allocation churn.
 
+> [!NOTE] Interview lens
+> Most linked-list interview questions are not testing syntax. They are testing whether you can identify the right pointer pattern, state the invariant clearly, and mutate links without losing reachability.
+
 ---
 
 ## Pattern Summary Table
@@ -67,6 +70,9 @@ They are about four engineering concerns:
 - A dummy node turns head operations into normal middle-of-list operations.
 - Fast-slow pointers reveal structure. Lead-lag pointers reveal distance.
 - If you lose reachability to the remainder of the list, the algorithm is already wrong even if it still compiles.
+
+> [!IMPORTANT] Pointer safety rule
+> Always preserve the next reference you still need before rewiring a link. In linked-list problems, one incorrect assignment can disconnect the rest of the structure immediately.
 
 ---
 
@@ -110,6 +116,9 @@ Useful trade-offs to remember:
 Interview shortcut:
 if you are solving a linked-list problem optimally, the expected answer is often:
 "One pass or two passes, `O(n)` time, `O(1)` extra space, with careful pointer rewiring."
+
+> [!TIP] What interviewers want to hear
+> State the invariant, explain the mutation order, and mention one trade-off beyond Big-O. That answer sounds much stronger than only quoting `O(n)` and `O(1)`.
 
 ---
 
@@ -249,6 +258,9 @@ public ListNode removeNthFromEnd(ListNode head, int n) {
 **Interview note**
 
 Say why the dummy node is useful: it makes "remove head" and "remove middle" follow the same code path.
+
+> [!TIP] Reliable deletion pattern
+> For removal questions, `dummy + fixed gap` is usually the cleanest one-pass approach because it handles head deletion without any special-case branch.
 
 **Common mistakes**
 
@@ -535,6 +547,9 @@ public ListNode detectCycle(ListNode head) {
 Use node identity, not node value.
 Two different nodes can hold the same value, but cycle detection is about revisiting the same object.
 
+> [!WARNING] Stability assumption
+> Floyd's cycle detection assumes the list is not being mutated while you traverse it. On a concurrently changing structure, the result is not trustworthy.
+
 **Common mistakes**
 
 - comparing values instead of node references
@@ -614,6 +629,9 @@ When linked lists hurt in production, the symptoms are usually these:
 
 That is why Java teams often learn this uncomfortable lesson:
 `LinkedList` can be asymptotically fine and still operationally worse than `ArrayDeque`.
+
+> [!CAUTION] Java default-choice trap
+> Do not reach for `LinkedList` just because insertion and deletion are `O(1)` in theory. If the workload is mostly queueing, deque operations, or repeated scans, `ArrayDeque` or `ArrayList` is usually the better default.
 
 Opinionated rule:
 never choose `LinkedList` for a hot queue path just because inserts and deletes are `O(1)` on paper.
