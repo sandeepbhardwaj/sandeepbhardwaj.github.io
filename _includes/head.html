@@ -1,0 +1,29 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Jekyll v{{ jekyll.version }}">
+{% include seo.html %}
+{% feed_meta %}
+<script>
+  (function () {
+    var storageKey = "theme-preference";
+    var defaultTheme = {{ site.appearance.default_theme | default: "dark" | jsonify }};
+    var resolvedTheme = defaultTheme;
+
+    try {
+      var storedTheme = localStorage.getItem(storageKey);
+      if (storedTheme === "light" || storedTheme === "dark") {
+        resolvedTheme = storedTheme;
+      } else if (defaultTheme === "system" && window.matchMedia) {
+        resolvedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+    } catch (_error) {}
+
+    document.documentElement.setAttribute("data-theme", resolvedTheme === "light" ? "light" : "dark");
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+{% include analytics.html %}
+{% include head/custom.html %}

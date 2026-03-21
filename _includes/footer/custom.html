@@ -1,13 +1,11 @@
-{% assign followit = site.followit %}
-{% assign followit_url = followit.url | default: "" | strip %}
-{% if followit.enabled and followit_url != "" %}
-  <div class="page__footer-follow">
-    <ul class="social-icons">
-      <li>
-        <a href="{{ followit_url }}" rel="nofollow noopener noreferrer">
-          <i class="fas fa-fw fa-envelope" aria-hidden="true"></i> {{ followit.footer_label | default: "Subscribe via email" }}
-        </a>
-      </li>
-    </ul>
+{% assign newsletter = site.integrations.newsletter %}
+{% assign newsletter_provider = newsletter.provider | default: "followit" | strip | downcase %}
+{% assign followit_enabled = newsletter.enabled %}
+{% assign followit_url = newsletter.url | default: "" | strip %}
+{% assign followit_label = newsletter.footer_label | default: "Subscribe via email" %}
+
+{% if newsletter_provider == "followit" and followit_enabled and followit_url != "" %}
+  <div class="site-footer__follow">
+    <a href="{{ followit_url }}" rel="nofollow noopener noreferrer">{{ followit_label }}</a>
   </div>
 {% endif %}

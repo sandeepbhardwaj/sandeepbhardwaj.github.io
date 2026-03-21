@@ -1,0 +1,42 @@
+---
+layout: null
+permalink: /search.json
+sitemap: false
+search: false
+---
+[
+{% assign first = true %}
+{% for post in site.posts %}
+  {% if post.search != false %}
+    {% unless first %},{% endunless %}
+    {
+      "title": {{ post.title | jsonify }},
+      "url": {{ post.url | absolute_url | jsonify }},
+      "relative_url": {{ post.url | relative_url | jsonify }},
+      "excerpt": {{ post.excerpt | markdownify | newline_to_br | strip_newlines | replace: '<br />', ' ' | strip_html | replace: '  ', ' ' | jsonify }},
+      "content": {{ post.content | markdownify | newline_to_br | strip_newlines | replace: '<br />', ' ' | strip_html | replace: '  ', ' ' | truncate: 4000 | jsonify }},
+      "categories": {{ post.categories | jsonify }},
+      "tags": {{ post.tags | jsonify }},
+      "type": "post",
+      "date": {{ post.date | date: "%Y-%m-%d" | jsonify }}
+    }
+    {% assign first = false %}
+  {% endif %}
+{% endfor %}
+{% for doc in site.html_pages %}
+  {% if doc.search != false and doc.url != '/404.html' %}
+    {% unless first %},{% endunless %}
+    {
+      "title": {{ doc.title | default: doc.url | jsonify }},
+      "url": {{ doc.url | absolute_url | jsonify }},
+      "relative_url": {{ doc.url | relative_url | jsonify }},
+      "excerpt": {{ doc.excerpt | default: doc.content | markdownify | newline_to_br | strip_newlines | replace: '<br />', ' ' | strip_html | replace: '  ', ' ' | truncate: 600 | jsonify }},
+      "content": {{ doc.content | markdownify | newline_to_br | strip_newlines | replace: '<br />', ' ' | strip_html | replace: '  ', ' ' | truncate: 2500 | jsonify }},
+      "categories": {{ doc.categories | jsonify }},
+      "tags": {{ doc.tags | jsonify }},
+      "type": "page"
+    }
+    {% assign first = false %}
+  {% endif %}
+{% endfor %}
+]

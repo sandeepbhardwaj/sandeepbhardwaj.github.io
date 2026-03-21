@@ -1,0 +1,18 @@
+{% assign page_url = page.url | absolute_url %}
+{% assign site_logo = site.author.avatar | default: site.og_image | absolute_url %}
+{% if page.url == '/' %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": {{ site.title | jsonify }},
+      "description": {{ site.description | jsonify }},
+      "url": {{ site.url | jsonify }},
+      "publisher": {
+        "@type": "Person",
+        "name": {{ site.author.name | default: site.title | jsonify }},
+        "image": {{ site_logo | jsonify }}
+      }
+    }
+  </script>
+{% endif %}

@@ -1,0 +1,76 @@
+---
+layout: default
+---
+{% assign posts = paginator.posts | default: site.posts %}
+{% assign featured_categories = site.categories | sort %}
+{% assign latest_post = site.posts.first %}
+<section class="home-hero">
+  <div class="site-container home-hero__inner">
+    <div class="home-hero__content">
+      <p class="home-hero__eyebrow">{{ site.subtitle }}</p>
+      <h1 class="home-hero__title">{{ page.title | default: site.title }}</h1>
+      {% if page.excerpt %}
+        <p class="home-hero__excerpt">{{ page.excerpt }}</p>
+      {% endif %}
+
+      <div class="home-hero__actions">
+        <a class="btn btn--primary" href="#latest-posts">Start Reading</a>
+        <a class="btn" href="{{ '/about/' | relative_url }}">About the Author</a>
+        {% if site.features.search.enabled != false %}
+          <button class="btn btn--ghost" type="button" data-search-open>Search Topics</button>
+        {% endif %}
+      </div>
+
+      {% if featured_categories.size > 0 %}
+        <div class="home-hero__topics">
+          {% for category in featured_categories limit: 5 %}
+            <a class="home-hero__topic" href="/categories/{{ category[0] | slugify }}/">{{ category[0] }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="home-hero__panel">
+      <p class="home-hero__panel-label">At a glance</p>
+      <div class="home-hero__stats">
+        <div class="home-hero__stat">
+          <span class="home-hero__stat-value">{{ site.posts | size }}</span>
+          <span class="home-hero__stat-label">Published posts</span>
+        </div>
+        <div class="home-hero__stat">
+          <span class="home-hero__stat-value">{{ site.categories | size }}</span>
+          <span class="home-hero__stat-label">Core categories</span>
+        </div>
+        {% if latest_post %}
+          <div class="home-hero__stat">
+            <span class="home-hero__stat-value">{{ latest_post.date | date: "%b %Y" }}</span>
+            <span class="home-hero__stat-label">Latest update</span>
+          </div>
+        {% endif %}
+      </div>
+      <p class="home-hero__panel-copy">Backend engineering, DSA interview prep, and system design notes focused on practical depth over surface-level summaries.</p>
+    </aside>
+  </div>
+</section>
+
+<section id="latest-posts" class="site-container home-feed">
+  <div class="section-heading">
+    <div>
+      <p class="section-heading__eyebrow">Latest Writing</p>
+      <h2 class="section-heading__title">Recent posts</h2>
+    </div>
+    <a class="section-heading__link" href="{{ '/categories/' | relative_url }}">Browse categories</a>
+  </div>
+
+  <div class="entries-list">
+    {% for post in posts %}
+      {% if forloop.first %}
+        {% include archive-single.html type="list" variant="home-featured" %}
+      {% else %}
+        {% include archive-single.html type="list" variant="home" %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% include pagination.html %}
+</section>

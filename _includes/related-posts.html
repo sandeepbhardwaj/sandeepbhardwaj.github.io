@@ -1,0 +1,11 @@
+{% assign related_posts = site.related_posts | where_exp: "post", "post.url != page.url" | limit: 3 %}
+{% if related_posts and related_posts.size > 0 %}
+  <section class="related-posts">
+    <h2 class="page__section-title">Related posts</h2>
+    <div class="entries-grid">
+      {% for post in related_posts %}
+        {% include archive-single.html type="grid" %}
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}

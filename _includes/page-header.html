@@ -1,0 +1,47 @@
+{% assign source = include.source | default: page %}
+{% assign overlay_image = source.header.overlay_image | default: "" | strip %}
+{% assign standard_image = source.header.image | default: "" | strip %}
+{% assign header_caption = source.header.caption | default: "" | strip %}
+{% assign show_excerpt = true %}
+{% if source.header.show_overlay_excerpt == false %}
+  {% assign show_excerpt = false %}
+{% endif %}
+{% assign header_excerpt = source.excerpt | default: source.description %}
+{% assign eyebrow = "Page" %}
+{% if source.date %}
+  {% assign eyebrow = source.categories | first | default: "Article" %}
+{% endif %}
+
+{% if overlay_image != "" %}
+  <section class="page-hero page-hero--overlay">
+    <div class="page-hero__media" style="--hero-image: linear-gradient(rgba(10, 15, 30, {{ source.header.overlay_filter | default: 0.38 }}), rgba(10, 15, 30, {{ source.header.overlay_filter | default: 0.38 }})), url('{{ overlay_image | relative_url }}');"></div>
+    <div class="site-container page-hero__content">
+      <p class="page-hero__eyebrow">{{ eyebrow }}</p>
+      <h1 id="page-title" class="page-hero__title">{{ source.title }}</h1>
+      {% include page__meta.html source=source show_modified=true %}
+      {% if header_excerpt and show_excerpt %}
+        <p class="page-hero__excerpt">{{ header_excerpt | strip_html }}</p>
+      {% endif %}
+      {% if header_caption != "" %}
+        <p class="page-hero__caption">{{ header_caption }}</p>
+      {% endif %}
+    </div>
+  </section>
+{% else %}
+  <header class="site-container page-header">
+    <p class="page-header__eyebrow">{{ eyebrow }}</p>
+    <h1 id="page-title" class="page-header__title">{{ source.title }}</h1>
+    {% include page__meta.html source=source show_modified=true %}
+    {% if header_excerpt %}
+      <p class="page-header__excerpt">{{ header_excerpt | strip_html }}</p>
+    {% endif %}
+    {% if standard_image != "" %}
+      <figure class="page-header__figure">
+        <img src="{{ standard_image | relative_url }}" alt="{{ source.header.og_image_alt | default: source.title }}">
+        {% if header_caption != "" %}
+          <figcaption>{{ header_caption }}</figcaption>
+        {% endif %}
+      </figure>
+    {% endif %}
+  </header>
+{% endif %}

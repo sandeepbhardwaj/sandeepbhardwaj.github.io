@@ -1,21 +1,22 @@
-{% assign comments = site.comments %}
-{% assign giscus = comments.giscus %}
-{% assign repo = giscus.repo | default: site.repository | default: "" | strip %}
-{% assign repo_id = giscus.repo_id | default: "" | strip %}
-{% assign category = giscus.category | default: "" | strip %}
-{% assign category_id = giscus.category_id | default: "" | strip %}
-{% assign mapping = giscus.mapping | default: "pathname" | strip %}
-{% assign term = giscus.term | default: "" | strip %}
-{% assign strict = giscus.strict | default: "0" | strip %}
-{% assign reactions_enabled = giscus.reactions_enabled | default: "1" | strip %}
-{% assign emit_metadata = giscus.emit_metadata | default: "0" | strip %}
-{% assign input_position = giscus.input_position | default: "top" | strip %}
-{% assign light_theme = giscus.light_theme | default: "light" | strip %}
-{% assign dark_theme = giscus.dark_theme | default: "dark_dimmed" | strip %}
-{% assign lang = giscus.lang | default: "en" | strip %}
-{% assign loading = giscus.loading | default: "lazy" | strip %}
+{% assign integration_comments = site.integrations.comments %}
+{% assign integration_provider = integration_comments.provider | default: "giscus" | strip | downcase %}
+{% assign giscus_enabled = integration_comments.enabled %}
+{% assign repo = integration_comments.repo | default: site.repository | default: "" | strip %}
+{% assign repo_id = integration_comments.repo_id | default: "" | strip %}
+{% assign category = integration_comments.category | default: "" | strip %}
+{% assign category_id = integration_comments.category_id | default: "" | strip %}
+{% assign mapping = integration_comments.mapping | default: "pathname" | strip %}
+{% assign term = integration_comments.term | default: "" | strip %}
+{% assign strict = integration_comments.strict | default: "0" | strip %}
+{% assign reactions_enabled = integration_comments.reactions_enabled | default: "1" | strip %}
+{% assign emit_metadata = integration_comments.emit_metadata | default: "0" | strip %}
+{% assign input_position = integration_comments.input_position | default: "top" | strip %}
+{% assign light_theme = integration_comments.light_theme | default: "light" | strip %}
+{% assign dark_theme = integration_comments.dark_theme | default: "dark_dimmed" | strip %}
+{% assign lang = integration_comments.lang | default: "en" | strip %}
+{% assign loading = integration_comments.loading | default: "lazy" | strip %}
 
-{% if comments.provider == "custom" and page.comments and giscus.enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
+{% if integration_provider == "giscus" and page.comments and giscus_enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
   <script>
     (function () {
       "use strict";

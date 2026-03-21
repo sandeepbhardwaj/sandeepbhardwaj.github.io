@@ -1,13 +1,14 @@
-{% assign comments = site.comments %}
-{% assign giscus = comments.giscus %}
-{% assign repo = giscus.repo | default: site.repository | default: "" | strip %}
-{% assign repo_id = giscus.repo_id | default: "" | strip %}
-{% assign category = giscus.category | default: "" | strip %}
-{% assign category_id = giscus.category_id | default: "" | strip %}
+{% assign integration_comments = site.integrations.comments %}
+{% assign integration_provider = integration_comments.provider | default: "giscus" | strip | downcase %}
+{% assign giscus_enabled = integration_comments.enabled %}
+{% assign repo = integration_comments.repo | default: site.repository | default: "" | strip %}
+{% assign repo_id = integration_comments.repo_id | default: "" | strip %}
+{% assign category = integration_comments.category | default: "" | strip %}
+{% assign category_id = integration_comments.category_id | default: "" | strip %}
 
-{% if comments.provider == "custom" and page.comments and giscus.enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
+{% if integration_provider == "giscus" and page.comments and giscus_enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
   <section class="page__comments">
-    <h4 class="page__comments-title">Comments</h4>
+    <h2 class="page__section-title">Comments</h2>
     <div class="giscus"></div>
   </section>
 {% endif %}

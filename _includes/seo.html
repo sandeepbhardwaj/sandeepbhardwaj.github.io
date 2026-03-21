@@ -1,6 +1,7 @@
 {% assign locale = include.locale | default: site.locale %}
 <!-- begin _includes/seo.html -->
 {%- assign title_separator = site.title_separator | default: '-' -%}
+{%- assign site_verification = site.integrations.site_verification | default: empty -%}
 
 {%- assign page_title = page.seo_title | default: page.title | default: site.title | replace: '|', '&#124;' -%}
 {%- if page_title contains site.title -%}
@@ -19,8 +20,11 @@
   {%- assign seo_description = seo_description | markdownify | strip_html | newline_to_br | strip_newlines | replace: '<br />', ' ' | escape_once | strip -%}
 {%- endif -%}
 
-{%- assign author = page.author | default: page.authors[0] | default: site.author -%}
-{%- assign author = site.data.authors[author] | default: author -%}
+{%- assign author_key = page.author | default: page.authors[0] -%}
+{%- assign author = site.author -%}
+{%- if author_key -%}
+  {%- assign author = site.data.authors[author_key] | default: author_key -%}
+{%- endif -%}
 
 {%- if author.twitter -%}
   {%- assign author_twitter = author.twitter | replace: "@", "" -%}
@@ -148,11 +152,11 @@
 {% endif %}
 
 {% if page.url == '/' %}
-  {% include_cached schema.html %}
+  {% include schema.html %}
 {% endif %}
 
-{% if site.google_site_verification %}
-  <meta name="google-site-verification" content="{{ site.google_site_verification }}" />
+{% if site_verification.google %}
+  <meta name="google-site-verification" content="{{ site_verification.google }}" />
 {% endif %}
 {% if site.bing_site_verification %}
   <meta name="msvalidate.01" content="{{ site.bing_site_verification }}">

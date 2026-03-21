@@ -1,0 +1,28 @@
+{% assign source = include.source | default: post | default: page %}
+{% assign read_time_enabled = source.read_time %}
+{% if read_time_enabled == nil %}
+  {% if source.date %}
+    {% assign read_time_enabled = site.features.read_time.enabled_by_default %}
+  {% else %}
+    {% assign read_time_enabled = false %}
+  {% endif %}
+{% endif %}
+{% assign word_count = source.content | markdownify | strip_html | number_of_words %}
+{% assign read_time = word_count | plus: 179 | divided_by: 180 %}
+{% if read_time < 1 %}
+  {% assign read_time = 1 %}
+{% endif %}
+
+<div class="page__meta">
+  {% if source.date %}
+    <span class="page__meta-item">
+      <time datetime="{{ source.date | date_to_xmlschema }}">{{ source.date | date: "%b %-d, %Y" }}</time>
+    </span>
+  {% endif %}
+  {% if read_time_enabled %}
+    <span class="page__meta-item">{{ read_time }} min read</span>
+  {% endif %}
+  {% if include.show_modified and source.last_modified_at %}
+    <span class="page__meta-item">Updated {{ source.last_modified_at | date: "%b %-d, %Y" }}</span>
+  {% endif %}
+</div>
