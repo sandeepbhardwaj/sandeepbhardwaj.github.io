@@ -13,7 +13,7 @@ group :jekyll_plugins do
   gem "jekyll-feed"
   gem "jekyll-seo-tag"
   gem "jekyll-last-modified-at"
-  gem "jekyll-gfm-admonitions", "~> 1.2.0"
+  gem "jekyll-gfm-admonitions"
 end
 
 # Ruby 4.x compatibility for libraries used by Jekyll/theme stack.
