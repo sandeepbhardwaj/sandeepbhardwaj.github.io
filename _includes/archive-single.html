@@ -5,13 +5,29 @@
 {% endif %}
 
 {% if post.id %}
-  {% assign title = post.title | markdownify | remove: "<p>" | remove: "</p>" %}
+  {% assign title = post.title | markdownify | remove: "<p>" | remove: "</p>" | strip_newlines %}
 {% else %}
-  {% assign title = post.title %}
+  {% assign title = post.title | strip_newlines %}
 {% endif %}
 
+{% assign excerpt_text = post.excerpt | markdownify | strip_html | normalize_whitespace %}
+{% assign is_home_variant = include.variant == "home" or include.variant == "home-featured" %}
+{% assign is_taxonomy_variant = include.variant == "taxonomy" %}
+{% assign is_taxonomy_compact_variant = include.variant == "taxonomy-compact" %}
+{% if include.variant == "home" or include.variant == "home-featured" %}
+  {% assign excerpt_text = excerpt_text | truncatewords: 30 %}
+{% elsif include.variant == "taxonomy" %}
+  {% assign excerpt_text = excerpt_text | truncatewords: 22 %}
+{% elsif include.variant == "taxonomy-compact" %}
+  {% assign excerpt_text = excerpt_text | truncatewords: 14 %}
+{% else %}
+  {% assign excerpt_text = excerpt_text | truncate: 160 %}
+{% endif %}
+
+{% capture archive_item_class %}archive__item{% if include.variant %} archive__item--{{ include.variant }}{% endif %}{% endcapture %}
+
 <div class="{{ include.type | default: 'list' }}__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork"{% if post.locale %} lang="{{ post.locale }}"{% endif %}>
+  <article class="{{ archive_item_class | strip }}" itemscope itemtype="https://schema.org/CreativeWork"{% if post.locale %} lang="{{ post.locale }}"{% endif %}>
     {% if include.type == "grid" and teaser %}
       <div class="archive__item-teaser">
         <img src="{{ teaser | relative_url }}" alt="">
@@ -19,19 +35,27 @@
     {% endif %}
     <h2 class="archive__item-title no_toc" itemprop="headline">
       {% if post.link %}
-        <a href="{{ post.link }}">{{ title }}</a> <a href="{{ post.url | relative_url }}" rel="permalink"><i class="fas fa-link" aria-hidden="true" title="permalink"></i><span class="sr-only">Permalink</span></a>
+        <a href="{{ post.link }}">{{ title }}</a>
+        <a class="archive__item-permalink" href="{{ post.url | relative_url }}" rel="permalink">Permalink</a>
       {% else %}
         <a href="{{ post.url | relative_url }}" rel="permalink">{{ title }}</a>
       {% endif %}
     </h2>
     {% include page__meta.html type=include.type %}
-    {% if post.categories and post.categories.size > 0 %}
+    {% if is_home_variant and post.categories.size > 0 %}
+      <div class="archive__taxonomy archive__taxonomy--home">
+        {% for category in post.categories %}
+          <a href="{{ '/categories/' | relative_url }}{{ category | slugify }}/" class="archive__taxonomy-item archive__taxonomy-item--category">{{ category }}</a>
+        {% endfor %}
+      </div>
+    {% elsif is_taxonomy_variant or is_taxonomy_compact_variant %}
+    {% elsif post.categories and post.categories.size > 0 %}
       <p class="archive__taxonomy">
         {% for category in post.categories %}
-          <a href="/categories/{{ category | slugify }}/" class="archive__taxonomy-item">{{ category }}</a>{% unless forloop.last %} {% endunless %}
+          <a href="{{ '/categories/' | relative_url }}{{ category | slugify }}/" class="archive__taxonomy-item">{{ category }}</a>{% unless forloop.last %} {% endunless %}
         {% endfor %}
       </p>
     {% endif %}
-    {% if post.excerpt %}<p class="archive__item-excerpt" itemprop="description">{{ post.excerpt | markdownify | strip_html | truncate: 160 }}</p>{% endif %}
+    {% if post.excerpt and is_taxonomy_compact_variant == false %}<p class="archive__item-excerpt" itemprop="description">{{ excerpt_text }}</p>{% endif %}
   </article>
 </div>

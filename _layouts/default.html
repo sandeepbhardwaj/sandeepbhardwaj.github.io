@@ -1,0 +1,19 @@
+<!doctype html>
+{% assign locale = page.locale | default: site.locale | default: "en-US" %}
+{% capture body_classes %}layout-{{ page.layout | default: "default" }}{% if page.date %} type-post{% else %} type-page{% endif %}{% if page.classes %} {{ page.classes | join: " " }}{% endif %}{% endcapture %}
+<html lang="{{ locale }}" data-theme="dark" data-theme-default="{{ site.appearance.default_theme | default: 'dark' }}">
+  <head>
+    {% include head.html %}
+  </head>
+  <body class="{{ body_classes | strip }}">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    {% include header.html %}
+    {% include search-panel.html %}
+    <main id="main-content" class="site-main">
+      {{ content }}
+    </main>
+    {% include footer.html %}
+    {% include comments-providers/custom_scripts.html %}
+    <script defer src="{{ '/assets/js/main.js' | relative_url }}"></script>
+  </body>
+</html>

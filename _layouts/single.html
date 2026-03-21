@@ -1,95 +1,102 @@
 ---
 layout: default
 ---
-{%- assign locale = page.locale | default: layout.locale | default: site.locale %}
-
-{% if page.header.overlay_color or page.header.overlay_image or page.header.image %}
-  {% include page__hero.html locale=locale %}
-{% elsif page.header.video.id and page.header.video.provider %}
-  {% include page__hero_video.html %}
+{% assign toc_enabled = page.toc %}
+{% if toc_enabled == nil %}
+  {% assign toc_enabled = site.features.toc.enabled_by_default %}
+{% endif %}
+{% assign share_enabled = page.share %}
+{% if share_enabled == nil %}
+  {% if page.date %}
+    {% assign share_enabled = site.features.social_share.enabled_by_default %}
+  {% else %}
+    {% assign share_enabled = false %}
+  {% endif %}
+{% endif %}
+{% assign related_enabled = page.related %}
+{% if related_enabled == nil %}
+  {% assign related_enabled = site.features.related_posts.enabled_by_default %}
+{% endif %}
+{% assign comments_enabled = page.comments %}
+{% if comments_enabled == nil %}
+  {% if page.date %}
+    {% assign comments_enabled = site.features.comments.enabled_by_default %}
+  {% else %}
+    {% assign comments_enabled = false %}
+  {% endif %}
 {% endif %}
 
-{% assign breadcrumbs_enabled = site.breadcrumbs %}
-{% if page.breadcrumbs != null %}
-  {% assign breadcrumbs_enabled = page.breadcrumbs %}
-{% endif %}
-{% if page.url != "/" and breadcrumbs_enabled %}
-  {% unless paginator %}
-    {% include breadcrumbs.html locale=locale %}
-  {% endunless %}
-{% endif %}
+{% include page-header.html source=page %}
 
-{% assign has_primary_sidebar = false %}
-{% if page.author_profile or layout.author_profile or page.sidebar %}
-  {% assign has_primary_sidebar = true %}
-{% endif %}
+<div class="site-container page-shell{% if toc_enabled %} page-shell--with-toc{% endif %}{% if page.author_profile %} page-shell--with-profile{% endif %}">
+  {% if page.author_profile %}
+    <aside class="page-shell__aside">
+      {% include author-profile.html %}
+    </aside>
+  {% endif %}
 
-<div id="main"{% unless has_primary_sidebar %} class="main--no-sidebar"{% endunless %} role="main">
-  {% include sidebar.html locale=locale %}
-
-  {%- comment -%}
-    Local override from the theme layout: add page--has-toc so wide post pages
-    can reserve the right rail only when a TOC is present.
-  {%- endcomment -%}
-  <article class="page{% if page.toc %} page--has-toc{% endif %} h-entry" itemscope itemtype="https://schema.org/CreativeWork"{% if page.locale %} lang="{{ page.locale }}"{% endif %}>
-    {% if page.title %}<meta itemprop="headline" content="{{ page.title | replace: '|', '&#124;' | markdownify | strip_html | strip_newlines | escape_once }}">{% endif %}
-    {% if page.excerpt %}<meta itemprop="description" content="{{ page.excerpt | markdownify | strip_html | strip_newlines | escape_once }}">{% endif %}
-    {% if page.date %}<meta itemprop="datePublished" content="{{ page.date | date_to_xmlschema }}">{% endif %}
-    {% if page.last_modified_at %}<meta itemprop="dateModified" content="{{ page.last_modified_at | date_to_xmlschema }}">{% endif %}
-
-    <div class="page__inner-wrap">
-      {% unless page.header.overlay_color or page.header.overlay_image %}
-        <header>
-          {% if page.title -%}
-          <h1 id="page-title" class="page__title p-name" itemprop="headline">
-            <a href="{{ page.url | absolute_url }}" itemprop="url">{{ page.title | markdownify | remove: "<p>" | remove: "</p>" }}</a>
-          </h1>
-          {%- endif %}
-          {% include page__meta.html locale=locale %}
-        </header>
-      {% endunless %}
-
-      <section class="page__content e-content" itemprop="text">
-        {% if page.toc %}
-          <aside class="sidebar__right {% if page.toc_sticky %}sticky{% endif %}">
-            <nav class="toc" aria-label="Table of contents">
-              <header><h4 class="nav__title"><i class="fas fa-{{ page.toc_icon | default: 'file-alt' }}"></i> {{ page.toc_label | default: site.data.ui-text[locale].toc_label | default: "On this page" }}</h4></header>
-              {% include toc.html sanitize=true html=content h_min=1 h_max=6 class="toc__menu" skip_no_ids=true %}
-            </nav>
-          </aside>
-        {% endif %}
-        {{ content }}
-        {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
-      </section>
-
-      <footer class="page__meta">
-        {% if site.data.ui-text[locale].meta_label %}
-          <h4 class="page__meta-title">{{ site.data.ui-text[locale].meta_label }}</h4>
-        {% endif %}
-        {% include page__taxonomy.html locale=locale %}
-        {% include page__date.html locale=locale %}
-      </footer>
-
-      {% if page.share %}{% include social-share.html locale=locale %}{% endif %}
-
-      {% include post_pagination.html locale=locale %}
+  <article class="page-shell__article">
+    <div class="page__content">
+      {{ content }}
     </div>
 
-    {% if site.comments.provider and page.comments %}
-      {% if jekyll.environment == 'production' %}
-        {% include comments.html locale=locale %}
-      {% else %}
-        <p>
-          Comments are configured with provider: <strong>{{ site.comments.provider }}</strong>,
-          but are disabled in non-production environments.
-        </p>
-      {% endif %}
+    {% if page.categories and page.categories.size > 0 %}
+      <section class="page__taxonomies">
+        <h2 class="page__section-title">Categories</h2>
+        <div class="tag-list">
+          {% for category in page.categories %}
+            <a class="tag-list__item" href="/categories/{{ category | slugify }}/">{{ category }}</a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if page.tags and page.tags.size > 0 %}
+      <section class="page__taxonomies">
+        <h2 class="page__section-title">Tags</h2>
+        <div class="tag-list">
+          {% for tag in page.tags %}
+            <a class="tag-list__item" href="/tags/#{{ tag | slugify }}">{{ tag }}</a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if share_enabled %}
+      {% include share-links.html %}
+    {% endif %}
+
+    {% if related_enabled and page.date %}
+      {% include related-posts.html %}
+    {% endif %}
+
+    {% if comments_enabled %}
+      {% include comments-providers/custom.html %}
     {% endif %}
   </article>
 
-  {% if page.id and page.related and site.related_posts.size > 0 %}
-    {% include page__related.html locale=locale posts=site.related_posts %}
-  {% elsif page.id and page.related %}
-    {% include page__related.html locale=locale posts=site.posts %}
+  {% if toc_enabled %}
+    <aside class="page-shell__toc">
+      <div class="page__toc" data-toc-container>
+        <div class="page__toc-header">
+          <p class="page__toc-eyebrow">Navigate</p>
+          <p class="page__toc-label">{{ page.toc_label | default: site.features.toc.default_label | default: "In This Article" }}</p>
+          <div class="page__toc-meta">
+            <span data-toc-count>0 sections</span>
+            <span data-toc-progress-label>0% read</span>
+          </div>
+        </div>
+        <div class="page__toc-progress" aria-hidden="true">
+          <span class="page__toc-progress-bar" data-toc-progress-bar></span>
+        </div>
+        <nav class="page__toc-body" aria-label="{{ page.toc_label | default: site.features.toc.default_label | default: 'Table of contents' }}">
+          <ol class="page__toc-list" data-toc-list></ol>
+        </nav>
+        <div class="page__toc-footer">
+          <p class="page__toc-current" data-toc-current>Start with the first section.</p>
+          <a class="page__toc-back" href="#page-title">Back to top</a>
+        </div>
+      </div>
+    </aside>
   {% endif %}
 </div>

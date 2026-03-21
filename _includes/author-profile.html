@@ -1,0 +1,23 @@
+{% assign author = site.author %}
+<section class="author-card">
+  {% if author.avatar %}
+    <img class="author-card__avatar" src="{{ author.avatar | relative_url }}" alt="{{ author.name }}">
+  {% endif %}
+  <div class="author-card__body">
+    <p class="author-card__eyebrow">Author</p>
+    <h2 class="author-card__name">{{ author.name }}</h2>
+    {% if author.bio %}
+      <p class="author-card__bio">{{ author.bio }}</p>
+    {% endif %}
+    {% if author.location %}
+      <p class="author-card__location">{{ author.location }}</p>
+    {% endif %}
+    {% if author.links %}
+      <ul class="author-card__links">
+        {% for link in author.links %}
+          <li><a href="{{ link.url }}" rel="noopener noreferrer">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,18 @@
+{% if site.features.search.enabled != false %}
+  <div id="site-search-panel" class="search-panel" data-search-panel hidden>
+    <div class="search-panel__backdrop" data-search-close tabindex="-1"></div>
+    <div class="search-panel__dialog" role="dialog" aria-modal="true" aria-labelledby="search-panel-title">
+      <div class="search-panel__header">
+        <div>
+          <p class="search-panel__eyebrow">Search</p>
+          <h2 id="search-panel-title" class="search-panel__title">Find posts and pages</h2>
+        </div>
+        <button class="search-panel__close" type="button" data-search-close>Close</button>
+      </div>
+      <label class="search-panel__label" for="search-input">Search by title, category, tag, or phrase</label>
+      <input id="search-input" class="search-panel__input" type="search" placeholder="Try: prefix sum, concurrency, kafka" autocomplete="off" data-search-input>
+      <div class="search-panel__status" data-search-status>Start typing to search the site.</div>
+      <div class="search-panel__results" data-search-results></div>
+    </div>
+  </div>
+{% endif %}

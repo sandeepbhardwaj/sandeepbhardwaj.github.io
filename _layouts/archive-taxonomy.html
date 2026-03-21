@@ -1,0 +1,17 @@
+---
+layout: single
+---
+<section class="taxonomy-page taxonomy-page--detail taxonomy-archive">
+  <div class="taxonomy__header-actions">
+    <a class="taxonomy__browse-link" href="{{ '/categories/' | relative_url }}">Browse all categories</a>
+  </div>
+  <div class="entries-list taxonomy__entries taxonomy__entries--detail">
+    {% for post in page.posts %}
+      {% include archive-single.html type="list" variant="taxonomy" %}
+    {% endfor %}
+  </div>
+  <a href="#page-title" class="taxonomy__floating-top" aria-label="Back to Top">
+    <span class="taxonomy__floating-top-icon" aria-hidden="true">↑</span>
+    <span class="taxonomy__floating-top-label">Back to Top</span>
+  </a>
+</section>

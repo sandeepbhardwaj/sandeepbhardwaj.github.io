@@ -1,8 +1,9 @@
 ---
-# Only the main Sass file needs front matter.
+# Custom theme entrypoint.
 ---
 
 @charset "utf-8";
-@import "minimal-mistakes/skins/default";
-@import "minimal-mistakes";
-@import "custom/site-customizations";
+@use "site/tokens";
+@use "site/base";
+@use "site/layout";
+@use "site/content";

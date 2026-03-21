@@ -1,0 +1,11 @@
+{% assign share_url = page.url | absolute_url %}
+{% assign share_title = page.title | default: site.title %}
+<section class="share-links">
+  <h2 class="page__section-title">Share this article</h2>
+  <div class="share-links__items">
+    <a class="share-links__item" href="https://twitter.com/intent/tweet?text={{ share_title | uri_escape }}&url={{ share_url | uri_escape }}" target="_blank" rel="noopener noreferrer">X</a>
+    <a class="share-links__item" href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url | uri_escape }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <a class="share-links__item" href="mailto:?subject={{ share_title | uri_escape }}&body={{ share_url | uri_escape }}">Email</a>
+    <button class="share-links__item" type="button" data-copy-link="{{ share_url }}">Copy link</button>
+  </div>
+</section>

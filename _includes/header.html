@@ -1,0 +1,51 @@
+<header class="site-header">
+  <div class="site-header__progress" data-reading-progress hidden>
+    <span class="site-header__progress-bar" data-reading-progress-bar></span>
+  </div>
+  <div class="site-container site-header__inner">
+    <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="{{ site.title }}">
+      <span class="site-brand__title">{{ site.title }}</span>
+      {% if site.subtitle %}
+        <span class="site-brand__subtitle">{{ site.subtitle }}</span>
+      {% endif %}
+    </a>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-navigation">
+      <span class="nav-toggle__icon" aria-hidden="true"></span>
+      <span class="nav-toggle__label">Menu</span>
+    </button>
+
+    <nav id="site-navigation" class="site-nav" data-nav-menu>
+      <ul class="site-nav__links">
+        {% for item in site.data.navigation.main %}
+          {% assign target_url = item.url | relative_url %}
+          {% assign page_url = page.url | relative_url %}
+          {% assign is_current = false %}
+          {% if page_url == target_url %}
+            {% assign is_current = true %}
+          {% elsif item.url != '/' and page_url contains target_url %}
+            {% assign is_current = true %}
+          {% endif %}
+          <li>
+            <a href="{{ target_url }}"{% if is_current %} aria-current="page"{% endif %}>{{ item.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="site-nav__actions">
+        {% if site.features.search.enabled != false %}
+          <button class="nav-action nav-action--search" type="button" data-search-open aria-haspopup="dialog" aria-controls="site-search-panel">
+            <span>Search</span>
+            <span class="nav-action__hint" aria-hidden="true">/</span>
+          </button>
+        {% endif %}
+        {% if site.features.theme_toggle != false %}
+          <button class="nav-action nav-action--theme" type="button" data-theme-toggle aria-pressed="true">
+            <span class="nav-action__icon nav-action__icon--theme" aria-hidden="true"></span>
+            <span class="sr-only" data-theme-label>Switch to light theme</span>
+          </button>
+        {% endif %}
+      </div>
+    </nav>
+  </div>
+</header>

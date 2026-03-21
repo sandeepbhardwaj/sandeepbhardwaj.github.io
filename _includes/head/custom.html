@@ -1,22 +1,59 @@
-<meta name="google-adsense-account" content="ca-pub-9148159911868814">
-<meta name="google-site-verification" content="2CJcM2GggRVsrjgINoCQzUNh4UPupGbAIKCSeS7nfoI" />
+{% assign adsense = site.integrations.adsense %}
+{% assign features = site.features %}
+{% assign adsense_client = adsense.client | default: "" | strip %}
+{% assign ads_enabled = adsense.enabled %}
+{% assign ads_load_in_production_only = adsense.load_in_production_only %}
+{% assign theme_toggle_enabled = features.theme_toggle %}
+{% assign code_copy_enabled = features.code_copy %}
+{% assign mermaid_enabled = features.mermaid %}
+
+{% if ads_enabled != false %}
+  {% assign ads_enabled = true %}
+{% endif %}
+{% if ads_load_in_production_only != false %}
+  {% assign ads_load_in_production_only = true %}
+{% endif %}
+{% if theme_toggle_enabled != false %}
+  {% assign theme_toggle_enabled = true %}
+{% endif %}
+{% if code_copy_enabled != false %}
+  {% assign code_copy_enabled = true %}
+{% endif %}
+{% if mermaid_enabled != false %}
+  {% assign mermaid_enabled = true %}
+{% endif %}
+
+{% assign load_ads_script = ads_enabled %}
+{% if ads_load_in_production_only and jekyll.environment != "production" %}
+  {% assign load_ads_script = false %}
+{% endif %}
+
+{% if adsense_client != "" %}
+<meta name="google-adsense-account" content="{{ adsense_client }}">
+{% endif %}
 <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
 <link rel="shortcut icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
 
-{% assign ads_enabled = true %}
 {% if page.ads == false %}
   {% assign ads_enabled = false %}
+  {% assign load_ads_script = false %}
 {% endif %}
 
-{% if jekyll.environment == "production" and ads_enabled %}
+{% if load_ads_script and adsense_client != "" %}
 <script async
-  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9148159911868814"
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_client }}"
   crossorigin="anonymous"></script>
 {% endif %}
 
 <script>
   window.__SITE_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
+{% if theme_toggle_enabled %}
 <script defer src="{{ '/assets/js/theme-toggle.js' | relative_url }}"></script>
+{% endif %}
+{% if code_copy_enabled %}
 <script defer src="{{ '/assets/js/code-copy.js' | relative_url }}"></script>
+{% endif %}
+{% if mermaid_enabled %}
 <script type="module" defer src="{{ '/assets/js/mermaid-init.js' | relative_url }}"></script>
+{% endif %}
