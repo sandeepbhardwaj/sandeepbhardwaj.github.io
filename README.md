@@ -7,21 +7,74 @@ Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` them
 
 🌐 Live site: `https://sandeepbhardwaj.github.io`
 
-## Overview
+## 🧭 What This Repo Contains
 
-- ⚙️ Static blog powered by Jekyll and Minimal Mistakes
-- 🚀 Deployed to GitHub Pages through GitHub Actions
-- 📡 Publishes an RSS feed at `https://sandeepbhardwaj.github.io/feed.xml`
-- ✉️ Includes a footer subscribe link for `follow.it`
+This repository powers a static blog focused on backend engineering, distributed systems, system design, and SaaS architecture.
 
-## Tech Stack
+The site uses:
+
+- ⚙️ Jekyll for static site generation
+- 🎨 Minimal Mistakes for the base theme and layouts
+- 🚀 GitHub Actions for CI and GitHub Pages deployment
+- 🌓 a custom runtime theme toggle
+- 🧩 enhanced Markdown support for Mermaid diagrams and GitHub-style callouts
+
+## 🛠️ Tech Stack
 
 - 💎 Ruby `4.0.2`
 - 🧱 Jekyll `4.4.1`
 - 🎨 `minimal-mistakes-jekyll` `4.28.0`
-- 🔄 GitHub Actions for CI and deployment
+- 🚀 GitHub Pages deployment through GitHub Actions
 
-## Local Development
+## ✨ Site Features
+
+- 📰 paginated posts
+- 🗂️ category archives
+- 📡 RSS feed at `https://sandeepbhardwaj.github.io/feed.xml`
+- 💬 Giscus-based comments
+- ✉️ email subscribe link via `follow.it`
+- 📈 Mermaid diagram rendering with an expanded viewer
+- 📝 GitHub-style admonitions in Markdown
+
+### 📈 Mermaid Support
+
+Mermaid blocks are rendered client-side and include an expanded viewer with:
+
+- ↔️ fit-width mode
+- 🔍 actual-size mode
+- ✋ drag-to-pan for large diagrams
+- 🌐 open-in-new-tab
+- ⬇️ download as SVG
+
+Example:
+
+````md
+```mermaid
+flowchart LR
+  Client --> API
+  API --> MatchingEngine
+  MatchingEngine --> MarketData
+```
+````
+
+### 📝 Callouts In Posts
+
+The site supports GitHub-style admonitions through `jekyll-gfm-admonitions`.
+
+Example:
+
+```md
+> [!NOTE]
+> Use this for context or clarification.
+
+> [!TIP] Performance Tip
+> Use a custom title when needed.
+
+> [!WARNING]
+> Use this for risky assumptions or production caveats.
+```
+
+## 💻 Local Development
 
 1. Install Ruby `4.0.2`.
 2. Install dependencies:
@@ -33,34 +86,46 @@ bundle install
 3. Start the site locally:
 
 ```bash
-bundle exec jekyll serve
+bundle exec jekyll serve --host 127.0.0.1 --port 4000
 ```
 
 4. Open `http://127.0.0.1:4000`.
 
-## Useful Commands
+## 🧪 Useful Commands
 
-🛠️ Run a production-style build:
+Install gems:
+
+```bash
+bundle install
+```
+
+Run a local server:
+
+```bash
+bundle exec jekyll serve --host 127.0.0.1 --port 4000
+```
+
+Run a normal build:
 
 ```bash
 bundle exec jekyll build
 ```
 
-🔍 Run the stricter CI-style build:
+Run the stricter CI-style build:
 
 ```bash
 bundle exec jekyll build --strict_front_matter
 ```
 
-## Content Workflow
+## ✍️ Writing Content
 
-📝 Create a new post in `_posts/` using:
+Create new posts inside `_posts/` using this filename format:
 
 ```text
 YYYY-MM-DD-your-title.md
 ```
 
-Recommended front matter fields:
+Typical front matter fields:
 
 - `title`
 - `date`
@@ -68,16 +133,16 @@ Recommended front matter fields:
 - `tags`
 - `excerpt`
 
-Add related cover/banner assets under `assets/images/` when needed.
+Images and other post assets should live under `assets/images/`.
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```text
 .
 ├── _config.yml
-├── _data/navigation.yml
-├── _includes/footer/custom.html
-├── _includes/head/custom.html
+├── _data/
+├── _includes/
+├── _layouts/
 ├── _pages/
 ├── _posts/
 ├── _sass/custom/
@@ -85,52 +150,55 @@ Add related cover/banner assets under `assets/images/` when needed.
 │   ├── css/
 │   ├── images/
 │   └── js/
-└── .github/workflows/
-    ├── ci.yml
-    └── deploy-pages.yml
+├── .github/workflows/
+├── Gemfile
+├── Gemfile.lock
+└── README.md
 ```
 
-## CI/CD
+## ⚙️ Configuration Notes
 
-`CI` runs on every pull request and on pushes to `main`. It:
+Core site settings live in `_config.yml`.
 
-- ✅ installs Ruby dependencies
-- ✅ builds the site with `bundle exec jekyll build --strict_front_matter`
-- ✅ validates that `_site/sitemap.xml` exists and only contains production HTTPS URLs
+Notable areas:
 
-`Deploy Jekyll site to Pages` runs when:
+- 🏷️ site metadata and SEO settings
+- 👤 author profile and social links
+- 🔗 footer links
+- 📊 analytics configuration
+- 💬 comments configuration
+- 🧩 plugin list
+- 📰 default post/page layout behavior
 
-- `CI` succeeds on `main`
+## 🚦 CI And Deployment
+
+### ✅ CI
+
+The `CI` workflow runs on:
+
+- every pull request
+- pushes to `main`
+
+It:
+
+- 📦 installs Ruby dependencies with Bundler cache
+- 🧪 runs `bundle exec jekyll build --strict_front_matter`
+- 📄 validates that `_site/sitemap.xml` exists
+- 🔒 validates that sitemap URLs use the production HTTPS domain
+
+### 🚀 Deployment
+
+The `Deploy Jekyll site to Pages` workflow runs when:
+
+- the `CI` workflow succeeds on `main`
 - triggered manually with `workflow_dispatch`
 - triggered by the scheduled nightly run
 
-The deploy workflow builds the site and publishes `_site` to GitHub Pages.
+It builds the site and publishes `_site` to GitHub Pages.
 
-## Configuration
+## 🩺 Troubleshooting
 
-Core site settings live in [`_config.yml`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_config.yml).
-
-Notable settings:
-
-- 📈 `analytics.google.tracking_id`: GA4 tracking ID
-- 👤 `author`: author profile and social links
-- 🔗 `footer.links`: footer navigation links
-- ✉️ `followit.url`: `follow.it` subscription URL used in the footer
-- 🏷️ `followit.footer_label`: footer label text for the subscribe link
-
-## Email Subscriptions
-
-📡 The site exposes an RSS feed at:
-
-```text
-https://sandeepbhardwaj.github.io/feed.xml
-```
-
-The footer subscribe link is rendered from [`_includes/footer/custom.html`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_includes/footer/custom.html) and configured in [`_config.yml`](/Users/sandeepbhardwaj/Work/GitHub/sandeepbhardwaj.github.io/_config.yml).
-
-## Troubleshooting
-
-🧰 If the local environment gets out of sync:
+If Bundler or the local Jekyll environment gets out of sync:
 
 ```bash
 rm -rf .bundle vendor Gemfile.lock
@@ -138,11 +206,14 @@ bundle install
 bundle exec jekyll serve --trace
 ```
 
-If `bundle` stops working immediately after a Ruby upgrade, refresh Bundler first:
+If Bundler stops working after a Ruby upgrade:
 
 ```bash
 gem install bundler
 bundle -v
 ```
 
-`README.md` is excluded from the generated site output.
+## ℹ️ Notes
+
+- `README.md` is excluded from the generated site output.
+- The source of truth for runtime site behavior is the repository code and `_config.yml`, not the generated `_site/` output.
