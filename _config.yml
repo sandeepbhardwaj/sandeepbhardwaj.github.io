@@ -67,6 +67,7 @@ plugins:
   - jekyll-include-cache
   - jekyll-seo-tag
   - jekyll-last-modified-at
+  - jekyll-gfm-admonitions
 
 atom_feed:
   hide: true

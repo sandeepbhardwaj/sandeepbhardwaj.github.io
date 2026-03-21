@@ -4,10 +4,10 @@ categories:
 - Architecture
 - Backend
 date: 2026-03-21
-seo_title: Designing a Stock Exchange System - Matching Engine, Order Book, and Scalability
-seo_description: Deep dive into stock exchange system design covering order entry,
-  sequencing, matching engine architecture, market data, failure recovery, and
-  low-latency scalability trade-offs.
+seo_title: Designing a Stock Exchange System - Matching Engine, Market Data, and Scale
+seo_description: Step-by-step stock exchange system design covering problem
+  statement, functional requirements, NFRs, high-level architecture, matching
+  engine, market data, scalability, and low-latency design trade-offs.
 tags:
 - distributed-systems
 - architecture
@@ -27,774 +27,769 @@ header:
   show_overlay_excerpt: false
   caption: Low-Latency Architecture and Market Integrity
 ---
-Designing a stock exchange is not "build an order API and add Kafka."
+Designing a stock exchange is one of the best system-design exercises because it forces you to care about correctness, scale, recovery, and latency at the same time.
 
-The hard part is preserving deterministic market behavior under bursty load while keeping fairness, auditability, recovery, and latency credible at the same time.
+This is not a CRUD system with a trading theme.
+It is a fairness-critical system where one wrong design decision can break sequencing, replay, or market data under load.
 
-Most weak system design answers focus too much on horizontal scale and too little on sequencing, hot-path ownership, and failure fences.
-In an exchange, those are the design.
+In this article, I will walk through the design step by step as if we are learning system design from scratch:
 
----
+1. what we are building
+2. functional requirements
+3. non-functional requirements
+4. high-level architecture
+5. detailed component design
+6. how the system scales and handles huge traffic
+7. why the system is so fast
 
-## Start With the Boundary
+To keep the discussion concrete, I will use Indian cash-equity examples like `RELIANCE`, `TCS`, `INFY`, and `HDFCBANK`.
+Treat the examples as architectural illustrations, not as official NSE or BSE protocol documentation.
 
-A stock exchange is not the whole trading stack.
-If that boundary is blurry, the design usually becomes slower and more coupled than it needs to be.
-
-Exchange responsibilities:
-
-- accept orders from members or brokers
-- apply venue rules
-- maintain the order book
-- match orders with deterministic priority
-- publish executions and market data
-- keep an auditable event trail
-
-Broker responsibilities:
-
-- customer onboarding and authentication
-- account balances, credit, and margin
-- portfolio-level exposure checks
-- smart order routing across venues
-
-Clearing and settlement responsibilities:
-
-- novation, netting, and settlement workflows
-- post-trade reconciliation
-- downstream money and securities movement
-
-Senior architect rule:
-do not drag broker or clearing workflows into the matching hot path.
-Every extra dependency adds latency variance, failure coupling, and operational ambiguity.
+> [!NOTE] Scope of the examples
+> The symbols and scenarios in this article are teaching devices to make sequencing, matching, and recovery easier to reason about.
+> They should not be read as venue-specific protocol or regulatory guidance.
 
 ---
 
-## The Non-Negotiable Invariants
+## Problem Statement
 
-An exchange is not primarily a throughput system.
+We want to design a stock exchange for cash equities.
+
+The exchange should accept orders from member brokers, maintain live order books, match buy and sell orders using price-time priority, publish trade confirmations, and send market data to many brokers at the same time.
+
+If you want to think about it in practical terms, imagine:
+
+- thousands of listed stocks
+- some symbols like `RELIANCE` or `INFY` becoming extremely hot at market open or on news
+- heavy cancel and replace traffic during volatility
+- brokers expecting live acknowledgments and tick-by-tick market data
+- regulators expecting clean audit and replay
+
+So the real problem is not just "place orders."
+The real problem is:
+
+- preserve one clear ordering of events
+- match deterministically
+- recover cleanly after failure
+- distribute market data at scale
+- do all of this with very low latency
+
+---
+
+## What Exactly Are We Building
+
+Before drawing boxes, define the system boundary clearly.
+
+We are building the exchange core, not the entire trading ecosystem.
+
+The exchange is responsible for:
+
+- accepting orders from brokers
+- validating venue-owned rules
+- sequencing orders
+- maintaining the order book
+- matching orders
+- publishing execution reports
+- publishing market data
+- storing an auditable event trail
+
+The broker is responsible for:
+
+- client onboarding and KYC
+- margin and portfolio checks
+- user-facing app and APIs
+- routing customer orders to the exchange
+
+The clearing and settlement system is responsible for:
+
+- post-trade processing
+- obligations, netting, and settlement
+- money and securities movement
+
+This boundary matters because weak designs push broker logic or clearing logic into the exchange hot path.
+That makes the system slower and harder to reason about.
+
+---
+
+## Functional Requirements
+
+At high level, the exchange should support these behaviors:
+
+1. Accept new, cancel, and replace orders from brokers.
+2. Maintain a live order book for each stock.
+3. Match orders using deterministic price-time priority.
+4. Send order acknowledgments and execution reports back to brokers.
+5. Publish tick-by-tick market data and depth updates.
+6. Support snapshot plus incremental feed recovery for market-data consumers.
+7. Support audit, replay, and operational recovery.
+
+To keep the first version realistic, I would start with:
+
+- cash equities only
+- limit, market, cancel, and replace first
+- no attempt to solve every asset class in version 1
+
+> [!TIP] Version-1 design discipline
+> A strong exchange design usually becomes clearer when version 1 is intentionally narrow.
+> If we try to solve equities, derivatives, auctions, complex order types, and cross-venue routing all at once, the core invariants get blurry.
+
+---
+
+## Non-Functional Requirements
+
+This is where the design really gets shaped.
+
+The most important NFRs are:
+
+### 1. Correctness
+
+For one symbol, there must be one authoritative processing order.
+If two components disagree about order, the design is broken.
+
+### 2. Determinism
+
+If we replay the same event stream, we must rebuild the same book and the same trades.
+
+### 3. Low latency
+
+The hot path must stay extremely short and avoid remote dependencies.
+
+### 4. High throughput
+
+The exchange must handle very large inbound order volume, especially during bursts.
+
+### 5. Hot-symbol isolation
+
+One extremely active stock should not degrade unrelated symbols.
+
+### 6. Market-data fan-out
+
+The system must deliver the same committed feed to many brokers without allowing slow consumers to block matching.
+
+### 7. Recovery
+
+Failover, replay, and session recovery must be explicit and reliable.
+
+The key design lesson is this:
+the exchange is not primarily a throughput system.
 It is a correctness system under latency pressure.
 
-The invariants that matter most are:
-
-1. For a given symbol partition, there must be one authoritative processing order.
-2. Matching results must be deterministic and replayable.
-3. Price-time priority must be enforceable without ambiguity.
-4. Market data must be derived from the same committed state transitions as trades.
-5. Recovery must rebuild the exact book state, not an approximation.
-6. Safety controls must be able to stop damage faster than the market can amplify it.
-
-That list should drive the architecture more than any database or messaging choice.
-
 ---
 
-## What Makes This System Hard
+## High-Level Design
 
-The exchange hot path combines design pressures that normally fight each other:
+At high level, the system needs four layers:
 
-- very low latency
-- deterministic ordering
-- bursty traffic
-- skewed symbol popularity
-- strict audit requirements
-- expensive failure recovery if you get sequencing wrong
+1. ingress and session management
+2. deterministic matching core
+3. market-data distribution
+4. asynchronous downstream systems
 
-The hottest symbol matters more than average venue traffic.
-That is one of the first places generic scaling advice breaks down.
-
-If one symbol experiences a sudden spike because of earnings, a rumor, or index rebalancing, the system does not care that your average load is comfortable.
-The hottest book becomes the architecture test.
-
----
-
-## Capacity Thinking That Does Not Lie
-
-A good estimate for an exchange is not just "messages per second."
-It is at least these four numbers:
-
-- peak inbound order events per second
-- cancel or replace ratio
-- hottest-symbol concentration
-- outbound market data fan-out
-
-Illustrative pressure model:
-
-- inbound order events peak at `1M/s`
-- cancels and replaces dominate during volatile periods
-- top symbols can consume a disproportionate share of one partition
-- outbound market data can exceed inbound volume by an order of magnitude once fan-out begins
-
-That last point matters.
-Many teams design the matcher carefully and then under-design market data distribution.
-In reality, slow consumers, replay storms, and gap recovery can hurt you just as much as raw order ingress.
-
-Architectural consequence:
-size the platform for hot partitions and market data amplification, not just for average API throughput.
-
----
-
-## Component Map
-
-The exchange should be described as explicit components with explicit roles.
-That is what makes architecture review useful instead of diagram theater.
-
-| Component | Responsibility | In hot path | Notes |
-| --- | --- | --- | --- |
-| Global DNS or traffic manager | route members to the active region or site | no | failover and traffic steering |
-| L4 load balancer | distribute TCP sessions across gateway nodes | edge only | keep long-lived trading sessions stable |
-| FIX / OUCH gateways | terminate protocol sessions and normalize commands | yes | keep parsing fast and predictable |
-| Auth and session manager | authenticate member sessions and session recovery | yes, lightweight only | avoid remote lookups on every order |
-| Reference data store | symbols, members, venue config, static limits | no | usually replicated into local caches |
-| Local config or limit cache | fast access to venue rules, member state, symbol metadata | yes | cache is for reference, not truth |
-| Venue controls service | kill switches, price bands, throttles, cancel-on-disconnect | yes | must fail safe |
-| Sequencer per partition | assign authoritative event order | yes | the heart of fairness and replay |
-| Matching engine shard | apply state transitions and generate fills | yes | single-writer by design |
-| In-memory order book | resident state for one symbol or partition | yes | optimized for mutation, not SQL |
-| Durable journal or WAL | committed event boundary and replay source | yes, but minimal | feeds standby and downstream systems |
-| Warm standby | replay journal and take over after failover | no in steady state | promoted only with sequence fencing |
-| Market data builder | turn committed engine output into book deltas and snapshots | off matcher thread | never let fan-out stall matching |
-| Snapshot cache | serve market-data snapshots and recovery bootstrap | no | cache for distribution, not for matching |
-| Kafka or event bus | downstream distribution for analytics, read models, and integrations | no | not the fairness-critical sequencer |
-| Trade ledger store | reporting, historical queries, reconciled trade views | no | built from ordered truth |
-| Surveillance and analytics | abuse detection, compliance, operational analytics | no | subscribe from committed stream |
-| Clearing adapter | post-trade handoff to clearing and settlement workflows | no | asynchronous from matcher |
-| Observability stack | metrics, logs, traces, alerts | no | make replay and failover visible |
-| Operations console | kill switches, partition ownership, canary and failover controls | no | must be auditable and permissioned |
-
-Two intentional choices in that table matter:
-
-- `Kafka` exists, but off the matcher hot path
-- caches exist, but they are reference or distribution layers, not the source of truth for matching
-
----
-
-## High-Level System Design Diagram
-
-If you want the full component picture, it should look closer to this:
+Here is the high-level architecture:
 
 ```mermaid
 flowchart LR
-    subgraph Ingress["Ingress and Session Edge"]
-        A[Members / Brokers]
-        B[Global DNS / Traffic Manager]
+    subgraph Ingress["Ingress and Session Layer"]
+        A[Member Brokers]
+        B[Traffic Manager]
         C[L4 Load Balancer]
-        D[FIX / OUCH Gateways]
-        E[Auth / Session Manager]
+        D[FIX or OUCH Gateways]
+        E[Session Manager]
     end
 
-    subgraph Control["Reference and Control Plane"]
-        F[Reference Data DB]
-        G[Local Config and Limit Cache]
-        H[Venue Controls<br/>Kill Switches / Price Bands / Throttles]
-        I[Operations Console]
+    subgraph Control["Reference and Venue Control Layer"]
+        F[Reference Data Service]
+        G[Local Reference Cache]
+        H[Venue Controls]
     end
 
-    subgraph HotPath["Low-Latency Matching Core"]
-        J[Sequencer per Partition]
-        K[Matching Engine Shard]
+    subgraph Core["Deterministic Matching Core"]
+        I[Partition Router]
+        J[Sequencer]
+        K[Matching Engine]
         L[In-Memory Order Book]
-        M[Durable Journal / WAL]
-        N[Warm Standby / Replay]
+        M[Event Journal]
+        N[Warm Standby]
     end
 
-    subgraph MarketData["Market Data Plane"]
-        O[Market Data Builder]
-        P[Snapshot Cache]
-        Q[Market Data Gateways]
+    subgraph Distribution["Execution and Market Data"]
+        O[Execution Reports]
+        P[Market Data Builder]
+        Q[Snapshot Store]
+        R[Market Data Gateways]
     end
 
-    subgraph Async["Async Distribution and Read Side"]
-        R[Kafka]
-        S[Trade Ledger DB]
-        T[Surveillance / Analytics]
-        U[Clearing / Post Trade]
-        V[Reporting / Read APIs]
-    end
-
-    subgraph Ops["Observability"]
-        W[Metrics / Logs / Traces / Alerts]
+    subgraph Async["Async Consumers"]
+        S[Kafka or Internal Bus]
+        T[Trade Ledger]
+        U[Surveillance]
+        V[Clearing Adapter]
+        W[Reporting APIs]
     end
 
     A --> B --> C --> D --> E
     E --> H
     F --> G --> H
-    I --> H
-
-    H --> J --> K --> L
+    H --> I --> J --> K --> L
     K --> M
+    K --> O
+    K --> P
     M --> N
-
-    K --> O --> P --> Q
-    M --> R
-    R --> S
-    R --> T
-    R --> U
-    R --> V
-
-    D --> W
-    J --> W
-    K --> W
-    M --> W
-    O --> W
+    P --> Q --> R
+    M --> S
+    S --> T
+    S --> U
+    S --> V
+    S --> W
 ```
 
-What this diagram is saying:
+This diagram already tells us a lot:
 
-- the load balancer and gateways handle connection scale, not matching correctness
-- caches sit next to control and market data, not as the live book authority
-- Kafka is a downstream distribution backbone, not the primary fairness mechanism
-- the durable journal is the bridge between low-latency matching and the rest of the platform
+- gateways handle connectivity, not matching
+- the sequencer establishes authoritative order
+- the matching engine owns book mutation
+- the journal defines the recovery boundary
+- market-data distribution is isolated from the matcher
+- Kafka and other async systems are downstream, not in the fairness-critical path
 
 ---
 
-## Hot Path Architecture
+## Step-by-Step Order Flow
 
-The hot path itself should still stay much smaller than the full platform:
+Now let us walk one order through the system.
+
+Suppose a broker sends this order:
+
+- symbol: `RELIANCE`
+- side: buy
+- price: `INR 2,845.10`
+- quantity: `100`
+
+The sequence looks like this:
+
+```mermaid
+sequenceDiagram
+    participant Client as Investor App
+    participant Broker as Member Broker
+    participant Gateway as Exchange Gateway
+    participant Control as Venue Controls
+    participant Seq as Sequencer
+    participant Match as Matching Engine
+    participant Journal as Event Journal
+    participant Feed as Market Data Builder
+
+    Client->>Broker: Place order for RELIANCE
+    Broker->>Gateway: New order
+    Gateway->>Control: Basic validation and venue checks
+    Control->>Seq: Route normalized order
+    Seq->>Match: RELIANCE seq=91234012
+    Match->>Match: Update book and generate trades if crossed
+    Match->>Journal: Commit ordered event
+    Match-->>Broker: Ack or execution report
+    Match->>Feed: Book delta and trade tick
+```
+
+That is the full design in miniature.
+Everything else in the article exists to make these steps safe and fast.
+
+---
+
+## Component Design in Detail
+
+Now we can go deeper, component by component, in the same order in which an order flows.
+
+### 1. Gateways and Session Manager
+
+The gateway terminates exchange protocols like FIX or a lower-latency binary protocol.
+
+Its job is to:
+
+- keep long-lived sessions with member brokers
+- validate protocol syntax
+- normalize incoming messages
+- detect duplicate client sequence numbers
+- recover sessions after disconnects
+
+What it should not do:
+
+- call slow external services
+- perform customer-level business workflows
+- do heavy risk or portfolio logic
+
+This is the first important rule of exchange design:
+the gateway must be boring, fast, and predictable.
+
+### 2. Reference Data Service and Local Cache
+
+The system needs static or semi-static data like:
+
+- stock metadata
+- tick-size rules
+- trading session state
+- member permissions
+- venue-level limits
+
+That data should come from a source of truth, but hot-path components should use local in-memory caches.
+
+Why:
+
+- a network lookup per order destroys latency consistency
+- reference data changes much more slowly than order traffic
+- venue controls need local decisions
+
+### 3. Venue Controls
+
+Before an order reaches the sequencer, the exchange should apply venue-owned controls such as:
+
+- price collars
+- fat-finger checks
+- throttles
+- cancel-on-disconnect
+- trading halts or auction mode
+
+These checks belong to the exchange because they protect the market itself.
+They must be local and deterministic.
+
+### 4. Partition Router
+
+The exchange cannot process all stocks through one giant matching thread.
+It needs to partition work.
+
+The partition router maps each stock to one active owner.
+
+Example:
+
+- `RELIANCE` and `TCS` may be on partition `P7`
+- `INFY` and `HDFCBANK` may be on partition `P12`
+- colder symbols may be grouped on lighter partitions
+
+The important invariant is:
+one symbol belongs to exactly one active partition at a time.
+
+### 5. Sequencer
+
+The sequencer is the heart of fairness.
+
+Its job is simple but extremely important:
+
+- accept normalized events
+- assign monotonically increasing sequence numbers
+- create one authoritative order of events for a partition
+
+Without a sequencer, two gateways may disagree about which order arrived first.
+With a sequencer, replay and failover become understandable.
+
+> [!IMPORTANT] Sequencing is the fairness boundary
+> Once the partition order is established, every downstream consumer should derive truth from that same order.
+> Acknowledgments, replay, standby rebuild, and market data should all agree on it.
+
+### 6. Matching Engine and In-Memory Order Book
+
+The matching engine should be treated as a single-writer state machine.
+
+For each sequenced event, it:
+
+- checks current book state
+- applies new, cancel, or replace logic
+- matches against opposite-side liquidity if the order crosses
+- updates the in-memory book
+- emits execution results and market-data deltas
+
+The order book usually needs:
+
+- bids ordered by best price first
+- asks ordered by best price first
+- FIFO queue at each price level
+- order-id index for fast cancel lookup
+
+This is why the system can stay fast:
+the book is memory-resident and mutated by one owner.
+There is no database in the decision loop.
+
+### 7. Event Journal
+
+The journal is the committed truth boundary.
+
+It answers these questions:
+
+- what exactly was accepted
+- what exact event order must a standby replay
+- from which point can recovery resume
+
+This should be an ordered committed log, not a vague debug trace.
+
+### 8. Warm Standby
+
+The standby is not another active writer.
+It is a follower that replays the same committed events and stays ready for takeover.
+
+Good standby design means:
+
+- it consumes the same ordered journal
+- it builds the same in-memory state
+- it can take over only after ownership is explicitly transferred
+
+This is how we avoid split brain.
+
+### 9. Execution Reports
+
+Once an event is committed, the exchange must send the right outcome back to the broker:
+
+- accepted
+- rejected
+- partially filled
+- fully filled
+- canceled
+
+These reports must come from the same committed engine output that feeds replay and market data.
+
+### 10. Market Data Builder and Feed Gateways
+
+The market-data builder consumes committed engine outputs and creates:
+
+- trade ticks
+- top-of-book updates
+- depth updates
+- snapshots for recovery
+
+Then a separate feed-distribution tier fans this out to many brokers.
+
+This separation is extremely important:
+market-data distribution must not slow matching.
+
+### 11. Async Downstream Systems
+
+Once the exchange commits an event, many other systems may consume it:
+
+- trade ledger
+- surveillance and compliance
+- reporting
+- clearing adapter
+
+This is where Kafka or another event bus can be very useful.
+But this is downstream.
+It is not where fairness is decided.
+
+---
+
+## How the Exchange Handles Thousands of Stocks
+
+This is a common confusion point in interviews and blog posts.
+
+The exchange does not maintain one huge shared structure for all stocks.
+It maintains many independent books with explicit ownership.
+
+The model looks like this:
 
 ```mermaid
 flowchart LR
-    subgraph Edge["Member Edge"]
-        A[Members / Brokers]
-        B[FIX / OUCH Gateways]
-        C[Session Auth and Basic Validation]
-        D[Venue Controls<br/>Kill Switches / Price Bands / Throttles]
+    A[Symbol Master]
+    B[Partition Directory]
+
+    subgraph P7["Partition P7"]
+        C[RELIANCE Book]
+        D[TCS Book]
     end
 
-    subgraph HotPath["Deterministic Matching Hot Path"]
-        E[Sequencer<br/>per Symbol Partition]
-        F[Matching Engine Shard<br/>Single Writer]
-        G[In-Memory Order Book]
-        H[Execution Reports / Drop Copy]
+    subgraph P12["Partition P12"]
+        E[INFY Book]
+        F[HDFCBANK Book]
     end
 
-    subgraph MarketData["Market Data Plane"]
-        I[Market Data Builder]
-        J[Top of Book / Depth / Snapshots]
-        K[Fanout and Gap Recovery]
+    subgraph P31["Partition P31"]
+        G[Other Symbols]
     end
 
-    subgraph Recovery["Durability and Recovery"]
-        L[Durable Event Journal]
-        M[Warm Standby / Replay]
-    end
-
-    subgraph Downstream["Post-Trade and Controls"]
-        N[Surveillance / Compliance]
-        O[Clearing / Post Trade]
-    end
-
-    A --> B --> C --> D --> E --> F --> G
-    F --> H
-    F --> I
-    F --> L
-    I --> J --> K
-    L --> M
-    L --> N
-    L --> O
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    B --> F
+    B --> G
 ```
 
-The important thing here is not the boxes.
-It is the ordering of responsibility.
+The exchange uses a symbol master that contains:
 
-The diagram also shows the architectural separation that matters most:
+- symbol code
+- instrument type
+- tick-size rule
+- session state
+- price bands
+- partition ownership
 
-- the matching hot path stays short and single-writer
-- market data fan-out is isolated so slow consumers cannot stall matching
-- durability and replay are explicit instead of being implied by logs
-- surveillance and clearing consume the same ordered truth, but off the hot path
+That symbol master feeds local caches used by gateways, venue controls, and the router.
 
-The hot path should do as little as possible before the event reaches the sequencer and matching shard:
-
-1. terminate session and protocol
-2. authenticate member
-3. apply lightweight structural validation
-4. enforce venue-level emergency controls
-5. sequence the event
-6. apply it to the in-memory book
-7. emit deterministic results
-
-Everything else should be pushed out of the critical path unless correctness absolutely requires it there.
+This is how we support many stocks while keeping deterministic ownership for each one.
 
 ---
 
-## The Matching Engine Should Be a Deterministic State Machine
+## How Tick-by-Tick Market Data Is Maintained
 
-The safest mental model is not "service."
-It is "single-writer state machine over a sequenced event stream."
+When people say "how are so many stock ticks maintained," they usually mean:
 
-For each symbol or symbol partition:
+1. how the system maintains live order books for many stocks
+2. how the system publishes tick-by-tick market-data updates
 
-- one engine instance owns the authoritative mutable book
-- events enter in one total order
-- the engine mutates in-memory state
-- outputs are generated from those state transitions
+These are related, but not identical.
 
-That is why many serious trading systems still prefer a single-writer design per book.
-Not because parallelism is unknown, but because parallelizing one order book usually creates more ambiguity than value.
+### Tick-Size Rules
 
-Minimal engine loop:
+Each instrument may have a minimum price increment rule.
+That rule belongs in reference data and should be enforced by the venue.
 
-```text
-for each sequenced event:
-  validate against current venue rules
-  apply new/cancel/replace logic
-  generate fills if crossing exists
-  update top-of-book and depth state
-  emit execution reports and book deltas
-  persist or replicate the committed event boundary
+Architecturally:
+
+- gateway and controls can reject obviously invalid prices early
+- the matcher still enforces the final rule before commit
+
+### Tick-by-Tick Feed
+
+The engine does not scan every possible price for every stock on every event.
+It updates only the book state that changed.
+
+For a committed change in `RELIANCE`, the system may publish:
+
+- best bid changed
+- best ask changed
+- last traded price changed
+- traded volume changed
+- depth changed
+
+That is the key to scale:
+the feed is incremental.
+It is derived from committed state transitions, not by polling a database or recomputing the world.
+
+---
+
+## How the Same Feed Reaches Many Brokers
+
+This is another place where many designs stay too shallow.
+
+The exchange is not sending one update to one consumer.
+It is sending the same committed market event to many brokers at once.
+
+The right flow looks like this:
+
+```mermaid
+flowchart LR
+    A[Matching Engine]
+    B[Market Data Builder]
+    C[Sequence Numbered Feed Stream]
+    D[Snapshot Store]
+
+    subgraph Fanout["Feed Distribution Tier"]
+        E[Gateway 1]
+        F[Gateway 2]
+        G[Gateway 3]
+    end
+
+    subgraph Brokers["Brokers"]
+        H[Broker A]
+        I[Broker B]
+        J[Broker C]
+        K[Broker D]
+    end
+
+    A --> B --> C
+    B --> D
+    C --> E
+    C --> F
+    C --> G
+    E --> H
+    E --> I
+    F --> J
+    G --> K
+    D --> H
+    D --> I
+    D --> J
+    D --> K
 ```
 
-If you cannot replay that loop and get the same state, your design is not ready.
+Important design details:
+
+- feed messages should be sequence numbered
+- brokers should detect gaps
+- missed data should be repaired by snapshot plus replay
+- slow consumers should be isolated from fast ones
+
+The most important rule is simple:
+the matching engine must never wait for a slow broker feed.
+
+> [!WARNING] Feed fan-out is a hidden failure path
+> Many weak designs keep matching correct in isolation but accidentally let feed backpressure leak into the core.
+> Recovery, replay, and slow-consumer handling should stay in the distribution tier, not in the matcher thread.
 
 ---
 
-## Order Book Design
+## Scalability: How the System Handles Huge Volume
 
-For a basic cash equities venue, a practical in-memory order book usually needs:
+Now let us address the most important scale question:
+how does this system handle too much volume?
 
-- bid side ordered by descending price
-- ask side ordered by ascending price
-- FIFO queue at each price level for time priority
-- order-id index for fast cancel lookup
-- compact metadata for member, side, quantity, and flags
+### 1. Partition by Symbol
 
-The key is not the exact container type.
-The key is keeping the mutation path short, predictable, and allocation-light.
+The exchange scales horizontally by distributing symbols across partitions.
 
-Design instinct:
+That means:
 
-- match in memory
-- keep the hot book resident
-- avoid remote lookups
-- avoid per-event heap churn if you are on the JVM
+- each partition has its own sequencer and matcher
+- symbols are processed independently
+- one hot stock does not automatically block unrelated stocks
 
-If this is implemented on Java, low-allocation discipline is not optional.
-Object-heavy models and stop-the-world surprises are expensive in a latency-sensitive matcher.
-Java can work, but only if the team treats memory layout, allocation rate, and GC behavior as first-class design concerns.
+### 2. Keep One Active Owner Per Symbol
+
+We do not scale one book using many active writers.
+That creates coordination overhead and ambiguity.
+
+For one symbol, single-writer ownership is usually the better trade-off.
+
+### 3. Isolate Hot Symbols
+
+Not all stocks are equally active.
+
+At market open or during major events:
+
+- `RELIANCE` may get heavy order flow
+- `INFY` may see extreme cancel or replace volume
+- smaller symbols may remain relatively quiet
+
+So capacity planning should focus on:
+
+- hot-symbol concentration
+- cancel and replace ratio
+- outbound market-data amplification
+
+### 4. Scale the Feed Tier Separately
+
+Inbound order traffic and outbound market-data traffic are different scaling problems.
+
+The matching engine must stay small.
+The fan-out tier can scale independently with more gateways, more replay capacity, and more snapshot infrastructure.
+
+### 5. Keep Replay and Recovery Off the Matcher
+
+After outages or disconnect storms, many brokers may reconnect at once.
+That recovery load should hit the snapshot and replay tier, not the live matching thread.
 
 ---
 
-## Why Microservices Are Usually the Wrong Shape for the Hot Path
+## Why the System Is So Fast
 
-Microservices are good for ownership boundaries.
-They are often terrible for one sub-millisecond deterministic loop.
+The exchange is fast because it refuses to do expensive things in the hot path.
 
-A naive microservice breakdown like this:
+The main reasons are:
+
+1. one active writer per book or partition
+2. in-memory order books
+3. local caches for reference data
+4. no database round-trip to decide a match
+5. no distributed transaction in the matching loop
+6. market-data fan-out moved off the matcher
+7. bounded, predictable handoff between stages
+
+The hot path should look like this:
+
+- gateway
+- lightweight validation
+- venue controls
+- sequencer
+- single-writer matcher
+- commit boundary
+- ack
+
+That is why the system can stay fast even when overall platform complexity is large.
+
+If we turned this into a chain like:
 
 - order service
 - risk service
 - book service
 - trade service
-- market data service
 
-looks modular on a whiteboard, but it creates:
-
-- more network hops
-- more serialization
-- more retry complexity
-- more tail-latency variance
-- more places where sequencing can drift
-
-Opinionated rule:
-the matching path should look more like a tightly integrated appliance than a chatty service mesh.
-
-You can still have service boundaries around:
-
-- onboarding
-- reporting
-- surveillance
-- clearing integration
-- analytics
-
-Just do not turn the matcher into a distributed workflow engine.
-
----
-
-## Sequencing Is the Real Heart of the System
-
-Most interviews talk about the matching engine.
-Senior architects talk about sequencing.
-
-Without a clear sequencing strategy, everything downstream becomes suspect:
-
-- fairness
-- replay
-- cancel races
-- market data consistency
-- standby recovery
-
-You need a clear answer to this question:
-
-Who assigns the authoritative order of events for a symbol partition?
-
-Good default answer:
-
-- one sequencer per partition
-- one monotonically increasing sequence space
-- one primary writer at a time
-
-The sequencer does not need to know finance.
-It needs to establish undeniable order.
-
-That is what lets the matcher stay deterministic and what lets standbys replay correctly.
-
----
-
-## Timestamps Are Not a Sequencing Strategy
-
-Teams sometimes say, "We will use synchronized clocks and order by timestamp."
-That is not strong enough for a fairness-critical matching system.
-
-Why not:
-
-- two gateways can still observe arrivals in different moments
-- network jitter changes when messages become visible
-- clock sync is good, but not perfect enough to be your final authority
-- replay is much cleaner with explicit sequence numbers than with inferred time ordering
-
-Use timestamps for:
-
-- audit trails
-- latency measurement
-- surveillance analysis
-- cross-system correlation
-
-Use sequence numbers for:
-
-- authoritative ordering
-- replay
-- failover fencing
-- deterministic market data derivation
-
-That distinction is easy to say and surprisingly important in design reviews.
-
----
-
-## Scale Out by Symbol, Not by Shared Locking
-
-The natural way to scale an exchange is horizontal partitioning by symbol or instrument group.
-
-That means:
-
-- each partition gets its own sequencer and matching shard
-- symbols are mapped to partitions
-- partitions can move across machines during planned rebalance
-- one symbol belongs to one active shard at a time
-
-Why this works:
-
-- price-time priority is preserved within a partition
-- the hottest books are isolated
-- recovery and failover stay local to a shard
-
-Why a global shared book service is bad:
-
-- one lock or one queue becomes the bottleneck
-- contention collapse appears under burst traffic
-- every symbol starts paying for every other symbol's load
-
-Related instinct on this site:
-- [Contention Collapse Under Load in Java Services](/java/concurrency/contention-collapse-under-load-in-java-services/)
-
----
-
-## The Hard Problem: One Hot Symbol
-
-Partitioning by symbol solves average scale.
-It does not magically solve the hottest symbol on the venue.
-
-That is where many designs become unrealistic.
-
-You cannot arbitrarily split one order book across many active writers without paying for coordination that damages either:
-
-- latency
-- simplicity
-- determinism
-- fairness
-
-For one hot symbol, serious options are usually:
-
-1. scale the single shard vertically and keep the book local
-2. simplify order types or controls in the hottest path
-3. move some non-critical downstream work off the engine thread
-4. apply venue mechanisms like auctioning, throttling, or trading halts when market integrity matters more than raw throughput
-
-What is usually a bad answer:
-"Let us make one symbol active-active across regions with distributed consensus."
-
-That is academically interesting and operationally dangerous for a low-latency venue.
-
----
-
-## Active-Active for One Book Is Usually the Wrong Trade-Off
-
-For a stock exchange, active-active on the same symbol looks attractive in a slide deck because it promises availability.
-In practice, it often injects exactly the wrong kind of coupling into the hottest path.
-
-Costs:
-
-- extra coordination latency
-- more complicated failure semantics
-- harder replay and reconciliation
-- more ambiguity during network partitions
-
-Safer default:
-
-- active-primary per partition
-- warm or hot standby following the same event journal
-- explicit failover with sequence fencing
-
-This gives you a clean answer to "who owns the book right now?"
-That answer is worth more than theoretical multi-writer elegance.
-
----
-
-## Failure Recovery Must Be Designed Before Scale
-
-Recovery is where immature exchange designs usually reveal themselves.
-
-You need to answer these questions early:
-
-- where is the authoritative event journal
-- how does a standby know what was committed
-- how do sessions recover after failover
-- how are duplicate client retries handled
-- how do you guarantee that replay rebuilds the same book
-
-Healthy recovery model:
-
-1. sequenced input is durably captured
-2. matching results are derived deterministically
-3. standby replays the same sequence
-4. failover promotes only after a clear sequence boundary
-5. clients resynchronize using last-seen sequence numbers or session recovery rules
-
-Design trade-off:
-synchronous durability on every event improves safety but increases latency.
-Asynchronous durability improves latency but expands the failure window.
-
-There is no free answer here.
-You choose explicitly based on market integrity, regulatory expectations, and tolerated data-loss window.
-
----
-
-## Market Data Is a System of Its Own
-
-A matching engine without a strong market data design is incomplete.
-
-Market data usually needs:
-
-- top-of-book and depth updates
-- snapshots plus incremental feeds
-- replay for missed gaps
-- slow-consumer isolation
-- different products for internal and external consumers
-
-The crucial rule is simple:
-market data consumers must never be allowed to backpressure the matcher.
-
-That means:
-
-- the engine emits to an internal builder or ring buffer
-- downstream fan-out is isolated from the core matcher
-- slow sessions are dropped or resynchronized, not allowed to stall core processing
-- replay and gap-fill are handled by dedicated recovery infrastructure
-
-This is exactly the kind of boundary where unbounded queues become dishonest.
-If the fan-out path is overloaded, the design should make that visible quickly instead of storing overload as memory growth and latency.
+we would add network hops, serialization, retries, and latency variance right where determinism matters most.
 
 Related reading:
-- [Bounded Queues and Backpressure in Java Systems](/java/concurrency/bounded-queues-and-backpressure-in-java-systems/)
-- [Work Queue Design Mistakes in Backend Systems](/java/concurrency/work-queue-design-mistakes-in-backend-systems/)
-
----
-
-## Pre-Trade Controls Without Polluting the Hot Path
-
-Not every risk check belongs inside the exchange core.
-
-Broker-side checks usually include:
-
-- client credit
-- margin
-- account permissions
-- portfolio exposure
-
-Exchange-side controls usually include:
-
-- price collars and fat-finger checks
-- cancel-on-disconnect
-- throttling and kill switches
-- self-trade prevention policies
-- venue state transitions such as halt and auction modes
-
-Architectural principle:
-keep the exchange hot path focused on venue-owned controls and deterministic matching.
-Do not make one new order depend on slow external account logic.
-
-If you must consult external state in the hot path, you have already accepted a much slower and more failure-prone system.
-
----
-
-## Audit, Surveillance, and Post-Trade Should Be Fed From the Same Truth
-
-A common bad pattern is rebuilding audit trails by stitching together logs from multiple services after the fact.
-
-That is not good enough for an exchange.
-
-Instead:
-
-- audit should consume the same sequenced event stream or committed engine outputs
-- surveillance should operate off durable, ordered market events
-- clearing adapters should subscribe from the same post-trade truth
-
-This reduces one of the nastiest operational problems:
-two teams arguing during an incident about which log is authoritative.
-
-Senior architect instinct:
-make truth explicit at the architecture level, not just in incident documentation.
-
----
-
-## Performance Bottlenecks That Actually Matter
-
-Exchange systems do not usually fail first because of raw CPU shortage.
-They fail because one of these becomes dominant:
-
-- one sequencer or book becomes too hot
-- lock contention appears in what should have been a single-writer path
-- market data fan-out backlogs
-- per-event allocations create GC turbulence
-- retries or reconnect storms amplify load during an incident
-- storage or replication jitter increases tail latency
-
-That is why average latency is not enough.
-The metrics that matter more are:
-
-- p99 and p999 order acknowledgment latency
-- queue depth before sequencer and market data fan-out
-- per-partition throughput
-- cancel latency under burst
-- replay catch-up time
-- failover recovery time to known-good sequence
-
-This is one of the clearest differences between CRUD thinking and market-infrastructure thinking.
-
----
-
-## What Serious Trading Venues Do Differently
-
-The strongest real-world systems usually make a few disciplined choices:
-
-1. They keep the matching path short and deterministic.
-2. They use single-writer ownership per book or partition.
-3. They treat sequencing as a first-class subsystem, not a side effect.
-4. They separate market data distribution from core matching.
-5. They prefer explicit failover over ambiguous multi-writer coordination.
-6. They optimize for worst-case symbol pressure and tail latency, not only aggregate throughput.
-7. They drill replay, failover, and disconnect scenarios repeatedly.
-
-This is also where "big tech thinking" can mislead people.
-A stock exchange is not a social feed.
-You do not win by casually making every component eventually consistent and massively parallel.
-You win by keeping the hot path precise, deterministic, and operationally understandable.
-
----
-
-## Common Bad Designs
-
-These designs sound modern and still fail review:
-
-### Using a database transaction as the matching engine
-
-The database is useful for durability and downstream views.
-It is usually too slow and too variable to be the core matching loop.
-
-### Putting Kafka or a general event bus directly in the fairness-critical hot path
-
-General messaging platforms are excellent for many things.
-They are not automatically the right primitive for the lowest-latency authoritative matcher boundary.
-
-### Letting slow consumers back up the matcher
-
-This turns external fan-out into internal market integrity risk.
-
-### Splitting one order book across many chatty services
-
-That moves the hardest correctness problem into the network.
-
-### Designing for average traffic instead of hot-symbol bursts
-
-The average will not be what breaks you on the bad day.
-
----
-
-## If I Had to Build Version 1
-
-I would start with these choices:
-
-- one region, not multi-region active-active
-- cash equities only, not all asset classes
-- limit, market, cancel, replace first; add complex order types later
-- partition by symbol
-- single primary sequencer and matcher per partition
-- in-memory resident books
-- deterministic event journal
-- warm standby replaying the same partition stream
-- dedicated market data builder and fan-out tier
-- asynchronous downstream integration for surveillance and clearing
-
-That is not because the system is "simple."
-It is because version 1 should preserve the hardest invariants with the fewest moving parts.
-
-The wrong ambition in an exchange is feature breadth before sequencing clarity.
-
----
-
-## Interview-Ready Answer Shape
-
-If this comes up in a system design interview, I would structure the answer like this:
-
-1. Define the boundary: exchange, broker, and clearing are separate systems.
-2. State the invariant: one authoritative event order per symbol partition.
-3. Describe the hot path: gateway -> validation -> sequencer -> matching engine -> journal -> market data and execution outputs.
-4. Explain scale: partition by symbol, not by shared locking.
-5. Explain recovery: deterministic replay with primary-standby failover.
-6. Call out the real trade-off: active-active for one book hurts latency and determinism more than it helps.
-7. Close with market data isolation and operational controls.
-
-That answer is stronger than listing caches, load balancers, and databases without saying who owns order.
-
----
-
-## Design Review Questions I Would Ask
-
-Before approving this architecture, I would ask:
-
-1. Where is the single source of truth for event order?
-2. Can a cancel and a fill race produce ambiguity?
-3. What is the failover fence that prevents split-brain on one partition?
-4. Can market data lag or replay without ever slowing the matcher?
-5. What happens when one symbol becomes 20 times hotter than the rest?
-6. Which controls can stop damage immediately, and who owns them?
-7. Can we replay one day of traffic and reproduce the same book and trades?
-
-If those answers are weak, the design is not mature yet.
-
----
-
-## Related Reading on This Site
 
 - [Shared Memory vs Message Passing in Java Applications](/java/concurrency/shared-memory-vs-message-passing-java-applications/)
 - [Contention Collapse Under Load in Java Services](/java/concurrency/contention-collapse-under-load-in-java-services/)
 - [Bounded Queues and Backpressure in Java Systems](/java/concurrency/bounded-queues-and-backpressure-in-java-systems/)
-- [Work Queue Design Mistakes in Backend Systems](/java/concurrency/work-queue-design-mistakes-in-backend-systems/)
+
+---
+
+## Failure and Recovery
+
+A stock exchange design is incomplete without failure handling.
+
+The most important scenarios are:
+
+### 1. One Symbol Becomes Extremely Hot
+
+If `INFY` suddenly becomes 20 times hotter than the average stock:
+
+- only its owning partition should be stressed
+- other symbols should keep moving normally
+- venue controls should still be able to throttle or halt if required
+
+### 2. A Broker Feed Falls Behind
+
+If one broker cannot keep up with tick processing:
+
+- that broker's feed path should lag or disconnect
+- the matcher should continue normally
+- recovery should happen through snapshot plus replay
+
+### 3. Gateway Reconnect Storm
+
+If many sessions reconnect after a network event:
+
+- session recovery should be explicit
+- reconnect handling should be rate limited
+- cancel-on-disconnect rules should be deterministic
+
+### 4. Primary Matcher Failure
+
+If the active owner of `RELIANCE` fails:
+
+- the standby should know the last committed sequence
+- partition ownership should move explicitly
+- the new primary should continue from the next safe sequence number
+
+The critical recovery rule is:
+there must be one unambiguous owner of the next event.
+
+> [!CAUTION] Active-active sounds safer than it is
+> For one order book, multi-writer ownership usually increases coordination cost, ambiguity, and split-brain risk.
+> In low-latency exchange systems, single-writer ownership is often the simpler and safer default.
+
+That is also why active-active multi-writer ownership for one book is usually the wrong trade-off in a low-latency exchange.
+
+---
+
+## Final Design Summary
+
+If I had to explain the design in one short flow, I would say this:
+
+1. brokers connect through gateways
+2. the exchange applies local venue controls
+3. orders are routed by symbol to one active partition
+4. the sequencer defines authoritative order
+5. the matching engine updates the in-memory book
+6. the journal records committed truth
+7. execution reports go back to brokers
+8. market-data builders and feed gateways distribute the committed feed
+9. downstream systems consume the same truth asynchronously
+
+That is the clean mental model a learner should keep.
+
+If that model is clear, the detailed implementation choices become much easier to understand.
 
 ---
 
 ## Key Takeaways
 
-- A stock exchange is a deterministic sequencing problem under latency pressure, not a generic CRUD platform.
-- The core architecture should preserve one authoritative event order per symbol partition.
-- Single-writer matching per book is usually a better trade-off than fancy multi-writer coordination.
-- Market data fan-out, replay, and failover deserve first-class design attention, not leftover infrastructure.
-- The most senior design choice is often deciding what not to put in the hot path.
+- A stock exchange is a deterministic sequencing problem under latency pressure.
+- The design should begin with requirements and invariants, not with random infrastructure boxes.
+- One active owner per symbol or partition is the simplest scalable model.
+- Matching should stay memory-resident, single-writer, and isolated from slow dependencies.
+- Tick-by-tick market data should be derived incrementally from committed events.
+- The system scales by partitioning symbols, isolating hot books, and scaling market-data fan-out separately.

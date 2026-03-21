@@ -7,6 +7,7 @@ GEM
     bigdecimal (4.0.1)
     colorator (1.1.0)
     concurrent-ruby (1.3.6)
+    cssminify (1.0.2)
     csv (3.3.5)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
@@ -85,6 +86,10 @@ GEM
       jekyll (>= 3.6, < 5.0)
     jekyll-feed (0.17.0)
       jekyll (>= 3.7, < 5.0)
+    jekyll-gfm-admonitions (1.2.0)
+      cssminify (~> 1.0)
+      jekyll (>= 3.0, < 5.0)
+      octicons (~> 19.8)
     jekyll-gist (1.5.0)
       octokit (~> 4.2)
     jekyll-include-cache (0.2.1)
@@ -121,6 +126,7 @@ GEM
       jekyll-sitemap (~> 1.3)
     net-http (0.9.1)
       uri (>= 0.11.1)
+    octicons (19.23.1)
     octokit (4.25.1)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
@@ -202,6 +208,7 @@ DEPENDENCIES
   jekyll (= 4.4.1)
   jekyll-archives
   jekyll-feed
+  jekyll-gfm-admonitions (~> 1.2.0)
   jekyll-include-cache
   jekyll-last-modified-at
   jekyll-paginate
@@ -217,6 +224,7 @@ CHECKSUMS
   bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
   colorator (1.1.0) sha256=e2f85daf57af47d740db2a32191d1bdfb0f6503a0dfbc8327d0c9154d5ddfc38
   concurrent-ruby (1.3.6) sha256=6b56837e1e7e5292f9864f34b69c5a2cbc75c0cf5338f1ce9903d10fa762d5ab
+  cssminify (1.0.2) sha256=f574503558cd442c6286831ffdbebdb4587f6deb827ef7575f73f377a376a898
   csv (3.3.5) sha256=6e5134ac3383ef728b7f02725d9872934f523cb40b961479f69cf3afa6c8e73f
   em-websocket (0.5.3) sha256=f56a92bde4e6cb879256d58ee31f124181f68f8887bd14d53d5d9a292758c6a8
   eventmachine (1.2.7) sha256=994016e42aa041477ba9cff45cbe50de2047f25dd418eba003e84f0d16560972
@@ -249,6 +257,7 @@ CHECKSUMS
   jekyll (4.4.1) sha256=4c1144d857a5b2b80d45b8cf5138289579a9f8136aadfa6dd684b31fe2bc18c1
   jekyll-archives (2.3.0) sha256=2dbd8ce22212fbace81fe2c9aa4152a6e21c748bcc626f135af5acfd813375f6
   jekyll-feed (0.17.0) sha256=689aab16c877949bb9e7a5c436de6278318a51ecb974792232fd94d8b3acfcc3
+  jekyll-gfm-admonitions (1.2.0) sha256=38b95c75449033465313a92c2da3ee311d3569f38e6053c635bc16d3c28e702d
   jekyll-gist (1.5.0) sha256=495b6483552a3e2975a2752964ea7acddd545bc6e13ce2be15a50cec8d4c9f0f
   jekyll-include-cache (0.2.1) sha256=c7d4b9e551732a27442cb2ce853ba36a2f69c66603694b8c1184c99ab1a1a205
   jekyll-last-modified-at (1.3.2) sha256=c4c08f137453e9b40764a769450870d05970e0934651a1fd9ef081f4a6e9a815
@@ -266,6 +275,7 @@ CHECKSUMS
   mercenary (0.4.0) sha256=b25a1e4a59adca88665e08e24acf0af30da5b5d859f7d8f38fba52c28f405138
   minimal-mistakes-jekyll (4.28.0) sha256=97d38e5ae90d8d9192bb0c9dc577ed41783bd3842a506429842e984e0877ecd7
   net-http (0.9.1) sha256=25ba0b67c63e89df626ed8fac771d0ad24ad151a858af2cc8e6a716ca4336996
+  octicons (19.23.1) sha256=6eca3ac1b44de7b372a76624e1fd762ff8cd3546e57913bcd910e596814166db
   octokit (4.25.1) sha256=c02092ee82dcdfe84db0e0ea630a70d32becc54245a4f0bacfd21c010df09b96
   pathutil (0.16.2) sha256=e43b74365631cab4f6d5e4228f812927efc9cb2c71e62976edcb252ee948d589
   public_suffix (7.0.5) sha256=1a8bb08f1bbea19228d3bed6e5ed908d1cb4f7c2726d18bd9cadf60bc676f623
