@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-24
-seo_title: Memoization vs Tabulation in Java – Complete Guide
+seo_title: Memoization vs Tabulation in Java - Interview Preparation Guide
 seo_description: Choose the right DP execution model in Java with tradeoffs, templates,
   and performance implications.
 tags:
@@ -12,7 +12,7 @@ tags:
 - dp
 - memoization
 - tabulation
-title: Memoization vs Tabulation in Java DP — A Detailed Guide
+title: Memoization vs Tabulation in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

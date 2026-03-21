@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-29
-seo_title: Trie Pattern in Java – Complete Guide
+seo_title: Trie Pattern in Java - Interview Preparation Guide
 seo_description: Learn Trie in Java for prefix search, autocomplete, and dictionary-based
   backtracking problems.
 tags:
@@ -12,7 +12,7 @@ tags:
 - trie
 - prefix-tree
 - strings
-title: Trie Pattern in Java — A Detailed Guide
+title: Trie Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

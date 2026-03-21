@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-12
-seo_title: Suffix Array and LCP Basics in Java – Complete Guide
+seo_title: Suffix Array and LCP Basics in Java - Interview Preparation Guide
 seo_description: Understand suffix array and LCP basics in Java for substring ranking
   and repetition analysis.
 tags:
@@ -12,7 +12,7 @@ tags:
 - suffix-array
 - lcp
 - strings
-title: Suffix Array and LCP Basics in Java — A Detailed Guide
+title: Suffix Array and LCP Basics in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

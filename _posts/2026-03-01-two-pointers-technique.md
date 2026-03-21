@@ -13,7 +13,7 @@ tags:
 - linked-list
 - algorithms
 - interview-preparation
-title: Two Pointers Technique in Java — A Practical Guide for Serious Engineers
+title: Two Pointers Technique in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-13
-seo_title: KMP String Matching in Java – Complete Guide
+seo_title: KMP String Matching in Java - Interview Preparation Guide
 seo_description: Implement linear-time substring search in Java using LPS prefix-function
   preprocessing.
 tags:
@@ -12,7 +12,7 @@ tags:
 - kmp
 - strings
 - algorithms
-title: KMP String Matching in Java — A Detailed Guide
+title: KMP String Matching in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

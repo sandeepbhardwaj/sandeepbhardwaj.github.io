@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-24
-seo_title: Tree BFS Pattern in Java – Complete Guide
+seo_title: Tree BFS Pattern in Java - Interview Preparation Guide
 seo_description: Learn tree BFS in Java using queue-based level traversal, shortest
   depth, and level-order transformations.
 tags:
@@ -12,7 +12,7 @@ tags:
 - tree
 - bfs
 - queue
-title: Tree BFS Pattern in Java — A Detailed Guide
+title: Tree BFS Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

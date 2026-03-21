@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-18
-seo_title: Meet-in-the-Middle Pattern in Java – Complete Guide
+seo_title: Meet-in-the-Middle Pattern in Java - Interview Preparation Guide
 seo_description: Solve exponential subset problems faster in Java by splitting search
   space and merging results.
 tags:
@@ -11,7 +11,7 @@ tags:
 - java
 - meet-in-the-middle
 - algorithms
-title: Meet-in-the-Middle Pattern in Java — A Detailed Guide
+title: Meet-in-the-Middle Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

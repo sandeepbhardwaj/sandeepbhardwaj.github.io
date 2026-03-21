@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-10
-seo_title: Fenwick Tree Pattern in Java – Complete Guide
+seo_title: Fenwick Tree Pattern in Java - Interview Preparation Guide
 seo_description: Use Binary Indexed Tree in Java for prefix sums and point updates
   in logarithmic time.
 tags:
@@ -12,7 +12,7 @@ tags:
 - fenwick-tree
 - bit
 - algorithms
-title: Fenwick Tree Pattern in Java — A Detailed Guide
+title: Fenwick Tree Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-03
-seo_title: Topological Sort Pattern in Java – Complete Guide
+seo_title: Topological Sort Pattern in Java - Interview Preparation Guide
 seo_description: Solve dependency ordering problems in Java using Kahn BFS and DFS
   post-order methods.
 tags:
@@ -12,7 +12,7 @@ tags:
 - topological-sort
 - graph
 - algorithms
-title: Topological Sort Pattern in Java — A Detailed Guide
+title: Topological Sort Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

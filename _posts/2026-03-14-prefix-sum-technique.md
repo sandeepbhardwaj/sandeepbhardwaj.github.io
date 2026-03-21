@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-14
-seo_title: Prefix Sum Pattern in Java – Complete Guide for Backend Engineers
+seo_title: Prefix Sum Pattern in Java - Interview Preparation Guide
 seo_description: Master Prefix Sum in Java with core templates, hashmap extensions,
   subarray problems, and production-grade reasoning.
 tags:
@@ -13,7 +13,7 @@ tags:
 - algorithms
 - interview-preparation
 - backend-engineering
-title: Prefix Sum Pattern in Java — A Detailed Guide for Serious Engineers
+title: Prefix Sum Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

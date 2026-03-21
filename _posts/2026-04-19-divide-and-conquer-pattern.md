@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-04-19
-seo_title: Divide and Conquer Pattern in Java – Complete Guide
+seo_title: Divide and Conquer Pattern in Java - Interview Preparation Guide
 seo_description: Structure recursive Java solutions with split-solve-merge for scalable
   problem decomposition.
 tags:
@@ -12,7 +12,7 @@ tags:
 - divide-and-conquer
 - recursion
 - algorithms
-title: Divide and Conquer Pattern in Java — A Detailed Guide
+title: Divide and Conquer Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article

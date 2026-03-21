@@ -3,7 +3,7 @@ categories:
 - DSA
 - Java
 date: 2026-03-28
-seo_title: Dynamic Programming Pattern in Java – Complete Guide
+seo_title: Dynamic Programming Pattern in Java - Interview Preparation Guide
 seo_description: Master dynamic programming in Java with state definition, transitions,
   memoization, and tabulation patterns.
 tags:
@@ -12,7 +12,7 @@ tags:
 - dynamic-programming
 - dp
 - algorithms
-title: Dynamic Programming Pattern in Java — A Detailed Guide
+title: Dynamic Programming Pattern in Java - Interview Preparation Guide
 toc: true
 toc_icon: cog
 toc_label: In This Article
