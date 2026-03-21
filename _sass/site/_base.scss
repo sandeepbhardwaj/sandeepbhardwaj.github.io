@@ -12,9 +12,9 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(8, 145, 178, 0.1), transparent 28%),
-    radial-gradient(circle at 88% 12%, rgba(234, 88, 12, 0.1), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 18rem),
+    radial-gradient(circle at top left, var(--page-glow-cool), transparent 28%),
+    radial-gradient(circle at 88% 12%, var(--page-glow-warm), transparent 24%),
+    linear-gradient(180deg, var(--page-sheen), transparent 18rem),
     var(--bg-canvas);
   color: var(--text-strong);
   font-family: var(--font-body);

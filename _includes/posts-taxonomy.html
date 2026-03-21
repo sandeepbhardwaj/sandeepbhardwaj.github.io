@@ -1,5 +1,8 @@
 {% assign locale = include.locale | default: site.locale %}
 {% assign taxonomy_page_url = page.url | relative_url %}
+{% assign taxonomy_mode = include.mode | default: "rail" %}
+{% assign alphabetical_taxonomies = include.taxonomies | sort %}
+{% assign archive_variant = "taxonomy" %}
 {% assign items_max = 0 %}
 {% for item in include.taxonomies %}
   {% if item[1].size > items_max %}
@@ -7,33 +10,78 @@
   {% endif %}
 {% endfor %}
 
-<ul class="taxonomy__index">
+{% if taxonomy_mode == "directory" %}
+  {% assign archive_variant = "taxonomy-compact" %}
+{% endif %}
+
+{% if taxonomy_mode == "directory" %}
+  <div class="taxonomy__directory-wrap">
+    <div class="taxonomy__directory">
+      {% for taxonomy in alphabetical_taxonomies %}
+        <a class="taxonomy__directory-link" href="{{ taxonomy_page_url }}#{{ taxonomy[0] | slugify }}">
+          <span class="taxonomy__directory-label">{{ taxonomy[0] }}</span>
+          <span class="taxonomy__count">{{ taxonomy[1].size }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="taxonomy__rail">
+    <ul class="taxonomy__index">
+      {% for i in (1..items_max) reversed %}
+        {% for item in include.taxonomies %}
+          {% if item[1].size == i %}
+            <li>
+              <a href="{{ taxonomy_page_url }}#{{ item[0] | slugify }}">
+                <span class="taxonomy__label">{{ item[0] }}</span>
+                <span class="taxonomy__count">{{ i }}</span>
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+{% assign entries_layout = page.entries_layout | default: 'list' %}
+<div class="taxonomy__sections{% if taxonomy_mode == 'directory' %} taxonomy__sections--directory{% endif %}">
+{% if taxonomy_mode == "directory" %}
+  {% for taxonomy in alphabetical_taxonomies %}
+      <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section taxonomy__section--directory">
+        <div class="taxonomy__section-head">
+          <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
+          <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
+        </div>
+        <div class="entries-{{ entries_layout }} taxonomy__entries taxonomy__entries--directory">
+          {% for post in taxonomy.last %}
+            {% include archive-single.html locale=locale type=entries_layout variant=archive_variant %}
+          {% endfor %}
+        </div>
+      </section>
+  {% endfor %}
+{% else %}
   {% for i in (1..items_max) reversed %}
-    {% for item in include.taxonomies %}
-      {% if item[1].size == i %}
-        <li>
-          <a href="{{ taxonomy_page_url }}#{{ item[0] | slugify }}">
-            <strong>{{ item[0] }}</strong> <span class="taxonomy__count">{{ i }}</span>
-          </a>
-        </li>
+    {% for taxonomy in include.taxonomies %}
+      {% if taxonomy[1].size == i %}
+        <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section">
+          <div class="taxonomy__section-head">
+          <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
+          <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
+        </div>
+        <div class="entries-{{ entries_layout }} taxonomy__entries">
+          {% for post in taxonomy.last %}
+              {% include archive-single.html locale=locale type=entries_layout variant=archive_variant %}
+          {% endfor %}
+        </div>
+      </section>
       {% endif %}
     {% endfor %}
   {% endfor %}
-</ul>
+{% endif %}
+</div>
 
-{% assign entries_layout = page.entries_layout | default: 'list' %}
-{% for i in (1..items_max) reversed %}
-  {% for taxonomy in include.taxonomies %}
-    {% if taxonomy[1].size == i %}
-      <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section">
-        <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
-        <div class="entries-{{ entries_layout }}">
-          {% for post in taxonomy.last %}
-            {% include archive-single.html locale=locale type=entries_layout %}
-          {% endfor %}
-        </div>
-        <a href="#page-title" class="back-to-top">{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }} &uarr;</a>
-      </section>
-    {% endif %}
-  {% endfor %}
-{% endfor %}
+<a href="#page-title" class="taxonomy__floating-top" aria-label="{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }}">
+  <span class="taxonomy__floating-top-icon" aria-hidden="true">↑</span>
+  <span class="taxonomy__floating-top-label">{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }}</span>
+</a>

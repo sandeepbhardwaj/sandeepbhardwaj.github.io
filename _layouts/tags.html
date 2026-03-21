@@ -2,5 +2,7 @@
 layout: single
 ---
 {% assign locale = page.locale | default: site.locale %}
-{{ content }}
-{% include posts-taxonomy.html taxonomies=site.tags locale=locale %}
+<section class="taxonomy-page taxonomy-page--index">
+  {{ content }}
+  {% include posts-taxonomy.html taxonomies=site.tags locale=locale mode="directory" %}
+</section>

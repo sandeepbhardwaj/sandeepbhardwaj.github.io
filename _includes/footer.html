@@ -1,31 +1,84 @@
 <footer class="site-footer">
   <div class="site-container site-footer__inner">
     <div class="site-footer__surface">
+      {% assign has_explore_links = false %}
+      {% assign has_policy_links = false %}
+      {% if site.footer.links %}
+        {% for link in site.footer.links %}
+          {% assign footer_url = link.url | strip %}
+          {% if footer_url contains '/privacy-policy/' or footer_url contains '/terms/' or footer_url contains '/disclaimer/' or footer_url contains '/cookie-policy/' %}
+            {% assign has_policy_links = true %}
+          {% else %}
+            {% assign has_explore_links = true %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
       <div class="site-footer__top">
         <div class="site-footer__brand">
+          {% if site.subtitle %}
+            <p class="site-footer__eyebrow">{{ site.subtitle }}</p>
+          {% endif %}
           <a class="site-footer__title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
           {% if site.description %}
             <p class="site-footer__description">{{ site.description }}</p>
           {% endif %}
         </div>
 
-        {% if site.footer.links %}
-          <nav class="site-footer__nav" aria-label="Footer">
-            <ul class="site-footer__links">
-              {% for link in site.footer.links %}
-                {% assign footer_url = link.url | strip %}
-                <li>
-                  <a href="{% if footer_url contains '://' or footer_url contains 'mailto:' %}{{ footer_url }}{% else %}{{ footer_url | relative_url }}{% endif %}">{{ link.label }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </nav>
-        {% endif %}
+        <div class="site-footer__nav-groups">
+          {% if has_explore_links %}
+            <nav class="site-footer__nav-group" aria-label="Explore">
+              <p class="site-footer__nav-title">Explore</p>
+              <ul class="site-footer__list">
+                {% for link in site.footer.links %}
+                  {% assign footer_url = link.url | strip %}
+                  {% unless footer_url contains '/privacy-policy/' or footer_url contains '/terms/' or footer_url contains '/disclaimer/' or footer_url contains '/cookie-policy/' %}
+                    <li>
+                      <a href="{% if footer_url contains '://' or footer_url contains 'mailto:' %}{{ footer_url }}{% else %}{{ footer_url | relative_url }}{% endif %}">
+                        <span class="site-footer__link-icon-wrap">
+                          {% include footer-link-icon.html icon=link.icon label=link.label url=footer_url %}
+                        </span>
+                        <span>{{ link.label }}</span>
+                      </a>
+                    </li>
+                  {% endunless %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}
+
+          {% if has_policy_links %}
+            <nav class="site-footer__nav-group" aria-label="Policies">
+              <p class="site-footer__nav-title">Policies</p>
+              <ul class="site-footer__list">
+                {% for link in site.footer.links %}
+                  {% assign footer_url = link.url | strip %}
+                  {% if footer_url contains '/privacy-policy/' or footer_url contains '/terms/' or footer_url contains '/disclaimer/' or footer_url contains '/cookie-policy/' %}
+                    <li>
+                      <a href="{% if footer_url contains '://' or footer_url contains 'mailto:' %}{{ footer_url }}{% else %}{{ footer_url | relative_url }}{% endif %}">
+                        <span class="site-footer__link-icon-wrap">
+                          {% include footer-link-icon.html icon=link.icon label=link.label url=footer_url %}
+                        </span>
+                        <span>{{ link.label }}</span>
+                      </a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}
+
+          {% include footer/custom.html %}
+        </div>
       </div>
 
       <div class="site-footer__bottom">
-        {% include footer/custom.html %}
         <p class="site-footer__legal">&copy; {{ 'now' | date: '%Y' }} {{ site.author.name | default: site.title }}. All rights reserved.</p>
+        {% if site.author.bio %}
+          <p class="site-footer__signature">{{ site.author.bio }}</p>
+        {% elsif site.subtitle %}
+          <p class="site-footer__signature">{{ site.subtitle }}</p>
+        {% endif %}
       </div>
     </div>
   </div>

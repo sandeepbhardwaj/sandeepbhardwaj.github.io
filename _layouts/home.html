@@ -7,49 +7,49 @@ layout: default
 <section class="home-hero">
   <div class="site-container home-hero__inner">
     <div class="home-hero__content">
-      <p class="home-hero__eyebrow">{{ site.subtitle }}</p>
-      <h1 class="home-hero__title">{{ page.title | default: site.title }}</h1>
-      {% if page.excerpt %}
-        <p class="home-hero__excerpt">{{ page.excerpt }}</p>
-      {% endif %}
-
-      <div class="home-hero__actions">
-        <a class="btn btn--primary" href="#latest-posts">Start Reading</a>
-        <a class="btn" href="{{ '/about/' | relative_url }}">About the Author</a>
-        {% if site.features.search.enabled != false %}
-          <button class="btn btn--ghost" type="button" data-search-open>Search Topics</button>
+      <div class="home-hero__intro">
+        <p class="home-hero__eyebrow">{{ site.subtitle }}</p>
+        <h1 class="home-hero__title">{{ page.title | default: site.title }}</h1>
+        {% if page.excerpt %}
+          <p class="home-hero__excerpt">{{ page.excerpt }}</p>
         {% endif %}
+
+        <div class="home-hero__actions">
+          <a class="btn btn--primary" href="#latest-posts">Start Reading</a>
+          <a class="btn" href="{{ '/about/' | relative_url }}">About the Author</a>
+          {% if site.features.search.enabled != false %}
+            <button class="btn btn--ghost" type="button" data-search-open>Search Topics</button>
+          {% endif %}
+        </div>
       </div>
 
-      {% if featured_categories.size > 0 %}
-        <div class="home-hero__topics">
-          {% for category in featured_categories limit: 5 %}
-            <a class="home-hero__topic" href="/categories/{{ category[0] | slugify }}/">{{ category[0] }}</a>
-          {% endfor %}
+      {% if latest_post or featured_categories.size > 0 %}
+        <div class="home-hero__guide">
+          {% if latest_post %}
+            <a class="home-hero__guide-item home-hero__guide-item--latest" href="{{ latest_post.url | relative_url }}">
+              <span class="home-hero__guide-label">Latest Article</span>
+              <span class="home-hero__guide-title">{{ latest_post.title }}</span>
+              <span class="home-hero__guide-meta">
+                {{ latest_post.date | date: "%b %-d, %Y" }}{% if latest_post.categories and latest_post.categories.size > 0 %} · {{ latest_post.categories.first }}{% endif %}
+              </span>
+              <span class="home-hero__guide-action">Open article</span>
+            </a>
+          {% endif %}
+
+          {% if featured_categories.size > 0 %}
+            <div class="home-hero__guide-item home-hero__guide-item--topics">
+              <span class="home-hero__guide-label">Browse By Topic</span>
+              <p class="home-hero__guide-copy">Explore the archive through the topics you care about most.</p>
+              <div class="home-hero__topics">
+                {% for category in featured_categories limit: 6 %}
+                  <a class="home-hero__topic" href="/categories/{{ category[0] | slugify }}/">{{ category[0] }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
         </div>
       {% endif %}
     </div>
-
-    <aside class="home-hero__panel">
-      <p class="home-hero__panel-label">At a glance</p>
-      <div class="home-hero__stats">
-        <div class="home-hero__stat">
-          <span class="home-hero__stat-value">{{ site.posts | size }}</span>
-          <span class="home-hero__stat-label">Published posts</span>
-        </div>
-        <div class="home-hero__stat">
-          <span class="home-hero__stat-value">{{ site.categories | size }}</span>
-          <span class="home-hero__stat-label">Core categories</span>
-        </div>
-        {% if latest_post %}
-          <div class="home-hero__stat">
-            <span class="home-hero__stat-value">{{ latest_post.date | date: "%b %Y" }}</span>
-            <span class="home-hero__stat-label">Latest update</span>
-          </div>
-        {% endif %}
-      </div>
-      <p class="home-hero__panel-copy">Backend engineering, DSA interview prep, and system design notes focused on practical depth over surface-level summaries.</p>
-    </aside>
   </div>
 </section>
 

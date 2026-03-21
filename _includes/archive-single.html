@@ -12,8 +12,14 @@
 
 {% assign excerpt_text = post.excerpt | markdownify | strip_html | normalize_whitespace %}
 {% assign is_home_variant = include.variant == "home" or include.variant == "home-featured" %}
+{% assign is_taxonomy_variant = include.variant == "taxonomy" %}
+{% assign is_taxonomy_compact_variant = include.variant == "taxonomy-compact" %}
 {% if include.variant == "home" or include.variant == "home-featured" %}
   {% assign excerpt_text = excerpt_text | truncatewords: 30 %}
+{% elsif include.variant == "taxonomy" %}
+  {% assign excerpt_text = excerpt_text | truncatewords: 22 %}
+{% elsif include.variant == "taxonomy-compact" %}
+  {% assign excerpt_text = excerpt_text | truncatewords: 14 %}
 {% else %}
   {% assign excerpt_text = excerpt_text | truncate: 160 %}
 {% endif %}
@@ -42,6 +48,7 @@
           <a href="{{ '/categories/' | relative_url }}{{ category | slugify }}/" class="archive__taxonomy-item archive__taxonomy-item--category">{{ category }}</a>
         {% endfor %}
       </div>
+    {% elsif is_taxonomy_variant or is_taxonomy_compact_variant %}
     {% elsif post.categories and post.categories.size > 0 %}
       <p class="archive__taxonomy">
         {% for category in post.categories %}
@@ -49,6 +56,6 @@
         {% endfor %}
       </p>
     {% endif %}
-    {% if post.excerpt %}<p class="archive__item-excerpt" itemprop="description">{{ excerpt_text }}</p>{% endif %}
+    {% if post.excerpt and is_taxonomy_compact_variant == false %}<p class="archive__item-excerpt" itemprop="description">{{ excerpt_text }}</p>{% endif %}
   </article>
 </div>
