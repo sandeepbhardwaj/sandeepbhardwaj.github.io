@@ -1,57 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
   var FEEDBACK_MS = 1800;
   var blocks = document.querySelectorAll(".page__content div.highlighter-rouge");
-  var LANGUAGE_LABELS = {
-    bash: "Bash",
-    console: "Console",
-    html: "HTML",
-    java: "Java",
-    javascript: "JavaScript",
-    json: "JSON",
-    markdown: "Markdown",
-    md: "Markdown",
-    plaintext: "Plain text",
-    shell: "Shell",
-    sql: "SQL",
-    text: "Example",
-    xml: "XML",
-    yaml: "YAML",
-    yml: "YAML"
-  };
-
-  function inferLanguageLabel(block, code) {
-    var classes = ((block.className || "") + " " + (code.className || "")).split(/\s+/);
-    var language = "";
-
-    Array.prototype.forEach.call(classes, function (className) {
-      if (!language && className.indexOf("language-") === 0) {
-        language = className.slice("language-".length).toLowerCase();
-      }
-    });
-
-    if (!language) return "Code";
-    if (LANGUAGE_LABELS[language]) return LANGUAGE_LABELS[language];
-
-    return language
-      .split(/[-_]/)
-      .map(function (part) {
-        return part ? part.charAt(0).toUpperCase() + part.slice(1) : "";
-      })
-      .join(" ");
-  }
 
   function resetButton(button) {
     button.classList.remove("is-copied");
-    button.textContent = "Copy";
+    button.classList.remove("is-error");
+    button.setAttribute("aria-label", "Copy code");
+    button.setAttribute("title", "Copy code");
   }
 
-  function showFeedback(button, label) {
+  function showFeedback(button, state, label) {
     if (button._copyResetTimer) {
       window.clearTimeout(button._copyResetTimer);
     }
 
-    button.classList.add("is-copied");
-    button.textContent = label;
+    button.classList.toggle("is-copied", state === "copied");
+    button.classList.toggle("is-error", state === "error");
+    button.setAttribute("aria-label", label);
+    button.setAttribute("title", label);
     button._copyResetTimer = window.setTimeout(function () {
       resetButton(button);
       button._copyResetTimer = null;
@@ -92,23 +58,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     block.dataset.copyEnabled = "true";
     block.classList.add("code-copy-block");
-    block.setAttribute("data-language", inferLanguageLabel(block, code));
 
     var button = document.createElement("button");
     button.type = "button";
     button.className = "code-copy-button";
     button.setAttribute("aria-label", "Copy code");
-    button.textContent = "Copy";
+    button.setAttribute("title", "Copy code");
 
     button.addEventListener("click", function () {
       var text = code.innerText.replace(/\n$/, "");
 
       copyWithFallback(text)
         .then(function () {
-          showFeedback(button, "Copied");
+          showFeedback(button, "copied", "Copied");
         })
         .catch(function () {
-          showFeedback(button, "Error");
+          showFeedback(button, "error", "Copy failed");
         });
     });
 
