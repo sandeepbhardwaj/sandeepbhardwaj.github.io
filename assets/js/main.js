@@ -422,6 +422,100 @@
     });
   }
 
+  function initTaxonomyAccordions() {
+    var accordionSections = queryAll(".taxonomy__sections--accordion .taxonomy__section");
+    if (!accordionSections.length) return;
+    var indexLinks = queryAll(".taxonomy__index-link");
+    var filterInput = document.querySelector("[data-taxonomy-filter]");
+    var noMatch = document.querySelector("[data-taxonomy-no-match]");
+    var sectionsById = {};
+
+    accordionSections.forEach(function (section) {
+      sectionsById[section.id] = section;
+    });
+
+    function setActiveLink(activeId) {
+      indexLinks.forEach(function (link) {
+        var targetId = (link.getAttribute("href") || "").replace(/^.*#/, "");
+        link.classList.toggle("is-active", targetId === activeId);
+      });
+    }
+
+    function openOnly(targetId) {
+      if (!sectionsById[targetId]) return;
+
+      accordionSections.forEach(function (section) {
+        section.open = section.id === targetId;
+      });
+
+      setActiveLink(targetId);
+    }
+
+    function openSectionFromHash() {
+      var hash = window.location.hash ? window.location.hash.slice(1) : "";
+      if (!hash) {
+        if (accordionSections.length) {
+          openOnly(accordionSections[0].id);
+        }
+        return;
+      }
+
+      var decodedHash = decodeURIComponent(hash);
+      if (sectionsById[decodedHash]) {
+        openOnly(decodedHash);
+      }
+    }
+
+    indexLinks.forEach(function (link) {
+      link.addEventListener("click", function () {
+        window.setTimeout(function () {
+          openSectionFromHash();
+        }, 0);
+      });
+    });
+
+    accordionSections.forEach(function (section) {
+      section.addEventListener("toggle", function () {
+        if (!section.open) return;
+
+        accordionSections.forEach(function (otherSection) {
+          if (otherSection !== section) {
+            otherSection.open = false;
+          }
+        });
+
+        setActiveLink(section.id);
+      });
+    });
+
+    if (filterInput) {
+      filterInput.addEventListener("input", function () {
+        var query = String(filterInput.value || "").trim().toLowerCase();
+        var visibleCount = 0;
+
+        indexLinks.forEach(function (link) {
+          var labelNode = link.querySelector(".taxonomy__label");
+          var label = labelNode ? labelNode.textContent.trim().toLowerCase() : "";
+          var isVisible = !query || label.indexOf(query) !== -1;
+          var item = link.closest(".taxonomy__index-item");
+          if (item) {
+            item.hidden = !isVisible;
+          }
+          if (isVisible) {
+            visibleCount += 1;
+          }
+        });
+
+        if (noMatch) {
+          noMatch.hidden = visibleCount !== 0;
+        }
+      });
+    }
+
+    window.addEventListener("hashchange", openSectionFromHash);
+    openSectionFromHash();
+  }
+
   onReady(function () {
     initNav();
     initCopyLinkButtons();
@@ -429,5 +523,6 @@
     initHeadingAnchors();
     initReadingProgress();
     initSearch();
+    initTaxonomyAccordions();
   });
 })();

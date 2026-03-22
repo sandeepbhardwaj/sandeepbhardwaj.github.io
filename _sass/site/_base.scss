@@ -11,15 +11,11 @@ html {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at top left, var(--page-glow-cool), transparent 28%),
-    radial-gradient(circle at 88% 12%, var(--page-glow-warm), transparent 24%),
-    linear-gradient(180deg, var(--page-sheen), transparent 18rem),
-    var(--bg-canvas);
+  background: var(--bg-canvas);
   color: var(--text-strong);
   font-family: var(--font-body);
   font-size: 1.01rem;
-  letter-spacing: -0.012em;
+  letter-spacing: 0;
   line-height: 1.75;
   text-rendering: optimizeLegibility;
 }
@@ -37,7 +33,7 @@ body.mermaid-viewer-open {
 a {
   color: var(--accent-strong);
   text-decoration-thickness: 0.08em;
-  text-decoration-color: rgba(194, 65, 12, 0.22);
+  text-decoration-color: rgba(80, 66, 48, 0.28);
   text-underline-offset: 0.16em;
   transition:
     color var(--transition),
@@ -81,8 +77,8 @@ h5,
 h6 {
   color: var(--text-strong);
   font-family: var(--font-heading);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1.15;
   margin: 0 0 0.8rem;
 }
@@ -164,15 +160,15 @@ hr {
   align-items: center;
   background: var(--bg-surface);
   border: 1px solid var(--border-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   color: var(--text-strong);
   display: inline-flex;
   font-size: 0.96rem;
-  font-weight: 800;
+  font-weight: 700;
   gap: 0.5rem;
   justify-content: center;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   padding: 0.85rem 1.15rem;
   text-decoration: none;
   transition:
@@ -183,16 +179,16 @@ hr {
 }
 
 .btn:hover {
-  border-color: rgba(194, 65, 12, 0.32);
-  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+  box-shadow: none;
   text-decoration: none;
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-alt));
-  border-color: transparent;
-  color: #fff7ed;
+  background: var(--accent-soft);
+  border-color: rgba(80, 66, 48, 0.24);
+  color: var(--text-strong);
 }
 
 .btn--ghost {

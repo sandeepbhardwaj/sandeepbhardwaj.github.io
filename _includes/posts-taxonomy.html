@@ -1,87 +1,62 @@
 {% assign locale = include.locale | default: site.locale %}
 {% assign taxonomy_page_url = page.url | relative_url %}
-{% assign taxonomy_mode = include.mode | default: "rail" %}
 {% assign alphabetical_taxonomies = include.taxonomies | sort %}
-{% assign archive_variant = "taxonomy" %}
-{% assign items_max = 0 %}
-{% for item in include.taxonomies %}
-  {% if item[1].size > items_max %}
-    {% assign items_max = item[1].size %}
-  {% endif %}
-{% endfor %}
+{% assign entries_layout = page.entries_layout | default: 'list' %}
+{% assign taxonomy_total = alphabetical_taxonomies | size %}
+<div class="taxonomy__layout taxonomy__layout--directory">
+  <aside class="taxonomy__sidebar">
+    <div class="taxonomy__rail">
+      <div class="taxonomy__overview">
+        <p class="taxonomy__overview-meta">{{ taxonomy_total }} groups</p>
+      </div>
+      <label class="taxonomy__search-label" for="taxonomy-search">
+        {{ site.data.ui-text[locale].search | default: 'Search' }}
+      </label>
+      <input
+        id="taxonomy-search"
+        class="taxonomy__search-input"
+        type="search"
+        data-taxonomy-filter
+        autocomplete="off"
+        placeholder="Find a category or tag"
+        aria-label="Find a category or tag"
+      />
+      <nav aria-label="Taxonomy directory">
+        <ul class="taxonomy__index taxonomy__index--directory">
+          {% for taxonomy in alphabetical_taxonomies %}
+            <li class="taxonomy__index-item">
+              <a class="taxonomy__index-link" href="{{ taxonomy_page_url }}#{{ taxonomy[0] | slugify }}">
+                <span class="taxonomy__label">{{ taxonomy[0] }}</span>
+                <span class="taxonomy__count">{{ taxonomy[1].size }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <p class="taxonomy__no-match" data-taxonomy-no-match hidden>No matching taxonomy.</p>
+    </div>
+  </aside>
 
-{% if taxonomy_mode == "directory" %}
-  {% assign archive_variant = "taxonomy-compact" %}
-{% endif %}
-
-{% if taxonomy_mode == "directory" %}
-  <div class="taxonomy__directory-wrap">
-    <div class="taxonomy__directory">
+  <div class="taxonomy__main">
+    <div class="taxonomy__sections taxonomy__sections--accordion">
       {% for taxonomy in alphabetical_taxonomies %}
-        <a class="taxonomy__directory-link" href="{{ taxonomy_page_url }}#{{ taxonomy[0] | slugify }}">
-          <span class="taxonomy__directory-label">{{ taxonomy[0] }}</span>
-          <span class="taxonomy__count">{{ taxonomy[1].size }}</span>
-        </a>
+        <details id="{{ taxonomy[0] | slugify }}" class="taxonomy__section"{% if forloop.first %} open{% endif %}>
+          <summary class="taxonomy__section-head">
+            <span class="taxonomy__section-title">{{ taxonomy[0] }}</span>
+            <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
+          </summary>
+          <div class="entries-{{ entries_layout }} taxonomy__entries">
+            {% for post in taxonomy.last %}
+              {% include archive-single.html locale=locale type=entries_layout variant="taxonomy" %}
+            {% endfor %}
+          </div>
+        </details>
       {% endfor %}
     </div>
   </div>
-{% else %}
-  <div class="taxonomy__rail">
-    <ul class="taxonomy__index">
-      {% for i in (1..items_max) reversed %}
-        {% for item in include.taxonomies %}
-          {% if item[1].size == i %}
-            <li>
-              <a href="{{ taxonomy_page_url }}#{{ item[0] | slugify }}">
-                <span class="taxonomy__label">{{ item[0] }}</span>
-                <span class="taxonomy__count">{{ i }}</span>
-              </a>
-            </li>
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-    </ul>
-  </div>
-{% endif %}
-
-{% assign entries_layout = page.entries_layout | default: 'list' %}
-<div class="taxonomy__sections{% if taxonomy_mode == 'directory' %} taxonomy__sections--directory{% endif %}">
-{% if taxonomy_mode == "directory" %}
-  {% for taxonomy in alphabetical_taxonomies %}
-      <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section taxonomy__section--directory">
-        <div class="taxonomy__section-head">
-          <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
-          <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
-        </div>
-        <div class="entries-{{ entries_layout }} taxonomy__entries taxonomy__entries--directory">
-          {% for post in taxonomy.last %}
-            {% include archive-single.html locale=locale type=entries_layout variant=archive_variant %}
-          {% endfor %}
-        </div>
-      </section>
-  {% endfor %}
-{% else %}
-  {% for i in (1..items_max) reversed %}
-    {% for taxonomy in include.taxonomies %}
-      {% if taxonomy[1].size == i %}
-        <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section">
-          <div class="taxonomy__section-head">
-          <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
-          <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
-        </div>
-        <div class="entries-{{ entries_layout }} taxonomy__entries">
-          {% for post in taxonomy.last %}
-              {% include archive-single.html locale=locale type=entries_layout variant=archive_variant %}
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
-    {% endfor %}
-  {% endfor %}
-{% endif %}
 </div>
 
 <a href="#page-title" class="taxonomy__floating-top" aria-label="{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }}">
-  <span class="taxonomy__floating-top-icon" aria-hidden="true">↑</span>
+  <span class="taxonomy__floating-top-icon" aria-hidden="true">^</span>
   <span class="taxonomy__floating-top-label">{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }}</span>
 </a>
