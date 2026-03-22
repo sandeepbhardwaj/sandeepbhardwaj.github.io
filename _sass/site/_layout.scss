@@ -1168,6 +1168,137 @@
   opacity: 0.45;
 }
 
+/* Professional cleanup: reduce decorative effects for a book-like reading feel */
+.site-header {
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.site-brand__title {
+  background-image: none;
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.site-nav {
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  gap: 0.6rem;
+  padding: 0.3rem;
+}
+
+.site-nav__links a {
+  border-radius: 0.45rem;
+  font-weight: 600;
+  padding: 0.54rem 0.72rem;
+}
+
+.site-nav__links a:hover,
+.site-nav__links a[aria-current="page"] {
+  background: var(--bg-subtle);
+  box-shadow: none;
+}
+
+.nav-action,
+.nav-toggle,
+.nav-action__hint,
+.pagination__link,
+.pagination__status,
+.site-footer__follow a,
+.site-footer__link-icon-wrap,
+.author-card__links a {
+  border-radius: var(--radius-sm);
+}
+
+.nav-action,
+.nav-toggle {
+  font-weight: 600;
+}
+
+.nav-toggle:hover,
+.nav-action:hover,
+.search-panel__close:hover {
+  border-color: var(--border-strong);
+  box-shadow: none;
+  transform: none;
+}
+
+.home-hero__inner,
+.home-hero__guide-item,
+.archive__item--home-featured,
+.page-shell__article,
+.page__toc,
+.author-card,
+.search-panel__dialog,
+.search-result {
+  background: var(--bg-surface);
+  box-shadow: none;
+}
+
+.home-hero {
+  padding: 0.9rem 0 1.7rem;
+}
+
+.home-hero__title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.home-hero__excerpt {
+  font-size: 1rem;
+}
+
+.home-hero__topic,
+.archive__item--home .archive__taxonomy-item,
+.archive__item--home-featured .archive__taxonomy-item {
+  border-radius: var(--radius-sm);
+}
+
+.home-hero__inner::before,
+.page-shell__article::before,
+.site-footer__surface::after {
+  display: none;
+}
+
+.home-hero__guide-item {
+  backdrop-filter: none;
+  border-radius: var(--radius-sm);
+}
+
+.home-hero__guide-item--latest:hover,
+.archive__item--home .archive__taxonomy-item:hover,
+.archive__item--home-featured .archive__taxonomy-item:hover,
+.site-footer__list a:hover .site-footer__link-icon-wrap,
+.site-footer__follow a:hover .site-footer__link-icon-wrap {
+  transform: none;
+}
+
+.site-footer__surface::before {
+  background: var(--border-soft);
+  inset: 0;
+}
+
+.site-footer__title {
+  letter-spacing: -0.01em;
+}
+
+.page__toc {
+  max-height: none;
+}
+
+.page__toc-link {
+  border-radius: var(--radius-sm);
+  padding: 0.48rem 0.72rem 0.48rem 1.12rem;
+}
+
+.search-panel__dialog {
+  border-radius: var(--radius-md);
+}
+
+.search-result {
+  border-radius: var(--radius-sm);
+}
+
 @media (min-width: 920px) {
   .home-hero__guide {
     grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
