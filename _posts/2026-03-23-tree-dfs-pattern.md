@@ -22,7 +22,6 @@ header:
   caption: Depth-First Reasoning on Hierarchical Data
   show_overlay_excerpt: false
 ---
-
 Master depth-first traversal for recursive reasoning, subtree properties, and path-based problems. Focus on contracts, invariants, and interview clarity.
 
 ---

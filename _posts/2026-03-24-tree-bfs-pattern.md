@@ -22,9 +22,6 @@ header:
   caption: Level-Order Exploration with Queues
   show_overlay_excerpt: false
 ---
-
-# Tree BFS Pattern in Java - Interview Preparation Guide
-
 Master level-order traversal using BFS for shortest-depth reasoning, level grouping, and interview clarity.
 
 ---
