@@ -22,6 +22,41 @@ header:
   caption: Depth-First Reasoning on Hierarchical Data
   show_overlay_excerpt: false
 ---
+
+Master depth-first traversal for recursive reasoning, subtree properties, and path-based problems. Focus on contracts, invariants, and interview clarity.
+
+---
+
+## 🚀 Pattern Summary Table
+
+| Pattern | When to Use | Key Idea | Example |
+|--------|------------|----------|--------|
+| DFS (Tree) | Path, subtree, structure | Solve recursively via children | Path Sum |
+| BFS (Tree) | Level / shortest depth | Layer-by-layer traversal | Min Depth |
+
+---
+
+## 🎯 Problem Statement
+
+Traverse a tree using depth-first recursion to compute properties like depth, validity, or path constraints.
+
+> [!NOTE]
+Always define recursion contract before coding.
+
+---
+
+## 🔍 Pattern Recognition Signals
+
+- "path sum"
+- "max/min depth"
+- "validate tree property"
+- "subtree computation"
+
+> [!IMPORTANT]
+If you see **recursive structure or subtree dependency → think DFS**
+
+---
+
 Tree DFS explores nodes depth-first and is ideal for path, subtree, and structural properties.
 
 ---
@@ -216,3 +251,110 @@ Clear contracts prevent mixing traversal logic with mutable global flags.
 - DFS is the default for recursive tree property computation.
 - Traversal choice depends on where the logic naturally belongs.
 - Strong base cases and return contracts keep recursion correct.
+
+---
+
+## 🐢 Brute Force Approach
+
+### Idea  
+Simulate all root-to-leaf paths explicitly  
+
+### Complexity  
+Exponential in worst case  
+
+> [!WARNING]
+Redundant computation across overlapping subtrees
+
+---
+
+## ⚡ Optimized Approach
+
+### 💡 Key Insight  
+Each subtree solves the same problem → reuse recursion  
+
+### 🧠 Mental Model  
+Invariant:
+- Function returns correct result for subtree rooted at node  
+
+### 🛠️ Steps  
+1. Define base case  
+2. Define return value  
+3. Combine left/right results  
+
+### ⏱️ Complexity  
+O(N)
+
+> [!TIP]
+Each node processed once → optimal
+
+---
+
+## 🎨 Visual Intuition
+
+DFS traversal:
+
+        5
+      /   \
+     4     8
+          / \
+         13  4
+
+Flow:
+- Go deep (left)
+- Backtrack
+- Explore right
+
+---
+
+## ⚠️ Common Mistakes
+
+> [!CAUTION]
+- Weak base cases  
+- Mixing global state with return recursion  
+- Not defining clear contract  
+- Overflow in BST bounds  
+
+---
+
+## 🔁 Pattern Variations
+
+- Backtracking (path collection)  
+- Divide & Conquer (tree DP)  
+- DFS with state propagation  
+
+---
+
+## 🔗 Pattern Composition (Advanced)
+
+> [!IMPORTANT]
+- DFS + backtracking → path problems  
+- DFS + global max → tree DP  
+- DFS + bounds → BST validation  
+
+---
+
+## 🧠 Key Takeaways
+
+- DFS = recursion + contract  
+- Always define return meaning  
+- Structure mirrors tree  
+
+---
+
+## 📌 Practice Problems
+
+> [!TIP]
+Repeat until recursion becomes natural
+
+1. Maximum Depth of Binary Tree (LC 104)  
+   https://leetcode.com/problems/maximum-depth-of-binary-tree/
+2. Same Tree (LC 100)  
+   https://leetcode.com/problems/same-tree/
+3. Validate Binary Search Tree (LC 98)  
+   https://leetcode.com/problems/validate-binary-search-tree/
+4. Path Sum (LC 112)  
+   https://leetcode.com/problems/path-sum/
+5. Lowest Common Ancestor of BST (LC 235)  
+   https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
+6. Binary Tree Maximum Path Sum (LC 124)  
+   https://leetcode.com/problems/binary-tree-maximum-path-sum/
