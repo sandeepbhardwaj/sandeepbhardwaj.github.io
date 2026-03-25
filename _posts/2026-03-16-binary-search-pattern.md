@@ -22,8 +22,6 @@ header:
   show_overlay_excerpt: false
 ---
 
-## Binary Search Pattern in Java - Interview Preparation Guide
-
 Binary search is not just for finding a value in a sorted array.
 It is a decision pattern over monotonic spaces.
 
