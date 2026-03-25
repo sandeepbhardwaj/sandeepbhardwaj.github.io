@@ -328,7 +328,7 @@ Efficiency depends on pruning strength
 ## 🎨 Visual Intuition
 
 Decision tree (Subsets):
-
+```text
         []
       /    \
     [1]    []
@@ -336,7 +336,7 @@ Decision tree (Subsets):
 [1,2] [1] [2]  []
 
 Each branch = decision (include/exclude)
-
+```
 ---
 
 ## ⚠️ Common Mistakes

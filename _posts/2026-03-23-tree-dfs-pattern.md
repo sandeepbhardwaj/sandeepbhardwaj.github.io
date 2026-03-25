@@ -291,13 +291,13 @@ Each node processed once → optimal
 ## 🎨 Visual Intuition
 
 DFS traversal:
-
+```text
         5
       /   \
      4     8
           / \
          13  4
-
+```
 Flow:
 - Go deep (left)
 - Backtrack
