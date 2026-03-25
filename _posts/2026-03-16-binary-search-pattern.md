@@ -21,7 +21,6 @@ header:
   caption: Log-Time Decisions on Monotonic Spaces
   show_overlay_excerpt: false
 ---
-
 Binary search is not just for finding a value in a sorted array.
 It is a decision pattern over monotonic spaces.
 

@@ -22,6 +22,40 @@ header:
   caption: Search Trees with Pruning
   show_overlay_excerpt: false
 ---
+Master backtracking as DFS over a decision tree with pruning. Focus on state management, rollback discipline, and constraint-driven search.
+
+---
+
+## 🚀 Pattern Summary Table
+
+| Pattern | When to Use | Key Idea | Example |
+|--------|------------|----------|--------|
+| Backtracking | Generate all possibilities | Explore + undo decisions | Subsets |
+| DFS + Pruning | Constraint-based search | Cut invalid branches early | Combination Sum |
+
+---
+
+## 🎯 Problem Statement
+
+Explore all valid combinations/permutations under constraints using recursive decision trees.
+
+> [!NOTE]
+Understand constraints: duplicates, pruning opportunities, and search space size.
+
+---
+
+## 🔍 Pattern Recognition Signals
+
+- "generate all"
+- "combinations / permutations"
+- "all possible ways"
+- "constraint satisfaction"
+
+> [!IMPORTANT]
+If you see **explore all possibilities with constraints → think Backtracking**
+
+---
+
 Backtracking is DFS over a decision tree with undo steps.
 It is the default strategy for exhaustive search with constraints.
 
@@ -253,3 +287,107 @@ Effective pruning reduces exponential search significantly in practice.
 - Backtracking is controlled brute-force with pruning.
 - Correct choose-recurse-unchoose discipline is mandatory.
 - Performance depends heavily on pruning and duplicate handling.
+
+---
+
+## 🐢 Brute Force Approach
+
+### Idea  
+Generate all possible combinations without pruning  
+
+### Complexity  
+Exponential: O(2^N, N!, etc.)
+
+> [!WARNING]
+Huge search space → TLE without pruning
+
+---
+
+## ⚡ Optimized Approach
+
+### 💡 Key Insight  
+Prune invalid branches early  
+
+### 🧠 Mental Model  
+Invariant:
+- `path` always represents a valid partial solution  
+
+### 🛠️ Steps  
+1. Choose  
+2. Recurse  
+3. Undo (rollback)  
+
+### ⏱️ Complexity  
+Still exponential but significantly reduced with pruning  
+
+> [!TIP]
+Efficiency depends on pruning strength
+
+---
+
+## 🎨 Visual Intuition
+
+Decision tree (Subsets):
+
+        []
+      /    \
+    [1]    []
+   /   \   /  \
+[1,2] [1] [2]  []
+
+Each branch = decision (include/exclude)
+
+---
+
+## ⚠️ Common Mistakes
+
+> [!CAUTION]
+- Forgetting rollback  
+- Not copying path  
+- Missing pruning  
+- Incorrect duplicate handling  
+
+---
+
+## 🔁 Pattern Variations
+
+- Subset-style (include/exclude)  
+- Permutation-style (used array)  
+- Combination-style (index control)  
+
+---
+
+## 🔗 Pattern Composition (Advanced)
+
+> [!IMPORTANT]
+- Backtracking + sorting → duplicate handling  
+- Backtracking + pruning → optimization  
+- Backtracking + memoization → hybrid DP  
+
+---
+
+## 🧠 Key Takeaways
+
+- Backtracking = DFS + rollback  
+- Always maintain valid state  
+- Pruning is the difference between TLE and AC  
+
+---
+
+## 📌 Practice Problems
+
+> [!TIP]
+Repeat until pattern becomes intuitive
+
+1. Subsets (LC 78)  
+   https://leetcode.com/problems/subsets/
+2. Permutations (LC 46)  
+   https://leetcode.com/problems/permutations/
+3. Combination Sum (LC 39)  
+   https://leetcode.com/problems/combination-sum/
+4. Palindrome Partitioning (LC 131)  
+   https://leetcode.com/problems/palindrome-partitioning/
+5. N-Queens (LC 51)  
+   https://leetcode.com/problems/n-queens/
+6. Word Search (LC 79)  
+   https://leetcode.com/problems/word-search/
