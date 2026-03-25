@@ -328,7 +328,7 @@ Linear traversal → optimal
 ---
 
 ## 🎨 Visual Intuition
-
+```text
 DFS (deep):
 0 → 1 → 2  
         ↓  
@@ -336,7 +336,7 @@ DFS (deep):
 
 BFS (level):
 0 → (1,3) → (2,4)
-
+```
 ---
 
 ## ⚠️ Common Mistakes
