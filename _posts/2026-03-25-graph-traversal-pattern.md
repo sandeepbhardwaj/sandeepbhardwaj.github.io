@@ -22,6 +22,41 @@ header:
   caption: Systematic Exploration of Networked Data
   show_overlay_excerpt: false
 ---
+
+Master DFS & BFS for connectivity, reachability, and component analysis. This guide enhances intuition, invariants, and interview articulation.
+
+---
+
+## 🚀 Pattern Summary Table
+
+| Pattern | When to Use | Key Idea | Example |
+|--------|------------|----------|--------|
+| DFS | Explore components, paths | Go deep before backtracking | Provinces |
+| BFS | Shortest path, level traversal | Expand layer by layer | Shortest path |
+
+---
+
+## 🎯 Problem Statement
+
+Traverse a graph/grid to determine connectivity, components, or reachability.
+
+> [!NOTE]
+Understand constraints: graph size, recursion depth, cycles.
+
+---
+
+## 🔍 Pattern Recognition Signals
+
+- "connected components"
+- "islands"
+- "path exists"
+- grid/graph traversal
+
+> [!IMPORTANT]
+If you see **explore all connected nodes → DFS/BFS**
+
+---
+
 Graph traversal is foundational for connectivity, reachability, and component analysis.
 The two primary techniques are DFS and BFS.
 
@@ -255,3 +290,101 @@ This is safer for large production-like graph depths.
 - DFS and BFS are the base for almost all graph algorithms.
 - Correct representation and visited logic are critical.
 - Traversal is often step one before shortest path, topological sort, or MST.
+
+---
+
+## 🐢 Brute Force Approach
+
+### Idea  
+Re-run traversal from every node without visited tracking  
+
+### Complexity  
+O(N² / exponential)
+
+> [!WARNING]
+Repeated work + infinite loops in cyclic graphs
+
+---
+
+## ⚡ Optimized Approach
+
+### 💡 Key Insight  
+Use visited array to ensure each node is processed once  
+
+### 🧠 Mental Model  
+Invariant: each node is visited exactly once  
+
+### 🛠️ Steps  
+1. Initialize visited  
+2. Traverse all nodes  
+3. Start DFS/BFS if unvisited  
+
+### ⏱️ Complexity  
+O(V + E)
+
+> [!TIP]
+Linear traversal → optimal
+
+---
+
+## 🎨 Visual Intuition
+
+DFS (deep):
+0 → 1 → 2  
+        ↓  
+        4  
+
+BFS (level):
+0 → (1,3) → (2,4)
+
+---
+
+## ⚠️ Common Mistakes
+
+> [!CAUTION]
+- Not marking visited early
+- Infinite loops in cycles
+- Stack overflow in DFS
+
+---
+
+## 🔁 Pattern Variations
+
+- Multi-source BFS  
+- Cycle detection  
+- Topological sort  
+
+---
+
+## 🔗 Pattern Composition (Advanced)
+
+> [!IMPORTANT]
+- BFS + distance → shortest path  
+- DFS + recursion stack → cycle detection  
+- DFS + ordering → topo sort  
+
+---
+
+## 🧠 Key Takeaways
+
+- Traversal is foundation of graphs  
+- Always track visited  
+- DFS vs BFS depends on requirement  
+
+---
+
+## 📌 Practice Problems
+
+> [!TIP]
+Repeat for mastery
+
+1. Find if Path Exists in Graph (LC 1971)  
+   https://leetcode.com/problems/find-if-path-exists-in-graph/
+2. Number of Provinces (LC 547)  
+   https://leetcode.com/problems/number-of-provinces/
+3. Number of Islands (LC 200)  
+   https://leetcode.com/problems/number-of-islands/
+4. Clone Graph (LC 133)  
+   https://leetcode.com/problems/clone-graph/
+5. Course Schedule (LC 207)  
+   https://leetcode.com/problems/course-schedule/

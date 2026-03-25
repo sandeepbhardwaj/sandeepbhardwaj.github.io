@@ -23,9 +23,6 @@ header:
   caption: Constant-Time Lookups for Linear-Time Solutions
   show_overlay_excerpt: false
 ---
-
-## HashMap and HashSet Frequency Pattern in Java
-
 The HashMap/HashSet frequency pattern is one of the most important interview patterns because it converts repeated searching into constant-time lookup. It appears whenever a problem asks you to count occurrences, detect duplicates, find complements, or group items by a derived key.
 
 In interviews, this pattern often turns an obvious `O(n²)` solution into an `O(n)` or `O(n log n)` solution. More importantly, it helps you explain *why* your solution is efficient: we avoid re-scanning previously seen data by storing the right information as we iterate.
