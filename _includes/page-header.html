@@ -14,7 +14,7 @@
 
 {% if overlay_image != "" %}
   <section class="page-hero page-hero--overlay">
-    <div class="page-hero__media" style="--hero-image: linear-gradient(rgba(10, 15, 30, {{ source.header.overlay_filter | default: 0.38 }}), rgba(10, 15, 30, {{ source.header.overlay_filter | default: 0.38 }})), url('{{ overlay_image | relative_url }}');"></div>
+    <div class="page-hero__media" style="--hero-image: url('{{ overlay_image | relative_url }}'); --hero-overlay-filter: {{ source.header.overlay_filter | default: 0.38 }};"></div>
     <div class="site-container page-hero__content">
       <p class="page-hero__eyebrow">{{ eyebrow }}</p>
       <h1 id="page-title" class="page-hero__title">{{ source.title }}</h1>

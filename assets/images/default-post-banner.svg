@@ -1,25 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Abstract engineering banner">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b1220"/>
-      <stop offset="60%" stop-color="#172554"/>
-      <stop offset="100%" stop-color="#0e1a33"/>
+      <stop offset="0%" stop-color="#171311"/>
+      <stop offset="58%" stop-color="#5b4632"/>
+      <stop offset="100%" stop-color="#27484a"/>
     </linearGradient>
     <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
-      <path d="M56 0H0V56" fill="none" stroke="#dbeafe" stroke-opacity="0.08" stroke-width="1"/>
+      <path d="M56 0H0V56" fill="none" stroke="#f5efe6" stroke-opacity="0.08" stroke-width="1"/>
     </pattern>
   </defs>
   <rect width="1600" height="900" fill="url(#bg)"/>
   <rect width="1600" height="900" fill="url(#grid)"/>
-  <circle cx="1280" cy="160" r="260" fill="#38bdf8" fill-opacity="0.14"/>
-  <circle cx="260" cy="760" r="220" fill="#22d3ee" fill-opacity="0.12"/>
-  <g stroke="#7dd3fc" stroke-width="6" opacity="0.7" fill="none" stroke-linecap="round">
+  <circle cx="1280" cy="160" r="260" fill="#f59e0b" fill-opacity="0.14"/>
+  <circle cx="260" cy="760" r="220" fill="#6ee7d8" fill-opacity="0.11"/>
+  <g stroke="#e7d2b5" stroke-width="6" opacity="0.72" fill="none" stroke-linecap="round">
     <path d="M420 520L620 360L840 470L1080 320"/>
     <path d="M620 360L620 620"/>
     <path d="M840 470L840 680"/>
     <path d="M840 470L1120 560"/>
   </g>
-  <g fill="#22d3ee" fill-opacity="0.78">
+  <g fill="#efe0cb" fill-opacity="0.78">
     <circle cx="420" cy="520" r="28"/>
     <circle cx="620" cy="360" r="28"/>
     <circle cx="620" cy="620" r="28"/>

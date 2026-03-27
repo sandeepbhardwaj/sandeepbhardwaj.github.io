@@ -780,10 +780,34 @@
 }
 
 .page-hero__media {
-  background-image: var(--hero-image);
-  background-position: center;
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(24, 16, 12, calc(var(--hero-overlay-filter, 0.38) + 0.14)),
+      rgba(24, 16, 12, calc(var(--hero-overlay-filter, 0.38) * 0.55)) 42%,
+      rgba(31, 58, 60, calc(var(--hero-overlay-filter, 0.38) + 0.06))
+    ),
+    linear-gradient(
+      180deg,
+      rgba(12, 14, 18, 0.08),
+      rgba(12, 14, 18, calc(var(--hero-overlay-filter, 0.38) + 0.18))
+    ),
+    var(--hero-image);
+  background-position: center, center, center;
   background-size: cover;
+  filter: saturate(0.88) contrast(1.02) brightness(0.96);
   inset: 0;
+  position: absolute;
+}
+
+.page-hero__media::after {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(201, 169, 127, 0.18), transparent 30%),
+    radial-gradient(circle at 82% 16%, rgba(159, 176, 176, 0.14), transparent 28%),
+    linear-gradient(90deg, rgba(194, 65, 12, 0.06), transparent 34%, rgba(159, 176, 176, 0.08) 72%, rgba(194, 65, 12, 0.04));
+  content: "";
+  inset: 0;
+  pointer-events: none;
   position: absolute;
 }
 
@@ -1639,6 +1663,10 @@
 
 .type-post .page-hero__content {
   padding: 2.45rem 0 1.65rem;
+}
+
+.type-post .page-hero__media {
+  background-position: center 38%, center, center 38%;
 }
 
 .type-post .page-hero__title {
