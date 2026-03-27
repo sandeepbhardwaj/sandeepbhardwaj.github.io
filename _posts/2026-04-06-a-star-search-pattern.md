@@ -130,7 +130,12 @@ public int shortestPath(int[][] grid, int[] start, int[] goal) {
     best[sr][sc] = 0;
     pq.offer(new int[]{heuristic(sr, sc, tr, tc), 0, sr, sc}); // {f, g, row, col}
 
-    int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    int[][] dirs = new int[][]{
+        new int[]{1, 0},
+        new int[]{-1, 0},
+        new int[]{0, 1},
+        new int[]{0, -1}
+    };
     while (!pq.isEmpty()) {
         int[] cur = pq.poll();
         int g = cur[1], r = cur[2], c = cur[3];
