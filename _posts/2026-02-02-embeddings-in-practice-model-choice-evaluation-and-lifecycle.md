@@ -1,12 +1,10 @@
 ---
+title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
+date: 2026-02-02
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-02-02
-seo_title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
-seo_description: A practical deep-dive into embedding model selection, domain adaptation,
-  evaluation, drift monitoring, and refresh strategy.
 tags:
 - ai
 - ml
@@ -14,10 +12,12 @@ tags:
 - retrieval
 - rag
 - mlops
-title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Embeddings in Practice: Model Choice, Evaluation, and Lifecycle'
+seo_description: A practical deep-dive into embedding model selection, domain adaptation,
+  evaluation, drift monitoring, and refresh strategy.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

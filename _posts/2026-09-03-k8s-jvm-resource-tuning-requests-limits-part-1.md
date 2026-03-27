@@ -1,22 +1,22 @@
 ---
+title: CPU/memory requests-limits tuning for JVM services
+date: 2026-09-03
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-03
-seo_title: CPU/memory requests-limits tuning for JVM services - Advanced Guide
-seo_description: Advanced practical guide on cpu/memory requests-limits tuning for
-  jvm services with architecture decisions, trade-offs, and production patterns.
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: CPU/memory requests-limits tuning for JVM services
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: CPU/memory requests-limits tuning for JVM services - Advanced Guide
+seo_description: Advanced practical guide on cpu/memory requests-limits tuning for
+  jvm services with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

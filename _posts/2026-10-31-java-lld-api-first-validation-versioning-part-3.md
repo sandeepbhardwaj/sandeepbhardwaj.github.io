@@ -1,24 +1,24 @@
 ---
+title: API-first LLD with strict validation and versioning boundaries (Part 3)
+date: 2026-10-31
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-31
-seo_title: API-first LLD with strict validation and versioning boundaries (Part 3)
-  - Advanced Guide
-seo_description: Advanced practical guide on api-first lld with strict validation
-  and versioning boundaries (part 3) with architecture decisions, trade-offs, and
-  production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: API-first LLD with strict validation and versioning boundaries (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: API-first LLD with strict validation and versioning boundaries (Part 3)
+  - Advanced Guide
+seo_description: Advanced practical guide on api-first lld with strict validation
+  and versioning boundaries (part 3) with architecture decisions, trade-offs, and
+  production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

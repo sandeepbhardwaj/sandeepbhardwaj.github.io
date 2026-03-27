@@ -1,24 +1,24 @@
 ---
+title: 'Performance-aware object design: memory and allocation patterns'
+date: 2026-10-12
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-12
-seo_title: 'Performance-aware object design: memory and allocation patterns - Advanced
-  Guide'
-seo_description: 'Advanced practical guide on performance-aware object design: memory
-  and allocation patterns with architecture decisions, trade-offs, and production
-  patterns.'
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: 'Performance-aware object design: memory and allocation patterns'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Performance-aware object design: memory and allocation patterns - Advanced
+  Guide'
+seo_description: 'Advanced practical guide on performance-aware object design: memory
+  and allocation patterns with architecture decisions, trade-offs, and production
+  patterns.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

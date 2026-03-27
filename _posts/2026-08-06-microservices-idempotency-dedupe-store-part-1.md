@@ -1,22 +1,22 @@
 ---
+title: Idempotency keys and dedupe stores for write APIs
+date: 2026-08-06
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-06
-seo_title: Idempotency keys and dedupe stores for write APIs - Advanced Guide
-seo_description: Advanced practical guide on idempotency keys and dedupe stores for
-  write apis with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Idempotency keys and dedupe stores for write APIs
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Idempotency keys and dedupe stores for write APIs - Advanced Guide
+seo_description: Advanced practical guide on idempotency keys and dedupe stores for
+  write apis with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

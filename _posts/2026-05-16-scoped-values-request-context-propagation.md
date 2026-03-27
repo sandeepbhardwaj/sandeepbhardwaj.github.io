@@ -1,20 +1,20 @@
 ---
+title: Scoped Values for Request Context Propagation in Java
+date: 2026-05-16
 categories:
 - Java
 - Backend
-date: 2026-05-16
-seo_title: Scoped Values Request Context Propagation Guide
-seo_description: Propagate immutable request context safely across concurrent Java
-  execution paths.
 tags:
 - java
 - scoped-values
 - concurrency
 - backend
-title: Scoped Values for Request Context Propagation in Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Scoped Values Request Context Propagation Guide
+seo_description: Propagate immutable request context safely across concurrent Java
+  execution paths.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

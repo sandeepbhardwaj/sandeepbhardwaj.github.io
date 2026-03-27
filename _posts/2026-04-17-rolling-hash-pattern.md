@@ -1,21 +1,21 @@
 ---
+title: Rolling Hash Pattern in Java - Interview Preparation Guide
+date: 2026-04-17
 categories:
 - DSA
 - Java
-date: 2026-04-17
-seo_title: Rolling Hash Pattern in Java - Interview Preparation Guide
-seo_description: Apply rolling hash in Java for substring comparison, duplicate detection,
-  and string indexing.
 tags:
 - dsa
 - java
 - rolling-hash
 - strings
 - algorithms
-title: Rolling Hash Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Rolling Hash Pattern in Java - Interview Preparation Guide
+seo_description: Apply rolling hash in Java for substring comparison, duplicate detection,
+  and string indexing.
 header:
   overlay_image: "/assets/images/rolling-hash-pattern-banner.svg"
   overlay_filter: 0.35

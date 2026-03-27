@@ -1,21 +1,21 @@
 ---
+title: 'Recommender Systems: Retrieval, Ranking, and Feedback Loops'
+date: 2026-01-17
 categories:
 - AI
 - ML
-date: 2026-01-17
-seo_title: 'Recommender Systems: Retrieval, Ranking, and Feedback Loops'
-seo_description: A practical architecture guide to modern recommender systems including
-  candidate retrieval, ranking, and online feedback.
 tags:
 - ai
 - ml
 - recommender-systems
 - ranking
 - retrieval
-title: 'Recommender Systems: Retrieval, Ranking, and Feedback Loops'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Recommender Systems: Retrieval, Ranking, and Feedback Loops'
+seo_description: A practical architecture guide to modern recommender systems including
+  candidate retrieval, ranking, and online feedback.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

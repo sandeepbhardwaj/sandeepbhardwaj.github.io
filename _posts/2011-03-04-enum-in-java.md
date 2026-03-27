@@ -6,6 +6,9 @@ categories:
 tags:
 - java
 - enum
+toc: true
+toc_label: In This Article
+toc_icon: cog
 seo_title: Enum in Java with Fields, Methods, and Switch Examples
 seo_description: Understand Java enums with custom fields, methods, and real-world
   usage examples.
@@ -14,9 +17,6 @@ header:
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
-toc: true
-toc_label: In This Article
-toc_icon: cog
 ---
 Enums are one of the most underappreciated modeling tools in Java.
 

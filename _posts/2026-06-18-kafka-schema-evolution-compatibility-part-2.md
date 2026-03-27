@@ -1,22 +1,22 @@
 ---
+title: Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 2)
+date: 2026-06-18
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-18
-seo_title: Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 2)
-seo_description: 'Hands-on guide: Schema Evolution with Avro and Protobuf Compatibility
-  Contracts. CI compatibility gates.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Schema Evolution with Avro and Protobuf Compatibility Contracts (Part 2)
+seo_description: 'Hands-on guide: Schema Evolution with Avro and Protobuf Compatibility
+  Contracts. CI compatibility gates.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

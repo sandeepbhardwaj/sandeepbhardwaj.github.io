@@ -1,21 +1,21 @@
 ---
+title: Minimum Spanning Tree Pattern in Java - Interview Preparation Guide
+date: 2026-04-04
 categories:
 - DSA
 - Java
-date: 2026-04-04
-seo_title: Minimum Spanning Tree Pattern in Java - Interview Preparation Guide
-seo_description: Build minimum-cost connected graphs in Java with Kruskal and Prim
-  implementations.
 tags:
 - dsa
 - java
 - mst
 - graph
 - algorithms
-title: Minimum Spanning Tree Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Minimum Spanning Tree Pattern in Java - Interview Preparation Guide
+seo_description: Build minimum-cost connected graphs in Java with Kruskal and Prim
+  implementations.
 header:
   overlay_image: "/assets/images/minimum-spanning-tree-pattern-banner.svg"
   overlay_filter: 0.35

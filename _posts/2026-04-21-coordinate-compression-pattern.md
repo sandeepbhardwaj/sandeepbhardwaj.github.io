@@ -1,20 +1,20 @@
 ---
+title: Coordinate Compression Pattern in Java - Interview Preparation Guide
+date: 2026-04-21
 categories:
 - DSA
 - Java
-date: 2026-04-21
-seo_title: Coordinate Compression Pattern in Java - Interview Preparation Guide
-seo_description: Compress sparse numeric ranges in Java to dense indices for efficient
-  array-based processing.
 tags:
 - dsa
 - java
 - coordinate-compression
 - algorithms
-title: Coordinate Compression Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Coordinate Compression Pattern in Java - Interview Preparation Guide
+seo_description: Compress sparse numeric ranges in Java to dense indices for efficient
+  array-based processing.
 header:
   overlay_image: "/assets/images/coordinate-compression-pattern-banner.svg"
   overlay_filter: 0.35

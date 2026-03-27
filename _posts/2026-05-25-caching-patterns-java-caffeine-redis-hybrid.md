@@ -1,21 +1,21 @@
 ---
+title: Caching Patterns in Java (Caffeine Redis Hybrid)
+date: 2026-05-25
 categories:
 - Java
 - Backend
-date: 2026-05-25
-seo_title: Caching Patterns in Java with Caffeine and Redis
-seo_description: Design hybrid local plus distributed cache layers in Java backend
-  services.
 tags:
 - java
 - caching
 - caffeine
 - redis
 - backend
-title: Caching Patterns in Java (Caffeine Redis Hybrid)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Caching Patterns in Java with Caffeine and Redis
+seo_description: Design hybrid local plus distributed cache layers in Java backend
+  services.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

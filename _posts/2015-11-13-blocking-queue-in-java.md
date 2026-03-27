@@ -9,6 +9,9 @@ tags:
 - concurrency
 - multithreading
 - blockingqueue
+toc: true
+toc_label: In This Article
+toc_icon: cog
 seo_title: BlockingQueue in Java with Producer Consumer Example
 seo_description: Learn how Java BlockingQueue works and how to build producer-consumer
   workflows safely.
@@ -17,9 +20,6 @@ header:
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
-toc: true
-toc_label: In This Article
-toc_icon: cog
 ---
 `BlockingQueue` is a thread-safe queue from `java.util.concurrent` used heavily in producer-consumer systems.
 

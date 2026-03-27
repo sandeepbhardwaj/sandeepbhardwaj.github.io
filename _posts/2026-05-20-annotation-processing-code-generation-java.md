@@ -1,20 +1,20 @@
 ---
+title: Annotation Processing and Code Generation in Java
+date: 2026-05-20
 categories:
 - Java
 - Backend
-date: 2026-05-20
-seo_title: Annotation Processing and Code Generation in Java Guide
-seo_description: Generate compile-time Java code for safer contracts and faster runtime
-  behavior.
 tags:
 - java
 - annotation-processing
 - codegen
 - compiler
-title: Annotation Processing and Code Generation in Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Annotation Processing and Code Generation in Java Guide
+seo_description: Generate compile-time Java code for safer contracts and faster runtime
+  behavior.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

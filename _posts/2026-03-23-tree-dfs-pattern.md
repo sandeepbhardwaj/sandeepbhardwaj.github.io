@@ -1,21 +1,21 @@
 ---
+title: Tree DFS Pattern in Java - Interview Preparation Guide
+date: 2026-03-23
 categories:
 - DSA
 - Java
-date: 2026-03-23
-seo_title: Tree DFS Pattern in Java - Interview Preparation Guide
-seo_description: Master depth-first traversal patterns on binary trees in Java with
-  recursion templates and path-based problems.
 tags:
 - dsa
 - java
 - tree
 - dfs
 - recursion
-title: Tree DFS Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Tree DFS Pattern in Java - Interview Preparation Guide
+seo_description: Master depth-first traversal patterns on binary trees in Java with
+  recursion templates and path-based problems.
 header:
   overlay_image: "/assets/images/tree-dfs-banner.svg"
   overlay_filter: 0.35

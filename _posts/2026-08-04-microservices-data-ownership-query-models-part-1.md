@@ -1,22 +1,22 @@
 ---
+title: Data ownership and cross-service query strategies
+date: 2026-08-04
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-04
-seo_title: Data ownership and cross-service query strategies - Advanced Guide
-seo_description: Advanced practical guide on data ownership and cross-service query
-  strategies with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Data ownership and cross-service query strategies
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Data ownership and cross-service query strategies - Advanced Guide
+seo_description: Advanced practical guide on data ownership and cross-service query
+  strategies with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

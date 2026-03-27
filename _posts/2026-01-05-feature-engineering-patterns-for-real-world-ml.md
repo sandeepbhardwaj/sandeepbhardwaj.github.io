@@ -1,22 +1,22 @@
 ---
+title: Feature Engineering Patterns for Real-World ML
+date: 2026-01-05
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-05
-seo_title: Feature Engineering Patterns for Real-World ML
-seo_description: A practical deep dive into feature engineering patterns, leakage
-  prevention, and production-safe feature pipelines.
 tags:
 - ai
 - ml
 - feature-engineering
 - data-science
 - mlops
-title: Feature Engineering Patterns for Real-World ML
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Feature Engineering Patterns for Real-World ML
+seo_description: A practical deep dive into feature engineering patterns, leakage
+  prevention, and production-safe feature pipelines.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

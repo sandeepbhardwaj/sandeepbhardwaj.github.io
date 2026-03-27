@@ -1,22 +1,22 @@
 ---
+title: Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)
+date: 2026-06-24
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-24
-seo_title: Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)
-seo_description: 'Hands-on guide: Kafka Observability Lag Saturation and SLO Driven
-  Operations. Burn-rate alerting and runbook.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Kafka Observability Lag Saturation and SLO Driven Operations (Part 2)
+seo_description: 'Hands-on guide: Kafka Observability Lag Saturation and SLO Driven
+  Operations. Burn-rate alerting and runbook.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

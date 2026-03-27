@@ -1,21 +1,21 @@
 ---
+title: Floyd-Warshall Algorithm in Java - Interview Preparation Guide
+date: 2026-04-07
 categories:
 - DSA
 - Java
-date: 2026-04-07
-seo_title: Floyd-Warshall Algorithm in Java - Interview Preparation Guide
-seo_description: Compute all-pairs shortest paths in Java with dynamic programming
-  over intermediate nodes.
 tags:
 - dsa
 - java
 - floyd-warshall
 - graph
 - algorithms
-title: Floyd-Warshall Algorithm in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Floyd-Warshall Algorithm in Java - Interview Preparation Guide
+seo_description: Compute all-pairs shortest paths in Java with dynamic programming
+  over intermediate nodes.
 header:
   overlay_image: "/assets/images/floyd-warshall-algorithm-banner.svg"
   overlay_filter: 0.35

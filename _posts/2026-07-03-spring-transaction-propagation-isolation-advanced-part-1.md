@@ -1,23 +1,23 @@
 ---
+title: 'Advanced transactional boundaries: propagation and isolation'
+date: 2026-07-03
 categories:
 - Java
 - Spring Boot
 - Backend
-date: 2026-07-03
-seo_title: 'Advanced transactional boundaries: propagation and isolation - Advanced
-  Guide'
-seo_description: 'Advanced practical guide on advanced transactional boundaries: propagation
-  and isolation with architecture decisions, trade-offs, and production patterns.'
 tags:
 - java
 - spring-boot
 - backend
 - architecture
 - production
-title: 'Advanced transactional boundaries: propagation and isolation'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Advanced transactional boundaries: propagation and isolation - Advanced
+  Guide'
+seo_description: 'Advanced practical guide on advanced transactional boundaries: propagation
+  and isolation with architecture decisions, trade-offs, and production patterns.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

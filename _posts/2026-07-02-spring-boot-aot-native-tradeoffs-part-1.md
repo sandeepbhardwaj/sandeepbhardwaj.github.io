@@ -1,22 +1,22 @@
 ---
+title: Spring AOT/native image tradeoffs for production services
+date: 2026-07-02
 categories:
 - Java
 - Spring Boot
 - Backend
-date: 2026-07-02
-seo_title: Spring AOT/native image tradeoffs for production services - Advanced Guide
-seo_description: Advanced practical guide on spring aot/native image tradeoffs for
-  production services with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - spring-boot
 - backend
 - architecture
 - production
-title: Spring AOT/native image tradeoffs for production services
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Spring AOT/native image tradeoffs for production services - Advanced Guide
+seo_description: Advanced practical guide on spring aot/native image tradeoffs for
+  production services with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

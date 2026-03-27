@@ -1,23 +1,23 @@
 ---
+title: API Gateway vs BFF vs service mesh responsibilities (Part 2)
+date: 2026-08-15
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-15
-seo_title: API Gateway vs BFF vs service mesh responsibilities (Part 2) - Advanced
-  Guide
-seo_description: Advanced practical guide on api gateway vs bff vs service mesh responsibilities
-  (part 2) with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: API Gateway vs BFF vs service mesh responsibilities (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: API Gateway vs BFF vs service mesh responsibilities (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on api gateway vs bff vs service mesh responsibilities
+  (part 2) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: A/B Testing and Causal Inference for ML Systems
+date: 2026-01-29
 categories:
 - AI
 - ML
-date: 2026-01-29
-seo_title: A/B Testing and Causal Inference for ML Systems
-seo_description: A practical guide to online experimentation, causal thinking, and
-  trustworthy impact measurement for ML product decisions.
 tags:
 - ai
 - ml
 - ab-testing
 - experimentation
 - causal-inference
-title: A/B Testing and Causal Inference for ML Systems
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: A/B Testing and Causal Inference for ML Systems
+seo_description: A practical guide to online experimentation, causal thinking, and
+  trustworthy impact measurement for ML product decisions.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

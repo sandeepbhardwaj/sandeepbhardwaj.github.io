@@ -1,23 +1,23 @@
 ---
+title: Outbox + inbox pattern for reliable service communication (Part 2)
+date: 2026-12-17
 categories:
 - Distributed Systems
 - Architecture
 - Backend
-date: 2026-12-17
-seo_title: Outbox + inbox pattern for reliable service communication (Part 2) - Advanced
-  Guide
-seo_description: Advanced practical guide on outbox + inbox pattern for reliable service
-  communication (part 2) with architecture decisions, trade-offs, and production patterns.
 tags:
 - distributed-systems
 - architecture
 - reliability
 - backend
 - java
-title: Outbox + inbox pattern for reliable service communication (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Outbox + inbox pattern for reliable service communication (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on outbox + inbox pattern for reliable service
+  communication (part 2) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

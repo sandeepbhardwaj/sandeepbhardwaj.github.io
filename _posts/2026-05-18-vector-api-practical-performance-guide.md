@@ -1,20 +1,20 @@
 ---
+title: Vector API Practical Performance Guide in Java
+date: 2026-05-18
 categories:
 - Java
 - Backend
-date: 2026-05-18
-seo_title: Vector API Practical Performance Guide for Java
-seo_description: Apply SIMD style vector computation for CPU-efficient numeric workloads
-  in Java.
 tags:
 - java
 - vector-api
 - performance
 - jvm
-title: Vector API Practical Performance Guide in Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Vector API Practical Performance Guide for Java
+seo_description: Apply SIMD style vector computation for CPU-efficient numeric workloads
+  in Java.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,22 +1,22 @@
 ---
+title: Event sourcing tradeoffs in high-change domains
+date: 2026-12-11
 categories:
 - Distributed Systems
 - Architecture
 - Backend
-date: 2026-12-11
-seo_title: Event sourcing tradeoffs in high-change domains - Advanced Guide
-seo_description: Advanced practical guide on event sourcing tradeoffs in high-change
-  domains with architecture decisions, trade-offs, and production patterns.
 tags:
 - distributed-systems
 - architecture
 - reliability
 - backend
 - java
-title: Event sourcing tradeoffs in high-change domains
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Event sourcing tradeoffs in high-change domains - Advanced Guide
+seo_description: Advanced practical guide on event sourcing tradeoffs in high-change
+  domains with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

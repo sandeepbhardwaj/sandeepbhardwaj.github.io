@@ -1,22 +1,22 @@
 ---
+title: 'Progressive delivery: canary and blue-green in production'
+date: 2026-09-05
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-05
-seo_title: 'Progressive delivery: canary and blue-green in production - Advanced Guide'
-seo_description: 'Advanced practical guide on progressive delivery: canary and blue-green
-  in production with architecture decisions, trade-offs, and production patterns.'
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: 'Progressive delivery: canary and blue-green in production'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Progressive delivery: canary and blue-green in production - Advanced Guide'
+seo_description: 'Advanced practical guide on progressive delivery: canary and blue-green
+  in production with architecture decisions, trade-offs, and production patterns.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

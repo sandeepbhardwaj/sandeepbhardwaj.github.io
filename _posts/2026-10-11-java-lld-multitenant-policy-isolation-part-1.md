@@ -1,22 +1,22 @@
 ---
+title: LLD for multi-tenant systems with policy isolation
+date: 2026-10-11
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-11
-seo_title: LLD for multi-tenant systems with policy isolation - Advanced Guide
-seo_description: Advanced practical guide on lld for multi-tenant systems with policy
-  isolation with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: LLD for multi-tenant systems with policy isolation
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: LLD for multi-tenant systems with policy isolation - Advanced Guide
+seo_description: Advanced practical guide on lld for multi-tenant systems with policy
+  isolation with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

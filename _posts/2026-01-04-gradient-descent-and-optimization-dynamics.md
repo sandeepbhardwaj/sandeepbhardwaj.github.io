@@ -1,21 +1,21 @@
 ---
+title: Gradient Descent and Optimization Dynamics
+date: 2026-01-04
 categories:
 - AI
 - ML
-date: 2026-01-04
-seo_title: Gradient Descent and Optimization Dynamics in ML
-seo_description: A detailed guide to gradient descent, learning rates, batch strategies,
-  convergence behavior, and practical optimization diagnostics.
 tags:
 - ai
 - ml
 - gradient-descent
 - optimization
 - deep-learning
-title: Gradient Descent and Optimization Dynamics
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Gradient Descent and Optimization Dynamics in ML
+seo_description: A detailed guide to gradient descent, learning rates, batch strategies,
+  convergence behavior, and practical optimization diagnostics.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

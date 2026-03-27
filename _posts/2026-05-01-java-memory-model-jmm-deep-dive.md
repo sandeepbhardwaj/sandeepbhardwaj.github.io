@@ -1,21 +1,21 @@
 ---
+title: Java Memory Model (JMM) Deep Dive — A Practical Guide
+date: 2026-05-01
 categories:
 - Java
 - Backend
-date: 2026-05-01
-seo_title: Java Memory Model (JMM) Deep Dive for Backend Engineers
-seo_description: Understand visibility, ordering, and happens-before guarantees in
-  modern Java concurrency.
 tags:
 - java
 - jmm
 - concurrency
 - backend
 - performance
-title: Java Memory Model (JMM) Deep Dive — A Practical Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java Memory Model (JMM) Deep Dive for Backend Engineers
+seo_description: Understand visibility, ordering, and happens-before guarantees in
+  modern Java concurrency.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

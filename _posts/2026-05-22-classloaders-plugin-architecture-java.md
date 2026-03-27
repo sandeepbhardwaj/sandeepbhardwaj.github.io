@@ -1,20 +1,20 @@
 ---
+title: ClassLoaders and Plugin Architecture in Java
+date: 2026-05-22
 categories:
 - Java
 - Backend
-date: 2026-05-22
-seo_title: ClassLoaders and Plugin Architecture Java Guide
-seo_description: Design extensible Java plugin systems with classloader isolation
-  and lifecycle control.
 tags:
 - java
 - classloader
 - plugins
 - architecture
-title: ClassLoaders and Plugin Architecture in Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: ClassLoaders and Plugin Architecture Java Guide
+seo_description: Design extensible Java plugin systems with classloader isolation
+  and lifecycle control.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

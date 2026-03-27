@@ -1,21 +1,21 @@
 ---
+title: Difference Array Range Update Pattern in Java - Interview Preparation Guide
+date: 2026-04-22
 categories:
 - DSA
 - Java
-date: 2026-04-22
-seo_title: Difference Array Pattern in Java - Interview Preparation Guide
-seo_description: Apply multiple range updates efficiently in Java with difference
-  arrays and prefix reconstruction.
 tags:
 - dsa
 - java
 - difference-array
 - prefix-sum
 - algorithms
-title: Difference Array Range Update Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Difference Array Pattern in Java - Interview Preparation Guide
+seo_description: Apply multiple range updates efficiently in Java with difference
+  arrays and prefix reconstruction.
 header:
   overlay_image: "/assets/images/difference-array-range-update-pattern-banner.svg"
   overlay_filter: 0.35

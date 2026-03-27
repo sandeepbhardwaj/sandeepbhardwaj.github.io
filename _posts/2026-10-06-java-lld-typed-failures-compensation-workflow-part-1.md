@@ -1,23 +1,23 @@
 ---
+title: Typed failure models and compensation-aware workflow design
+date: 2026-10-06
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-06
-seo_title: Typed failure models and compensation-aware workflow design - Advanced
-  Guide
-seo_description: Advanced practical guide on typed failure models and compensation-aware
-  workflow design with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: Typed failure models and compensation-aware workflow design
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Typed failure models and compensation-aware workflow design - Advanced
+  Guide
+seo_description: Advanced practical guide on typed failure models and compensation-aware
+  workflow design with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,11 +1,9 @@
 ---
+title: Dimensionality Reduction with PCA, UMAP, and t-SNE
+date: 2026-01-14
 categories:
 - AI
 - ML
-date: 2026-01-14
-seo_title: Dimensionality Reduction with PCA, UMAP, and t-SNE
-seo_description: A practical deep dive into dimensionality reduction methods, when
-  to use them, and pitfalls in interpretation.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - umap
 - tsne
 - unsupervised-learning
-title: Dimensionality Reduction with PCA, UMAP, and t-SNE
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Dimensionality Reduction with PCA, UMAP, and t-SNE
+seo_description: A practical deep dive into dimensionality reduction methods, when
+  to use them, and pitfalls in interpretation.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

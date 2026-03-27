@@ -1,21 +1,21 @@
 ---
+title: Manacher Algorithm for Palindromes in Java - Interview Preparation Guide
+date: 2026-04-16
 categories:
 - DSA
 - Java
-date: 2026-04-16
-seo_title: Manacher Algorithm in Java - Interview Preparation Guide
-seo_description: Find longest palindromic substrings in linear time in Java with Manacher’s
-  algorithm.
 tags:
 - dsa
 - java
 - manacher
 - palindrome
 - strings
-title: Manacher Algorithm for Palindromes in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Manacher Algorithm in Java - Interview Preparation Guide
+seo_description: Find longest palindromic substrings in linear time in Java with Manacher’s
+  algorithm.
 header:
   overlay_image: "/assets/images/manacher-algorithm-palindrome-banner.svg"
   overlay_filter: 0.35

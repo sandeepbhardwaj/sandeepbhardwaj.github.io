@@ -1,21 +1,21 @@
 ---
+title: Suffix Array and LCP Basics in Java - Interview Preparation Guide
+date: 2026-04-12
 categories:
 - DSA
 - Java
-date: 2026-04-12
-seo_title: Suffix Array and LCP Basics in Java - Interview Preparation Guide
-seo_description: Understand suffix array and LCP basics in Java for substring ranking
-  and repetition analysis.
 tags:
 - dsa
 - java
 - suffix-array
 - lcp
 - strings
-title: Suffix Array and LCP Basics in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Suffix Array and LCP Basics in Java - Interview Preparation Guide
+seo_description: Understand suffix array and LCP basics in Java for substring ranking
+  and repetition analysis.
 header:
   overlay_image: "/assets/images/suffix-array-lcp-basics-banner.svg"
   overlay_filter: 0.35

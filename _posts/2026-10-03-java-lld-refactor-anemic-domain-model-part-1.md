@@ -1,22 +1,22 @@
 ---
+title: Refactoring anemic domain models into behavior-rich design
+date: 2026-10-03
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-03
-seo_title: Refactoring anemic domain models into behavior-rich design - Advanced Guide
-seo_description: Advanced practical guide on refactoring anemic domain models into
-  behavior-rich design with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: Refactoring anemic domain models into behavior-rich design
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Refactoring anemic domain models into behavior-rich design - Advanced Guide
+seo_description: Advanced practical guide on refactoring anemic domain models into
+  behavior-rich design with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

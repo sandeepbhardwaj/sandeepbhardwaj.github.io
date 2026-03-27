@@ -1,11 +1,9 @@
 ---
+title: 'LLM Foundations: Tokenization, Pretraining, and Inference'
+date: 2026-01-22
 categories:
 - AI
 - ML
-date: 2026-01-22
-seo_title: 'LLM Foundations: Tokenization, Pretraining, and Inference'
-seo_description: A practical foundation on how large language models are built, trained,
-  and served in real-world AI systems.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - transformers
 - pretraining
 - inference
-title: 'LLM Foundations: Tokenization, Pretraining, and Inference'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'LLM Foundations: Tokenization, Pretraining, and Inference'
+seo_description: A practical foundation on how large language models are built, trained,
+  and served in real-world AI systems.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

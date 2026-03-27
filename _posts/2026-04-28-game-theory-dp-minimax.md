@@ -1,21 +1,21 @@
 ---
+title: Game Theory DP (Minimax) in Java - Interview Preparation Guide
+date: 2026-04-28
 categories:
 - DSA
 - Java
-date: 2026-04-28
-seo_title: Game Theory DP Minimax in Java - Interview Preparation Guide
-seo_description: Model two-player optimal play in Java with minimax recurrence and
-  memoization.
 tags:
 - dsa
 - java
 - game-theory
 - minimax
 - dp
-title: Game Theory DP (Minimax) in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Game Theory DP Minimax in Java - Interview Preparation Guide
+seo_description: Model two-player optimal play in Java with minimax recurrence and
+  memoization.
 header:
   overlay_image: "/assets/images/game-theory-dp-minimax-banner.svg"
   overlay_filter: 0.35

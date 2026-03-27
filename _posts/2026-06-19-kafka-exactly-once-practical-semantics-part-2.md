@@ -1,22 +1,22 @@
 ---
+title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 2)
+date: 2026-06-19
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-19
-seo_title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 2)
-seo_description: 'Hands-on guide: Exactly Once Semantics Myths Versus Practical Guarantees.
-  Implement idempotent sink.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 2)
+seo_description: 'Hands-on guide: Exactly Once Semantics Myths Versus Practical Guarantees.
+  Implement idempotent sink.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: Monotonic Stack Pattern in Java - Interview Preparation Guide
+date: 2026-03-17
 categories:
 - DSA
 - Java
-date: 2026-03-17
-seo_title: Monotonic Stack Pattern in Java - Interview Preparation Guide
-seo_description: Learn monotonic stack in Java for next greater/smaller problems,
-  range contributions, and linear-time scans.
 tags:
 - dsa
 - java
 - monotonic-stack
 - stack
 - algorithms
-title: Monotonic Stack Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Monotonic Stack Pattern in Java - Interview Preparation Guide
+seo_description: Learn monotonic stack in Java for next greater/smaller problems,
+  range contributions, and linear-time scans.
 header:
   overlay_image: "/assets/images/monotonic-stack-banner.svg"
   overlay_filter: 0.35

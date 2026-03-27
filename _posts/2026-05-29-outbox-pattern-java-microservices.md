@@ -1,20 +1,20 @@
 ---
+title: Outbox Pattern in Java Microservices
+date: 2026-05-29
 categories:
 - Java
 - Backend
-date: 2026-05-29
-seo_title: Outbox Pattern Java Microservices Guide
-seo_description: Guarantee reliable event publication with transactional outbox architecture
-  in Java.
 tags:
 - java
 - outbox-pattern
 - microservices
 - kafka
-title: Outbox Pattern in Java Microservices
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Outbox Pattern Java Microservices Guide
+seo_description: Guarantee reliable event publication with transactional outbox architecture
+  in Java.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

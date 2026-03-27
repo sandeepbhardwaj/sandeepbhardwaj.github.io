@@ -1,23 +1,23 @@
 ---
+title: Composition over inheritance in extensible Java systems (Part 3)
+date: 2026-10-26
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-26
-seo_title: Composition over inheritance in extensible Java systems (Part 3) - Advanced
-  Guide
-seo_description: Advanced practical guide on composition over inheritance in extensible
-  java systems (part 3) with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: Composition over inheritance in extensible Java systems (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Composition over inheritance in extensible Java systems (Part 3) - Advanced
+  Guide
+seo_description: Advanced practical guide on composition over inheritance in extensible
+  java systems (part 3) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

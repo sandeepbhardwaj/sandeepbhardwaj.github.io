@@ -7,6 +7,9 @@ tags:
 - java
 - ubuntu
 - maven
+toc: true
+toc_label: In This Article
+toc_icon: cog
 seo_title: Set M2_HOME and PATH for Maven on Ubuntu
 seo_description: Configure Maven on Ubuntu by setting M2_HOME and PATH and verify
   with mvn -v.
@@ -15,9 +18,6 @@ header:
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
-toc: true
-toc_label: In This Article
-toc_icon: cog
 ---
 Manual Maven setup on Ubuntu is rarely about memorizing `export` commands.
 It is about making sure the correct `mvn` binary is visible everywhere you expect it to be, with the right Java version behind it.

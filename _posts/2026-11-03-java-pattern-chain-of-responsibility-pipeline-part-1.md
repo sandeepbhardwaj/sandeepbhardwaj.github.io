@@ -1,22 +1,22 @@
 ---
+title: Chain of responsibility for request pipelines and fallback
+date: 2026-11-03
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-03
-seo_title: Chain of responsibility for request pipelines and fallback - Advanced Guide
-seo_description: Advanced practical guide on chain of responsibility for request pipelines
-  and fallback with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Chain of responsibility for request pipelines and fallback
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Chain of responsibility for request pipelines and fallback - Advanced Guide
+seo_description: Advanced practical guide on chain of responsibility for request pipelines
+  and fallback with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

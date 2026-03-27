@@ -1,24 +1,24 @@
 ---
+title: Backward-compatible API evolution and deprecation governance (Part 3)
+date: 2026-08-31
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-31
-seo_title: Backward-compatible API evolution and deprecation governance (Part 3) -
-  Advanced Guide
-seo_description: Advanced practical guide on backward-compatible api evolution and
-  deprecation governance (part 3) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Backward-compatible API evolution and deprecation governance (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Backward-compatible API evolution and deprecation governance (Part 3) -
+  Advanced Guide
+seo_description: Advanced practical guide on backward-compatible api evolution and
+  deprecation governance (part 3) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

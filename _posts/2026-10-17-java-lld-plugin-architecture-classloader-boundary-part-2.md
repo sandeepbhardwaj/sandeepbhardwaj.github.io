@@ -1,22 +1,22 @@
 ---
+title: Plugin-oriented LLD with classloader boundaries (Part 2)
+date: 2026-10-17
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-17
-seo_title: Plugin-oriented LLD with classloader boundaries (Part 2) - Advanced Guide
-seo_description: Advanced practical guide on plugin-oriented lld with classloader
-  boundaries (part 2) with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: Plugin-oriented LLD with classloader boundaries (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Plugin-oriented LLD with classloader boundaries (Part 2) - Advanced Guide
+seo_description: Advanced practical guide on plugin-oriented lld with classloader
+  boundaries (part 2) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,24 +1,24 @@
 ---
+title: Spring Security for multi-tenant and zero-trust service edges (Part 3)
+date: 2026-07-30
 categories:
 - Java
 - Spring Boot
 - Backend
-date: 2026-07-30
-seo_title: Spring Security for multi-tenant and zero-trust service edges (Part 3)
-  - Advanced Guide
-seo_description: Advanced practical guide on spring security for multi-tenant and
-  zero-trust service edges (part 3) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - spring-boot
 - backend
 - architecture
 - production
-title: Spring Security for multi-tenant and zero-trust service edges (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Spring Security for multi-tenant and zero-trust service edges (Part 3)
+  - Advanced Guide
+seo_description: Advanced practical guide on spring security for multi-tenant and
+  zero-trust service edges (part 3) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

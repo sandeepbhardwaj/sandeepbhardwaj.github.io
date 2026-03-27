@@ -1,22 +1,22 @@
 ---
+title: AI/ML Foundations from First Principles
+date: 2026-01-01
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-01
-seo_title: AI/ML Foundations from First Principles
-seo_description: A thorough beginner-to-practitioner guide to AI, ML, deep learning,
-  model lifecycle, evaluation, and production trade-offs.
 tags:
 - ai
 - ml
 - deep-learning
 - data-science
 - mlops
-title: AI/ML Foundations from First Principles
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: AI/ML Foundations from First Principles
+seo_description: A thorough beginner-to-practitioner guide to AI, ML, deep learning,
+  model lifecycle, evaluation, and production trade-offs.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

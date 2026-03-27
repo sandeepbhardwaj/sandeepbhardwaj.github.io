@@ -1,11 +1,9 @@
 ---
+title: Vector Databases for RAG in Production
+date: 2026-02-01
 categories:
 - AI
 - ML
-date: 2026-02-01
-seo_title: Vector Databases for RAG in Production
-seo_description: A practical deep-dive into vector database design, ANN indexing,
-  hybrid retrieval, filtering, and operations for production RAG systems.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - vector-database
 - embeddings
 - retrieval
-title: Vector Databases for RAG in Production
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Vector Databases for RAG in Production
+seo_description: A practical deep-dive into vector database design, ANN indexing,
+  hybrid retrieval, filtering, and operations for production RAG systems.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: Java Object Layout and Memory Footprint (JOL) Guide
+date: 2026-05-05
 categories:
 - Java
 - Backend
-date: 2026-05-05
-seo_title: Java Object Layout and Memory Footprint with JOL
-seo_description: Measure and optimize object memory footprint in JVM services using
-  JOL-based analysis.
 tags:
 - java
 - jvm
 - memory
 - jol
 - performance
-title: Java Object Layout and Memory Footprint (JOL) Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java Object Layout and Memory Footprint with JOL
+seo_description: Measure and optimize object memory footprint in JVM services using
+  JOL-based analysis.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

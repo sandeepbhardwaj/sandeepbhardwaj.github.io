@@ -1,20 +1,20 @@
 ---
+title: Idempotency and Exactly-Once Semantics in Java Services
+date: 2026-05-27
 categories:
 - Java
 - Backend
-date: 2026-05-27
-seo_title: Idempotency and Exactly-Once Semantics Java Guide
-seo_description: Design retry-safe write paths in Java APIs with deterministic deduplication
-  behavior.
 tags:
 - java
 - idempotency
 - distributed-systems
 - backend
-title: Idempotency and Exactly-Once Semantics in Java Services
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Idempotency and Exactly-Once Semantics Java Guide
+seo_description: Design retry-safe write paths in Java APIs with deterministic deduplication
+  behavior.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

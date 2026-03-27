@@ -1,21 +1,21 @@
 ---
+title: Backtracking Pattern in Java - Interview Preparation Guide
+date: 2026-03-22
 categories:
 - DSA
 - Java
-date: 2026-03-22
-seo_title: Backtracking Pattern in Java - Interview Preparation Guide
-seo_description: Learn backtracking in Java with recursion templates for combinations,
-  permutations, subsets, and constraint search.
 tags:
 - dsa
 - java
 - backtracking
 - recursion
 - algorithms
-title: Backtracking Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Backtracking Pattern in Java - Interview Preparation Guide
+seo_description: Learn backtracking in Java with recursion templates for combinations,
+  permutations, subsets, and constraint search.
 header:
   overlay_image: "/assets/images/backtracking-banner.svg"
   overlay_filter: 0.35

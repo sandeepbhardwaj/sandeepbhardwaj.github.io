@@ -1,24 +1,24 @@
 ---
+title: Testing strategy for large Spring codebases with Testcontainers (Part 2)
+date: 2026-07-21
 categories:
 - Java
 - Spring Boot
 - Backend
-date: 2026-07-21
-seo_title: Testing strategy for large Spring codebases with Testcontainers (Part 2)
-  - Advanced Guide
-seo_description: Advanced practical guide on testing strategy for large spring codebases
-  with testcontainers (part 2) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - spring-boot
 - backend
 - architecture
 - production
-title: Testing strategy for large Spring codebases with Testcontainers (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Testing strategy for large Spring codebases with Testcontainers (Part 2)
+  - Advanced Guide
+seo_description: Advanced practical guide on testing strategy for large spring codebases
+  with testcontainers (part 2) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

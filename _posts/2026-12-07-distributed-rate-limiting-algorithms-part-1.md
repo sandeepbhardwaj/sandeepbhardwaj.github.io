@@ -1,22 +1,22 @@
 ---
+title: Distributed rate limiting algorithms at scale
+date: 2026-12-07
 categories:
 - Distributed Systems
 - Architecture
 - Backend
-date: 2026-12-07
-seo_title: Distributed rate limiting algorithms at scale - Advanced Guide
-seo_description: Advanced practical guide on distributed rate limiting algorithms
-  at scale with architecture decisions, trade-offs, and production patterns.
 tags:
 - distributed-systems
 - architecture
 - reliability
 - backend
 - java
-title: Distributed rate limiting algorithms at scale
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Distributed rate limiting algorithms at scale - Advanced Guide
+seo_description: Advanced practical guide on distributed rate limiting algorithms
+  at scale with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

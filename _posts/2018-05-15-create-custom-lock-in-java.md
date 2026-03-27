@@ -8,6 +8,9 @@ tags:
 - java
 - concurrency
 - locks
+toc: true
+toc_label: In This Article
+toc_icon: cog
 seo_title: Create a Custom Lock in Java (wait/notify)
 seo_description: Learn lock basics by implementing a simple custom lock using wait
   and notify.
@@ -16,9 +19,6 @@ header:
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
-toc: true
-toc_label: In This Article
-toc_icon: cog
 ---
 Building a custom lock is a good learning exercise because it forces you to think about ownership, waiting, wake-up policy, and failure cases.
 

@@ -1,21 +1,21 @@
 ---
+title: Regularization, Bias-Variance, and Overfitting Control
+date: 2026-01-08
 categories:
 - AI
 - ML
-date: 2026-01-08
-seo_title: Regularization, Bias-Variance, and Overfitting Control
-seo_description: Understand bias-variance trade-offs and practical regularization
-  strategies to improve generalization in ML models.
 tags:
 - ai
 - ml
 - regularization
 - bias-variance
 - overfitting
-title: Regularization, Bias-Variance, and Overfitting Control
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Regularization, Bias-Variance, and Overfitting Control
+seo_description: Understand bias-variance trade-offs and practical regularization
+  strategies to improve generalization in ML models.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

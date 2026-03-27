@@ -1,21 +1,21 @@
 ---
+title: Shortest Path Pattern in Java - Interview Preparation Guide
+date: 2026-03-26
 categories:
 - DSA
 - Java
-date: 2026-03-26
-seo_title: Shortest Path Pattern in Java - Interview Preparation Guide
-seo_description: Master shortest path algorithms in Java including BFS for unweighted
-  graphs and Dijkstra for weighted graphs.
 tags:
 - dsa
 - java
 - shortest-path
 - bfs
 - dijkstra
-title: Shortest Path Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Shortest Path Pattern in Java - Interview Preparation Guide
+seo_description: Master shortest path algorithms in Java including BFS for unweighted
+  graphs and Dijkstra for weighted graphs.
 header:
   overlay_image: "/assets/images/shortest-path-banner.svg"
   overlay_filter: 0.35

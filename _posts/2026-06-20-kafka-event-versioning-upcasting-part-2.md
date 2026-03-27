@@ -1,22 +1,22 @@
 ---
+title: Event Versioning and Upcasting Strategy in Long Lived Domains (Part 2)
+date: 2026-06-20
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-20
-seo_title: Event Versioning and Upcasting Strategy in Long Lived Domains (Part 2)
-seo_description: 'Hands-on guide: Event Versioning and Upcasting Strategy in Long
-  Lived Domains. Upcaster chain implementation.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Event Versioning and Upcasting Strategy in Long Lived Domains (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Event Versioning and Upcasting Strategy in Long Lived Domains (Part 2)
+seo_description: 'Hands-on guide: Event Versioning and Upcasting Strategy in Long
+  Lived Domains. Upcaster chain implementation.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,22 +1,22 @@
 ---
+title: Sync vs async communication selection framework (Part 3)
+date: 2026-08-26
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-26
-seo_title: Sync vs async communication selection framework (Part 3) - Advanced Guide
-seo_description: Advanced practical guide on sync vs async communication selection
-  framework (part 3) with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Sync vs async communication selection framework (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Sync vs async communication selection framework (Part 3) - Advanced Guide
+seo_description: Advanced practical guide on sync vs async communication selection
+  framework (part 3) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

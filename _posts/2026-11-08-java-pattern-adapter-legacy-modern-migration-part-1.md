@@ -1,22 +1,22 @@
 ---
+title: Adapter pattern for legacy-modern system migration
+date: 2026-11-08
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-08
-seo_title: Adapter pattern for legacy-modern system migration - Advanced Guide
-seo_description: Advanced practical guide on adapter pattern for legacy-modern system
-  migration with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Adapter pattern for legacy-modern system migration
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Adapter pattern for legacy-modern system migration - Advanced Guide
+seo_description: Advanced practical guide on adapter pattern for legacy-modern system
+  migration with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

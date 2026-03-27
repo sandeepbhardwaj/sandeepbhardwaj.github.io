@@ -1,21 +1,21 @@
 ---
+title: Linear Regression from Intuition to Implementation
+date: 2026-01-02
 categories:
 - AI
 - ML
-date: 2026-01-02
-seo_title: Linear Regression from Intuition to Implementation
-seo_description: 'A thorough guide to linear regression: intuition, math, assumptions,
-  optimization, diagnostics, and production use.'
 tags:
 - ai
 - ml
 - linear-regression
 - statistics
 - supervised-learning
-title: Linear Regression from Intuition to Implementation
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Linear Regression from Intuition to Implementation
+seo_description: 'A thorough guide to linear regression: intuition, math, assumptions,
+  optimization, diagnostics, and production use.'
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

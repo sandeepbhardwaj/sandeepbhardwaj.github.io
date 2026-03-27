@@ -1,22 +1,22 @@
 ---
+title: Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)
+date: 2026-06-15
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-15
-seo_title: Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)
-seo_description: 'Hands-on guide: Outbox Plus CDC with Debezium for Reliable Event
-  Publishing. Envelope + EventRouter hardening.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Outbox Plus CDC with Debezium for Reliable Event Publishing (Part 2)
+seo_description: 'Hands-on guide: Outbox Plus CDC with Debezium for Reliable Event
+  Publishing. Envelope + EventRouter hardening.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

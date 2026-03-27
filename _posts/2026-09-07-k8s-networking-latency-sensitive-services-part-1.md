@@ -1,22 +1,22 @@
 ---
+title: Kubernetes networking internals for latency-sensitive apps
+date: 2026-09-07
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-07
-seo_title: Kubernetes networking internals for latency-sensitive apps - Advanced Guide
-seo_description: Advanced practical guide on kubernetes networking internals for latency-sensitive
-  apps with architecture decisions, trade-offs, and production patterns.
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: Kubernetes networking internals for latency-sensitive apps
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Kubernetes networking internals for latency-sensitive apps - Advanced Guide
+seo_description: Advanced practical guide on kubernetes networking internals for latency-sensitive
+  apps with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

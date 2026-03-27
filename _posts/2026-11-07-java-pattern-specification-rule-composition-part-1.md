@@ -1,22 +1,22 @@
 ---
+title: Specification pattern for dynamic rule composition
+date: 2026-11-07
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-07
-seo_title: Specification pattern for dynamic rule composition - Advanced Guide
-seo_description: Advanced practical guide on specification pattern for dynamic rule
-  composition with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Specification pattern for dynamic rule composition
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Specification pattern for dynamic rule composition - Advanced Guide
+seo_description: Advanced practical guide on specification pattern for dynamic rule
+  composition with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

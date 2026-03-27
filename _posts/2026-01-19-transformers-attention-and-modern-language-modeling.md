@@ -1,21 +1,21 @@
 ---
+title: Transformers, Attention, and Modern Language Modeling
+date: 2026-01-19
 categories:
 - AI
 - ML
-date: 2026-01-19
-seo_title: Transformers, Attention, and Modern Language Modeling
-seo_description: A practical explanation of transformers, self-attention, training
-  dynamics, and deployment trade-offs for modern NLP systems.
 tags:
 - ai
 - ml
 - transformers
 - attention
 - nlp
-title: Transformers, Attention, and Modern Language Modeling
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Transformers, Attention, and Modern Language Modeling
+seo_description: A practical explanation of transformers, self-attention, training
+  dynamics, and deployment trade-offs for modern NLP systems.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

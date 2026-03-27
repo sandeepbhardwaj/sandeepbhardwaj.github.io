@@ -1,22 +1,22 @@
 ---
+title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 1)
+date: 2026-06-04
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-04
-seo_title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 1)
-seo_description: 'Hands-on guide: Consumer Group Rebalance Internals and Zero Downtime
-  Tuning. Measure eager rebalance baseline.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 1)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 1)
+seo_description: 'Hands-on guide: Consumer Group Rebalance Internals and Zero Downtime
+  Tuning. Measure eager rebalance baseline.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

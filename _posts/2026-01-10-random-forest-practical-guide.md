@@ -1,21 +1,21 @@
 ---
+title: 'Random Forest: Practical Guide'
+date: 2026-01-10
 categories:
 - AI
 - ML
-date: 2026-01-10
-seo_title: 'Random Forest: Practical Guide for Robust Tabular ML'
-seo_description: Learn how random forest reduces variance, handles nonlinearity, and
-  delivers robust performance on real-world tabular data.
 tags:
 - ai
 - ml
 - random-forest
 - ensemble-learning
 - tabular
-title: 'Random Forest: Practical Guide'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Random Forest: Practical Guide for Robust Tabular ML'
+seo_description: Learn how random forest reduces variance, handles nonlinearity, and
+  delivers robust performance on real-world tabular data.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

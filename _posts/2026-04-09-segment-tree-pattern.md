@@ -1,21 +1,21 @@
 ---
+title: Segment Tree Pattern in Java - Interview Preparation Guide
+date: 2026-04-09
 categories:
 - DSA
 - Java
-date: 2026-04-09
-seo_title: Segment Tree Pattern in Java - Interview Preparation Guide
-seo_description: Answer mutable range queries in Java with segment tree templates
-  and update/query patterns.
 tags:
 - dsa
 - java
 - segment-tree
 - range-query
 - algorithms
-title: Segment Tree Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Segment Tree Pattern in Java - Interview Preparation Guide
+seo_description: Answer mutable range queries in Java with segment tree templates
+  and update/query patterns.
 header:
   overlay_image: "/assets/images/segment-tree-pattern-banner.svg"
   overlay_filter: 0.35

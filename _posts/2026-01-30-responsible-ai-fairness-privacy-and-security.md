@@ -1,11 +1,9 @@
 ---
+title: 'Responsible AI: Fairness, Privacy, and Security'
+date: 2026-01-30
 categories:
 - AI
 - ML
-date: 2026-01-30
-seo_title: 'Responsible AI: Fairness, Privacy, and Security'
-seo_description: A practical guide to building responsible AI systems with fairness
-  checks, privacy controls, and security protections.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - fairness
 - privacy
 - security
-title: 'Responsible AI: Fairness, Privacy, and Security'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Responsible AI: Fairness, Privacy, and Security'
+seo_description: A practical guide to building responsible AI systems with fairness
+  checks, privacy controls, and security protections.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: volatile vs synchronized vs Locks in Java — Practical Guide
+date: 2026-05-02
 categories:
 - Java
 - Backend
-date: 2026-05-02
-seo_title: volatile vs synchronized vs Locks in Java
-seo_description: Choose the right synchronization primitive in Java based on correctness
-  and contention patterns.
 tags:
 - java
 - concurrency
 - volatile
 - synchronized
 - locks
-title: volatile vs synchronized vs Locks in Java — Practical Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: volatile vs synchronized vs Locks in Java
+seo_description: Choose the right synchronization primitive in Java based on correctness
+  and contention patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

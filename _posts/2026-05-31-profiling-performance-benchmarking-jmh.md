@@ -1,21 +1,21 @@
 ---
+title: Profiling and Performance Benchmarking with JMH
+date: 2026-05-31
 categories:
 - Java
 - Backend
-date: 2026-05-31
-seo_title: Profiling and Performance Benchmarking with JMH
-seo_description: Benchmark Java code correctly with JMH methodology and production-aligned
-  profiling.
 tags:
 - java
 - jmh
 - performance
 - benchmarking
 - jvm
-title: Profiling and Performance Benchmarking with JMH
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Profiling and Performance Benchmarking with JMH
+seo_description: Benchmark Java code correctly with JMH methodology and production-aligned
+  profiling.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,22 +1,22 @@
 ---
+title: Command pattern for durable actions and replay support
+date: 2026-11-06
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-06
-seo_title: Command pattern for durable actions and replay support - Advanced Guide
-seo_description: Advanced practical guide on command pattern for durable actions and
-  replay support with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Command pattern for durable actions and replay support
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Command pattern for durable actions and replay support - Advanced Guide
+seo_description: Advanced practical guide on command pattern for durable actions and
+  replay support with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

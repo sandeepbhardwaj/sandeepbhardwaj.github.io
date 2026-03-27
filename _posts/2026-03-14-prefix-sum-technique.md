@@ -1,12 +1,9 @@
 ---
+title: Prefix Sum Pattern in Java - Interview Preparation Guide
+date: 2026-03-14
 categories:
 - DSA
 - Java
-date: 2026-03-14
-seo_title: Prefix Sum Pattern in Java - Interview Preparation Guide
-seo_description: Master the Prefix Sum pattern in Java with interview-ready
-  recognition signals, range-query templates, prefix-plus-hashmap counting, 2D
-  extensions, and practical intuition.
 tags:
 - dsa
 - java
@@ -14,10 +11,13 @@ tags:
 - algorithms
 - interview-preparation
 - backend-engineering
-title: Prefix Sum Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Prefix Sum Pattern in Java - Interview Preparation Guide
+seo_description: Master the Prefix Sum pattern in Java with interview-ready
+  recognition signals, range-query templates, prefix-plus-hashmap counting, 2D
+  extensions, and practical intuition.
 header:
   overlay_image: "/assets/images/prefix-sum-banner.svg"
   overlay_filter: 0.35

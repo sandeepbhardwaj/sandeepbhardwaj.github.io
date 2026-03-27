@@ -1,24 +1,24 @@
 ---
+title: Graceful shutdown and connection draining in Spring Boot (Part 2)
+date: 2026-07-24
 categories:
 - Java
 - Spring Boot
 - Backend
-date: 2026-07-24
-seo_title: Graceful shutdown and connection draining in Spring Boot (Part 2) - Advanced
-  Guide
-seo_description: Advanced practical guide on graceful shutdown and connection draining
-  in spring boot (part 2) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - spring-boot
 - backend
 - architecture
 - production
-title: Graceful shutdown and connection draining in Spring Boot (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Graceful shutdown and connection draining in Spring Boot (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on graceful shutdown and connection draining
+  in spring boot (part 2) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

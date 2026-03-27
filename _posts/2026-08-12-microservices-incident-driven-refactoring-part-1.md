@@ -1,22 +1,22 @@
 ---
+title: Incident-driven architecture refactoring in microservices
+date: 2026-08-12
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-12
-seo_title: Incident-driven architecture refactoring in microservices - Advanced Guide
-seo_description: Advanced practical guide on incident-driven architecture refactoring
-  in microservices with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Incident-driven architecture refactoring in microservices
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Incident-driven architecture refactoring in microservices - Advanced Guide
+seo_description: Advanced practical guide on incident-driven architecture refactoring
+  in microservices with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

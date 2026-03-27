@@ -1,23 +1,23 @@
 ---
+title: Multi-cluster deployment and failover architecture (Part 2)
+date: 2026-09-21
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-21
-seo_title: Multi-cluster deployment and failover architecture (Part 2) - Advanced
-  Guide
-seo_description: Advanced practical guide on multi-cluster deployment and failover
-  architecture (part 2) with architecture decisions, trade-offs, and production patterns.
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: Multi-cluster deployment and failover architecture (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Multi-cluster deployment and failover architecture (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on multi-cluster deployment and failover
+  architecture (part 2) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

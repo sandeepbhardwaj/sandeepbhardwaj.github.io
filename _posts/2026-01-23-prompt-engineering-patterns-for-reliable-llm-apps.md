@@ -1,21 +1,21 @@
 ---
+title: Prompt Engineering Patterns for Reliable LLM Apps
+date: 2026-01-23
 categories:
 - AI
 - ML
-date: 2026-01-23
-seo_title: Prompt Engineering Patterns for Reliable LLM Apps
-seo_description: A practical guide to prompt design patterns, failure modes, and evaluation
-  strategy for production LLM applications.
 tags:
 - ai
 - ml
 - llm
 - prompt-engineering
 - generative-ai
-title: Prompt Engineering Patterns for Reliable LLM Apps
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Prompt Engineering Patterns for Reliable LLM Apps
+seo_description: A practical guide to prompt design patterns, failure modes, and evaluation
+  strategy for production LLM applications.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

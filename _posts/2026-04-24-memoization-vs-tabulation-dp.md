@@ -1,21 +1,21 @@
 ---
+title: Memoization vs Tabulation in Java - Interview Preparation Guide
+date: 2026-04-24
 categories:
 - DSA
 - Java
-date: 2026-04-24
-seo_title: Memoization vs Tabulation in Java - Interview Preparation Guide
-seo_description: Choose the right DP execution model in Java with tradeoffs, templates,
-  and performance implications.
 tags:
 - dsa
 - java
 - dp
 - memoization
 - tabulation
-title: Memoization vs Tabulation in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Memoization vs Tabulation in Java - Interview Preparation Guide
+seo_description: Choose the right DP execution model in Java with tradeoffs, templates,
+  and performance implications.
 header:
   overlay_image: "/assets/images/memoization-vs-tabulation-dp-banner.svg"
   overlay_filter: 0.35

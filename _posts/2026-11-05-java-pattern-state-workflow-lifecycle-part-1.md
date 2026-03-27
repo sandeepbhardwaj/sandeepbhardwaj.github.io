@@ -1,22 +1,22 @@
 ---
+title: State pattern for workflow lifecycle enforcement
+date: 2026-11-05
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-05
-seo_title: State pattern for workflow lifecycle enforcement - Advanced Guide
-seo_description: Advanced practical guide on state pattern for workflow lifecycle
-  enforcement with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: State pattern for workflow lifecycle enforcement
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: State pattern for workflow lifecycle enforcement - Advanced Guide
+seo_description: Advanced practical guide on state pattern for workflow lifecycle
+  enforcement with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,12 +1,10 @@
 ---
+title: Monitoring Drift and ML Incident Response
+date: 2026-01-28
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-28
-seo_title: Monitoring Drift and ML Incident Response
-seo_description: A practical guide to production ML monitoring, data and concept drift
-  detection, and incident response playbooks.
 tags:
 - ai
 - ml
@@ -14,10 +12,12 @@ tags:
 - drift
 - mlops
 - reliability
-title: Monitoring Drift and ML Incident Response
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Monitoring Drift and ML Incident Response
+seo_description: A practical guide to production ML monitoring, data and concept drift
+  detection, and incident response playbooks.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

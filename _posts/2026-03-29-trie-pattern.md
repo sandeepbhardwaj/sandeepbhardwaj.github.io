@@ -1,21 +1,21 @@
 ---
+title: Trie Pattern in Java - Interview Preparation Guide
+date: 2026-03-29
 categories:
 - DSA
 - Java
-date: 2026-03-29
-seo_title: Trie Pattern in Java - Interview Preparation Guide
-seo_description: Learn Trie in Java for prefix search, autocomplete, and dictionary-based
-  backtracking problems.
 tags:
 - dsa
 - java
 - trie
 - prefix-tree
 - strings
-title: Trie Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Trie Pattern in Java - Interview Preparation Guide
+seo_description: Learn Trie in Java for prefix search, autocomplete, and dictionary-based
+  backtracking problems.
 header:
   overlay_image: "/assets/images/trie-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: 'Time Series Forecasting: From Baselines to Production'
+date: 2026-01-16
 categories:
 - AI
 - ML
-date: 2026-01-16
-seo_title: 'Time Series Forecasting: From Baselines to Production'
-seo_description: A practical in-depth guide to forecasting methods, temporal validation,
-  feature design, and production monitoring.
 tags:
 - ai
 - ml
 - time-series
 - forecasting
 - demand-planning
-title: 'Time Series Forecasting: From Baselines to Production'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Time Series Forecasting: From Baselines to Production'
+seo_description: A practical in-depth guide to forecasting methods, temporal validation,
+  feature design, and production monitoring.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

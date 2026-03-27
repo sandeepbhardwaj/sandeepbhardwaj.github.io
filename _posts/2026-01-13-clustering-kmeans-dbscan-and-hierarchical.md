@@ -1,11 +1,9 @@
 ---
+title: 'Clustering: K-Means, DBSCAN, and Hierarchical Methods'
+date: 2026-01-13
 categories:
 - AI
 - ML
-date: 2026-01-13
-seo_title: 'Clustering: K-Means, DBSCAN, and Hierarchical Methods'
-seo_description: A practical guide to clustering methods, distance choices, validation,
-  and production use in segmentation and anomaly discovery.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - kmeans
 - dbscan
 - unsupervised-learning
-title: 'Clustering: K-Means, DBSCAN, and Hierarchical Methods'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Clustering: K-Means, DBSCAN, and Hierarchical Methods'
+seo_description: A practical guide to clustering methods, distance choices, validation,
+  and production use in segmentation and anomaly discovery.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

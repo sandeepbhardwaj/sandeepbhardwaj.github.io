@@ -1,23 +1,23 @@
 ---
+title: Template method vs composition in framework extension points
+date: 2026-11-04
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-04
-seo_title: Template method vs composition in framework extension points - Advanced
-  Guide
-seo_description: Advanced practical guide on template method vs composition in framework
-  extension points with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Template method vs composition in framework extension points
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Template method vs composition in framework extension points - Advanced
+  Guide
+seo_description: Advanced practical guide on template method vs composition in framework
+  extension points with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

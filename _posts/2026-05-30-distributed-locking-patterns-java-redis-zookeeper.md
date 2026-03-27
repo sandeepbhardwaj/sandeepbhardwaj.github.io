@@ -1,20 +1,20 @@
 ---
+title: Distributed Locking Patterns in Java (Redis ZooKeeper)
+date: 2026-05-30
 categories:
 - Java
 - Backend
-date: 2026-05-30
-seo_title: Distributed Locking Patterns in Java Guide
-seo_description: Coordinate distributed critical sections safely with lease-based
-  Java locking patterns.
 tags:
 - java
 - distributed-locking
 - redis
 - zookeeper
-title: Distributed Locking Patterns in Java (Redis ZooKeeper)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Distributed Locking Patterns in Java Guide
+seo_description: Coordinate distributed critical sections safely with lease-based
+  Java locking patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

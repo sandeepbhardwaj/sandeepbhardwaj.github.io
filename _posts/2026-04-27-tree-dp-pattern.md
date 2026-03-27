@@ -1,20 +1,20 @@
 ---
+title: Tree DP Pattern in Java - Interview Preparation Guide
+date: 2026-04-27
 categories:
 - DSA
 - Java
-date: 2026-04-27
-seo_title: Tree DP Pattern in Java - Interview Preparation Guide
-seo_description: Compute optimal values on trees in Java by combining child DP states
-  per node.
 tags:
 - dsa
 - java
 - tree-dp
 - dynamic-programming
-title: Tree DP Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Tree DP Pattern in Java - Interview Preparation Guide
+seo_description: Compute optimal values on trees in Java by combining child DP states
+  per node.
 header:
   overlay_image: "/assets/images/tree-dp-pattern-banner.svg"
   overlay_filter: 0.35

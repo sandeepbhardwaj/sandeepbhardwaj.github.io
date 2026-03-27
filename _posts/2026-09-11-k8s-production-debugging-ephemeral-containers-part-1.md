@@ -1,22 +1,22 @@
 ---
+title: Production debugging with ephemeral containers and tracing
+date: 2026-09-11
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-11
-seo_title: Production debugging with ephemeral containers and tracing - Advanced Guide
-seo_description: Advanced practical guide on production debugging with ephemeral containers
-  and tracing with architecture decisions, trade-offs, and production patterns.
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: Production debugging with ephemeral containers and tracing
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Production debugging with ephemeral containers and tracing - Advanced Guide
+seo_description: Advanced practical guide on production debugging with ephemeral containers
+  and tracing with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: Virtual Threads Architecture Patterns (Java 21+) Guide
+date: 2026-05-14
 categories:
 - Java
 - Backend
-date: 2026-05-14
-seo_title: Virtual Threads Architecture Patterns in Java 21
-seo_description: Scale blocking style Java services with virtual threads and structured
-  design.
 tags:
 - java
 - java21
 - virtual-threads
 - concurrency
 - backend
-title: Virtual Threads Architecture Patterns (Java 21+) Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Virtual Threads Architecture Patterns in Java 21
+seo_description: Scale blocking style Java services with virtual threads and structured
+  design.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

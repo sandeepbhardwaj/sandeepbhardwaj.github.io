@@ -1,21 +1,21 @@
 ---
+title: Z-Algorithm for String Matching in Java - Interview Preparation Guide
+date: 2026-04-15
 categories:
 - DSA
 - Java
-date: 2026-04-15
-seo_title: Z-Algorithm String Matching in Java - Interview Preparation Guide
-seo_description: Compute Z-array in Java for prefix-match based string search and
-  border analysis.
 tags:
 - dsa
 - java
 - z-algorithm
 - strings
 - algorithms
-title: Z-Algorithm for String Matching in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Z-Algorithm String Matching in Java - Interview Preparation Guide
+seo_description: Compute Z-array in Java for prefix-match based string search and
+  border analysis.
 header:
   overlay_image: "/assets/images/z-algorithm-string-matching-banner.svg"
   overlay_filter: 0.35
