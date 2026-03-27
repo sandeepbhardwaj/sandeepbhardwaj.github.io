@@ -1,10 +1,10 @@
 main:
   - title: "Home"
     url: /
-  - title: "Categories"
+  - title: "Roadmaps"
+    url: /roadmaps/
+  - title: "Topics"
     url: /categories/
-  - title: "Tags"
-    url: /tags/
   - title: "About"
     url: /about/
   - title: "Contact"
