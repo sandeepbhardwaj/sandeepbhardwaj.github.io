@@ -19,26 +19,39 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-Use this when Maven is installed manually (tar/zip) and not via `apt`.
+Manual Maven setup on Ubuntu is rarely about memorizing `export` commands.
+It is about making sure the correct `mvn` binary is visible everywhere you expect it to be, with the right Java version behind it.
 
-Note: modern Maven does not strictly require `M2_HOME`, but many teams still set it for consistency.
+That distinction matters because a Maven install can look fine in one terminal and still be wrong in CI helpers, IDE terminals, or a fresh login shell.
 
-## Problem description:
+## Start With the Right Question
 
-We want a reliable shell configuration so the correct Maven binary is available on Ubuntu sessions and tools.
+Do you need a global Maven install at all?
 
-What we are solving actually:
+| Situation | Best choice | Why |
+| --- | --- | --- |
+| Building a specific project that already has a wrapper | `./mvnw` | version is pinned with the repo |
+| Working across many Maven projects | global install plus wrapper | useful CLI, wrapper still gives reproducibility |
+| CI builds | wrapper first | fewer environment surprises |
+| One-off manual experimentation | global install is fine | convenience matters more here |
 
-We are solving environment consistency.
-The issue is rarely “how do I type the export command”; it is making sure the right Maven version is discoverable in shells, scripts, and IDE terminals without ambiguous PATH behavior.
+> [!important]
+> Modern Maven does not strictly require `M2_HOME`.
+> Many teams still set it for consistency, but `PATH` and correct binary resolution matter more than the variable itself.
 
-What we are doing actually:
+## Recommended Setup Pattern
 
-1. Point `M2_HOME` at the intended manual Maven install.
-2. Add its `bin` directory to `PATH`.
-3. Verify the active Maven and Java versions immediately after configuration.
+The clean pattern is:
 
-## 1. Find Maven installation directory
+1. install Maven into a versioned directory
+2. expose its `bin` directory through `PATH`
+3. optionally set `M2_HOME` for consistency
+4. verify both Maven and Java immediately
+5. prefer `./mvnw` for actual project builds
+
+That separates machine-level convenience from project-level reproducibility.
+
+## Step 1: Choose a Clear Installation Directory
 
 Example:
 
@@ -46,109 +59,195 @@ Example:
 /data/dev/tools/apache-maven-3.9.9
 ```
 
-## 2. Configure environment variables
+A versioned path is better than a vague directory name because it makes upgrades and rollbacks obvious.
 
-Edit profile file:
+If you later want a stable symlink or helper alias, add it deliberately.
+Do not hide the real version on day one.
 
-```bash
-sudo nano /etc/profile
-```
+## Step 2: Export `M2_HOME` and Update `PATH`
 
-Add at the end:
+For system-wide setup, prefer a dedicated file under `/etc/profile.d` instead of editing `/etc/profile` directly.
 
-```bash
-M2_HOME=/data/dev/tools/apache-maven-3.9.9
-PATH=$PATH:$M2_HOME/bin
-export M2_HOME
-export PATH
-```
-
-Load changes:
-
-```bash
-source /etc/profile
-```
-
-## Better Practice: `/etc/profile.d` Script
-
-Instead of editing `/etc/profile` directly, create a dedicated file:
+Create:
 
 ```bash
 sudo nano /etc/profile.d/maven.sh
 ```
+
+Add:
 
 ```bash
 export M2_HOME=/data/dev/tools/apache-maven-3.9.9
 export PATH=$PATH:$M2_HOME/bin
 ```
 
-Then reload:
+Reload:
 
 ```bash
 source /etc/profile.d/maven.sh
 ```
 
-This keeps system configuration cleaner and easier to maintain.
+Why this tends to be safer:
 
-## 3. Verify
+- easier to audit later
+- easier to replace during upgrades
+- less risk of breaking unrelated shell initialization
+- clearer ownership of the Maven setup
+
+If you only want this for your own user, put the exports in your shell profile such as `~/.bashrc` or `~/.zshrc`.
+
+## Step 3: Verify Maven and Java Together
+
+Do not stop after setting the variable.
+Maven depends on Java, so a good verification step checks both.
+
+Run:
 
 ```bash
 echo $M2_HOME
+which mvn
 mvn -v
-```
-
-Expected output includes Maven home path and Java version.
-
-Also confirm Java setup, since Maven depends on JDK:
-
-```bash
 echo $JAVA_HOME
 java -version
 ```
 
-## Optional: user-level config
+What you want to confirm:
 
-If you do not want system-wide changes, add the same exports to `~/.bashrc` or `~/.zshrc`.
+- `M2_HOME` points to the intended directory
+- `which mvn` resolves to the same install you configured
+- `mvn -v` shows the Maven version you intended
+- Maven is using the correct Java runtime
 
-## Multi-Version Workflow (Optional)
+If Maven is right but Java is wrong, the setup is not done.
 
-If you use different Maven versions per project:
+## Why `which mvn` Matters More Than People Think
 
-- keep each version under a tool directory (for example `/opt/tools/maven/`)
-- point `M2_HOME` to the required version in a project-specific shell script
-- load per-project env with `direnv` or a small `source ./env.sh` convention
+The most common Maven setup bug is path precedence.
+Another `mvn` from `apt`, SDKMAN, an older manual install, or some inherited shell configuration may be winning earlier in `PATH`.
 
-This avoids global version conflicts.
+If `mvn -v` surprises you, inspect the binary resolution first:
 
-## Common Troubleshooting
+```bash
+which mvn
+type -a mvn
+```
 
-1. `mvn: command not found`: PATH not loaded in current shell (`source` profile again).
-2. Wrong Maven version: another `mvn` appears earlier in PATH (`which mvn`).
-3. Java mismatch errors: `JAVA_HOME` points to incompatible JDK.
-4. Works in terminal but not IDE: configure IDE terminal/environment separately.
+Reinstalling Maven usually does not solve a path-order problem.
 
-## Debug steps:
+## User-Level Setup vs System-Wide Setup
 
-- run `which mvn` before and after changes to confirm PATH precedence
-- verify `mvn -v` shows the intended Maven home and Java home
-- prefer `/etc/profile.d` or shell-specific files over ad hoc per-session exports
-- use the Maven Wrapper when project-level reproducibility matters more than global install convenience
+Pick one intentionally.
 
-## Key Takeaways
+### Use user-level shell config when:
 
-- Keep configuration explicit and environment-specific.
-- Verify setup with version and env checks immediately after changes.
-- Automate these steps in shell profiles or project docs to avoid drift.
-- Prefer `/etc/profile.d` for maintainable system-wide setup.
+- the machine is personal
+- only one user needs Maven
+- you want low-risk changes
 
----
+### Use `/etc/profile.d` when:
 
-## Practical Checkpoint
+- the setup should be shared across users
+- the machine is provisioned in a consistent way
+- you want environment configuration to live in an obvious system location
 
-A short but valuable final check for set maven home on ubuntu is to write down the one misuse pattern most likely to appear during maintenance. That small note makes the article more useful when someone revisits it months later under pressure.
+The mistake to avoid is mixing both without documentation.
+That creates confusing precedence later.
 
----
+## When Maven Wrapper Is the Better Choice
 
-## Final Practical Note
+If a repository includes `mvnw`, use it:
 
-Even for a small setup guide, the valuable habit is to capture one verification command and one rollback step next to the instructions. That tiny addition turns a one-time note into something safer to reuse when the environment is slightly different months later.
+```bash
+./mvnw test
+```
+
+The wrapper is usually the better choice for:
+
+- team onboarding
+- CI pipelines
+- long-lived repositories
+- repos that need exact Maven version alignment
+
+The global `mvn` command is still useful, but it should not silently become the version source for every project.
+
+## Multi-Version Workflow
+
+If you work across projects that need different Maven versions, resist the urge to keep editing your shell by hand.
+
+A better pattern is:
+
+- store each Maven version in a tools directory
+- use a project-specific env loader or `direnv`
+- rely on `mvnw` where available
+
+That is much cleaner than repeatedly changing `M2_HOME` globally.
+
+## Failures You Will Actually See
+
+### `mvn: command not found`
+
+Usually means:
+
+- the active shell did not load the file you edited
+- `PATH` was not updated correctly
+- the shell session needs reloading
+
+Check the current shell and `PATH` before doing anything else.
+
+### Wrong Maven Version
+
+Usually means another `mvn` is earlier in `PATH`.
+Fix precedence instead of piling on more exports.
+
+### Correct Maven, Wrong Java
+
+This is common and easy to miss.
+Maven may start successfully but use a Java version that breaks compilation or plugins.
+
+Always inspect both:
+
+```bash
+mvn -v
+java -version
+```
+
+### Works in Terminal but Not in IDE
+
+IDE terminals and build runners often inherit a different environment than your interactive shell.
+
+That is not a Maven problem.
+It is an environment propagation problem.
+
+## Upgrade and Rollback Advice
+
+A safe upgrade path:
+
+1. install the new Maven version beside the old one
+2. update `M2_HOME`
+3. run `which mvn` and `mvn -v`
+4. test a representative build
+5. keep the old install until the new one proves stable
+
+This costs almost nothing and makes rollback easy.
+
+## Practical Recommendation
+
+If you want the shortest reliable rule set, use this:
+
+- install Maven in a versioned directory
+- expose it through `/etc/profile.d` or your user shell profile
+- verify binary resolution with `which mvn`
+- verify runtime compatibility with `mvn -v`
+- prefer `./mvnw` for actual project builds
+
+That is the setup pattern most teams can live with for a long time.
+
+## Final Checklist
+
+- Is the Maven install path explicit and versioned?
+- Does `which mvn` point to the binary you intended?
+- Does `mvn -v` show the expected Maven and Java versions?
+- Are you using `./mvnw` for repository builds where available?
+- If something breaks later, do you know which file owns the environment change?
+
+If yes, the setup is probably solid.

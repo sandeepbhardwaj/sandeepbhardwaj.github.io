@@ -19,88 +19,126 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-When developing locally, you often need different settings than production (URL, analytics, Disqus, etc.).
+The cleanest Jekyll setups treat configuration as layered input, not one giant file with commented-out production values.
 
-## Problem description:
+If local development, staging previews, and production deploys all share the same `_config.yml`, mistakes are not a matter of style.
+They become broken URLs, accidental analytics noise, and hard-to-explain differences between your laptop and the deployed site.
 
-We want local, staging, and production Jekyll builds to behave differently without duplicating the entire configuration file.
+## The Core Rule
 
-What we are solving actually:
+Keep shared defaults in `_config.yml`.
+Put environment-specific overrides in small, separate files.
+Use `JEKYLL_ENV` only for behavior that should switch inside templates or runtime logic.
 
-We are solving configuration layering and environment safety.
-The risk is not only inconvenience; it is accidentally running production analytics, wrong URLs, or deployment-specific settings in local builds.
+That division keeps the setup easy to reason about.
 
-What we are doing actually:
+## Quick Summary
 
-1. Keep shared defaults in `_config.yml`.
-2. Put environment-specific overrides in separate config files.
-3. Use `JEKYLL_ENV` to control template behavior such as analytics and ads.
+| Concern | Best place | Why |
+| --- | --- | --- |
+| shared defaults | `_config.yml` | one source of truth for common settings |
+| local URL, local-only flags | `_config-dev.yml` | avoids polluting base config |
+| staging values | `_config-staging.yml` | useful for previews and pre-prod checks |
+| production identifiers | `_config-prod.yml` | keeps deploy-specific values explicit |
+| analytics or ad tags inside templates | `JEKYLL_ENV` checks | cleaner than copying template logic across files |
 
-```mermaid
-flowchart LR
-    A[_config.yml] --> D[Effective Config]
-    B[_config-dev.yml] --> D
-    C[JEKYLL_ENV] --> D
-    D --> E[Local / staging / production build]
-```
+## Why This Matters More Than It Looks
 
-## Typical Local vs Production Difference
+The visible difference between local and production may seem small:
+
+- site URL
+- analytics IDs
+- Disqus or comments
+- cache or indexing toggles
+- robots behavior
+
+But the operational difference is large.
+Once environment-specific settings are scattered across markdown, includes, and base config, it becomes hard to answer a simple question:
+
+"What config is Jekyll actually using for this build?"
+
+Good configuration structure makes that answer obvious.
+
+## Recommended File Layout
+
+For a site that has local, staging, and production environments:
+
+- `_config.yml`
+- `_config-dev.yml`
+- `_config-staging.yml`
+- `_config-prod.yml`
+
+The base file should contain only values that are genuinely shared.
+
+Example:
 
 ```yaml
-# local
+# _config.yml
+title: My Site
+markdown: kramdown
+permalink: /:categories/:title/
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: single
+```
+
+Local override:
+
+```yaml
+# _config-dev.yml
 url: http://localhost:4000
 google_analytics:
 disqus_user:
 ```
 
+Production override:
+
 ```yaml
-# production
-url: http://sandeepbhardwaj.github.io
+# _config-prod.yml
+url: https://example.com
 google_analytics: UA-XXXXXX-X
 disqus_user: your-disqus-id
 ```
 
-## Option 1: Separate Config File
+The goal is not to duplicate the whole config tree.
+The goal is to override only the few keys that differ by environment.
 
-Create `_config-dev.yml` and run:
+## How Jekyll Merges Config Files
 
-```bash
-jekyll serve --watch --config _config-dev.yml
-```
+When you pass multiple config files, later files override earlier ones.
 
-## Option 2: Override the Base Config
-
-Keep base config and override only changed values:
+That means:
 
 ```bash
-jekyll serve --watch --config _config.yml,_config-dev.yml
+jekyll serve --config _config.yml,_config-dev.yml
 ```
 
-Example `_config-dev.yml`:
+uses `_config.yml` as the base and overlays `_config-dev.yml` on top of it.
 
-```yaml
-url: http://localhost:4000
-google_analytics:
-disqus_user:
-```
+That ordering matters.
+If you reverse it, the result changes.
 
-## Environment Variable Pattern (`JEKYLL_ENV`)
+This is one of the easiest ways to create confusing behavior, so write the command once in documentation or scripts and reuse it consistently.
 
-Jekyll exposes `JEKYLL_ENV` so templates can toggle behavior by environment.
+## Where `JEKYLL_ENV` Fits
 
-Run local development:
+`JEKYLL_ENV` is best for template behavior, not for replacing layered configuration.
+
+Development serve:
 
 ```bash
 JEKYLL_ENV=development jekyll serve --watch --config _config.yml,_config-dev.yml
 ```
 
-Run production build:
+Production build:
 
 ```bash
 JEKYLL_ENV=production jekyll build --config _config.yml,_config-prod.yml
 ```
 
-In templates:
+Template usage:
 
 ```liquid
 {% if jekyll.environment == "production" %}
@@ -108,60 +146,138 @@ In templates:
 {% endif %}
 ```
 
-This keeps analytics/ads disabled locally while enabling them in production.
+This is a strong pattern for things like:
 
-## Practical Multi-Environment Setup
+- analytics
+- ad scripts
+- production-only verification tags
+- optional third-party embeds
 
-A clean structure for growing sites:
+It is a weaker pattern for core site values that already belong in config files.
 
-- `_config.yml`: shared defaults
-- `_config-dev.yml`: localhost URL, debug flags, no analytics
-- `_config-staging.yml`: staging URL and test integrations
-- `_config-prod.yml`: final URL + production identifiers
+## A Practical Setup That Ages Well
 
-Example staging serve:
+If you want a maintainable setup, aim for this split:
+
+### `_config.yml`
+
+Use for:
+
+- site-wide defaults
+- plugin configuration shared by every environment
+- layouts, collections, markdown engine, permalinks
+
+### `_config-dev.yml`
+
+Use for:
+
+- localhost URL
+- debug-oriented flags
+- disabling analytics and production-only integrations
+
+### `_config-staging.yml`
+
+Use for:
+
+- preview domain
+- test-only service identifiers
+- any temporary validation settings needed before production
+
+### `_config-prod.yml`
+
+Use for:
+
+- canonical production URL
+- production analytics identifiers
+- production comment or search configuration
+
+That layout keeps responsibility clear.
+
+## Common Mistakes That Cause Confusion Later
+
+### Duplicating Too Much Into Override Files
+
+If `_config-dev.yml` is almost a copy of `_config.yml`, you no longer have layering.
+You have two sources of truth that will drift.
+
+Keep override files small on purpose.
+
+### Hardcoding Production URLs in Content or Includes
+
+If markdown files or templates contain raw production URLs, your environment system is already leaking.
+
+Prefer `site.url`, `site.baseurl`, and other config-driven values.
+
+### Using `JEKYLL_ENV` Everywhere
+
+Not every difference needs a runtime template branch.
+If a value is a configuration concern, keep it in config.
+Use environment checks only where the template genuinely changes behavior.
+
+### Forgetting That Order Matters
+
+This command:
 
 ```bash
-JEKYLL_ENV=staging jekyll serve --config _config.yml,_config-staging.yml
+jekyll build --config _config.yml,_config-prod.yml
 ```
 
-## Common Pitfalls
+is not the same as:
 
-1. Overriding too many keys in env files (hard to reason about final config).
-2. Hardcoding production URLs inside markdown instead of using `site.url` and `site.baseurl`.
-3. Running production build without `JEKYLL_ENV=production`.
-4. Forgetting that later config files override earlier ones in `--config`.
+```bash
+jekyll build --config _config-prod.yml,_config.yml
+```
 
-## Debug Tip: Inspect Effective Config
+If the wrong value keeps winning, check the order before checking everything else.
 
-To verify what Jekyll is actually using:
+## How to Inspect What Jekyll Is Really Doing
+
+When a build behaves differently than expected, run with more visibility:
 
 ```bash
 JEKYLL_ENV=development jekyll build --config _config.yml,_config-dev.yml --verbose
 ```
 
-Use this when local behavior differs from CI or GitHub Pages builds.
+This does not magically print every merged key in a perfect format, but it helps distinguish:
 
-## Recommendation
+- config loading problems
+- template conditional problems
+- content/linking problems
+- plugin behavior differences
 
-Use option 2 for cleaner maintenance. Keep shared defaults in `_config.yml` and environment-specific overrides in `_config-dev.yml`.
+The important habit is to debug the effective build, not just the files you think should matter.
 
-## Debug steps:
+## A Small but Valuable Improvement: Script the Commands
 
-- build with `--verbose` when the effective config does not match expectations
-- keep override files minimal so it is obvious what changes by environment
-- verify production-only template blocks are gated by `jekyll.environment`
-- avoid hardcoding production URLs in markdown or includes
+If your project uses the same commands repeatedly, put them behind scripts or documented aliases.
 
-## Key Takeaways
+Examples:
 
-- Separate defaults from environment overrides.
-- Keep local and production behavior deterministic.
-- Use minimal override files to reduce maintenance overhead.
-- Use `JEKYLL_ENV` + config layering for reliable deploy pipelines.
+```bash
+bundle exec jekyll serve --config _config.yml,_config-dev.yml
+bundle exec jekyll build --config _config.yml,_config-prod.yml
+```
 
----
+That reduces command-order mistakes and makes onboarding easier.
 
-## Practical Checkpoint
+## Practical Recommendation
 
-A short but valuable final check for jekyll environment variables and multiple config files is to write down the one misuse pattern most likely to appear during maintenance. That small note makes the article more useful when someone revisits it months later under pressure.
+For most Jekyll sites, the most durable approach is:
+
+1. keep `_config.yml` small and shared
+2. add tiny override files per environment
+3. use `JEKYLL_ENV` for production-only template behavior
+4. avoid duplicating values unless they truly differ
+5. document the canonical build commands once
+
+That setup stays understandable even months later.
+
+## Final Checklist
+
+- Can you explain which file owns each environment-specific value?
+- Are your override files short enough to scan quickly?
+- Are production-only scripts gated by `jekyll.environment`?
+- Are canonical commands documented and reused?
+- If a local build looks wrong, do you know which config file to inspect first?
+
+If yes, your Jekyll configuration is probably in a healthy place.

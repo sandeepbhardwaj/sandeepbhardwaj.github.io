@@ -19,51 +19,52 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-`CyclicBarrier` lets a fixed number of threads wait until all participants reach the same synchronization point.
+`CyclicBarrier` is for one very specific kind of coordination:
+the same fixed group of threads must all finish phase `N` before any of them may begin phase `N + 1`.
 
-## Problem description:
+That sounds narrow, and it is.
+But when that is exactly your problem, `CyclicBarrier` is much clearer than ad hoc counters, shared flags, or "sleep and hope" orchestration.
 
-We need multiple worker threads to finish one phase of work before any of them can safely move to the next phase.
+## Quick Decision Guide
 
-What we are solving actually:
+| Tool | Best fit | What to remember |
+| --- | --- | --- |
+| `CountDownLatch` | one-time gate | not reusable |
+| `CyclicBarrier` | repeated phase boundary for a fixed group | all parties must arrive |
+| `Phaser` | repeated phases with dynamic participants | more flexible, more complex |
+| structured concurrency | request-scoped parallel tasks | not a reusable phase barrier |
 
-We are solving phased coordination, not mutual exclusion.
-The goal is to pause progress until all required workers reach the same checkpoint.
+If your workers repeat phases together and the participant count is fixed, `CyclicBarrier` is a strong fit.
 
-What we are doing actually:
+## What `CyclicBarrier` Actually Guarantees
 
-1. Create a barrier with the exact number of participating workers.
-2. Let each worker call `await()` after finishing the current phase.
-3. Release the whole group only when every worker has arrived.
+Each participating thread calls `await()` when it finishes the current phase.
+No thread gets past that call until all required parties have arrived.
 
-```mermaid
-sequenceDiagram
-    participant W1 as Worker 1
-    participant W2 as Worker 2
-    participant W3 as Worker 3
-    participant B as Barrier
-    W1->>B: await()
-    W2->>B: await()
-    W3->>B: await()
-    B-->>W1: release next phase
-    B-->>W2: release next phase
-    B-->>W3: release next phase
+Once the final party arrives:
+
+- the barrier is tripped
+- an optional barrier action runs
+- all waiting parties are released
+
+Then the barrier resets and can be used again for the next phase.
+
+That reusability is what distinguishes it from `CountDownLatch`.
+
+## A Simple Mental Model
+
+Think of a race checkpoint:
+
+```text
+phase work -> checkpoint -> phase work -> checkpoint -> ...
 ```
 
-## Real-World Use Cases
+Every runner can move at a different speed inside a phase.
+But nobody is allowed into the next phase until the entire group reaches the checkpoint.
 
-- phased simulation systems
-- parallel data preparation before a final merge
-- batch processing pipelines with step boundaries
+That is exactly what `CyclicBarrier` encodes.
 
-## How It Works
-
-- create barrier with `N` parties
-- each worker calls `await()`
-- once all `N` arrive, optional barrier action runs
-- barrier can be reused for next cycle
-
-## Java 8 Example
+## Basic Example
 
 ```java
 import java.util.concurrent.CyclicBarrier;
@@ -71,16 +72,19 @@ import java.util.concurrent.CyclicBarrier;
 public class CyclicBarrierExample {
     public static void main(String[] args) {
         CyclicBarrier barrier = new CyclicBarrier(3, () ->
-                System.out.println("All parties arrived. Merge step starts."));
+                System.out.println("All workers finished the phase"));
 
         for (int i = 1; i <= 3; i++) {
-            final int id = i;
+            final int workerId = i;
+
             new Thread(() -> {
                 try {
-                    System.out.println("Worker " + id + " preparing data");
-                    Thread.sleep(500L * id);
+                    System.out.println("Worker " + workerId + " preparing data");
+                    Thread.sleep(500L * workerId);
+
                     barrier.await();
-                    System.out.println("Worker " + id + " continues next phase");
+
+                    System.out.println("Worker " + workerId + " starts next phase");
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                 }
@@ -90,74 +94,145 @@ public class CyclicBarrierExample {
 }
 ```
 
-## Multi-Phase Example Pattern
+The output order inside the first phase can vary.
+The important guarantee is that `"starts next phase"` does not appear until all three workers have reached the barrier.
 
-`CyclicBarrier` is most useful when the same group repeats phases.
+## Multi-Phase Use
+
+This is where `CyclicBarrier` becomes genuinely useful:
 
 ```java
 for (int phase = 1; phase <= 3; phase++) {
     doPhaseWork(phase);
-    barrier.await(); // all workers must finish current phase
+    barrier.await();
 }
 ```
 
-This keeps phase boundaries explicit and deterministic.
+Common examples:
 
-## Timeout and Broken Barrier Handling
+- simulation steps
+- iterative numerical algorithms
+- batch pipelines where every worker must finish one stage before the merge step
+- partitioned data preparation where the next phase depends on complete prior output
 
-One stuck worker can block everyone. Use timeout overload in real systems:
+If you only need one final wait point, `CountDownLatch` is usually simpler.
+
+## Why Barrier Actions Need Discipline
+
+You can attach a barrier action:
 
 ```java
+new CyclicBarrier(3, this::mergePartialResults)
+```
+
+That is useful for work that should happen exactly once per phase.
+But be careful:
+
+- the action runs when the barrier trips
+- it delays release of the waiting threads
+- if it is slow, blocking, or failure-prone, it becomes part of your critical path
+
+My rule is simple:
+barrier actions should be small, deterministic, and side-effect-conscious.
+Heavy orchestration logic usually belongs elsewhere.
+
+## Failure Modes You Must Expect
+
+### Wrong Party Count
+
+If the barrier expects `4` parties and only `3` threads ever call `await()`, your program waits forever unless you use timeouts.
+
+This is the most common production mistake.
+
+### One Slow or Failed Worker Blocks Everyone
+
+The barrier is intentionally all-or-nothing.
+If one participant stalls, the rest wait.
+
+That is correct behavior, but it means you need an explicit timeout and failure policy.
+
+### Broken Barrier State
+
+If a waiting thread is interrupted, times out, or otherwise fails during barrier coordination, the barrier becomes broken.
+Other waiting threads will see `BrokenBarrierException`.
+
+That is a feature, not a nuisance.
+It prevents peers from marching into the next phase under inconsistent assumptions.
+
+## Timeout-Oriented Usage
+
+In real systems, prefer the timeout overload:
+
+```java
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 try {
     barrier.await(2, TimeUnit.SECONDS);
 } catch (TimeoutException e) {
-    // one participant was too slow
+    // a participant did not arrive in time
     barrier.reset();
 } catch (BrokenBarrierException e) {
-    // another participant failed or timed out
+    // another participant failed, timed out, or was interrupted
+} catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
 }
 ```
 
-If one thread is interrupted while waiting, the barrier is broken and all waiting parties fail with `BrokenBarrierException`.
+Timeouts give you two things:
+
+- a way to avoid indefinite hangs
+- an operational signal that the phase contract is being violated
+
+Without them, diagnosis is much harder.
+
+## When Not to Use `CyclicBarrier`
+
+Do not force it into problems it does not naturally fit.
+
+It is usually the wrong choice when:
+
+- participants join and leave dynamically
+- tasks are request-scoped and independent rather than phase-coupled
+- one stage can proceed on partial results
+- your coordination boundary is event-driven rather than thread-synchronous
+
+In those cases, `Phaser`, queues, futures, or structured concurrency often express the system more cleanly.
 
 ## `CyclicBarrier` vs `CountDownLatch` vs `Phaser`
 
-- `CountDownLatch`: one-time wait; not reusable.
-- `CyclicBarrier`: reusable barrier with fixed participant count.
-- `Phaser`: dynamic participants and richer phase control.
+### `CountDownLatch`
 
-Choose `Phaser` when parties can join/leave dynamically.
+Use it when one or more threads need to wait for a one-time completion event.
+Once the count hits zero, the latch is done.
 
-## Operational Pitfalls
+### `CyclicBarrier`
 
-1. Mismatch between configured parties and actual workers.
-2. Long-running or blocking barrier actions.
-3. Ignoring broken-barrier state after failures.
-4. No timeout policy, causing infinite waits.
+Use it when the same fixed team repeats synchronized phases.
+That is its sweet spot.
 
-## Debug steps:
+### `Phaser`
 
-- verify the configured party count matches the real number of workers
-- log when each thread reaches `await()` and when it resumes
-- use timeout-based `await()` in tests to catch stuck phases quickly
-- inspect broken-barrier handling after interruption or timeout
+Use it when the phase idea still fits but the participant set changes over time or you need richer control.
+It is more powerful, but also easier to overcomplicate.
 
-## JDK 11 and Java 17 Notes
+## Operational Checklist
 
-`CyclicBarrier` remains a stable and relevant choice in JDK 11 and Java 17 for repeated phase synchronization.
+Before using `CyclicBarrier`, verify:
 
-## Java 21+ Guidance
+- the party count exactly matches the real participants
+- a timeout policy exists
+- barrier actions are lightweight
+- interruption and `BrokenBarrierException` are handled deliberately
+- logs make it easy to see which worker reached which phase
 
-For request-scoped parallel tasks, prefer `StructuredTaskScope` style orchestration over manual barriers when possible.
-Use `CyclicBarrier` when you explicitly need reusable phase synchronization.
+If those points are vague, the barrier is probably not production-ready yet.
 
-## Java 25 Note
+## Final Takeaway
 
-No major usage change expected for `CyclicBarrier`; API is mature and stable.
+`CyclicBarrier` is not a general concurrency primitive.
+It is a precise tool for repeated phase synchronization among a fixed group of workers.
 
-## Key Takeaways
-
-- `CyclicBarrier` is for reusable phase coordination.
-- Handle `BrokenBarrierException` and interruption correctly.
-- Use it only when all participants are known upfront.
-- Prefer timeout-based `await` in production workflows.
+Use it when the group must advance together, treat broken-barrier behavior as part of the design, and prefer timeout-based coordination so failures become visible instead of turning into silent hangs.

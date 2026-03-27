@@ -19,116 +19,153 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This guide provides a clean, repeatable setup flow, verification steps, and common pitfalls to avoid in real environments.
+Installing Gradle on Ubuntu is usually easy.
+Keeping the right Gradle version visible across shells, editors, CI helpers, and multiple projects is the part teams get wrong.
 
-## Problem description:
+The most important decision comes first:
+do you actually need a global Gradle install, or do you only need the Gradle Wrapper for one repository?
 
-We want a predictable Gradle installation on Ubuntu so local shells and build tools resolve the intended Gradle version.
+## Quick Decision Guide
 
-What we are solving actually:
+| Situation | Best choice | Why |
+| --- | --- | --- |
+| Building one specific repository | `./gradlew` | version is pinned by the project |
+| Working across many Gradle repos | global install plus wrapper | convenient CLI, still use wrapper for builds |
+| CI or shared build automation | wrapper first | reduces version drift |
+| You need a custom cache location or proxy setup | global install plus explicit env | easier to standardize across machines |
 
-We are solving environment consistency and version clarity.
-Most Gradle setup issues come from PATH conflicts, shell reload confusion, or mixing global installation with project-wrapper expectations.
+> [!important]
+> A global Gradle install is a convenience tool.
+> The Gradle Wrapper is the reproducibility tool.
+> Do not confuse the two.
 
-What we are doing actually:
+## Recommended Installation Model
 
-1. Install Gradle into a known tools directory.
-2. Export `GRADLE_HOME` and add its `bin` directory to `PATH`.
-3. Verify the active binary and prefer the Gradle Wrapper for project builds.
+For most Ubuntu machines, the cleanest manual install looks like this:
 
-## 1. Download and Extract
+1. unpack Gradle into a versioned tools directory
+2. expose that version through `PATH`
+3. verify the resolved binary immediately
+4. still run project builds with `./gradlew`
 
-Download Gradle and extract it to your tools directory, for example:
+That keeps global setup explicit without turning it into the source of truth for every project.
+
+## Step 1: Pick a Versioned Install Directory
+
+Install Gradle into a directory whose path includes the version:
 
 ```bash
 /data/dev/tools/gradle-8.7
 ```
 
-If this is only for one project, prefer using the Gradle Wrapper (`./gradlew`) committed with that project instead of relying on global installation.
+That small habit helps more than people expect.
+It makes upgrades, rollbacks, and debugging much easier than using a vague path like `/opt/gradle/current`.
 
-## 2. Set `GRADLE_HOME` and `PATH`
+If you want a stable alias later, add it deliberately.
+Do not hide the real version during the first install.
 
-Edit profile:
+## Step 2: Export `GRADLE_HOME` and Update `PATH`
 
-```bash
-sudo nano /etc/profile
-```
+You can edit `/etc/profile`, but for system-wide setup, a dedicated file under `/etc/profile.d` is usually cleaner.
 
-Add:
-
-```bash
-GRADLE_HOME=/data/dev/tools/gradle-8.7
-PATH=$PATH:$GRADLE_HOME/bin
-export GRADLE_HOME
-export PATH
-```
-
-Reload shell config:
-
-```bash
-source /etc/profile
-```
-
-## Better Practice: `/etc/profile.d` File
-
-For system-wide setup, create a dedicated file:
+Create:
 
 ```bash
 sudo nano /etc/profile.d/gradle.sh
 ```
+
+Add:
 
 ```bash
 export GRADLE_HOME=/data/dev/tools/gradle-8.7
 export PATH=$PATH:$GRADLE_HOME/bin
 ```
 
-Then load it:
+Load it in the current shell:
 
 ```bash
 source /etc/profile.d/gradle.sh
 ```
 
-This avoids modifying `/etc/profile` directly.
+Why this is usually better than editing `/etc/profile` directly:
 
-## 3. Verify
+- easier to review later
+- lower risk of accidentally breaking unrelated shell setup
+- simpler to replace during upgrades
+- clearer for teammates and future you
+
+If you only want the change for your own user, put the same exports in `~/.bashrc`, `~/.zshrc`, or another shell-specific profile instead.
+
+## Step 3: Verify the Actual Binary, Not Just the Environment Variable
+
+The most common failure mode is thinking the change worked because `GRADLE_HOME` is set, while the shell is still resolving a different `gradle`.
+
+Run all three checks:
 
 ```bash
 echo $GRADLE_HOME
+which gradle
 gradle -v
 ```
 
-## 4. Optional: Set `GRADLE_USER_HOME`
+What you want to confirm:
 
-Set custom Gradle cache/repository location:
+- `GRADLE_HOME` points at the intended directory
+- `which gradle` resolves to `$GRADLE_HOME/bin/gradle`
+- `gradle -v` reports the version you meant to install
 
-```bash
-export GRADLE_USER_HOME=/data/dev/repository/gradle
-```
+If one of those is wrong, stop there.
+Do not move on and assume builds will be fine.
 
-Add this line in profile to make it persistent.
+## Step 4: Keep Project Builds on the Wrapper
 
-## Team-Friendly Recommendation: Use Gradle Wrapper
-
-Even if Gradle is globally installed, execute builds using wrapper:
+Even after global setup succeeds, prefer:
 
 ```bash
 ./gradlew clean test
 ```
 
-Benefits:
+Why:
 
-- consistent Gradle version per repo
-- fewer CI/local mismatch issues
-- easier onboarding
+- the repository controls the Gradle version
+- new team members do not need matching global installs
+- CI and local builds behave more predictably
+- upgrades happen in the project, not in tribal knowledge
 
-## Common Troubleshooting
+Use the global `gradle` command mostly for:
 
-1. `gradle: command not found`: PATH not reloaded, run `source` again.
-2. Wrong Gradle version: check `which gradle` for conflicting binaries.
-3. Permission issues in cache: verify ownership of `GRADLE_USER_HOME`.
-4. Corporate proxy failures: configure proxy in `~/.gradle/gradle.properties`.
+- quick version inspection
+- generating or bootstrapping wrapper files in a new project
+- local experiments outside a pinned repository
 
-Example proxy config:
+## Optional: Set `GRADLE_USER_HOME`
+
+If you want Gradle caches somewhere other than the default location, set:
+
+```bash
+export GRADLE_USER_HOME=/data/dev/repository/gradle
+```
+
+This is useful when:
+
+- your home directory is small
+- you want faster storage for caches
+- you want easier cleanup of build tooling state
+- your organization standardizes cache locations
+
+After setting it, verify permissions carefully.
+Cache ownership issues often look like Gradle problems when they are really filesystem problems.
+
+## Proxy and Enterprise Network Notes
+
+On corporate networks, installs often fail for reasons unrelated to Gradle itself.
+If dependency resolution or distribution downloads hang behind a proxy, add settings in:
+
+```properties
+~/.gradle/gradle.properties
+```
+
+Example:
 
 ```properties
 systemProp.http.proxyHost=proxy.company.com
@@ -137,28 +174,85 @@ systemProp.https.proxyHost=proxy.company.com
 systemProp.https.proxyPort=8080
 ```
 
-## Debug steps:
+Treat proxy configuration as separate from install configuration.
+Otherwise, troubleshooting becomes muddy very quickly.
 
-- run `which gradle` to verify the binary that shells actually resolve
-- confirm `gradle -v` reports the version you intended to install
-- prefer `./gradlew` for repo builds even after global installation succeeds
-- separate global tool setup from project-specific cache or proxy issues
+## Troubleshooting the Failures That Show Up Most Often
 
-## Key Takeaways
+### `gradle: command not found`
 
-- Keep configuration explicit and environment-specific.
-- Verify setup with version and env checks immediately after changes.
-- Automate these steps in shell profiles or project docs to avoid drift.
-- Prefer `./gradlew` for reproducible builds across machines and CI.
+Usually means one of these:
 
----
+- the shell profile was not reloaded
+- the exports were added to the wrong file for the active shell
+- `PATH` was updated incorrectly
 
-## Practical Checkpoint
+Check:
 
-A short but valuable final check for install gradle on ubuntu is to write down the one misuse pattern most likely to appear during maintenance. That small note makes the article more useful when someone revisits it months later under pressure.
+```bash
+echo $SHELL
+echo $PATH
+```
 
----
+### Wrong Gradle Version
 
-## Final Practical Note
+This usually means another binary comes earlier in `PATH`.
 
-Even for a small setup guide, the valuable habit is to capture one verification command and one rollback step next to the instructions. That tiny addition turns a one-time note into something safer to reuse when the environment is slightly different months later.
+Check:
+
+```bash
+which gradle
+type -a gradle
+```
+
+If you see multiple locations, fix the path order instead of reinstalling Gradle again.
+
+### Works in One Shell but Not Another
+
+That is often a profile-loading issue.
+For example:
+
+- interactive shell loads `~/.zshrc`
+- login shell loads `~/.profile` or `/etc/profile`
+- IDE terminal may inherit a different environment
+
+The fix is to decide where the configuration belongs and keep it there consistently.
+
+### Permission Problems in the Cache
+
+If `GRADLE_USER_HOME` or `~/.gradle` was created by another user or with `sudo`, builds may fail with confusing cache errors.
+
+Check ownership before touching Gradle settings again.
+
+## Upgrade and Rollback Strategy
+
+A safe upgrade pattern looks like this:
+
+1. install new version beside the old one
+2. update `GRADLE_HOME`
+3. run `gradle -v`
+4. test one or two representative builds
+5. keep the old directory until the new setup is stable
+
+That is much safer than replacing the old install in place and discovering later that a helper script depended on the earlier version.
+
+## Practical Recommendation
+
+If you want the shortest sane rule set, use this:
+
+- install Gradle in a versioned directory
+- expose it through `/etc/profile.d` or your shell profile
+- verify with `which gradle` and `gradle -v`
+- use `./gradlew` for actual repository builds
+
+That gives you convenience without sacrificing reproducibility.
+
+## Final Checklist
+
+- Is the install path versioned and explicit?
+- Does `which gradle` point where you expect?
+- Does `gradle -v` show the intended version?
+- Are project builds still using `./gradlew`?
+- If something breaks later, do you know which profile file owns the configuration?
+
+If you can answer yes to all five, the setup is probably in good shape.

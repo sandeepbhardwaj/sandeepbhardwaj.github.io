@@ -23,101 +23,214 @@ header:
   show_overlay_excerpt: false
   caption: Kubernetes Engineering for Backend Platforms
 ---
-HPA/VPA interactions and autoscaling anti-patterns matters because Kubernetes usually amplifies both good and bad operational decisions. The YAML is not the whole story; the real question is how workloads behave during rollout, recovery, and saturation.
+Autoscaling looks simple on slides:
+if load rises, add capacity.
 
----
+In production, it is a set of feedback loops acting on incomplete signals.
+That is why HPA and VPA do not merely "work together" or "conflict."
+They reshape each other's inputs, timing, and failure modes.
 
-## Problem 1: HPA/VPA interactions and autoscaling anti-patterns
+## Quick Summary
 
-Problem description:
-We want hpa/vpa interactions and autoscaling anti-patterns to work under real pod churn, load, and operational failure instead of only on a quiet cluster. This part focuses on the baseline model and the safe default shape.
+| Mechanism | What it changes | Best fit | Common trap |
+| --- | --- | --- | --- |
+| HPA | replica count | elastic stateless workloads | scaling on a noisy or misleading metric |
+| VPA | pod resource requests and limits | steady workloads with poor right-sizing | evicting or resizing pods that already rely on HPA |
+| HPA + VPA together | both pod count and resource sizing | carefully separated signals, usually with VPA in recommendation mode | letting both chase the same CPU symptom |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Kubernetes, the hidden risk is that platform defaults look fine until the first load spike, probe flap, or rolling update under pressure.
+Part 1 is about the safe default model:
+how to avoid autoscaling loops that look intelligent in staging and chaotic in production.
 
-What we are doing actually:
+## What HPA and VPA Actually Observe
 
-1. make the cluster behavior explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the cluster behavior explicit: choose the simplest baseline design that preserves correctness
-3. make the cluster behavior explicit: make observability visible from the first implementation
-4. make the cluster behavior explicit: validate the baseline with one concrete failure drill
+HPA answers:
+"Should I run more or fewer pods?"
 
----
+VPA answers:
+"Are the resource requests and limits on each pod wrong for this workload?"
 
-## Why This Topic Matters
+Those are different questions.
+The problem begins when teams use both controllers without acknowledging that a change in one controller can distort the other's signal.
 
-- probe and lifecycle settings directly affect availability under rollout and failure
-- platform defaults are rarely enough for latency-sensitive backends
-- bad operational signals in Kubernetes tend to spread quickly across replicas
+Examples:
 
----
+- VPA raises CPU requests, so HPA utilization percentage changes even if actual work did not.
+- HPA adds replicas, so per-pod load drops and VPA recommendations shift.
+- VPA restarts pods to apply changes, which can briefly reduce capacity and provoke HPA.
 
-## Architecture Model
+This is why autoscaling should be treated as coupled control systems, not feature toggles.
+
+## Strong Default: Separate Elasticity From Right-Sizing
+
+For most request-serving applications, a practical baseline is:
+
+- use HPA for horizontal elasticity
+- use VPA in recommendation mode first
+- set requests deliberately instead of outsourcing everything to automation
+
+That approach is not conservative because Kubernetes is scary.
+It is conservative because you want to learn the workload before letting two controllers rewrite its capacity plan.
 
 ```mermaid
 flowchart LR
-    A[Production pressure] --> B[HPA/VPA interactions and autoscaling anti-patterns]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
+    A[Traffic and work arrival] --> B[Pods]
+    B --> C[Metrics pipeline]
+    C --> D[HPA decides replicas]
+    C --> E[VPA recommends resource sizing]
+    D --> B
+    E --> F[Human review or controlled rollout]
 ```
 
-The diagram centers on workload behavior, control-plane signals, and recovery paths because hpa/vpa interactions and autoscaling anti-patterns is judged during rollout and saturation, not in a quiet namespace.
-That framing makes it easier to connect YAML choices to real availability outcomes.
+The main lesson is simple:
+use one automatic feedback loop for actuation first, and treat the second loop as advisory until the workload is well understood.
 
----
+## Anti-Pattern 1: HPA and VPA Both Acting on CPU for the Same Workload
 
-## Practical Design Pattern
+This is the classic unstable setup.
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: topic-workload
-spec:
-  template:
-    spec:
-      terminationGracePeriodSeconds: 30
-      containers:
-        - name: app
-          # Tune this workload for: HPA/VPA interactions and autoscaling anti-patterns
-```
+Imagine:
 
-This snippet is only a foothold for discussion, not a full manifest set, because hpa/vpa interactions and autoscaling anti-patterns succeeds or fails through runtime behavior more than YAML size.
-The important part is making the lifecycle rule obvious enough that the team can observe and roll it back.
+- HPA scales on CPU utilization
+- VPA changes CPU requests automatically
 
----
+Now the denominator in HPA's utilization formula keeps moving while HPA is still deciding replica count.
+The workload may not be changing much, but the signal is.
 
-## Failure Drill
+Operational result:
 
-Baseline drill: simulate rolling restart under live traffic and verify readiness, drain, and rollback behavior for hpa/vpa interactions and autoscaling anti-patterns.
+- surprise scale events
+- difficulty explaining why replicas changed
+- false confidence during low-noise periods
 
-That drill matters early, before rollout assumptions harden into defaults because Kubernetes amplifies small mistakes in hpa/vpa interactions and autoscaling anti-patterns quickly once probes, autoscaling, and rollout timing start interacting.
+If HPA must scale the workload, keep VPA in recommendation mode or use VPA for dimensions HPA is not using as its primary actuation signal.
 
----
+## Anti-Pattern 2: Scaling a Broken Metric
 
-## Debug Steps
+The most common HPA mistake is not "wrong YAML."
+It is scaling on a metric that is correlated with pain but not with safe capacity expansion.
 
-Debug steps:
+Examples:
 
-- compare probe behavior against real application readiness, not process liveness alone while validating hpa/vpa interactions and autoscaling anti-patterns
-- measure rollout and drain timing under representative load while validating hpa/vpa interactions and autoscaling anti-patterns
-- treat autoscaling, disruption budgets, and termination settings as one system while validating hpa/vpa interactions and autoscaling anti-patterns
-- test rollback before assuming the cluster will recover cleanly by default while validating hpa/vpa interactions and autoscaling anti-patterns
+- CPU for I/O-bound services
+- request rate without concurrency or latency context
+- queue depth without worker throughput or retry visibility
+- memory for workloads where leaks and cache growth are the real problem
 
----
+Autoscaling cannot rescue a metric model that misdescribes the workload.
+You need a signal tied to the bottleneck you are actually trying to relieve.
 
-## Production Checklist
+## Anti-Pattern 3: Ignoring Request Hygiene
 
-- probe, drain, or scheduling rule tied to one availability goal
-- rollout metric that would tell operators to stop quickly
-- resource or disruption assumptions written next to the change
-- rollback path proven under live-ish load
+If CPU and memory requests are fiction, neither HPA nor VPA will behave well.
 
----
+Bad requests cause:
+
+- poor bin-packing
+- throttling that looks like application inefficiency
+- noisy autoscaling
+- node pressure that creates scheduling delays just when scale-out is needed
+
+Before tuning controllers, validate whether requests reflect reality at all.
+Autoscaling on top of bad requests is usually just faster confusion.
+
+## Anti-Pattern 4: Treating Rollout Behavior and Autoscaling as Separate Concerns
+
+A workload under rollout is not in the same state as a steady workload.
+If HPA is adding replicas while pods are still warming up, caches are cold, and readiness is delayed, the system can oscillate:
+
+- load rises
+- HPA adds pods
+- new pods are not ready yet
+- existing pods take more load
+- latency worsens
+- HPA adds even more replicas
+
+This is one reason autoscaling needs to be reviewed together with:
+
+- readiness behavior
+- startup time
+- disruption budgets
+- connection draining
+
+The controller is only one part of the capacity story.
+
+## A Better Baseline Rollout Plan
+
+For a new service:
+
+1. set realistic requests and limits from measurement, not guesses
+2. start with HPA only if traffic is elastic
+3. choose one scaling metric that maps to user pain or resource saturation
+4. run VPA in recommendation mode long enough to learn the workload shape
+5. compare recommendations against observed latency, throttling, and pod churn
+
+This creates an explainable baseline before automation gets more aggressive.
+
+## Metrics That Matter More Than Replica Count
+
+Replica count is not the outcome.
+It is only the controller output.
+
+Track these instead:
+
+- P95 and P99 latency
+- CPU throttling
+- pending pod time
+- scale event frequency
+- restart and eviction counts
+- queue lag or concurrency saturation
+- node pressure during scale-up
+
+If scale events are frequent but latency is still unstable, the controller may be active without being useful.
+
+## Failure Drills to Run on Purpose
+
+Test autoscaling under the conditions that usually trigger incidents:
+
+1. fast traffic spike
+2. slow warm-up pods
+3. node shortage during HPA scale-out
+4. VPA recommendation shifts after a release
+5. retry storm or backlog spike
+
+The goal is not to prove that HPA or VPA "works."
+It is to see whether the combined system remains understandable under stress.
+
+## Practical Decision Rules
+
+Use HPA by default when:
+
+- the workload is mostly stateless
+- more replicas can genuinely relieve pressure
+- startup time is acceptable
+- the scaling metric reflects a real bottleneck
+
+Use VPA recommendations by default when:
+
+- the workload is steady enough to profile
+- requests are probably wrong
+- eviction or restart cost is non-trivial
+- you want better right-sizing before enabling automation
+
+Be suspicious of full HPA plus VPA automation when:
+
+- the service has slow warm-up
+- the main bottleneck is external dependency latency
+- requests are unstable across releases
+- the team cannot explain the last scale event
+
+## Part 1 Checklist
+
+- one primary scaling objective is defined
+- requests and limits are measured, not ceremonial
+- HPA metric matches the real bottleneck
+- VPA starts in recommendation mode unless proven otherwise
+- rollout behavior and autoscaling are reviewed together
+- success is judged by latency and stability, not only by replica movement
 
 ## Key Takeaways
 
-- HPA/VPA interactions and autoscaling anti-patterns should be designed as a production decision, not just an implementation detail
-- platform configuration is part of application reliability, not separate from it
-- start from a measurable baseline before optimizing
+- HPA and VPA are coupled feedback loops, not isolated features.
+- Most autoscaling pain comes from weak signals and unrealistic requests, not from Kubernetes syntax.
+- A calm, explainable scaling system is better than an aggressive one that nobody can debug.
+- Separate elasticity from right-sizing before letting automation control both at once.
