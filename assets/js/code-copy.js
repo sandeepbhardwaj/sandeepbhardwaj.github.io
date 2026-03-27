@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function resetButton(button) {
     button.classList.remove("is-copied");
     button.classList.remove("is-error");
+    button.setAttribute("data-feedback", "");
     button.setAttribute("aria-label", "Copy code");
     button.setAttribute("title", "Copy code");
   }
@@ -16,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     button.classList.toggle("is-copied", state === "copied");
     button.classList.toggle("is-error", state === "error");
+    button.setAttribute("data-feedback", label);
     button.setAttribute("aria-label", label);
     button.setAttribute("title", label);
     button._copyResetTimer = window.setTimeout(function () {
@@ -62,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var button = document.createElement("button");
     button.type = "button";
     button.className = "code-copy-button";
+    button.setAttribute("data-feedback", "");
     button.setAttribute("aria-label", "Copy code");
     button.setAttribute("title", "Copy code");
 

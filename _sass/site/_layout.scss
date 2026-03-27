@@ -3,7 +3,8 @@
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-soft);
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 40;
 }
 
@@ -41,6 +42,36 @@
 }
 
 .site-brand:hover {
+  text-decoration: none;
+}
+
+.site-brand:focus-visible,
+.site-nav__links a:focus-visible,
+.nav-action:focus-visible,
+.nav-toggle:focus-visible,
+.search-panel__close:focus-visible,
+.page__toc-back:focus-visible,
+.site-footer__list a:focus-visible,
+.site-footer__follow a:focus-visible,
+.author-card__links a:focus-visible {
+  border-radius: var(--radius-sm);
+}
+
+.site-nav__links a:focus-visible,
+.nav-action:focus-visible,
+.nav-toggle:focus-visible,
+.search-panel__close:focus-visible,
+.page__toc-link:focus-visible,
+.search-result__title a:focus-visible,
+.archive__item-title a:focus-visible,
+.archive__taxonomy-item:focus-visible,
+.tag-list__item:focus-visible,
+.share-links__item:focus-visible,
+.taxonomy__index-link:focus-visible,
+.taxonomy__browse-link:focus-visible,
+.page__toc-back:focus-visible,
+.pagination__link:focus-visible {
+  background: var(--bg-subtle);
   text-decoration: none;
 }
 
@@ -683,15 +714,15 @@
 }
 
 .page__toc {
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100vh - var(--header-height) - 2rem);
   overflow: auto;
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-height) + 1rem);
 }
 
 .page-shell__aside .author-card {
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-height) + 1rem);
 }
 
 .page__toc-eyebrow {
@@ -772,29 +803,11 @@
   text-decoration: none;
 }
 
-.page__toc-link::before {
-  background: var(--accent);
-  border-radius: 999px;
-  content: "";
-  height: 0.38rem;
-  left: 0.56rem;
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: opacity var(--transition);
-  width: 0.38rem;
-}
-
 .page__toc-link:hover,
-.page__toc-link.is-active {
+.page__toc-link.is-active,
+.page__toc-link:focus-visible {
   background: var(--toc-active);
   color: var(--text-strong);
-}
-
-.page__toc-link:hover::before,
-.page__toc-link.is-active::before {
-  opacity: 1;
 }
 
 .page__toc-footer {
