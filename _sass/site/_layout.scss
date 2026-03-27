@@ -343,7 +343,7 @@
   font-size: clamp(2.45rem, 5vw, 4.15rem);
   line-height: 1.02;
   margin-bottom: 0.85rem;
-  max-width: 11ch;
+  max-width: 16ch;
 }
 
 .home-hero__excerpt,
@@ -1670,6 +1670,30 @@
   background: linear-gradient(90deg, var(--accent-alt), var(--accent));
 }
 
+.page-about .page-shell__article {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 20%),
+    var(--home-track-section-bg);
+  border-color: var(--home-track-card-border);
+}
+
+.page-contact .page-shell__article {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 20%),
+    var(--home-feed-section-bg);
+  border-color: var(--home-track-card-border);
+}
+
+.page-about .page-shell__article::before,
+.page-contact .page-shell__article::before {
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+}
+
 .page-roadmaps .page-header {
+  padding-bottom: 1.2rem;
+}
+
+.page-about .page-header,
+.page-contact .page-header {
   padding-bottom: 1.2rem;
 }
