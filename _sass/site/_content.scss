@@ -1508,10 +1508,6 @@
   background: linear-gradient(90deg, var(--accent-alt), var(--accent));
 }
 
-.roadmaps-block--planned {
-  background: var(--home-track-section-bg);
-}
-
 .roadmaps-block--workflow {
   background: var(--home-feed-section-bg);
 }
@@ -1616,10 +1612,6 @@
   transform: translateY(-1px);
 }
 
-.roadmap-hub-card--planned {
-  background: var(--home-roadmap-planned-bg);
-}
-
 .roadmap-hub-card__status {
   color: var(--accent-strong);
   font-size: 0.74rem;
@@ -1669,13 +1661,6 @@
   padding: 1rem;
 }
 
-.roadmaps-step__index {
-  color: var(--accent-strong);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-}
-
 .roadmaps-step__title {
   color: var(--text-strong);
   font-size: 1.04rem;
@@ -1697,8 +1682,7 @@
   max-width: 100%;
 }
 
-.topics-intro__surface,
-.topics-block {
+.topics-intro__surface {
   border: 1px solid var(--home-track-card-border);
   border-radius: calc(var(--radius-lg) + 0.05rem);
   overflow: hidden;
@@ -1706,8 +1690,7 @@
   position: relative;
 }
 
-.topics-intro__surface::before,
-.topics-block::before {
+.topics-intro__surface::before {
   content: "";
   height: 3px;
   left: 1.1rem;
@@ -1726,20 +1709,7 @@
   background: linear-gradient(90deg, var(--accent), var(--accent-alt));
 }
 
-.topics-block {
-  background: var(--home-roadmap-section-bg);
-}
-
-.topics-block::before {
-  background: linear-gradient(90deg, var(--accent-alt), var(--accent));
-}
-
-.topics-block--guide {
-  background: var(--home-feed-section-bg);
-}
-
-.topics-intro__copy,
-.topics-section-head {
+.topics-intro__copy {
   display: grid;
   gap: 0.7rem;
 }
@@ -1801,8 +1771,7 @@
   text-transform: uppercase;
 }
 
-.topics-intro__title,
-.topics-section-title {
+.topics-intro__title {
   color: var(--text-strong);
   font-family: var(--font-display);
   letter-spacing: -0.03em;
@@ -1815,19 +1784,12 @@
   max-width: 18ch;
 }
 
-.topics-section-title {
-  font-size: clamp(1.45rem, 2.3vw, 1.9rem);
-}
-
-.topics-intro__text,
-.topics-section-copy,
-.topic-guide-card__copy {
+.topics-intro__text {
   color: var(--text-soft);
   margin-bottom: 0;
 }
 
-.topics-intro__text,
-.topics-section-copy {
+.topics-intro__text {
   font-size: 1rem;
   line-height: 1.72;
   max-width: 62ch;
@@ -1880,46 +1842,6 @@
   font-weight: 700;
   padding: 0.52rem 0.82rem;
   text-decoration: none;
-}
-
-.topics-guide-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  margin-top: 1.2rem;
-}
-
-.topic-guide-card {
-  background: var(--home-feed-card-bg);
-  border: 1px solid var(--home-track-card-border);
-  border-radius: var(--radius-md);
-  display: grid;
-  gap: 0.5rem;
-  padding: 1rem;
-}
-
-.topic-guide-card__index {
-  color: var(--accent-strong);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-}
-
-.topic-guide-card__title {
-  color: var(--text-strong);
-  font-size: 1.04rem;
-  line-height: 1.35;
-  margin-bottom: 0;
-}
-
-.topic-guide-card__copy {
-  font-size: 0.94rem;
-  line-height: 1.68;
-}
-
-.page-topics .taxonomy__rail {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(123, 94, 59, 0.06));
-  border-color: var(--home-track-card-border);
 }
 
 .page-topics .taxonomy__atlas {
@@ -2079,38 +2001,6 @@
 .page-about .about-intro__title,
 .page-about .about-intro__text {
   max-width: none;
-}
-
-.about-intro__stats {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-}
-
-.about-stat {
-  background: var(--home-hero-card-bg);
-  border: 1px solid var(--home-track-card-border);
-  border-radius: var(--radius-md);
-  display: grid;
-  gap: 0.22rem;
-  min-width: 0;
-  padding: 0.95rem 1rem;
-}
-
-.about-stat__value {
-  color: var(--text-strong);
-  font-family: var(--font-display);
-  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
-  font-weight: 820;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-
-.about-stat__label {
-  color: var(--text-soft);
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.5;
 }
 
 .about-focus-grid,

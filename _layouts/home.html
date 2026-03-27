@@ -44,7 +44,7 @@ layout: default
             </div>
             <div class="home-hero__stat">
               <span class="home-hero__stat-value">{{ roadmap_count }}</span>
-              <span class="home-hero__stat-label">roadmaps live today</span>
+              <span class="home-hero__stat-label">roadmaps available</span>
             </div>
           </div>
         </div>
@@ -62,8 +62,8 @@ layout: default
           {% endif %}
 
           <div class="home-hero__guide-item home-hero__guide-item--hub">
-            <span class="home-hero__guide-label">Learning Hub</span>
-            <p class="home-hero__guide-copy">Use structured roadmaps when you want a guided path, then drop into topic archives for deeper exploration.</p>
+            <span class="home-hero__guide-label">Archive Map</span>
+            <p class="home-hero__guide-copy">Use roadmaps for sequence, then move into topics when you want depth across a specific part of the archive.</p>
             <div class="home-hero__topics">
               <a class="home-hero__topic" href="{{ '/roadmaps/' | relative_url }}">Roadmaps</a>
               <a class="home-hero__topic" href="{{ '/categories/dsa/' | relative_url }}">DSA</a>
@@ -81,9 +81,9 @@ layout: default
   <section class="site-container home-section home-section--tracks">
     <div class="section-heading">
       <div>
-        <p class="section-heading__eyebrow">Choose Your Track</p>
-        <h2 class="section-heading__title">Start from the topic that matches your goal</h2>
-        <p class="section-heading__copy">Each track is designed as an entry point into the archive, so readers can move from fundamentals to deeper architecture and implementation trade-offs.</p>
+        <p class="section-heading__eyebrow">Topics</p>
+        <h2 class="section-heading__title">Browse the archive by subject</h2>
+        <p class="section-heading__copy">Each topic opens a clear path into the archive, from fundamentals to deeper implementation and architecture trade-offs.</p>
       </div>
       <a class="section-heading__link" href="{{ '/categories/' | relative_url }}">View all topics</a>
     </div>
@@ -136,40 +136,26 @@ layout: default
   <section id="learning-paths" class="site-container home-section home-section--roadmaps">
     <div class="section-heading">
       <div>
-        <p class="section-heading__eyebrow">Learning Paths</p>
-        <h2 class="section-heading__title">Roadmaps that turn the archive into guided progression</h2>
-        <p class="section-heading__copy">Roadmaps are where the site becomes more than a blog. They help readers move deliberately through a topic instead of guessing what to read next.</p>
+        <p class="section-heading__eyebrow">Roadmaps</p>
+        <h2 class="section-heading__title">Structured reading paths through the archive</h2>
+        <p class="section-heading__copy">Each roadmap collects related writing into a deliberate sequence, so you can move through a subject with more continuity.</p>
       </div>
       <a class="section-heading__link" href="{{ '/roadmaps/' | relative_url }}">See all roadmaps</a>
     </div>
 
     <div class="roadmap-grid">
       <a class="roadmap-card" href="{{ concurrency_roadmap_url | relative_url }}">
-        <span class="roadmap-card__status">Live roadmap</span>
+        <span class="roadmap-card__status">Roadmap</span>
         <h3 class="roadmap-card__title">Java Concurrency Roadmap</h3>
         <p class="roadmap-card__copy">A structured path from thread fundamentals and memory visibility to executors, atomics, diagnostics, and modern Java concurrency.</p>
         <span class="roadmap-card__meta">Java · Concurrency</span>
       </a>
 
       <a class="roadmap-card" href="{{ design_patterns_roadmap_url | relative_url }}">
-        <span class="roadmap-card__status">Live roadmap</span>
+        <span class="roadmap-card__status">Roadmap</span>
         <h3 class="roadmap-card__title">Java Design Patterns Roadmap</h3>
         <p class="roadmap-card__copy">A practical reading path for design patterns in Java with backend use cases, trade-offs, and production-oriented examples.</p>
         <span class="roadmap-card__meta">Java · Design</span>
-      </a>
-
-      <a class="roadmap-card roadmap-card--planned" href="{{ '/roadmaps/#dsa-roadmap' | relative_url }}">
-        <span class="roadmap-card__status">Planned track</span>
-        <h3 class="roadmap-card__title">DSA Roadmap</h3>
-        <p class="roadmap-card__copy">A guided progression across core problem-solving patterns, templates, and interview preparation sequences.</p>
-        <span class="roadmap-card__meta">DSA · Interview Prep</span>
-      </a>
-
-      <a class="roadmap-card roadmap-card--planned" href="{{ '/roadmaps/#distributed-systems-roadmap' | relative_url }}">
-        <span class="roadmap-card__status">Planned track</span>
-        <h3 class="roadmap-card__title">Distributed Systems Roadmap</h3>
-        <p class="roadmap-card__copy">A future path for consistency, replication, coordination, messaging, reliability, and architecture trade-offs at scale.</p>
-        <span class="roadmap-card__meta">Distributed Systems · Architecture</span>
       </a>
     </div>
   </section>
@@ -179,9 +165,9 @@ layout: default
   <div class="section-heading">
     <div>
       <p class="section-heading__eyebrow">{% if is_first_page %}Latest Writing{% else %}Archive{% endif %}</p>
-      <h2 class="section-heading__title">{% if is_first_page %}Recent articles and current focus{% else %}More articles from the archive{% endif %}</h2>
+      <h2 class="section-heading__title">{% if is_first_page %}Recent articles from the archive{% else %}More articles from the archive{% endif %}</h2>
       {% if is_first_page %}
-        <p class="section-heading__copy">The newest writing stays visible here, with one featured piece leading the current direction of the site.</p>
+        <p class="section-heading__copy">The newest writing stays visible here, with one featured article leading the section.</p>
       {% endif %}
     </div>
     <a class="section-heading__link" href="{{ '/categories/' | relative_url }}">Browse topics</a>
