@@ -26,96 +26,142 @@ header:
   show_overlay_excerpt: false
   caption: Microservices Architecture and Reliability Patterns
 ---
-Service decomposition with bounded contexts (avoiding distributed monoliths) is not just a diagramming exercise. The hard part is deciding where ownership, failure handling, and change coordination should live once the system is split across services.
+Part 3 is where bounded-context decomposition either becomes a durable operating model or slides back toward a distributed monolith.
 
----
+The first split is rarely the hardest part.
+The harder part is six months later, when teams start adding cross-service queries, sharing reference data informally, coordinating releases, and asking for "just one small direct database read" to move faster.
 
-## Problem 1: Service decomposition with bounded contexts (avoiding distributed monoliths)
+That is where decomposition succeeds or fails.
 
-Problem description:
-We want to use service decomposition with bounded contexts (avoiding distributed monoliths) without creating hidden coupling, rollout friction, or a distributed monolith. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+## Quick Summary
 
-What we are solving actually:
-We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For service architectures, the hidden risk is usually coupling that migrates from code into network boundaries and release processes.
+| Governance question | Healthy bounded-context answer |
+| --- | --- |
+| Who owns a business concept? | one service and one team clearly own it |
+| How do other services get that data? | through contracts, projections, or published facts |
+| What is the biggest regression signal? | release coupling and hidden cross-service schema dependency |
+| What keeps the split healthy? | ownership clarity, contract budgets, and hard rules against shared persistence shortcuts |
 
-What we are doing actually:
+The final maturity test is simple:
+can each service evolve independently without secret coordination becoming the norm?
 
-1. make the service landscape explicit: define a staged rollout or migration plan
-2. make the service landscape explicit: attach clear ownership and rollback rules
-3. make the service landscape explicit: codify verification gates around latency, errors, or correctness
-4. make the service landscape explicit: write the operator playbook before the first real incident forces it
+## What Part 3 Is About
 
----
+Part 1 is usually about finding candidate boundaries.
+Part 2 is usually about surviving the first edge cases.
+Part 3 is about long-term health:
 
-## Why This Topic Matters
+- rollout independence
+- ownership enforcement
+- contract governance
+- decomposition review rules
+- cleanup of transitional coupling
 
-- service boundaries become release and incident boundaries too
-- latency and ownership trade-offs often dominate abstract purity
-- one unclear contract can multiply operational friction across many teams
+Without that layer, the architecture can look microservice-shaped while still behaving like a tightly coupled system.
 
----
+## The Ownership Rule
 
-## Architecture Model
+Every important business concept needs one owner.
 
-```mermaid
-flowchart TD
-    A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Service decomposition with bounded contexts (avoiding distributed monoliths)]
-    C -->|No| E[Rollback / revise]
-```
+Examples:
 
-The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once service decomposition with bounded contexts (avoiding distributed monoliths) is live.
-If a diagram cannot make those boundaries obvious, the implementation usually hides coupling rather than removing it.
+- catalog pricing owned by Catalog
+- payment authorization state owned by Payments
+- shipment tracking state owned by Fulfillment
 
----
+That does not mean other services never care about the data.
+It means other services do not get to redefine it casually or read around its contract boundary.
 
-## Practical Design Pattern
+Once multiple services feel equally entitled to mutate or query the same concept directly, the decomposition is degrading.
 
-```java
-public final class ServiceBoundary {
-    public Decision evaluate(Command command) {
-        // Keep ownership and failure policy explicit for: Service decomposition with bounded contexts (avoiding distributed monoliths)
-        return Decision.accept();
-    }
-}
-```
+## The Shortcut That Creates Distributed Monoliths
 
-The example is small on purpose: it shows where the decision enters and who owns the consequence when service decomposition with bounded contexts (avoiding distributed monoliths) is applied.
-That is usually more valuable in review than a larger demo that hides contracts behind extra scaffolding.
+The common failure mode is not usually messaging or latency.
+It is convenience:
 
----
+- shared tables
+- direct reads into another service database
+- cross-service transaction assumptions
+- rollout order that becomes mandatory for every change
 
-## Failure Drill
+Those shortcuts feel efficient in the moment because they remove one API or event step.
+They are expensive later because they turn service boundaries into fiction.
 
-Rollout drill: degrade one dependency and observe whether the boundary still contains failure instead of amplifying it for service decomposition with bounded contexts (avoiding distributed monoliths).
+## Query Strategy Must Be Deliberate
 
-That drill matters before the operator playbook is treated as trustworthy because service boundaries around service decomposition with bounded contexts (avoiding distributed monoliths) usually break through coordination delay and unclear ownership long before they break through code syntax.
+After decomposition, teams still need answers to user-facing questions that cross contexts.
+The options are usually:
 
----
+- API composition
+- read-model projection
+- replicated reference data
+- asynchronous materialization
 
-## Debug Steps
+The wrong answer is:
+"we will just join the databases because it is faster."
 
-Debug steps:
+That is not a query strategy.
+It is boundary erosion.
 
-- map the exact ownership boundary before discussing implementation mechanics while validating service decomposition with bounded contexts (avoiding distributed monoliths)
-- measure network and retry impact separately from business logic correctness while validating service decomposition with bounded contexts (avoiding distributed monoliths)
-- look for hidden coupling in shared databases, release order, or schemas while validating service decomposition with bounded contexts (avoiding distributed monoliths)
-- validate canary behavior under one realistic dependency failure while validating service decomposition with bounded contexts (avoiding distributed monoliths)
+## A Better Part 3 Governance Model
 
----
+For each cross-context dependency, write down:
 
-## Production Checklist
+1. who owns the source of truth
+2. how consumers obtain the data
+3. what freshness is acceptable
+4. what happens during producer outage
+5. who approves contract changes
 
-- service ownership and rollback responsibilities finalized
-- SLO and contract checks attached to promotion gates
-- operator playbook covers degradation and reversal clearly
-- post-migration cleanup rule prevents old coupling from lingering
+These questions sound procedural.
+They are actually architectural.
 
----
+They determine whether the decomposition remains manageable under real change pressure.
+
+## Release Independence Is the Real Health Check
+
+A healthy decomposition should allow:
+
+- one service to deploy without coordinated deploys from three others
+- one service to evolve schema internally without breaking external consumers
+- one team to fix an incident without reverse-engineering another team's internals
+
+If those are not true, the system may have many services but still one operational fate.
+
+That is a distributed monolith signal.
+
+## When Not to Split Further
+
+A useful maturity skill is saying no to extra decomposition.
+
+Do not split a bounded context further just because:
+
+- one service became large
+- multiple teams touch the code
+- the domain vocabulary is still shared
+- the transactional boundary is still one unit
+
+If a split creates more cross-service invariants than it removes, it is usually the wrong split.
+
+## A Practical Decision Rule
+
+Keep bounded contexts separate when:
+
+- ownership is stable
+- contracts are explicit
+- cross-context data needs have a clear access pattern
+- release independence is improving
+
+Revisit the decomposition when:
+
+- one context keeps leaking domain rules into another
+- consumers cannot work without database-level knowledge
+- rollout order becomes tightly choreographed
+- the same incident regularly crosses many team boundaries
 
 ## Key Takeaways
 
-- Service decomposition with bounded contexts (avoiding distributed monoliths) should be designed as a production decision, not just an implementation detail
-- boundaries are only good when ownership and failure semantics remain clear
-- the runbook and rollout policy are part of the design itself
+- Part 3 is about preserving bounded-context integrity after the first decomposition succeeds.
+- The biggest threat is not theory. It is convenience-driven cross-boundary shortcuts.
+- Query strategy, release independence, and contract governance are architectural concerns, not process paperwork.
+- If multiple services still need secret coordination to change safely, the system is drifting toward a distributed monolith.

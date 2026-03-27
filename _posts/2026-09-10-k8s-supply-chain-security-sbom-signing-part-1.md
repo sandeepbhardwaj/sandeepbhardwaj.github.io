@@ -24,101 +24,180 @@ header:
   show_overlay_excerpt: false
   caption: Kubernetes Engineering for Backend Platforms
 ---
-'Supply chain security: SBOM, signing, and admission policies' matters because Kubernetes usually amplifies both good and bad operational decisions. The YAML is not the whole story; the real question is how workloads behave during rollout, recovery, and saturation.
+Supply chain security is where many platform teams discover that "we scan images" is not the same thing as "we trust what is running."
 
----
+An SBOM can tell you what is inside an artifact.
+A signature can tell you who claimed to produce it.
+An admission policy can decide what the cluster is willing to run.
+Those are related controls, but they solve different parts of the trust problem.
 
-## Problem 1: 'Supply chain security: SBOM, signing, and admission policies'
+The practical goal is not to collect security nouns.
+It is to make promotion trustable enough that operators know why an image was admitted, why it was blocked, and how exceptions are handled without panic-driven bypasses.
 
-Problem description:
-We want 'supply chain security: sbom, signing, and admission policies' to work under real pod churn, load, and operational failure instead of only on a quiet cluster. This part focuses on the baseline model and the safe default shape.
+## Quick Summary
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Kubernetes, the hidden risk is that platform defaults look fine until the first load spike, probe flap, or rolling update under pressure.
+| Control | Best use | What it does not solve |
+| --- | --- | --- |
+| SBOM | inventory and dependency visibility | it does not prove artifact integrity |
+| signing / provenance | prove artifact origin and build identity | it does not replace vulnerability triage |
+| admission policy | enforce what can run in-cluster | it does not fix a weak upstream build pipeline |
+| digest pinning | ensure immutable deployment identity | it does not prove the image is safe |
+| exception workflow | keep enforcement usable under pressure | it does not excuse permanent bypasses |
 
-What we are doing actually:
+The safest mindset is:
+build trust before admission, then enforce trust at admission.
 
-1. make the cluster behavior explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the cluster behavior explicit: choose the simplest baseline design that preserves correctness
-3. make the cluster behavior explicit: make observability visible from the first implementation
-4. make the cluster behavior explicit: validate the baseline with one concrete failure drill
+## What This Post Is Really About
 
----
+The hardest part of supply chain policy is not enabling the tools.
+It is establishing a promotion path that operators can explain during a real release.
 
-## Why This Topic Matters
+That means answering:
 
-- probe and lifecycle settings directly affect availability under rollout and failure
-- platform defaults are rarely enough for latency-sensitive backends
-- bad operational signals in Kubernetes tend to spread quickly across replicas
+- which identities are allowed to sign artifacts
+- whether images must be deployed by digest
+- what evidence admission requires
+- how emergency exceptions are recorded and expired
 
----
+Without that operational model, supply chain controls either become decorative or so painful that teams learn how to bypass them.
 
-## Architecture Model
+## A Better Baseline Trust Flow
 
 ```mermaid
 flowchart LR
-    A[Production pressure] --> B['Supply chain security: SBOM, signing, and admission policies']
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
+    A[Build artifact] --> B[Generate SBOM]
+    B --> C[Sign image and provenance]
+    C --> D[Push to registry]
+    D --> E[Admission verifies trust policy]
+    E --> F[Workload allowed in cluster]
 ```
 
-The diagram centers on workload behavior, control-plane signals, and recovery paths because 'supply chain security: sbom, signing, and admission policies' is judged during rollout and saturation, not in a quiet namespace.
-That framing makes it easier to connect YAML choices to real availability outcomes.
+That flow matters because each step has a different job.
+Do not merge them mentally into one vague "security scan passed" checkbox.
 
----
+## SBOM Is Inventory, Not Approval
 
-## Practical Design Pattern
+An SBOM is valuable because it makes software contents visible:
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: topic-workload
-spec:
-  template:
-    spec:
-      terminationGracePeriodSeconds: 30
-      containers:
-        - name: app
-          # Tune this workload for: 'Supply chain security: SBOM, signing, and admission policies'
-```
+- package inventory
+- transitive dependencies
+- version history
+- vulnerability triage inputs
 
-This snippet is only a foothold for discussion, not a full manifest set, because 'supply chain security: sbom, signing, and admission policies' succeeds or fails through runtime behavior more than YAML size.
-The important part is making the lifecycle rule obvious enough that the team can observe and roll it back.
+That visibility is useful for:
 
----
+- incident response
+- upgrade planning
+- license review
+- targeted patch campaigns
 
-## Failure Drill
+It is not itself an admission decision.
+A clean SBOM does not prove the artifact came from the right pipeline, and a complete SBOM does not automatically mean the workload should run.
 
-Baseline drill: simulate rolling restart under live traffic and verify readiness, drain, and rollback behavior for 'supply chain security: sbom, signing, and admission policies'.
+## Signing and Provenance Define Artifact Trust
 
-That drill matters early, before rollout assumptions harden into defaults because Kubernetes amplifies small mistakes in 'supply chain security: sbom, signing, and admission policies' quickly once probes, autoscaling, and rollout timing start interacting.
+Signing answers a different question:
+who produced this artifact, and can we verify that claim?
 
----
+That is what makes signatures and provenance statements powerful.
+They let the platform distinguish between:
 
-## Debug Steps
+- an image built by the approved pipeline
+- an image copied in from somewhere unknown
+- a mutable tag pointing to a different artifact than expected
 
-Debug steps:
+This is why digest pinning matters too.
+A signature on a mutable tag is much weaker operationally than a signature tied to an immutable digest.
 
-- compare probe behavior against real application readiness, not process liveness alone while validating 'supply chain security: sbom, signing, and admission policies'
-- measure rollout and drain timing under representative load while validating 'supply chain security: sbom, signing, and admission policies'
-- treat autoscaling, disruption budgets, and termination settings as one system while validating 'supply chain security: sbom, signing, and admission policies'
-- test rollback before assuming the cluster will recover cleanly by default while validating 'supply chain security: sbom, signing, and admission policies'
+## Admission Policy Is the Cluster Boundary
 
----
+Admission should enforce the minimum trust contract the cluster is willing to accept.
 
-## Production Checklist
+Typical examples:
 
-- probe, drain, or scheduling rule tied to one availability goal
-- rollout metric that would tell operators to stop quickly
-- resource or disruption assumptions written next to the change
-- rollback path proven under live-ish load
+- image must be referenced by digest
+- image must be signed by an approved identity
+- registry must be on the allowlist
+- required attestations must exist for production namespaces
 
----
+That boundary matters because it turns supply chain controls from best effort into actual deployment policy.
+
+## Common Failure Modes
+
+### Audit-only forever
+
+Teams enable policy visibility but never turn on meaningful enforcement.
+That teaches everyone the controls are optional.
+
+### Signatures exist, but nobody verifies them
+
+This is the supply-chain equivalent of storing backups you never test.
+
+### Mutable tag workflows remain normal
+
+If `:latest` or mutable release tags stay central, operators cannot reliably reason about what is running.
+
+### No exception path
+
+A security control without a temporary, auditable exception flow often gets bypassed out of frustration.
+
+### Exception path becomes permanent policy
+
+The opposite failure is turning "temporary waiver" into the real default.
+
+## A Practical Rollout Strategy
+
+Do not jump straight to hard enforcement across every namespace.
+Start with:
+
+1. inventory and observe
+2. publish violations in audit mode
+3. fix the obvious pipeline and registry issues
+4. enforce in one controlled environment
+5. promote to production namespaces with an explicit exception process
+
+That sequence keeps the policy credible.
+It also prevents an avoidable first impression where "security policy" means "deployment outage."
+
+## What Operators Need During a Blocked Deployment
+
+When admission rejects a workload, the platform should make it obvious:
+
+- which policy failed
+- which artifact identity was expected
+- whether the issue is signing, provenance, registry, or digest
+- how to request a temporary exception
+
+If the operator experience is just "denied by policy," the system will earn resentment instead of trust.
+
+## Metrics Worth Tracking
+
+At minimum, expose:
+
+- admission denials by reason
+- unsigned image attempts
+- mutable-tag deployment attempts
+- exception grants and expirations
+- SBOM generation coverage
+- signature verification failures by environment
+
+Those metrics tell you whether the platform is actually shifting behavior or merely producing paperwork.
+
+## A Practical Governance Rule
+
+Treat supply chain security as release policy, not just security tooling.
+That means:
+
+- approved signer identities are owned explicitly
+- admission requirements differ by environment intentionally
+- exceptions are time-bounded and reviewed
+- deployment tooling prefers immutable digests by default
+
+That is how supply chain controls become something operators can live with instead of something they work around.
 
 ## Key Takeaways
 
-- 'Supply chain security: SBOM, signing, and admission policies' should be designed as a production decision, not just an implementation detail
-- platform configuration is part of application reliability, not separate from it
-- start from a measurable baseline before optimizing
+- SBOM, signing, and admission policy solve different trust problems and should stay conceptually separate.
+- The cluster boundary should verify trust, not merely hope upstream controls were followed.
+- Digest pinning and signature verification are operationally more important than many teams realize.
+- A usable exception process is part of good enforcement, not a weakness in it.

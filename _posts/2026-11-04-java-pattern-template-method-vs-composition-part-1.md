@@ -24,100 +24,162 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Design Patterns with Java
 ---
-Template method vs composition in framework extension points is most useful when the pattern clarifies a real design pressure instead of decorating the codebase with abstractions. The production value comes from making extension, composition, and debugging easier.
+Template Method and composition both solve extension problems, but they make very different bets.
+Template Method says, "subclasses may customize these steps."
+Composition says, "inject collaborators and keep inheritance shallow."
 
----
+Both can work.
+The difference shows up later, when the framework has to evolve without turning every subclass into fragile glass.
 
-## Problem 1: Template method vs composition in framework extension points
+## Quick Comparison
 
-Problem description:
-We want template method vs composition in framework extension points to solve a specific design problem without turning the code into ceremonial abstraction. This part focuses on the baseline model and the safe default shape.
+| Question | Template Method | Composition |
+| --- | --- | --- |
+| Is the overall algorithm stable? | strong fit | also possible |
+| Do extension points need strict ordering? | strong fit | requires more explicit orchestration |
+| Is subclassing already part of the framework contract? | strong fit | mixed |
+| Do you expect many orthogonal variations? | weak | strong |
+| Is debugging inheritance chains already painful? | weak | stronger choice |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For design patterns, the hidden risk is choosing abstraction because it sounds elegant instead of because it absorbs a real source of change.
+The more variation points you have, the more composition usually wins.
 
-What we are doing actually:
+## A Typical Framework Pressure
 
-1. make the pattern assembly explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the pattern assembly explicit: choose the simplest baseline design that preserves correctness
-3. make the pattern assembly explicit: make observability visible from the first implementation
-4. make the pattern assembly explicit: validate the baseline with one concrete failure drill
+Suppose a batch job framework always performs:
 
----
+1. load input
+2. validate data
+3. transform records
+4. write output
 
-## Why This Topic Matters
+If that algorithm skeleton is stable and only a couple of steps vary, Template Method can be a clean fit.
 
-- patterns should absorb a real source of change or composition pressure
-- the cost of abstraction is justified only when it simplifies evolution or debugging
-- clear pattern boundaries reduce accidental responsibility overlap
+If teams keep asking for different validation rules, different output sinks, optional retries, metrics, tracing, and tenant-specific branching, composition usually ages better.
 
----
-
-## Architecture Model
-
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Template method vs composition in framework extension points]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
-
-The diagram highlights composition points and responsibility flow because template method vs composition in framework extension points only pays off when abstraction reduces debugging and change cost.
-Keeping that flow visible prevents the pattern from turning into decorative indirection.
-
----
-
-## Practical Design Pattern
+## Template Method Example
 
 ```java
-public interface TopicBehavior {
-    Result execute(Command command);
-}
+public abstract class CsvImportJob {
+    public final void run(Path file) {
+        List<String> rows = load(file);
+        validate(rows);
+        List<Record> records = transform(rows);
+        write(records);
+    }
 
-public final class TopicResolver {
-    TopicBehavior resolve(Context context) {
-        // Compose the right behavior for: Template method vs composition in framework extension points
-        return command -> Result.success();
+    protected List<String> load(Path file) {
+        return List.of();
+    }
+
+    protected abstract void validate(List<String> rows);
+    protected abstract List<Record> transform(List<String> rows);
+    protected abstract void write(List<Record> records);
+}
+```
+
+This is nice when the algorithm really is fixed and the hooks are few and well understood.
+
+## Why Composition Often Overtakes It
+
+The same design can be modeled with collaborators:
+
+```java
+public final class CsvImportJob {
+    private final Validator validator;
+    private final Transformer transformer;
+    private final Writer writer;
+
+    public CsvImportJob(Validator validator, Transformer transformer, Writer writer) {
+        this.validator = validator;
+        this.transformer = transformer;
+        this.writer = writer;
+    }
+
+    public void run(Path file) {
+        List<String> rows = List.of();
+        validator.validate(rows);
+        List<Record> records = transformer.transform(rows);
+        writer.write(records);
     }
 }
 ```
 
-This pattern example is intentionally modest because template method vs composition in framework extension points should clarify one source of change before it introduces any new layers.
-When the abstraction does not make responsibilities easier to follow, adding more pattern machinery rarely helps.
+Composition often wins because it keeps variation local:
 
----
+- swap one collaborator without subclassing the whole job
+- test one rule at a time
+- mix and match policies more easily
+- avoid fragile protected hooks
 
-## Failure Drill
+## The Real Tradeoff
 
-Baseline drill: add one new behavior variant and verify the pattern extension path stays clearer than editing one giant class for template method vs composition in framework extension points.
+Template Method is strongest when:
 
-That drill matters early, before rollout assumptions harden into defaults because template method vs composition in framework extension points should prove it reduces change friction under pressure, not just that the abstraction reads nicely in isolation.
+- the algorithm order is stable
+- the framework owns the lifecycle
+- extension points are narrow and intentional
 
----
+Composition is strongest when:
 
-## Debug Steps
+- variation points keep growing
+- different concerns evolve at different speeds
+- multiple combinations must coexist
+- inheritance would couple unrelated choices together
 
-Debug steps:
+The mistake is not using Template Method.
+The mistake is using it after the hook count has already become a warning sign.
 
-- name the exact design pressure before choosing the pattern vocabulary while validating template method vs composition in framework extension points
-- keep one place where the composition order is visible while validating template method vs composition in framework extension points
-- check whether the pattern reduces change cost or merely moves it around while validating template method vs composition in framework extension points
-- remove abstraction if the extension path is still harder than plain code while validating template method vs composition in framework extension points
+## Where Template Method Goes Wrong
 
----
+### Too many hooks
 
-## Production Checklist
+Once subclasses override many protected methods, the base class becomes hard to reason about.
 
-- source of change that justifies the abstraction written down
-- composition boundary visible in code review
-- debugging path clearer after the pattern than before
-- fallback simpler implementation still understood by the team
+### Hidden ordering dependencies
 
----
+If overriding one hook requires understanding three others, extension is no longer safe.
+
+### Subclass explosion
+
+If the team starts naming classes like `RetryingValidatedTracingCsvImportJob`, inheritance has already become a combinatorial problem.
+
+## Where Composition Goes Wrong
+
+### Over-fragmentation
+
+Splitting trivial behavior into too many tiny interfaces can make the flow harder to follow than a well-designed base class.
+
+### No clear orchestration owner
+
+Composition still needs one place that owns algorithm order.
+Without that, the design becomes "everything is injectable, but nobody knows the lifecycle."
+
+## A Practical Decision Rule
+
+Choose Template Method when:
+
+1. the algorithm skeleton is stable
+2. the framework should strongly control execution order
+3. the allowed extension hooks are few and well defined
+
+Choose composition when:
+
+1. behavior combinations are growing
+2. variation points are orthogonal
+3. independent testing and replacement matter more than subclass convenience
+
+## Testing and Maintenance Lens
+
+A good framework question is:
+"What will be easier to extend six months from now without accidental breakage?"
+
+If the answer depends on developers memorizing which protected methods are safe to override, Template Method may already be overstretched.
+
+If the answer depends on twenty injected collaborators with unclear ownership, composition may be overdone.
 
 ## Key Takeaways
 
-- Template method vs composition in framework extension points should be designed as a production decision, not just an implementation detail
-- patterns should clarify the source of change, not decorate the code
-- start from a measurable baseline before optimizing
+- Template Method controls an algorithm through inheritance.
+- Composition controls variation through collaborators.
+- Stable skeletons favor Template Method.
+- Growing combinations and independent change usually favor composition.

@@ -25,96 +25,193 @@ header:
   show_overlay_excerpt: false
   caption: Microservices Architecture and Reliability Patterns
 ---
-Backward-compatible API evolution and deprecation governance (Part 3) is not just a diagramming exercise. The hard part is deciding where ownership, failure handling, and change coordination should live once the system is split across services.
+Part 3 is where API evolution stops being a versioning syntax problem and becomes an operations problem.
 
----
+Most teams know how to create `/v2`.
+Far fewer know how to retire `/v1`, prove clients are ready, and stop "temporary" compatibility code from becoming permanent platform debt.
 
-## Problem 1: Backward-compatible API evolution and deprecation governance (Part 3)
+## Quick Summary
 
-Problem description:
-We want to use backward-compatible api evolution and deprecation governance (part 3) without creating hidden coupling, rollout friction, or a distributed monolith. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+| Question | Healthy answer |
+| --- | --- |
+| When do we version? | only when compatibility cannot be preserved safely |
+| How do we deprecate? | with telemetry, timelines, and named owners |
+| What usually goes wrong? | zombie versions, silent client breakage, and contradictory contracts |
+| What makes Part 3 hard? | governance, rollout sequencing, and removal discipline |
 
-What we are solving actually:
-We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For service architectures, the hidden risk is usually coupling that migrates from code into network boundaries and release processes.
+If Part 1 chose the compatibility strategy and Part 2 hardened the mechanics, Part 3 is about making deprecation real.
 
-What we are doing actually:
+## The Hard Part Is Not Creating a New Version
 
-1. make the service landscape explicit: define a staged rollout or migration plan
-2. make the service landscape explicit: attach clear ownership and rollback rules
-3. make the service landscape explicit: codify verification gates around latency, errors, or correctness
-4. make the service landscape explicit: write the operator playbook before the first real incident forces it
+Adding a version is easy compared with everything around it:
 
----
+- which clients still depend on the old contract
+- what the migration path looks like
+- which teams own the sunset timeline
+- how removal gets blocked or approved
 
-## Why This Topic Matters
+Without those answers, versioning becomes a way to avoid hard decisions rather than manage them.
 
-- service boundaries become release and incident boundaries too
-- latency and ownership trade-offs often dominate abstract purity
-- one unclear contract can multiply operational friction across many teams
+## When Deprecation Governance Is Actually Necessary
 
----
+You need explicit policy when:
 
-## Architecture Model
+- mobile or partner clients upgrade slowly
+- multiple teams publish APIs with different compatibility habits
+- public APIs or SDKs exist outside your direct control
+- old versions create real maintenance, security, or testing cost
+
+Small internal systems can often manage change with direct coordination.
+At scale, informal coordination stops working.
+
+## A Useful Policy Has Four Parts
+
+### Compatibility rule
+
+Define what counts as backward compatible and what does not.
+
+Examples:
+
+- adding an optional field: usually safe
+- making an optional field required: breaking
+- changing enum meaning: often breaking even if parsing still works
+- reusing an old field name with new semantics: dangerous even without a new version
+
+### Telemetry rule
+
+You must know which clients still use the old contract.
+Without that, a deprecation date is a guess.
+
+### Timeline rule
+
+Each deprecation should define:
+
+- announcement date
+- migration guide date
+- feature-freeze date for the old version
+- target removal date
+
+### Ownership rule
+
+Somebody must own:
+
+- the contract
+- the migration guide
+- client communication
+- the final removal call
+
+If ownership is fuzzy, old versions never die.
+
+## A Practical Decommissioning Flow
 
 ```mermaid
 flowchart TD
-    A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Backward-compatible API evolution and deprecation governance (Part 3)]
-    C -->|No| E[Rollback / revise]
+    A[New contract ready] --> B[Publish migration guide]
+    B --> C[Instrument version usage]
+    C --> D[Freeze new features on old version]
+    D --> E{Traffic below removal threshold?}
+    E -->|Yes| F[Execute removal window]
+    E -->|No| G[Escalate to lagging consumers]
 ```
 
-The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once backward-compatible api evolution and deprecation governance (part 3) is live.
-If a diagram cannot make those boundaries obvious, the implementation usually hides coupling rather than removing it.
+The important part is not just the flow.
+It is the threshold.
+Removal should be triggered by measured readiness, not by wishful calendar optimism.
 
----
+## The Failure Modes That Hurt Most
 
-## Practical Design Pattern
+### Zombie versions
 
-```java
-public final class ServiceBoundary {
-    public Decision evaluate(Command command) {
-        // Keep ownership and failure policy explicit for: Backward-compatible API evolution and deprecation governance (Part 3)
-        return Decision.accept();
-    }
+The old version is still alive because one unknown client may be using it and no one wants to own the shutdown decision.
+
+### Version explosion
+
+Teams keep creating versions because it feels safer than compatibility discipline.
+Soon every change multiplies testing, observability, and support cost.
+
+### Same path, different meaning
+
+The API label stays the same, but behavior shifts in a breaking way.
+This is often worse than explicit versioning because clients do not know they should distrust the contract.
+
+### Telemetry-free migration
+
+The team announces deprecation but never measures which consumers actually moved.
+Removal day becomes the first real discovery mechanism.
+
+## Metrics That Make Deprecation Real
+
+Track these from day one:
+
+- request volume by version
+- unique client IDs by version
+- percentage of traffic using deprecated fields
+- error rate by client segment during migration
+- adoption of replacement fields or endpoints
+
+If you cannot answer "who is still on the old contract?" you are not ready to remove it.
+
+## A Practical Example
+
+Suppose `/payments` currently returns:
+
+```json
+{
+  "status": "OK"
 }
 ```
 
-The example is small on purpose: it shows where the decision enters and who owns the consequence when backward-compatible api evolution and deprecation governance (part 3) is applied.
-That is usually more valuable in review than a larger demo that hides contracts behind extra scaffolding.
+and the new contract wants:
 
----
+```json
+{
+  "result": "APPROVED"
+}
+```
 
-## Failure Drill
+A safer migration is:
 
-Rollout drill: degrade one dependency and observe whether the boundary still contains failure instead of amplifying it for backward-compatible api evolution and deprecation governance (part 3).
+1. add `result`
+2. keep `status` temporarily
+3. document the mapping clearly
+4. measure which clients still depend on `status`
+5. remove `status` only after telemetry proves readiness
 
-That drill matters before the operator playbook is treated as trustworthy because service boundaries around backward-compatible api evolution and deprecation governance (part 3) usually break through coordination delay and unclear ownership long before they break through code syntax.
+The failure mode is keeping both forever because cleanup feels risky.
+That turns compatibility into permanent ambiguity.
 
----
+## Failure Drill Worth Running
 
-## Debug Steps
+Before removal, simulate:
 
-Debug steps:
+1. one major client still sends old headers
+2. one internal job still reads the deprecated field
+3. one dashboard or SDK still depends on the old shape
 
-- map the exact ownership boundary before discussing implementation mechanics while validating backward-compatible api evolution and deprecation governance (part 3)
-- measure network and retry impact separately from business logic correctness while validating backward-compatible api evolution and deprecation governance (part 3)
-- look for hidden coupling in shared databases, release order, or schemas while validating backward-compatible api evolution and deprecation governance (part 3)
-- validate canary behavior under one realistic dependency failure while validating backward-compatible api evolution and deprecation governance (part 3)
+Then verify:
 
----
+- the telemetry catches each one
+- the owner list is accurate
+- removal can be halted intentionally
+- rollback is understood before the first real complaint arrives
 
-## Production Checklist
+If the only detection strategy is production breakage, the governance layer is not mature enough.
 
-- service ownership and rollback responsibilities finalized
-- SLO and contract checks attached to promotion gates
-- operator playbook covers degradation and reversal clearly
-- post-migration cleanup rule prevents old coupling from lingering
+## Part 3 Decision Rule
 
----
+Remove a deprecated version or field only when:
+
+- measured traffic proves low or zero dependency
+- the migration path was documented and communicated
+- rollback ownership is explicit
+- the support cost of compatibility is no longer justified
+
+If any of those are vague, you do not have a deprecation plan yet.
+You have an aspiration.
 
 ## Key Takeaways
 
-- Backward-compatible API evolution and deprecation governance (Part 3) should be designed as a production decision, not just an implementation detail
-- boundaries are only good when ownership and failure semantics remain clear
-- the runbook and rollout policy are part of the design itself
+- API versioning usually succeeds or fails through governance, not URL structure.
+- Telemetry matters more than deprecation announcements.
+- Compatibility code needs an exit plan or it becomes the permanent platform.
+- Good deprecation policy protects both clients and long-term service maintainability.
