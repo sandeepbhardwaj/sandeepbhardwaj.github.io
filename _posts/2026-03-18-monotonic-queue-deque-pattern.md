@@ -23,11 +23,50 @@ header:
   show_overlay_excerpt: false
 ---
 Monotonic deque extends monotonic-stack thinking to moving windows.
-It gives fast max/min queries while the window slides.
+It is the interview pattern for maintaining a rolling max, min, or best candidate without recomputing the whole window every time it slides.
+
+Strong candidates do not say "use a deque for window maximum" and stop there.
+They explain why expired indices leave from the front, why weaker candidates leave from the back, and why the front always remains the current answer.
+
+> [!NOTE] Interview lens
+> A strong monotonic-deque explanation usually has four parts:
+> 1. what the deque front represents,
+> 2. when an index expires,
+> 3. why incoming values dominate weaker candidates behind them,
+> 4. why every index still enters and leaves at most once.
 
 ---
 
-## Core Idea
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Window maximum | every fixed-size window needs its maximum | keep a decreasing deque of candidate indices | Sliding Window Maximum |
+| Window minimum | every fixed-size window needs its minimum | keep an increasing deque of candidate indices | Sliding Window Minimum |
+| Prefix-sum deque | shortest valid subarray with negative numbers allowed | combine prefix sums with an increasing deque of prefix states | Shortest Subarray With Sum At Least K |
+| DP optimization | state transition only needs the best candidate from a recent range | keep only still-useful candidates in monotonic order | Jump Game VI |
+
+## Problem Statement
+
+Given a sliding or constrained range, return its best element or use the best recent state to optimize the next computation.
+
+Typical interview signals:
+
+- the window moves one step at a time
+- the answer depends on the max or min inside that moving range
+- recomputing each window from scratch would be too expensive
+- a heap helps but leaves stale elements hanging around
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  sliding window maximum, minimum in every window, shortest subarray, constrained DP, best in last `k`.
+- Structural signals:
+  candidates expire over time, and weaker candidates can be discarded early because they will never beat a newer stronger value.
+- Complexity signal:
+  expected `O(n)` rather than `O(n log n)` or `O(nk)`.
+
+## Visual Intuition
 
 Maintain deque of indices with monotonic values.
 
@@ -39,7 +78,7 @@ For window maximum:
 
 ---
 
-## Template: Sliding Window Maximum
+## Optimized Template: Sliding Window Maximum
 
 What we are doing actually:
 
@@ -198,7 +237,7 @@ This order is crucial for correctness.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Sliding Window Maximum (LC 239)  
    [LeetCode](https://leetcode.com/problems/sliding-window-maximum/)

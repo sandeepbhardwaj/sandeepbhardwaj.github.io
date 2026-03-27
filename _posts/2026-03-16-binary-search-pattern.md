@@ -24,11 +24,19 @@ header:
 Binary search is not just for finding a value in a sorted array.
 It is a decision pattern over monotonic spaces.
 
-This pattern matters because it reduces repeated search from linear time to logarithmic time. In interviews, it tests whether you can define the right search space, maintain a correct invariant, and update boundaries without introducing off-by-one bugs.
+Strong candidates do not describe binary search as "keep halving until it works."
+They define the search space, state the interval convention, prove which half is impossible after each comparison, and explain what the loop returns when the target is missing.
+
+> [!NOTE] Interview lens
+> A strong binary-search explanation usually has four parts:
+> 1. what ordered or monotonic space is being searched,
+> 2. which invariant the interval maintains,
+> 3. why the midpoint test lets you discard one half safely,
+> 4. what value the loop returns when you are searching for a boundary rather than an exact match.
 
 ---
 
-## 🚀 Pattern Summary Table
+## Pattern Summary Table
 
 | Pattern | When to Use | Key Idea | Example |
 |---|---|---|---|
@@ -38,7 +46,7 @@ This pattern matters because it reduces repeated search from linear time to loga
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Binary search applies when:
 
@@ -63,7 +71,7 @@ Typical goals include:
 
 ---
 
-## 🔍 Pattern Recognition Signals
+## Pattern Recognition Signals
 
 You should strongly consider binary search when the problem contains one or more of these signals.
 
@@ -96,7 +104,7 @@ You should strongly consider binary search when the problem contains one or more
 
 ---
 
-## 🧪 Example
+## Example
 
 Consider a sorted array:
 
@@ -116,7 +124,7 @@ This works because the array is sorted, so every element before `7` is also too 
 
 ---
 
-## 🐢 Brute Force Approach
+## Brute Force Approach
 
 ### Idea
 
@@ -140,13 +148,13 @@ For answer-space problems, brute force would try every possible answer value and
 
 ---
 
-## ⚡ Optimized Approach
+## Optimized Approach
 
-### 💡 Key Insight
+### Key Insight
 
 Maintain a range where the answer may still exist. At each step, inspect the middle and eliminate half the space based on a monotonic rule.
 
-### 🧠 Mental Model
+### Mental Model
 
 We maintain an invariant: **the answer is always inside the current search range**.
 
@@ -154,7 +162,7 @@ Or more practically:
 
 > Each comparison should eliminate half of the remaining possibilities.
 
-### 🛠️ General Steps
+### General Steps
 
 1. Define the search space
 2. Choose an interval style:
@@ -165,7 +173,7 @@ Or more practically:
 5. Repeat until the loop ends
 6. Validate the result if the problem is boundary-based
 
-### 💻 Generic Skeleton
+### Generic Skeleton
 
 ```java
 while (lo <= hi) {
@@ -178,7 +186,7 @@ while (lo <= hi) {
 }
 ```
 
-### ⏱️ Complexity
+### Complexity
 
 - Time: `O(log n)` for array search
 - Time: `O(log range * checkCost)` for answer-space search
@@ -189,7 +197,7 @@ while (lo <= hi) {
 
 ---
 
-## 🎨 Visual Intuition
+## Visual Intuition
 
 ```text
 Sorted array:
@@ -210,13 +218,13 @@ The second diagram is the most important mental model for advanced binary search
 
 ---
 
-## 🧩 Problem: Exact Match
+## Pattern 1: Exact Match
 
-### 🎯 Problem Statement
+### Problem Statement
 
 Given a sorted array and a target value, return the exact index if the target exists.
 
-### 🔍 Recognition
+### Recognition
 
 Signals:
 
@@ -227,18 +235,18 @@ Signals:
 > [!IMPORTANT]
 > If the array is sorted and the task is to find whether a target exists, exact-match binary search is the default starting point.
 
-### 🧪 Example
+### Example
 
 **Input:** `nums = [1, 3, 5, 7, 9]`, `target = 7`  
 **Output:** `3`
 
-### What we are doing actually
+### Problem-Solving Approach
 
 1. Keep a search range that may still contain the answer.
 2. Look at the middle element.
 3. Discard half the range based on sorted order.
 
-### 🐢 Brute Force
+### Brute Force
 
 #### Idea
 
@@ -252,17 +260,17 @@ Check every element until the target is found.
 > [!WARNING]
 > This works, but it wastes the fact that the array is already sorted.
 
-### ⚡ Optimized Approach
+### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 At every step, compare `nums[mid]` with the target. Because the array is sorted, one side becomes impossible immediately.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 We maintain a candidate interval where the target could still exist. After checking `mid`, we remove the half that cannot possibly contain the target.
 
-#### 🛠️ Steps
+#### Steps
 
 1. Start with `lo = 0`, `hi = nums.length - 1`
 2. Compute `mid`
@@ -271,7 +279,7 @@ We maintain a candidate interval where the target could still exist. After check
 5. Otherwise, move left
 6. If range becomes empty, return `-1`
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public int binarySearch(int[] nums, int target) {
@@ -286,7 +294,7 @@ public int binarySearch(int[] nums, int target) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 - Time: `O(log n)`
 - Space: `O(1)`
@@ -294,7 +302,7 @@ public int binarySearch(int[] nums, int target) {
 > [!TIP]
 > This is optimal for exact search in a sorted array because each comparison cuts the remaining search space in half.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 nums   = [1, 3, 5, 7, 9]
@@ -304,7 +312,7 @@ lo=0 hi=4 mid=2 nums[mid]=5  -> target is on the right
 lo=3 hi=4 mid=3 nums[mid]=7  -> found
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Using `(lo + hi) / 2` and risking overflow in other languages or larger integer ranges
 - Incorrect boundary updates causing infinite loops
@@ -313,32 +321,32 @@ lo=3 hi=4 mid=3 nums[mid]=7  -> found
 > [!CAUTION]
 > Choose one interval style and stay consistent. Mixing `[lo, hi]` logic with `[lo, hi)` updates is one of the most common interview mistakes.
 
-### 🧪 Debug Tips
+### Debug Tips
 
 - print `lo`, `hi`, `mid`, and `nums[mid]` each iteration
 - verify the loop condition matches the boundary style you chose
 - test found, not-found, first-index, and last-index cases
 
-### 🔁 Variations
+### Variations
 
 - Search Insert Position
 - First and Last Position of Element in Sorted Array
 - Search in Rotated Sorted Array
 
-### 🔗 Composition
+### Composition
 
 - Combine with lower/upper bound logic when duplicates exist
 - Combine with rotation logic when the sorted array has been shifted
 
 ---
 
-## 🧩 Problem: First True / Lower Bound
+## Pattern 2: First True / Lower Bound
 
-### 🎯 Problem Statement
+### Problem Statement
 
 Return the first index where the array value is greater than or equal to the target.
 
-### 🔍 Recognition
+### Recognition
 
 Signals:
 
@@ -349,7 +357,7 @@ Signals:
 > [!IMPORTANT]
 > If the question asks for the earliest index satisfying a condition, think “first true” binary search.
 
-### 🧪 Example
+### Example
 
 **Input:** `nums = [1, 3, 3, 5, 8]`, `target = 3`  
 **Output:** `1`
@@ -359,13 +367,13 @@ If target is missing:
 **Input:** `nums = [1, 3, 5, 8]`, `target = 4`  
 **Output:** `2` because index `2` is the first place with value `>= 4`
 
-### What we are doing actually
+### Problem-Solving Approach
 
 1. Use a half-open interval `[lo, hi)`.
 2. Treat `nums[mid] >= target` as a true condition.
 3. Move left when true so we keep searching for an earlier valid index.
 
-### 🐢 Brute Force
+### Brute Force
 
 #### Idea
 
@@ -379,13 +387,13 @@ Scan from left to right and return the first index where `nums[i] >= target`.
 > [!WARNING]
 > This ignores the fact that once one value satisfies the condition, everything after it also satisfies it. That monotonic transition is exactly what binary search exploits.
 
-### ⚡ Optimized Approach
+### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 This is not an exact-match search. It is a search for the first position where a monotonic condition becomes true.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 Imagine a boolean array:
 
@@ -395,7 +403,7 @@ false false false true true true
 
 Your job is to find the first `true`.
 
-#### 🛠️ Steps
+#### Steps
 
 1. Set `lo = 0`, `hi = nums.length`
 2. While `lo < hi`:
@@ -404,7 +412,7 @@ Your job is to find the first `true`.
    - else move `lo = mid + 1`
 3. Return `lo`
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public int lowerBound(int[] nums, int target) {
@@ -418,7 +426,7 @@ public int lowerBound(int[] nums, int target) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 - Time: `O(log n)`
 - Space: `O(1)`
@@ -426,7 +434,7 @@ public int lowerBound(int[] nums, int target) {
 > [!TIP]
 > Returning `lo` is correct because the loop ends only when the search space shrinks to the first valid insertion position.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 nums   = [1, 3, 3, 5, 8]
@@ -441,7 +449,7 @@ cond:    false  true  true  true  true
           first true
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Using `hi = mid - 1` with a half-open interval variant
 - Returning `-1` directly without defining what lower bound means when target is missing
@@ -450,29 +458,29 @@ cond:    false  true  true  true  true
 > [!CAUTION]
 > Lower bound returns a position, not necessarily an existing occurrence of the target. Always define what the returned index means.
 
-### 🧪 Debug Tips
+### Debug Tips
 
 - print `lo`, `hi`, `mid`, and whether the condition was true
 - test all elements smaller than target and all elements greater than target
 - verify you return `lo` even when the target is missing
 
-### 🔁 Variations
+### Variations
 
 - upper bound
 - first occurrence of target
 - last occurrence of target
 - search insert position
 
-### 🔗 Composition
+### Composition
 
 - Combine with post-loop validation to turn lower bound into exact occurrence detection
 - Combine with duplicate-handling problems to find frequency ranges
 
 ---
 
-## 🧩 Problem: Search on Answer
+## Pattern 3: Search on Answer
 
-### 🎯 Problem Statement
+### Problem Statement
 
 When the answer is numeric and feasibility is monotonic, binary search the answer itself.
 
@@ -480,7 +488,7 @@ Example: minimum eating speed (Koko).
 
 We do not search for a value inside an array. We search for the smallest answer that makes the feasibility check pass.
 
-### 🔍 Recognition
+### Recognition
 
 Signals:
 
@@ -492,20 +500,20 @@ Signals:
 > [!IMPORTANT]
 > If you can write `canX(mid)` and the result is monotonic, then answer-space binary search is likely the intended solution.
 
-### 🧪 Example
+### Example
 
 For Koko:
 
 - If speed `k = 30` works, then `31`, `32`, and larger speeds also work
 - That gives a monotonic true/false answer space
 
-### What we are doing actually
+### Problem-Solving Approach
 
 1. Define a numeric answer range.
 2. Write a `canFinish` function that is monotonic.
 3. Binary search for the smallest speed where feasibility becomes true.
 
-### 🐢 Brute Force
+### Brute Force
 
 #### Idea
 
@@ -519,13 +527,13 @@ Try every candidate speed from `1` up to `max(piles)` and return the first one t
 > [!WARNING]
 > This becomes slow when the answer range is large. The inefficiency is not in checking one candidate, but in checking too many candidates.
 
-### ⚡ Optimized Approach
+### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 We are searching for the first valid answer in a monotonic range of possible speeds.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 Think of the answer range as:
 
@@ -536,7 +544,7 @@ works?   F  F  F  T  T  T  ...
 
 The job is to find the first `T`.
 
-#### 🛠️ Steps
+#### Steps
 
 1. Set `lo = 1`
 2. Set `hi = max(piles)`
@@ -546,7 +554,7 @@ The job is to find the first `T`.
    - else search right
 4. Return `lo`
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public int minEatingSpeed(int[] piles, int h) {
@@ -569,7 +577,7 @@ private boolean canFinish(int[] piles, int h, int k) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 Let `M = max(piles)`.
 
@@ -579,7 +587,7 @@ Let `M = max(piles)`.
 > [!TIP]
 > The key to answer-space binary search is not the loop itself. It is proving monotonicity of the helper function.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 Possible speeds: 1  2  3  4  5  6  7
@@ -588,7 +596,7 @@ canFinish:       F  F  F  T  T  T  T
                       first valid speed
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Not proving the helper is monotonic
 - Setting invalid search bounds
@@ -598,20 +606,20 @@ canFinish:       F  F  F  T  T  T  T
 > [!CAUTION]
 > If binary search “looks correct” but still fails, inspect the helper function first. In answer-space problems, the bug is often in feasibility logic, not in the boundary updates.
 
-### 🧪 Debug Tips
+### Debug Tips
 
 - print `lo`, `hi`, `mid`, and `canFinish(...)` on each iteration
 - test feasibility on two neighboring answers to confirm monotonicity
 - if binary search seems wrong, inspect the helper first
 
-### 🔁 Variations
+### Variations
 
 - Capacity To Ship Packages Within D Days
 - Minimum Days to Make M Bouquets
 - Split Array Largest Sum
 - Smallest Divisor Given a Threshold
 
-### 🔗 Composition
+### Composition
 
 - Combine with greedy feasibility checks
 - Combine with prefix sum or accumulation logic inside the helper
@@ -666,7 +674,7 @@ Always define what returned index means when target is missing.
 
 ---
 
-## 🔗 Pattern Composition (Advanced)
+## Pattern Composition (Advanced)
 
 Binary search becomes even more powerful when combined with other patterns.
 
@@ -696,7 +704,7 @@ Sometimes the array is not explicitly sorted, but the answer domain is ordered a
 
 ---
 
-## 🧠 Key Takeaways
+## Key Takeaways
 
 - Binary search is a monotonic decision framework, not just a value lookup trick.
 - Choose one interval convention and stay consistent.
@@ -706,7 +714,7 @@ Sometimes the array is not explicitly sorted, but the answer domain is ordered a
 
 ---
 
-## 📌 Practice Problems
+## Practice Problems
 
 1. Binary Search (LC 704)  
    [LeetCode](https://leetcode.com/problems/binary-search/)

@@ -27,7 +27,17 @@ header:
 Prefix sum is the interview pattern for shifting repeated aggregation work into one preprocessing pass.
 Once we maintain the invariant `prefix[i] = sum of the first i elements`, many range and subarray problems collapse into subtraction between checkpoints.
 
-## 🚀 Pattern Summary Table
+Strong candidates do not stop at "build a cumulative array."
+They explain what each prefix state means, how range boundaries are translated, and when prefix-plus-hashmap beats sliding window because negative values destroy monotonicity.
+
+> [!NOTE] Interview lens
+> A strong prefix-sum explanation usually has four parts:
+> 1. what cumulative state is being maintained,
+> 2. how a range or subarray condition becomes a relation between two prefix states,
+> 3. why preprocessing removes repeated work,
+> 4. which extension applies: plain prefix array, hashmap counting, modulo logic, or 2D inclusion-exclusion.
+
+## Pattern Summary Table
 
 | Pattern name | When to use | Key idea | Example |
 | --- | --- | --- | --- |
@@ -37,7 +47,7 @@ Once we maintain the invariant `prefix[i] = sum of the first i elements`, many r
 | 2D Prefix Sum | repeated rectangle sum queries in a matrix | extend prefix accumulation with inclusion-exclusion | Range Sum Query 2D - Immutable |
 | Modular Prefix | divisibility or remainder-based subarray conditions | equal remainders imply divisible difference | Continuous Subarray Sum |
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Given an array or matrix, answer repeated range-aggregation queries efficiently, or count subarrays that satisfy a sum-based condition.
 
@@ -51,7 +61,7 @@ Typical interview constraints:
 > [!NOTE]
 > Always inspect the constraints before coding. If the input is large and the prompt asks for many range sums or exact subarray counts, brute force is almost certainly too slow.
 
-## 🔍 How to Recognize This Pattern
+## Pattern Recognition Signals
 
 - Keywords in the problem:
   range sum, cumulative, prefix, subarray sum equals `k`, pivot, region sum, divisible, remainder.
@@ -69,7 +79,7 @@ Typical interview constraints:
 > 3. negative values that break two-pointer or sliding-window monotonicity,
 > 4. a natural "sum up to this point" interpretation.
 
-## 🧪 Example
+## Example
 
 Input:
 
@@ -93,7 +103,7 @@ Explanation:
 The important shift is this:
 we stop recomputing the middle of the range and instead subtract two precomputed boundaries.
 
-## 🐢 Brute Force Approach
+## Brute Force Approach
 
 Idea:
 
@@ -116,9 +126,9 @@ Complexity:
 > [!WARNING]
 > This fails when the array is large or the number of queries is high. The repeated work is the problem: neighboring queries or subarrays heavily overlap, but brute force recalculates the same sums again and again.
 
-## ⚡ Optimized Approach
+## Optimized Approach
 
-### 💡 Key Insight
+### Key Insight
 
 We optimize by reducing repeated summation into one cumulative pass.
 
@@ -136,7 +146,7 @@ For counting problems, the same logic becomes:
 
 So instead of searching every subarray explicitly, we look up whether the needed earlier prefix has already appeared.
 
-### 🧠 Mental Model
+### Mental Model
 
 Think of the prefix array as a ledger of work already paid for.
 Each range query becomes "take the larger checkpoint and subtract the smaller checkpoint."
@@ -144,7 +154,7 @@ Each range query becomes "take the larger checkpoint and subtract the smaller ch
 For prefix plus hashmap, the mental model is:
 the current index asks the past, "How many earlier prefixes would make my current total land exactly on the target?"
 
-### 🛠️ Steps
+### Steps
 
 Core 1D prefix sum:
 
@@ -168,7 +178,7 @@ Invariant:
 - In the range-query version, `prefix[i]` always equals the sum of `[0, i)`
 - In the hashmap version, `freq` contains counts of prefix sums seen strictly before the current position
 
-### 💻 Code (Java)
+### Code (Java)
 
 Range-query template:
 
@@ -209,7 +219,7 @@ public int subarraySum(int[] nums, int k) {
 }
 ```
 
-### ⏱️ Complexity
+### Complexity
 
 Core 1D prefix sum:
 
@@ -225,7 +235,7 @@ Prefix plus hashmap:
 > [!TIP]
 > This is optimal for immutable range-sum queries because every query is reduced to constant-time subtraction after one linear preprocessing pass. For exact-sum subarray counting, the hashmap extension is usually the interview-optimal answer, especially when negative numbers are present.
 
-## 🎨 Visual Intuition
+## Visual Intuition
 
 ```text
 nums:    [ 3, 1, 4, 2 ]
@@ -255,7 +265,7 @@ Why?
 That is the whole pattern:
 convert a subarray condition into a relation between two prefix states.
 
-## ⚠️ Common Mistakes
+## Common Mistakes
 
 - Using a prefix array of size `n` instead of `n + 1`
 - Mixing inclusive and exclusive boundaries in `prefix[right + 1] - prefix[left]`
@@ -267,7 +277,7 @@ convert a subarray condition into a relation between two prefix states.
 > [!CAUTION]
 > The two most common bugs are boundary mistakes and update-order mistakes. If your answer is off by one, inspect the indexing. If your count is wrong, inspect the order of "count first, then store current prefix."
 
-## 🔁 Pattern Variations
+## Pattern Variations
 
 ### Range Sum Query - Immutable
 
@@ -352,7 +362,7 @@ which means:
 
 `prefix[j] % m == prefix[i] % m`
 
-## 🔗 Pattern Composition (Advanced)
+## Pattern Composition (Advanced)
 
 - Prefix Sum + HashMap:
   the standard composition for exact-sum subarray counting
@@ -375,7 +385,7 @@ Difference array vs prefix sum:
 > [!IMPORTANT]
 > Prefix sum is rarely an isolated trick. In harder interview problems, it often acts as the accounting layer underneath another pattern such as hashmap counting, matrix inclusion-exclusion, modulo reasoning, or transformed-state modeling.
 
-## 🧠 Key Takeaways
+## Key Takeaways
 
 - Prefix sum is the default pattern when repeated range aggregation is the bottleneck.
 - We maintain the invariant that each prefix entry summarizes all work up to that boundary.
@@ -383,7 +393,7 @@ Difference array vs prefix sum:
 - Negative numbers are a strong hint that prefix-sum reasoning may beat sliding window.
 - Most bugs come from indexing mistakes, update order, or forgetting the empty-prefix base case.
 
-## 📌 Practice Problems
+## Practice Problems
 
 1. Range Sum Query - Immutable (LC 303)  
    [LeetCode](https://leetcode.com/problems/range-sum-query-immutable/)

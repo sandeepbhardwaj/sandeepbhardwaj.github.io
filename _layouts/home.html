@@ -2,28 +2,50 @@
 layout: default
 ---
 {% assign posts = paginator.posts | default: site.posts %}
-{% assign featured_categories = site.categories | sort %}
 {% assign latest_post = site.posts.first %}
-<section class="home-hero">
-  <div class="site-container home-hero__inner">
-    <div class="home-hero__content">
-      <div class="home-hero__intro">
-        <p class="home-hero__eyebrow">{{ site.subtitle }}</p>
-        <h1 class="home-hero__title">{{ page.title | default: site.title }}</h1>
-        {% if page.excerpt %}
-          <p class="home-hero__excerpt">{{ page.excerpt }}</p>
-        {% endif %}
-
-        <div class="home-hero__actions">
-          <a class="btn btn--primary" href="#latest-posts">Start Reading</a>
-          <a class="btn" href="{{ '/about/' | relative_url }}">About the Author</a>
-          {% if site.features.search.enabled != false %}
-            <button class="btn btn--ghost" type="button" data-search-open>Search Topics</button>
+{% assign total_posts = site.posts | size %}
+{% assign total_topics = site.categories | size %}
+{% assign roadmap_posts = site.tags.roadmap | sort: "date" | reverse %}
+{% assign roadmap_count = roadmap_posts | size %}
+{% assign is_first_page = true %}
+{% if paginator and paginator.page > 1 %}
+  {% assign is_first_page = false %}
+{% endif %}
+{% if is_first_page %}
+  <section class="home-hero">
+    <div class="site-container home-hero__inner">
+      <div class="home-hero__content">
+        <div class="home-hero__intro">
+          <p class="home-hero__eyebrow">{{ site.subtitle }}</p>
+          <h1 class="home-hero__title">{{ page.title | default: site.title }}</h1>
+          {% if page.excerpt %}
+            <p class="home-hero__excerpt">{{ page.excerpt }}</p>
           {% endif %}
-        </div>
-      </div>
 
-      {% if latest_post or featured_categories.size > 0 %}
+          <div class="home-hero__actions">
+            <a class="btn btn--primary" href="{{ '/roadmaps/' | relative_url }}">Browse Roadmaps</a>
+            <a class="btn" href="#latest-posts">Start Learning</a>
+            {% if site.features.search.enabled != false %}
+              <button class="btn btn--ghost" type="button" data-search-open>Search Topics</button>
+            {% endif %}
+          </div>
+
+          <div class="home-hero__stats" aria-label="Site overview">
+            <div class="home-hero__stat">
+              <span class="home-hero__stat-value">{{ total_posts }}</span>
+              <span class="home-hero__stat-label">articles published</span>
+            </div>
+            <div class="home-hero__stat">
+              <span class="home-hero__stat-value">{{ total_topics }}</span>
+              <span class="home-hero__stat-label">topics in the archive</span>
+            </div>
+            <div class="home-hero__stat">
+              <span class="home-hero__stat-value">{{ roadmap_count }}</span>
+              <span class="home-hero__stat-label">roadmaps available</span>
+            </div>
+          </div>
+        </div>
+
         <div class="home-hero__guide">
           {% if latest_post %}
             <a class="home-hero__guide-item home-hero__guide-item--latest" href="{{ latest_post.url | relative_url }}">
@@ -36,41 +58,136 @@ layout: default
             </a>
           {% endif %}
 
-          {% if featured_categories.size > 0 %}
-            <div class="home-hero__guide-item home-hero__guide-item--topics">
-              <span class="home-hero__guide-label">Browse By Topic</span>
-              <p class="home-hero__guide-copy">Explore the archive through the topics you care about most.</p>
-              <div class="home-hero__topics">
-                {% for category in featured_categories limit: 6 %}
-                  <a class="home-hero__topic" href="/categories/{{ category[0] | slugify }}/">{{ category[0] }}</a>
-                {% endfor %}
-              </div>
+          <div class="home-hero__guide-item home-hero__guide-item--hub">
+            <span class="home-hero__guide-label">Archive Map</span>
+            <p class="home-hero__guide-copy">Use roadmaps for sequence, then move into topics when you want depth across a specific part of the archive.</p>
+            <div class="home-hero__topics">
+              <a class="home-hero__topic" href="{{ '/roadmaps/' | relative_url }}">Roadmaps</a>
+              <a class="home-hero__topic" href="{{ '/categories/dsa/' | relative_url }}">DSA</a>
+              <a class="home-hero__topic" href="{{ '/categories/java/' | relative_url }}">Java</a>
+              <a class="home-hero__topic" href="{{ '/categories/concurrency/' | relative_url }}">Concurrency</a>
+              <a class="home-hero__topic" href="{{ '/categories/backend/' | relative_url }}">Backend</a>
+              <a class="home-hero__topic" href="{{ '/categories/distributed-systems/' | relative_url }}">Distributed Systems</a>
             </div>
-          {% endif %}
+          </div>
         </div>
-      {% endif %}
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="latest-posts" class="site-container home-feed">
+  <section class="site-container home-section home-section--tracks">
+    <div class="section-heading">
+      <div>
+        <p class="section-heading__eyebrow">Topics</p>
+        <h2 class="section-heading__title">Browse the archive by subject</h2>
+        <p class="section-heading__copy">Each topic opens a clear path into the archive, from fundamentals to deeper implementation and architecture trade-offs.</p>
+      </div>
+      <a class="section-heading__link" href="{{ '/categories/' | relative_url }}">View all topics</a>
+    </div>
+
+    <div class="learning-tracks">
+      <a class="learning-track" href="{{ '/categories/dsa/' | relative_url }}">
+        <span class="learning-track__label">DSA</span>
+        <h3 class="learning-track__title">Patterns, templates, and interview-oriented problem solving</h3>
+        <p class="learning-track__copy">Backtracking, trees, graphs, dynamic programming, and the mental models behind solving questions cleanly in Java.</p>
+        <span class="learning-track__meta">{{ site.categories['DSA'] | size | default: 0 }} articles</span>
+      </a>
+
+      <a class="learning-track" href="{{ '/categories/java/' | relative_url }}">
+        <span class="learning-track__label">Java</span>
+        <h3 class="learning-track__title">Production-focused Java design, APIs, and language depth</h3>
+        <p class="learning-track__copy">From language internals to API design and backend implementation patterns used in real systems.</p>
+        <span class="learning-track__meta">{{ site.categories['Java'] | size | default: 0 }} articles</span>
+      </a>
+
+      <a class="learning-track" href="{{ '/categories/concurrency/' | relative_url }}">
+        <span class="learning-track__label">Concurrency</span>
+        <h3 class="learning-track__title">Threading, coordination, safety, and throughput under load</h3>
+        <p class="learning-track__copy">Concurrency fundamentals, modern Java primitives, and the decision trade-offs that matter in backend services.</p>
+        <span class="learning-track__meta">{{ site.categories['Concurrency'] | size | default: 0 }} articles</span>
+      </a>
+
+      <a class="learning-track" href="{{ '/categories/backend/' | relative_url }}">
+        <span class="learning-track__label">Backend</span>
+        <h3 class="learning-track__title">Service design, resilience, and backend engineering practice</h3>
+        <p class="learning-track__copy">Focus on scalable API and service design, operational thinking, and implementation details that survive production reality.</p>
+        <span class="learning-track__meta">{{ site.categories['Backend'] | size | default: 0 }} articles</span>
+      </a>
+
+      <a class="learning-track" href="{{ '/categories/architecture/' | relative_url }}">
+        <span class="learning-track__label">Architecture</span>
+        <h3 class="learning-track__title">System trade-offs, patterns, and architecture-level decision making</h3>
+        <p class="learning-track__copy">Design posts that connect code choices to system behavior, ownership boundaries, reliability, and scale.</p>
+        <span class="learning-track__meta">{{ site.categories['Architecture'] | size | default: 0 }} articles</span>
+      </a>
+
+      <a class="learning-track" href="{{ '/categories/distributed-systems/' | relative_url }}">
+        <span class="learning-track__label">Distributed Systems</span>
+        <h3 class="learning-track__title">Coordination, failure, replication, and systems that operate across boundaries</h3>
+        <p class="learning-track__copy">Build intuition around distributed consistency, latency, recovery, and the operational realities of scale.</p>
+        <span class="learning-track__meta">{{ site.categories['Distributed Systems'] | size | default: 0 }} articles</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="learning-paths" class="site-container home-section home-section--roadmaps">
+    <div class="section-heading">
+      <div>
+        <p class="section-heading__eyebrow">Roadmaps</p>
+        <h2 class="section-heading__title">Structured reading paths through the archive</h2>
+        <p class="section-heading__copy">Each roadmap collects related writing into a deliberate sequence, so you can move through a subject with more continuity.</p>
+      </div>
+      <a class="section-heading__link" href="{{ '/roadmaps/' | relative_url }}">See all roadmaps</a>
+    </div>
+
+    <div class="roadmap-grid">
+      {% for post in roadmap_posts limit: 3 %}
+        <a class="roadmap-card" href="{{ post.url | relative_url }}">
+          <span class="roadmap-card__status">Roadmap</span>
+          <h3 class="roadmap-card__title">{{ post.title }}</h3>
+          {% if post.roadmap_summary %}
+            <p class="roadmap-card__copy">{{ post.roadmap_summary }}</p>
+          {% elsif post.excerpt %}
+            <p class="roadmap-card__copy">{{ post.excerpt | strip_html | truncate: 160 }}</p>
+          {% endif %}
+          <span class="roadmap-card__meta">{{ post.roadmap_meta | default: post.categories | join: " · " }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
+
+<section id="latest-posts" class="site-container home-section home-feed">
   <div class="section-heading">
     <div>
-      <p class="section-heading__eyebrow">Latest Writing</p>
-      <h2 class="section-heading__title">Recent posts</h2>
+      <p class="section-heading__eyebrow">{% if is_first_page %}Latest Writing{% else %}Archive{% endif %}</p>
+      <h2 class="section-heading__title">{% if is_first_page %}Recent articles from the archive{% else %}More articles from the archive{% endif %}</h2>
+      {% if is_first_page %}
+        <p class="section-heading__copy">The newest writing stays visible here, with one featured article leading the section.</p>
+      {% endif %}
     </div>
-    <a class="section-heading__link" href="{{ '/categories/' | relative_url }}">Browse categories</a>
+    <a class="section-heading__link" href="{{ '/categories/' | relative_url }}">Browse topics</a>
   </div>
 
-  <div class="entries-list">
-    {% for post in posts %}
-      {% if forloop.first %}
+  {% if is_first_page and posts.size > 0 %}
+    <div class="home-feed__lead">
+      {% for post in posts limit: 1 %}
         {% include archive-single.html type="list" variant="home-featured" %}
-      {% else %}
+      {% endfor %}
+
+      <div class="entries-list home-feed__stack">
+        {% for post in posts offset: 1 %}
+          {% include archive-single.html type="list" variant="home" %}
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="entries-list">
+      {% for post in posts %}
         {% include archive-single.html type="list" variant="home" %}
-      {% endif %}
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   {% include pagination.html %}
 </section>

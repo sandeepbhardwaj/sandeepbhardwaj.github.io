@@ -22,6 +22,46 @@ header:
   caption: Optimal Route Computation Across Graphs
   show_overlay_excerpt: false
 ---
+Shortest path is the graph pattern for moving from plain traversal into cost-aware route selection.
+The main interview skill is not memorizing named algorithms. It is identifying which edge model you have and proving why that model makes BFS, Dijkstra, or Bellman-Ford the right tool.
+
+> [!NOTE] Interview lens
+> A strong shortest-path explanation usually has four parts:
+> 1. what the graph cost model is,
+> 2. whether edge weights are uniform, non-negative, or possibly negative,
+> 3. what invariant makes the next extracted state safe,
+> 4. how you detect unreachable nodes or reconstruct the path itself.
+
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| BFS shortest path | every edge has equal cost | BFS discovers nodes in increasing edge-count order | Shortest Path in Binary Matrix |
+| Dijkstra | weighted graph with non-negative edges | always expand the currently cheapest known state | Network Delay Time |
+| Bellman-Ford | negative edges may exist | relax every edge repeatedly to propagate shorter paths | cheapest path with negative weights |
+
+## Problem Statement
+
+Given a graph and a notion of path cost, compute the minimum distance from a source to a destination or to all nodes.
+
+Typical interview signals:
+
+- the prompt says shortest path, minimum cost, minimum effort, or minimum time
+- the graph is weighted or unweighted
+- traversal order matters because earlier discovery may or may not be final
+- you may need both distance computation and path reconstruction
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  shortest path, minimum cost, least effort, network delay, weighted graph, non-negative weights.
+- Structural signals:
+  multiple routes may reach the same node, so traversal needs a best-known-distance rule.
+- Decision rule:
+  use BFS for unweighted graphs, Dijkstra for non-negative weights, and Bellman-Ford when negative edges are allowed.
+
+## Visual Intuition
+
 Choose shortest-path algorithm based on edge weights:
 
 - unweighted: BFS
@@ -164,6 +204,18 @@ Use Dijkstra with relaxation on max-edge-so-far metric.
 
 ---
 
+## Pattern Variations
+
+- multi-source BFS for distance-to-nearest-source problems
+- Dijkstra on grids with directional or effort-based edge costs
+- 0-1 BFS when edge weights are only `0` or `1`
+
+## Pattern Composition (Advanced)
+
+- shortest path + parent reconstruction for actual route output
+- shortest path + state expansion when node plus extra condition defines the true state
+- Dijkstra + heap discipline for grid and graph optimization problems
+
 ## Path Reconstruction Tip
 
 If problem asks actual route, maintain `parent[]` during relax:
@@ -179,7 +231,7 @@ Then reconstruct by walking from destination to source through `parent`.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Shortest Path in Binary Matrix (LC 1091)  
    [LeetCode](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
@@ -196,6 +248,7 @@ Then reconstruct by walking from destination to source through `parent`.
 
 ## Key Takeaways
 
-- Match algorithm to weight model first.
-- BFS and Dijkstra cover most real shortest-path interview cases.
-- Priority queue discipline and relaxation logic drive correctness.
+- shortest-path problems are really graph-cost-model problems
+- BFS is correct only when all edges cost the same
+- Dijkstra requires non-negative weights and a stale-entry skip or visited discipline
+- path reconstruction is a small add-on once the distance logic is correct

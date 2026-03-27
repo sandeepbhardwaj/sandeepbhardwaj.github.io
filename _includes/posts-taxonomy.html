@@ -3,37 +3,148 @@
 {% assign alphabetical_taxonomies = include.taxonomies | sort %}
 {% assign entries_layout = page.entries_layout | default: 'list' %}
 {% assign taxonomy_total = alphabetical_taxonomies | size %}
+{% if page.layout == 'categories' %}
+  {% assign taxonomy_directory_label = 'Topic directory' %}
+  {% assign taxonomy_group_label = 'topic groups' %}
+  {% assign taxonomy_search_label = 'Search topics' %}
+  {% assign taxonomy_search_placeholder = 'Find a topic' %}
+  {% assign taxonomy_nav_label = 'Topic directory' %}
+  {% assign taxonomy_nav_title = 'All topics' %}
+  {% assign taxonomy_no_match = 'No matching topic.' %}
+  {% assign taxonomy_overview_copy = 'Filter the directory, then open the section that gives you the clearest path into the archive.' %}
+{% elsif page.layout == 'tags' %}
+  {% assign taxonomy_directory_label = 'Tag directory' %}
+  {% assign taxonomy_group_label = 'tag groups' %}
+  {% assign taxonomy_search_label = 'Search tags' %}
+  {% assign taxonomy_search_placeholder = 'Find a tag' %}
+  {% assign taxonomy_nav_label = 'Tag directory' %}
+  {% assign taxonomy_nav_title = 'All tags' %}
+  {% assign taxonomy_no_match = 'No matching tag.' %}
+  {% assign taxonomy_overview_copy = 'Filter the directory, then open the section that gives you the clearest path into the archive.' %}
+{% else %}
+  {% assign taxonomy_directory_label = 'Taxonomy directory' %}
+  {% assign taxonomy_group_label = 'groups' %}
+  {% assign taxonomy_search_label = site.data.ui-text[locale].search | default: 'Search' %}
+  {% assign taxonomy_search_placeholder = 'Find a category or tag' %}
+  {% assign taxonomy_nav_label = 'Taxonomy directory' %}
+  {% assign taxonomy_nav_title = 'All taxonomies' %}
+  {% assign taxonomy_no_match = 'No matching taxonomy.' %}
+  {% assign taxonomy_overview_copy = 'Filter the directory, then open the section that gives you the clearest path into the archive.' %}
+{% endif %}
+{% if page.layout == 'categories' %}
+<div class="taxonomy__layout taxonomy__layout--topics">
+  <section class="taxonomy__atlas">
+    <div class="taxonomy__atlas-head">
+      <div class="taxonomy__atlas-copy">
+        <p class="taxonomy__eyebrow">Topic atlas</p>
+        <h3 class="taxonomy__atlas-title">Browse the archive by subject.</h3>
+        <p class="taxonomy__atlas-text">{{ taxonomy_total }} {{ taxonomy_group_label }} arranged for faster navigation.</p>
+      </div>
+
+      <div class="taxonomy__atlas-search">
+        <p class="taxonomy__search-title">Search the atlas</p>
+        <label class="taxonomy__search-label" for="taxonomy-search">{{ taxonomy_search_label }}</label>
+        <div class="taxonomy__search-shell">
+          <span class="taxonomy__search-icon" aria-hidden="true"></span>
+          <input
+            id="taxonomy-search"
+            class="taxonomy__search-input"
+            type="search"
+            data-taxonomy-filter
+            autocomplete="off"
+            placeholder="{{ taxonomy_search_placeholder }}"
+            aria-label="{{ taxonomy_search_placeholder }}"
+          />
+        </div>
+      </div>
+    </div>
+
+    <nav aria-label="{{ taxonomy_nav_label }}">
+        <ul class="taxonomy__index taxonomy__index--atlas">
+          {% for taxonomy in alphabetical_taxonomies %}
+            <li class="taxonomy__index-item">
+              <a class="taxonomy__index-link taxonomy__index-link--atlas" href="{{ taxonomy_page_url }}#{{ taxonomy[0] | slugify }}">
+                <span class="taxonomy__index-copy">
+                  <span class="taxonomy__label">{{ taxonomy[0] }}</span>
+                </span>
+                <span class="taxonomy__count">{{ taxonomy[1].size }} posts</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+    </nav>
+
+    <p class="taxonomy__no-match" data-taxonomy-no-match hidden>{{ taxonomy_no_match }}</p>
+  </section>
+
+  <section class="taxonomy__main">
+    <div class="taxonomy__main-head">
+      <p class="taxonomy__eyebrow taxonomy__eyebrow--secondary">Topic groups</p>
+      <h3 class="taxonomy__main-title">Open a subject and explore the writing collected there.</h3>
+      <p class="taxonomy__main-text">Each section brings related posts together so you can move across fundamentals, deeper dives, and adjacent ideas without leaving the page.</p>
+    </div>
+    <div class="taxonomy__sections taxonomy__sections--accordion">
+      {% for taxonomy in alphabetical_taxonomies %}
+        <details id="{{ taxonomy[0] | slugify }}" class="taxonomy__section"{% if forloop.first %} open{% endif %}>
+          <summary class="taxonomy__section-head">
+            <span class="taxonomy__section-heading">
+              <span class="taxonomy__section-title">{{ taxonomy[0] }}</span>
+            </span>
+            <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
+          </summary>
+          <div class="entries-{{ entries_layout }} taxonomy__entries">
+            {% for post in taxonomy.last %}
+              {% include archive-single.html locale=locale type=entries_layout variant="taxonomy" %}
+            {% endfor %}
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% else %}
 <div class="taxonomy__layout taxonomy__layout--directory">
   <aside class="taxonomy__sidebar">
     <div class="taxonomy__rail">
       <div class="taxonomy__overview">
-        <p class="taxonomy__overview-meta">{{ taxonomy_total }} groups</p>
+        <h3 class="taxonomy__overview-title">{{ taxonomy_directory_label }}</h3>
+        <p class="taxonomy__overview-meta">{{ taxonomy_total }} {{ taxonomy_group_label }}</p>
+        <p class="taxonomy__overview-copy">{{ taxonomy_overview_copy }}</p>
       </div>
       <label class="taxonomy__search-label" for="taxonomy-search">
-        {{ site.data.ui-text[locale].search | default: 'Search' }}
+        {{ taxonomy_search_label }}
       </label>
-      <input
-        id="taxonomy-search"
-        class="taxonomy__search-input"
-        type="search"
-        data-taxonomy-filter
-        autocomplete="off"
-        placeholder="Find a category or tag"
-        aria-label="Find a category or tag"
-      />
-      <nav aria-label="Taxonomy directory">
+      <div class="taxonomy__search-shell">
+        <span class="taxonomy__search-icon" aria-hidden="true"></span>
+        <input
+          id="taxonomy-search"
+          class="taxonomy__search-input"
+          type="search"
+          data-taxonomy-filter
+          autocomplete="off"
+          placeholder="{{ taxonomy_search_placeholder }}"
+          aria-label="{{ taxonomy_search_placeholder }}"
+        />
+      </div>
+      <div class="taxonomy__nav-head">
+        <p class="taxonomy__nav-title">{{ taxonomy_nav_title }}</p>
+        <p class="taxonomy__nav-meta">Jump to a section</p>
+      </div>
+      <nav aria-label="{{ taxonomy_nav_label }}">
         <ul class="taxonomy__index taxonomy__index--directory">
           {% for taxonomy in alphabetical_taxonomies %}
             <li class="taxonomy__index-item">
               <a class="taxonomy__index-link" href="{{ taxonomy_page_url }}#{{ taxonomy[0] | slugify }}">
-                <span class="taxonomy__label">{{ taxonomy[0] }}</span>
+                <span class="taxonomy__index-copy">
+                  <span class="taxonomy__label">{{ taxonomy[0] }}</span>
+                </span>
                 <span class="taxonomy__count">{{ taxonomy[1].size }}</span>
               </a>
             </li>
           {% endfor %}
         </ul>
       </nav>
-      <p class="taxonomy__no-match" data-taxonomy-no-match hidden>No matching taxonomy.</p>
+      <p class="taxonomy__no-match" data-taxonomy-no-match hidden>{{ taxonomy_no_match }}</p>
     </div>
   </aside>
 
@@ -42,7 +153,9 @@
       {% for taxonomy in alphabetical_taxonomies %}
         <details id="{{ taxonomy[0] | slugify }}" class="taxonomy__section"{% if forloop.first %} open{% endif %}>
           <summary class="taxonomy__section-head">
-            <span class="taxonomy__section-title">{{ taxonomy[0] }}</span>
+            <span class="taxonomy__section-heading">
+              <span class="taxonomy__section-title">{{ taxonomy[0] }}</span>
+            </span>
             <span class="taxonomy__section-count">{{ taxonomy.last | size }} posts</span>
           </summary>
           <div class="entries-{{ entries_layout }} taxonomy__entries">
@@ -55,6 +168,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 
 <a href="#page-title" class="taxonomy__floating-top" aria-label="{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }}">
   <span class="taxonomy__floating-top-icon" aria-hidden="true">^</span>

@@ -56,7 +56,7 @@ Use this as a quick revision sheet before interviews.
 
 ---
 
-## Core Idea
+## Problem Statement
 
 Two pointers works when the problem state can be represented by positions, boundaries, or relative distance.
 
@@ -71,7 +71,7 @@ The pointer names change, but the reasoning stays the same.
 
 ---
 
-## Quick Recognition Checklist
+## Pattern Recognition Signals
 
 Before coding, ask these questions:
 
@@ -85,7 +85,7 @@ If you can answer "yes" to any of these, two pointers should be one of your firs
 
 ---
 
-## Mental Models That Make This Pattern Easier
+## Visual Intuition
 
 - Two pointers is not "just traversal." It is controlled state reduction.
 - Opposite-direction pointers eliminate search space after each comparison.
@@ -807,7 +807,7 @@ public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
 
 ---
 
-## Common Mistakes Across Two-Pointer Problems
+## Common Mistakes
 
 These mistakes show up repeatedly in interviews:
 
@@ -846,7 +846,7 @@ for an optimal two-pointer solution, a strong summary is often:
 
 ---
 
-## Pattern Variations and Follow-Up Questions
+## Advanced Variations
 
 Interviewers often mutate a base pattern slightly to test whether you actually understand it.
 
@@ -905,7 +905,7 @@ That style sounds significantly stronger than only saying, "I will use two point
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 These problems cover the most useful variations:
 

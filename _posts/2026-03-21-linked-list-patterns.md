@@ -50,6 +50,26 @@ They lose when the workload is dominated by indexing, scanning, cache locality, 
 | Merge and split | merge sorted lists, weave halves, isolate sublists | build a finalized prefix while consuming input streams | Merge Two Sorted Lists |
 | Cycle detection | detect a loop or find its entry | Floyd's meeting argument proves a cycle and can locate the entry | Linked List Cycle II |
 
+## Problem Statement
+
+Given a singly linked list, inspect its structure or mutate it in place without losing reachability.
+
+Typical interview signals:
+
+- the prompt asks for constant extra space
+- node identity matters more than indexed lookup
+- the solution depends on rewiring `next` pointers safely
+- dummy nodes, midpoint detection, reversal, or fixed gaps appear naturally
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  middle, nth from end, reverse, cycle, merge sorted lists, remove node, reorder list.
+- Structural signals:
+  the correct answer depends on pointer topology rather than random access.
+- Complexity signal:
+  optimal solutions are usually `O(n)` time with `O(1)` extra space.
+
 ## Architectural Lens
 
 In interviews and in production, linked-list problems are not about memorizing `slow` and `fast`.
@@ -62,7 +82,7 @@ They are about four engineering concerns:
 
 ---
 
-## Mental Models That Make Linked List Problems Easier
+## Visual Intuition
 
 - Linked list problems are pointer-rewiring problems, not indexing problems.
 - Before changing `current.next`, preserve the reference you will need next.
@@ -715,7 +735,7 @@ Use the older posts when you want a tighter drill on one specific problem, then 
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Middle of the Linked List (LC 876)  
    [LeetCode](https://leetcode.com/problems/middle-of-the-linked-list/)

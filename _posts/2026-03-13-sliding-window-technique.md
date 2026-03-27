@@ -54,7 +54,7 @@ Use this as a quick revision sheet before interviews.
 
 ---
 
-## Core Idea
+## Problem Statement
 
 Sliding window works when the answer lives inside a contiguous subarray or substring and the window state can be updated incrementally.
 
@@ -70,7 +70,7 @@ It is "preserve an invariant while reusing previous work."
 
 ---
 
-## Quick Recognition Checklist
+## Pattern Recognition Signals
 
 Before coding, ask these questions:
 
@@ -84,7 +84,7 @@ If the answer is yes to most of these, sliding window should be one of your firs
 
 ---
 
-## Mental Models That Make This Pattern Easier
+## Visual Intuition
 
 - A sliding window is a live contract over `[left, right]`.
 - `right` discovers information; `left` repairs the invariant.
@@ -632,7 +632,7 @@ That makes the front the maximum of the current window.
 
 ---
 
-## Common Mistakes Across Sliding-Window Problems
+## Common Mistakes
 
 These are the mistakes interviewers see most often:
 
@@ -668,7 +668,7 @@ the core reason these are linear is that each index enters and leaves the window
 
 ---
 
-## Pattern Variations and Follow-Up Questions
+## Advanced Variations
 
 Interviewers often modify the same core pattern in small but meaningful ways.
 
@@ -766,7 +766,7 @@ linear processing, bounded state, and predictable performance.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 These problems cover the most useful sliding-window variants:
 

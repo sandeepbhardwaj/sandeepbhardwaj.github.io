@@ -10,6 +10,14 @@ tags:
 - design-patterns
 - architecture
 - backend
+- roadmap
+roadmap_summary: A guided path through practical Java design patterns with backend
+  examples, trade-offs, and system-oriented design decisions.
+roadmap_meta: Java · Design
+roadmap_highlights:
+- core composition and object design
+- behavioral and structural patterns
+- backend use cases and trade-offs
 toc: true
 toc_label: In This Article
 toc_icon: cog

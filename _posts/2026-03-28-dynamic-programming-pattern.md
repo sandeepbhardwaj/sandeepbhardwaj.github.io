@@ -22,6 +22,49 @@ header:
   show_overlay_excerpt: false
   caption: State Transitions for Optimal Substructure
 ---
+Dynamic programming is the interview pattern for problems where brute force recomputes the same subproblems again and again.
+The hardest part is not coding loops. It is defining the right state and proving the transition.
+
+Strong candidates do not jump straight to a table.
+They first explain what the subproblem means, why the recurrence is complete, and whether memoization or tabulation is the clearer implementation.
+
+> [!NOTE] Interview lens
+> A strong DP explanation usually has four parts:
+> 1. what the state represents,
+> 2. what transition combines smaller answers into the current one,
+> 3. which base cases make the recurrence valid,
+> 4. why memoization or tabulation avoids repeated work.
+
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| 1D DP | answer at position `i` depends on a small number of earlier positions | roll forward a small state window | House Robber |
+| 2D DP | answer depends on two varying dimensions or prefixes | table cell represents a pair of subproblem boundaries | Longest Common Subsequence |
+| Top-down memoization | recurrence is easier to write recursively | cache solved subproblems to avoid recomputation | Climbing Stairs |
+
+## Problem Statement
+
+Given an optimization, counting, or decision problem with overlapping subproblems, compute the best answer without recomputing the same states exponentially many times.
+
+Typical interview signals:
+
+- brute force recursion branches heavily
+- the same subproblem appears from multiple parent calls
+- the answer is built from smaller prefix, suffix, or subset answers
+- the prompt asks for max, min, count, or feasibility over many choices
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  maximum, minimum, count ways, choose or skip, subsequence, partition, recurrence.
+- Structural signals:
+  subproblems overlap and the final answer has optimal substructure.
+- Complexity signal:
+  naive recursion would be exponential, but distinct states are far fewer.
+
+## Visual Intuition
+
 DP solves optimization/counting problems with overlapping subproblems.
 The hardest part is state definition, not coding loops.
 
@@ -189,7 +232,20 @@ DP bugs are often indexing/base-case bugs, not formula bugs.
 
 ---
 
-## Practice Set (Recommended Order)
+## Pattern Variations
+
+- knapsack-style DP
+- subsequence and string DP
+- interval DP
+- DP on trees, digits, and bitmasks in advanced follow-ups
+
+## Pattern Composition (Advanced)
+
+- DP + prefix sums for faster transitions
+- DP + monotonic deque or convex-style optimization for range-limited transitions
+- DP + graphs or topological order when states form a DAG
+
+## Practice Problems
 
 1. Climbing Stairs (LC 70)  
    [LeetCode](https://leetcode.com/problems/climbing-stairs/)
@@ -208,6 +264,7 @@ DP bugs are often indexing/base-case bugs, not formula bugs.
 
 ## Key Takeaways
 
-- DP is about correct state modeling and transitions.
-- Start with clear recurrence before coding.
-- Space optimization is a refinement, not the first step.
+- the state definition is the real design decision
+- memoization proves the recurrence quickly, while tabulation often gives better iterative control
+- most DP bugs are state-definition, base-case, or indexing mistakes
+- optimize space only after the full state transition is already correct
