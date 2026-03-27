@@ -22,125 +22,44 @@ header:
   show_overlay_excerpt: false
   caption: Dependency Failure Containment and Recovery Controls
 ---
-Resilience patterns protect your service during dependency failures.
-They work only when composed as one policy, not added independently.
+Resilience patterns are not a pile of protective annotations. They are a policy for how the service should fail when a dependency becomes slow, flaky, or saturated.
+
+That is why retries, timeouts, bulkheads, and circuit breakers should be designed together. Used independently, they often amplify failure instead of containing it.
 
 ---
 
-## Recommended Composition Order
+## Start With the Failure Budget, Not the Library
 
-1. timeout (bound waiting)
-2. bulkhead (bound concurrency)
-3. circuit breaker (fast-fail unhealthy dependency)
-4. retry with jitter (limited recovery attempts)
+Before choosing a resilience mechanism, ask:
 
-Wrong order can create retry storms and queue collapse.
+- how long can this dependency be allowed to block?
+- how many concurrent requests may it consume?
+- which failures are transient and worth retrying?
+- what degraded behavior is acceptable?
 
----
-
-## Policy by Failure Type
-
-Not every error should be retried.
-
-- `429`, `503`, transient network timeout: retry with backoff
-- `400`, validation, business rule failures: do not retry
-- non-idempotent write without idempotency key: do not retry
-
-A generic retry-all policy is a production anti-pattern.
+Those questions create the policy. The library only implements it.
 
 ---
 
-## Example (Resilience4j Style Composition)
+## The Order Matters
 
-```java
-Supplier<Response> call = () -> client.fetch(orderId);
+A healthy composition is usually:
 
-Supplier<Response> guarded = Decorators.ofSupplier(call)
-    .withBulkhead(bulkhead)
-    .withTimeLimiter(timeLimiter)
-    .withCircuitBreaker(circuitBreaker)
-    .withRetry(retry)
-    .decorate();
+1. timeout
+2. bulkhead
+3. circuit breaker
+4. retry with jitter
 
-Response response = guarded.get();
-```
+That order works because:
 
-Tune each dependency separately. One global configuration is rarely correct.
+- timeouts bound waiting
+- bulkheads prevent one dependency from consuming all concurrency
+- the breaker fast-fails when the dependency is clearly unhealthy
+- retries are only attempted inside already-bounded behavior
 
----
+If retries happen before the system has bounded waiting and concurrency, they can turn a small brownout into a self-inflicted load storm.
 
-## Dependency Budgeting
-
-Every dependency should have:
-
-- timeout budget (e.g. 150ms)
-- max concurrent calls (bulkhead)
-- max retry attempts (usually 1-2 additional tries)
-- fallback behavior (optional, explicit)
-
-This creates predictable degradation under stress.
-
----
-
-## Dry Run: Partial Outage Scenario
-
-Dependency `inventory-service` starts returning 60% timeouts.
-
-1. timeout trips quickly (150ms), preventing long request blocking.
-2. bulkhead limits concurrent inventory calls.
-3. circuit breaker opens after failure threshold, fast-failing new calls.
-4. retries are limited and jittered, avoiding synchronized retry spikes.
-5. service returns degraded response for inventory data.
-
-Without these controls, request queues expand and unrelated endpoints degrade.
-
----
-
-## Metrics to Operate By
-
-- timeout rate per dependency
-- bulkhead saturation/rejection count
-- circuit breaker state transitions
-- retry attempts per request
-- fallback activation rate
-
-These metrics should feed alerts and capacity reviews.
-
----
-
-## Common Mistakes
-
-- retrying inside retries (nested retry policies)
-- using long timeout plus many retries
-- sharing one bulkhead across unrelated dependencies
-- enabling fallback that hides real incident severity
-
----
-
-## Key Takeaways
-
-- resilience is controlled load-shedding and recovery, not just retry logic.
-- enforce strict time, concurrency, and retry budgets per dependency.
-- validate policies in failure drills before production incidents.
-
----
-
-        ## Problem 1: Coordinate Resilience Controls as One Load-Shedding Policy
-
-        Problem description:
-        Retries, breakers, and bulkheads often get introduced independently, which means the system can still overload itself even though every individual mechanism looks sensible.
-
-        What we are solving actually:
-        We are solving controlled failure behavior under dependency trouble. The key is policy order and bounded budgets, not the presence of resilience libraries alone.
-
-        What we are doing actually:
-
-        1. set the timeout and concurrency ceiling before discussing retries
-2. apply retry only to idempotent, transient failure classes
-3. use separate bulkheads for dependencies with different latency and capacity profiles
-4. treat fallback as a product decision with observable degraded behavior
-
-        ```mermaid
+```mermaid
 flowchart LR
     A[Caller] --> B[Bulkhead]
     B --> C[Timeout]
@@ -149,38 +68,105 @@ flowchart LR
     E --> F[Dependency]
 ```
 
-        This section is worth making concrete because architecture advice around resilience patterns java retries bulkheads circuit breakers often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+---
 
-        ## Production Example
+## Retry Is a Business Decision, Not a Reflex
 
-        ```java
-        Supplier<Response> guarded = Decorators.ofSupplier(() -> client.fetch(orderId))
-    .withBulkhead(bulkhead)
-    .withTimeLimiter(timeLimiter)
-    .withCircuitBreaker(circuitBreaker)
-    .withRetry(retry)
-    .decorate();
-        ```
+Not every failure should be retried.
 
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+Good retry candidates:
 
-        ## Failure Drill
+- temporary network failures
+- `429` or `503` with bounded backoff
+- transient timeouts on idempotent operations
 
-        Induce 503s and timeouts together, then inspect whether retry traffic overwhelms the same dependency. If it does, the composition is still amplifying failure instead of containing it.
+Bad retry candidates:
 
-        ## Debug Steps
+- validation errors
+- business rule failures
+- non-idempotent writes without an idempotency boundary
 
-        Debug steps:
+Teams often overestimate how helpful retries are. Most resilience designs improve once retry policy becomes narrower, not broader.
 
-        - plot retry count beside breaker transitions and queue depth
-- use per-dependency budgets rather than one shared resilience profile
-- cap fallback use when degraded data can become misleading
-- simulate brownouts, not only total outages, during resilience drills
+---
 
-        ## Review Checklist
+## Bulkheads Matter More Than People Expect
 
-        - Timeout before retry.
-- Bulkhead by dependency.
-- Retry only what is safe and transient.
+Bulkheads are often under-discussed because they do not feel as sophisticated as circuit breakers. But they are often what stops one degraded dependency from consuming all threads, connections, or request budget.
+
+Use separate bulkheads for dependencies with meaningfully different latency and capacity profiles. A single shared bulkhead across unrelated dependencies often creates accidental coupling.
+
+---
+
+## A Small Composition Example
+
+```java
+Supplier<Response> call = () -> client.fetch(orderId);
+
+Supplier<Response> guarded = Decorators.ofSupplier(call)
+        .withBulkhead(bulkhead)
+        .withTimeLimiter(timeLimiter)
+        .withCircuitBreaker(circuitBreaker)
+        .withRetry(retry)
+        .decorate();
+
+Response response = guarded.get();
+```
+
+The key point is not the fluent API. It is that each dependency should have its own measured configuration rather than inheriting one global resilience profile.
+
+---
+
+## A Better Outage Drill
+
+Suppose `inventory-service` starts returning a mix of timeouts and `503`s.
+
+A healthy policy does this:
+
+- times out quickly
+- caps concurrent inventory calls
+- opens the circuit when the failure rate proves the dependency is unhealthy
+- performs only bounded, jittered retries for eligible requests
+- returns an explicit degraded outcome if that is a valid product decision
+
+An unhealthy policy keeps retrying into the same overloaded dependency while request queues swell.
+
+---
+
+## Fallbacks Are Product Behavior
+
+Fallbacks should not exist just to make dashboards greener.
+
+They are appropriate when the degraded result is still honest and useful:
+
+- cached recommendations
+- partial inventory visibility
+- temporarily unavailable non-critical metadata
+
+They are dangerous when they hide correctness problems or make operators think the system is healthy when it is only quietly returning lower-quality results.
+
+> [!WARNING]
+> A fallback that hides incident severity can be more damaging than a clear failure, because it makes the system harder to reason about during recovery.
+
+---
+
+## What to Measure
+
+Useful signals include:
+
+- timeout rate by dependency
+- bulkhead rejections
+- breaker state changes
+- retry attempts per request
+- fallback activation rate
+
+Together, those show whether the policy is containing failure or feeding it.
+
+---
+
+## Key Takeaways
+
+- Resilience is controlled failure behavior, not "more retries."
+- Time, concurrency, retry, and fallback rules should be designed as one policy.
+- Retry only what is both transient and safe to repeat.
+- Bulkheads and explicit degradation decisions are often the difference between containment and cascade.

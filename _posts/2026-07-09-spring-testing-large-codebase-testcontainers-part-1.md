@@ -24,98 +24,161 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Testing strategy for large Spring codebases with Testcontainers becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Large Spring codebases do not fail because they lack tests.
+They fail because the wrong tests are doing the wrong jobs: too many slow integration tests, not enough focused contract tests, and not enough confidence that local correctness matches production dependencies.
+
+Testcontainers helps, but only when it is part of a real test strategy rather than a reflex.
 
 ---
 
-## Problem 1: Testing strategy for large Spring codebases with Testcontainers
+## Start With Test Intent
 
-Problem description:
-We want to apply testing strategy for large spring codebases with testcontainers in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on the baseline model and the safe default shape.
+In a large Spring codebase, every test should answer one question clearly:
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- does this unit make the right decision
+- does this Spring slice wire the right components together
+- does this integration boundary behave correctly against a real dependency
 
-What we are doing actually:
+If every question is answered with a full application context plus a containerized database, the suite becomes expensive and hard to trust.
 
-1. make Spring Boot explicit: identify the ownership boundary and the non-negotiable invariant
-2. make Spring Boot explicit: choose the simplest baseline design that preserves correctness
-3. make Spring Boot explicit: make observability visible from the first implementation
-4. make Spring Boot explicit: validate the baseline with one concrete failure drill
+That is not realism.
+That is overpaying for confidence.
 
 ---
 
-## Why This Topic Matters
+## Where Testcontainers Actually Helps
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+Testcontainers is strongest when the behavior depends on the real dependency:
 
----
+- PostgreSQL semantics instead of H2 approximations
+- Redis TTL or serialization behavior
+- Kafka topic, partition, and consumer-group interaction
+- schema migrations against the real engine
 
-## Architecture Model
+It is weakest when used for tests that only need:
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Testing strategy for large Spring codebases with Testcontainers]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+- pure business logic
+- simple service branching
+- small Spring configuration slices
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so testing strategy for large spring codebases with testcontainers stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+> [!IMPORTANT]
+> If a test does not care about the real behavior of the dependency, starting a container is usually wasted cost.
 
 ---
 
-## Practical Design Pattern
+## A Useful Layering Model
+
+For a large Spring codebase, a healthy mix often looks like this:
+
+- pure unit tests for domain logic and utility behavior
+- slice tests for MVC, JPA, or messaging configuration
+- focused Testcontainers integration tests for real infrastructure behavior
+- a small number of end-to-end workflow tests
+
+The point is not to maximize one category.
+The point is to give each category a clear purpose.
+
+---
+
+## A Real Testcontainers Example
+
+This is the kind of test where Testcontainers earns its keep:
 
 ```java
-@Configuration
-class TopicConfiguration {
+@Testcontainers
+@SpringBootTest
+class ProductRepositoryIntegrationTest {
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Testing strategy for large Spring codebases with Testcontainers", 1);
+    @Container
+    static PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16");
+
+    @DynamicPropertySource
+    static void databaseProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Autowired
+    private ProductRepository repository;
+
+    @Test
+    void savesAndLoadsProduct() {
+        repository.save(new ProductEntity("p-1", "keyboard"));
+        assertThat(repository.findById("p-1")).isPresent();
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in testing strategy for large spring codebases with testcontainers is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+This test is valuable because it proves repository behavior against a real PostgreSQL instance, not an in-memory substitute with different semantics.
+
+---
+
+## Where Teams Overuse It
+
+The common mistake is letting Testcontainers spread into every test class.
+That creates:
+
+- slow feedback loops
+- heavier CI load
+- more flakiness from startup timing
+- less clarity about what each test is supposed to prove
+
+A repository integration test is a good candidate.
+A pure discount-policy unit test is not.
+
+---
+
+## The Real Strategy Problem
+
+The core testing question in large Spring systems is not "should we use Testcontainers?"
+It is:
+
+- what must be proved with the real dependency
+- what can be proved with a slice
+- what should stay fast enough to run constantly
+
+Once that split is clear, Testcontainers becomes a sharp tool instead of a heavy habit.
 
 ---
 
 ## Failure Drill
 
-Baseline drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for testing strategy for large spring codebases with testcontainers.
+A useful drill is migration drift:
 
-That check matters early, before rollout assumptions harden into defaults because Spring issues around testing strategy for large spring codebases with testcontainers often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. start a real database with Testcontainers
+2. apply the latest migrations
+3. run one repository or query path the team depends on heavily
+4. verify the test fails loudly if the schema and code drift apart
+
+That is much more valuable than another generic "service returns 200" integration test.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating testing strategy for large spring codebases with testcontainers
-- keep customization close to the intended extension point instead of scattered overrides while validating testing strategy for large spring codebases with testcontainers
-- observe startup, request, and shutdown phases separately while validating testing strategy for large spring codebases with testcontainers
-- verify rollback by disabling the new behavior, not by rewriting it live while validating testing strategy for large spring codebases with testcontainers
+- identify which test category is supposed to catch a given failure
+- keep container-backed tests focused on real dependency semantics
+- reuse containers carefully when CI cost matters, but do not hide isolation bugs
+- watch context startup time and test count growth over time
+- prune broad `@SpringBootTest` usage when a narrower slice would prove the same thing
 
 ---
 
 ## Production Checklist
 
-- named extension point and explicit fallback path
-- startup or runtime metric that proves the first rollout is safe
-- configuration precedence documented for the changed path
-- rollback tested without emergency code surgery
+- unit, slice, integration, and end-to-end tests each have a clear role
+- Testcontainers is used where real dependency behavior matters
+- CI timing is measured so the suite does not decay silently
+- migration and serialization paths are tested against real infrastructure
+- broad full-context tests are the exception, not the default
 
 ---
 
 ## Key Takeaways
 
-- Testing strategy for large Spring codebases with Testcontainers should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- start from a measurable baseline before optimizing
+- Testcontainers is most valuable for real dependency semantics, not generic application testing.
+- Large Spring codebases need a layered test strategy, not one universal test style.
+- Fast tests protect developer flow; container-backed tests protect infrastructure correctness.
+- The best test suite is the one where each layer has a job the others cannot do as well.

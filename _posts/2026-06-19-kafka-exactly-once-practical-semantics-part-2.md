@@ -23,17 +23,56 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Implement idempotent sink**.
+Part 1 established the uncomfortable but useful truth: Kafka exactly-once semantics stops at Kafka's boundary. Part 2 is what most real systems need next. If your processor writes to a database, cache, or external side-effect sink, you need an idempotent sink design that can absorb replay without corrupting state.
 
----
+This is where the broader workflow becomes trustworthy. Not because Kafka suddenly expanded its guarantee, but because the external side is now designed to tolerate re-execution.
 
-## Real-World Scenario
+## The Pattern We Need Outside Kafka
 
-Kafka EOS alone does not prevent duplicate side effects in external systems such as databases or HTTP APIs.
+The usual shape is simple:
 
----
+1. identify the logical event with a stable event id
+2. check whether that id has already been applied
+3. apply the business side effect and mark the id as processed in the same local transaction
 
-## Run It Locally
+That final clause matters. The dedupe marker and the side effect need to move together, or the sink can still end up inconsistent.
+
+~~~java
+if (alreadyProcessed(eventId)) {
+    return;
+}
+
+applyBusinessUpdate();
+markProcessed(eventId);
+~~~
+
+The code is intentionally small, but the idea is strong: make replay cheap and safe.
+
+## Why the Dedupe Write Belongs Beside the Side Effect
+
+Suppose you process `PaymentSettled` into a relational database.
+
+If the service:
+
+- updates the payment row
+- crashes before recording `eventId` as processed
+
+then replay can apply the same state transition again. The dedupe marker must live in the same local atomic unit as the business update.
+
+That is why a processed-event table is so common in sink designs.
+
+## A More Honest Guarantee Statement
+
+With this pattern in place, the system can say something more accurate:
+
+- Kafka provides transactional visibility for Kafka-to-Kafka work
+- the sink provides idempotent application of external side effects
+
+That combination is what many teams actually mean when they say they want end-to-end correctness under replay.
+
+It is still not magic. It is two explicit guarantees joined carefully.
+
+## Local Baseline
 
 ### Prerequisites
 
@@ -66,107 +105,56 @@ services:
 docker compose up -d
 ~~~
 
----
+### Dedupe Table
 
-## Lab Steps
-
-1. Check processed_event by event_id before side effect.
-2. Insert marker in same transaction as side effect.
-3. No-op duplicates.
-
----
-
-## Runnable Code Block
-
-~~~java
-if (alreadyProcessed(eventId)) return;
-applyBusinessUpdate();
-markProcessed(eventId);
+~~~sql
+create table processed_event (
+  event_id varchar(64) primary key,
+  processed_at timestamp not null default now()
+);
 ~~~
 
----
+This table is not bookkeeping overhead. It is the evidence that the sink knows what it has already accepted.
 
-## Verify
+## The Right Failure Drill
+
+Replay the same event batch twice and inspect final state, not just message counts.
 
 ~~~bash
-# verify duplicate count remains zero
 psql -c "select count(*) from processed_event;"
 ~~~
 
----
+A healthy result looks like:
 
-## Failure Drill
+- business state unchanged on the second replay
+- no duplicate row effects
+- one durable processed marker per logical event
 
-Replay same event batch twice and verify stable final state.
+That is a much better test than "we did not notice duplicates in the logs."
 
----
+> [!important]
+> Idempotent sinks protect outcomes, not only executions. The real question is whether the final business state stays stable under replay.
 
-## What You Should Learn
+## Common Mistakes
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+### Using unstable event identity
 
----
+If the dedupe key changes between retries or replays, the sink loses the whole point of the pattern.
 
-        ## Problem 1: Exactly Once Is a Scoped Guarantee, Not a Marketing Phrase
+### Recording the marker outside the business transaction
 
-        Problem description:
-        Teams hear 'exactly once' and assume the whole workflow is protected, even when external databases, HTTP calls, or side effects still sit outside Kafka's atomic boundary. Harden the baseline against the edge cases that appear under load and replay.
+That reintroduces a crash window and weakens the guarantee.
 
-        What we are solving actually:
-        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
+### Assuming every sink can use the same approach
 
-        What we are doing actually:
+Databases, HTTP APIs, and object stores may each need a slightly different form of idempotency, even if the concept is shared.
 
-        1. introduce the hardening mechanism one layer at a time
-2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
-3. measure what becomes safer and what becomes more complex
-4. leave behind a rule the team can apply during future changes
+## What This Part Should Leave You With
 
-        ```mermaid
-flowchart LR
-    A[Consume] --> B[Kafka transaction]
-    B --> C[Produce output]
-    C --> D[Send offsets]
-    D --> E[Commit]
-```
+After Part 2, the team should understand:
 
-        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
+1. why Kafka EOS still needs help once external side effects exist
+2. how an idempotent sink closes that gap
+3. why the dedupe marker and business side effect must be recorded together
 
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        producer.beginTransaction();
-for (ConsumerRecord<String, OrderEvent> record : records) {
-    producer.send(transform(record));
-}
-producer.sendOffsetsToTransaction(offsets, consumer.groupMetadata());
-producer.commitTransaction();
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Use `read_committed` consumers and crash the processor at different points so you can observe where Kafka guarantees stop and where the wider workflow still needs idempotency.
-
-        ## Failure Drill
-
-        Introduce an external side effect beside Kafka publication and replay the transaction. The mismatch is the exact reason teams still need compensation or idempotency around outside systems.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - separate Kafka-only guarantees from end-to-end business guarantees in the docs
-- test crashes before commit and after output send
-- check transactional IDs are stable across restarts of the same processor identity
-- review how external effects are de-duplicated because Kafka cannot do that part for you
-
----
-
-## Operator Prompt
-
-For exactly once semantics myths versus practical guarantees (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is the practical route from scoped Kafka guarantees to a workflow that can survive replay without losing integrity.

@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Lightweight Prefix Aggregation Structure
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Fenwick tree is the range-query pattern for prefix aggregates with efficient point updates in a compact array-backed structure.
+Strong candidates explain the least-significant-bit jump rule clearly, because that bit trick is the whole reason the structure works.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Use binary indexed tree for prefix sums and point updates with low constant factors.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 10 Fenwick Tree Pattern | you need prefix sums or counts with frequent point updates | store partial prefix aggregates in bit-indexed buckets and jump by lowbit | Prefix Sum with Updates |
 
----
+## Problem Statement
+
+Given repeated prefix or range-sum queries plus point updates, maintain results faster than rescanning the array each time.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: Fenwick tree, BIT, prefix sum, point update, lowbit.
+- Structural signal: each index owns a power-of-two-sized suffix of prefix information.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you need point updates and prefix queries with simpler implementation than a segment tree, think Fenwick tree.
 
 ## Java Template
 

@@ -60,6 +60,23 @@ Those weights are applied to value vectors to produce contextualized output.
 
 This lets model focus dynamically on relevant parts of sequence for each token.
 
+A simple way to think about it:
+
+- the query asks "what am I looking for"
+- the key says "what information do I contain"
+- the value carries the information that gets aggregated
+
+In the sentence "The server restarted because it ran out of memory," the token `it` should attend more strongly to `server` than to `memory`.
+That is the kind of contextual routing self-attention is designed to learn.
+
+```mermaid
+flowchart LR
+    A[Token sequence] --> B[Query, Key, Value projections]
+    B --> C[Attention scores]
+    C --> D[Weighted value aggregation]
+    D --> E[Context-aware token representations]
+```
+
 ---
 
 ## Multi-Head Attention
@@ -101,6 +118,9 @@ Position encoding injects sequence order:
 
 Position strategy matters for long-context and extrapolation behavior.
 
+This matters more than it first appears.
+Without a notion of order, "dog bites man" and "man bites dog" would look uncomfortably similar to the model.
+
 ---
 
 ## Training and Scaling Trade-Offs
@@ -113,6 +133,9 @@ Larger models and datasets often improve capability, but scaling introduces:
 - serving complexity
 
 Model selection should be driven by task quality per unit cost, not absolute benchmark score.
+
+That is especially important in enterprise systems, where the best model is often not the most capable one in the abstract.
+It is the one that satisfies latency, cost, and safety constraints while staying predictable enough to operate.
 
 ---
 
@@ -127,6 +150,11 @@ After pretraining, teams typically use:
 
 For fast-changing knowledge domains, retrieval + prompt control often has better ROI than frequent fine-tuning.
 
+That choice is often misunderstood.
+Fine-tuning changes model behavior.
+Retrieval changes the information available to the model at runtime.
+Those solve different problems.
+
 ---
 
 ## Inference Engineering Constraints
@@ -140,6 +168,9 @@ Serving quality is shaped by:
 - quantization/compilation choices
 
 Key production task is balancing latency, cost, and quality.
+
+For example, a longer context window is not automatically a win.
+It may increase latency and memory usage enough that overall system throughput drops, while the model still pays attention poorly to the least relevant parts of the prompt.
 
 ---
 
@@ -161,6 +192,9 @@ Mitigation stack:
 
 Architecture alone does not guarantee reliability.
 
+The operational lesson is straightforward: a transformer is a component, not a whole product.
+Production reliability comes from the surrounding system design.
+
 ---
 
 ## Evaluation Framework
@@ -174,6 +208,15 @@ Evaluate across dimensions:
 - latency and cost
 
 One metric cannot represent full system quality.
+
+For a support assistant, "good evaluation" may mean:
+
+- answers are grounded in retrieved documents
+- escalation happens when confidence is low
+- output stays within schema
+- P95 latency remains inside the product budget
+
+That is a much more useful bar than only reporting benchmark-style accuracy.
 
 ---
 
@@ -241,6 +284,9 @@ Why this works:
 - validation ensures output compatibility with UI and logs
 
 This often outperforms a larger model without retrieval in factual workflows.
+
+The deeper lesson is that architecture should reflect the product promise.
+If the promise is "fast, grounded, cited answers," then retrieval, validation, and fallback deserve as much attention as the model itself.
 
 ---
 

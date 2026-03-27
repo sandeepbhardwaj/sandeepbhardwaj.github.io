@@ -59,6 +59,7 @@ Symptoms:
 - weak or unstable production behavior
 
 Skew is a systems issue, not a model-tuning issue.
+That is why feature stores belong in the reliability story of ML systems, not just in the convenience story.
 
 ---
 
@@ -85,6 +86,17 @@ Optimized for availability and latency.
 
 Both planes must use the same feature definitions.
 
+```mermaid
+flowchart LR
+    A[Source systems] --> B[Feature definition]
+    B --> C[Offline feature plane]
+    B --> D[Online feature plane]
+    C --> E[Training datasets]
+    D --> F[Live inference]
+```
+
+If those two planes drift apart, the model is effectively trained for one world and deployed into another.
+
 ---
 
 ## Point-in-Time Correctness
@@ -95,6 +107,9 @@ A training row for event time `t` may only include feature values available at o
 Without this rule, future information leaks into training and inflates evaluation.
 
 Point-in-time joins are non-negotiable for trustworthy model performance.
+
+For example, a fraud model scoring an event at `10:00 AM` cannot legally use a balance snapshot computed at `10:05 AM`.
+That is not a harmless data bug. It changes what the model is allowed to know.
 
 ---
 
@@ -112,6 +127,9 @@ Each production feature should include:
 Think of features as APIs.
 Undocumented features create silent compatibility failures.
 
+This is often the real dividing line between a feature table and a feature platform.
+The storage matters, but the contract matters more.
+
 ---
 
 ## Feature Quality Monitoring
@@ -126,6 +144,8 @@ Monitor feature health continuously:
 
 Feature quality incidents should page owners before model quality incidents escalate.
 
+If the first alert arrives only after business metrics collapse, the monitoring loop is already too late.
+
 ---
 
 ## Materialization Patterns
@@ -137,6 +157,12 @@ Common strategies:
 - hybrid approach for mixed latency requirements
 
 Design for graceful degradation when a feature source is delayed.
+
+Not every stale feature is equally dangerous.
+Some can fall back safely. Others change the meaning of the prediction when they lag.
+
+> [!important]
+> A feature store is only useful if it can explain freshness, availability, and point-in-time behavior clearly enough for the serving system to make the right decision under partial failure.
 
 ---
 
@@ -168,6 +194,8 @@ Result:
 
 Root cause is feature contract mismatch, not model retraining frequency.
 
+This is why retraining alone often fails to fix production regressions. The model is not broken in isolation; the feature boundary is.
+
 ---
 
 ## Common Mistakes
@@ -198,36 +226,3 @@ Start with high-value features, not full migration of everything.
 - Point-in-time correctness is the cornerstone of valid training data.
 - Training-serving consistency requires shared contracts, not just shared storage.
 - Governance, monitoring, and ownership are essential for long-term platform health.
-
----
-
-            ## Problem 1: Turn Feature Stores and Training-Serving Consistency Into a Repeatable ML Decision
-
-            Problem description:
-            Topics like feature stores and training-serving consistency are easy to understand conceptually and still easy to misuse in practice when the team tunes offline metrics without checking validation stability, calibration, and serving behavior together.
-
-            What we are solving actually:
-            We are deciding how this idea should change model quality on unseen data and what evidence would prove the change was worth shipping.
-
-            What we are doing actually:
-
-            1. define the failure mode this technique is supposed to reduce
-            2. compare train, validation, and serving behavior instead of one score in isolation
-            3. keep a small experiment log so parameter changes stay explainable
-            4. re-check latency, drift, and threshold behavior before rollout
-
-            ```mermaid
-flowchart LR
-    A[Training data] --> B[Model training]
-    B --> C[Validation check]
-    C --> D[Serving decision]
-```
-
-            ## Debug Steps
-
-            Debug steps:
-
-            - compare training and validation curves before deciding the model is better
-            - inspect whether the improvement survives a different split or time window
-            - verify that threshold or calibration changes still match the product objective
-            - record the production metric that should move if the offline change is real

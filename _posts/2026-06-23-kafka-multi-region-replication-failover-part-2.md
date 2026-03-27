@@ -23,17 +23,58 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Client failover behavior**.
+Part 1 defined data ownership and failover authority. Part 2 moves closer to the client edge, because even a well-reasoned multi-region plan can still behave badly if producers and consumers do not fail over in a predictable way.
 
----
+This is where client behavior becomes part of resilience design rather than a passive detail.
 
-## Real-World Scenario
+## The Client-Side Problem
 
-Region outage handling requires tested failover and failback workflows, not just replication enabled by default.
+From the application's perspective, failover is not a diagram. It is a sequence of retry, reconnect, DNS or endpoint choice, and eventually new steady state.
 
----
+That means client behavior has to be designed around questions like:
 
-## Run It Locally
+- how quickly should producers stop waiting on the failed region
+- how aggressively should they reconnect
+- how is the secondary chosen
+- what signal tells operators that clients have stabilized rather than only switched endpoints
+
+~~~properties
+bootstrap.servers=primary:9092,secondary:9092
+reconnect.backoff.ms=200
+~~~
+
+Those values are not magic defaults. They are part of the recovery behavior you are choosing.
+
+## Why This Part Follows the Ownership Discussion
+
+Client failover only makes sense once the team already knows:
+
+- which region is allowed to accept writes
+- under what condition the switch is legitimate
+
+Otherwise the client layer can fail over faster than the operating model can justify, which creates a new class of inconsistency.
+
+## What to Measure During Client Failover
+
+A real drill should capture:
+
+- producer publish latency during the switch
+- error rate before and after endpoint change
+- stabilization time once the new region is in use
+- the observed data gap relative to replication lag at the moment of failover
+
+Those measurements turn "the client eventually recovered" into something operationally useful.
+
+```mermaid
+flowchart LR
+    A[Primary client path fails] --> B[Reconnect and retry logic]
+    B --> C[Secondary endpoint selected]
+    C --> D[Producer stabilizes]
+```
+
+The important word here is stabilizes. A noisy client that keeps flapping between endpoints can be worse than a slower but controlled failover.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,103 +107,43 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Right Drill for Part 2
 
-## Lab Steps
+Force the primary endpoint path to fail and observe how fast producers stop erroring and settle onto the secondary path.
 
-1. Configure client endpoint failover list.
-2. Validate retry/backoff behavior.
-3. Measure RTO and data gap.
+Do not stop the exercise at "messages resumed." Also ask:
 
----
-
-## Runnable Code Block
-
-~~~properties
-bootstrap.servers=primary:9092,secondary:9092
-reconnect.backoff.ms=200
-~~~
-
----
-
-## Verify
+- was there duplicate risk during retries
+- did backoff keep the client stable
+- could operators tell the difference between temporary noise and a clean switchover
 
 ~~~bash
-# observe publish latency and failover transition in logs/metrics
+# observe publish latency and failover transition in logs and metrics
 ~~~
 
----
+> [!important]
+> A failover design is incomplete if it specifies region ownership but leaves client retry and endpoint behavior to defaults no one has tested.
 
-## Failure Drill
+## Common Mistakes
 
-Force DNS/endpoint switch and measure how fast producers stabilize.
+### Letting clients fail over faster than the governance model
 
----
+That can create writes in the wrong place before authority is actually transferred.
 
-## What You Should Learn
+### Optimizing for raw RTO while ignoring stability
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+A fast but flappy recovery path can be harder to operate than a slightly slower one that converges cleanly.
 
----
+### Forgetting to measure the data gap
 
-        ## Problem 1: Failover Is a Data Ownership Problem, Not Just a Routing Problem
+Client success alone does not tell you how much replicated history the secondary may still have been missing.
 
-        Problem description:
-        Multi-region Kafka plans look easy in diagrams, but failover breaks down around offset translation, producer ownership, and how consumers know which region is authoritative. Harden the baseline against the edge cases that appear under load and replay.
+## What This Part Should Leave You With
 
-        What we are solving actually:
-        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
+After Part 2, the team should understand:
 
-        What we are doing actually:
+1. how client retry and endpoint choices shape failover behavior
+2. what "stabilized on the secondary" actually means
+3. why client failover has to stay aligned with the ownership model from Part 1
 
-        1. introduce the hardening mechanism one layer at a time
-2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
-3. measure what becomes safer and what becomes more complex
-4. leave behind a rule the team can apply during future changes
-
-        ```mermaid
-flowchart LR
-    A[Primary region] --> B[Replication]
-    B --> C[Secondary region]
-    C --> D[Failover consumers]
-```
-
-        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        if (primaryRegionHealthy()) {
-    producer.send(primaryRecord);
-} else {
-    producer.send(secondaryRecord);
-}
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Run a controlled failover drill and record message continuity, duplicate risk, and recovery time. A document that has never seen a drill is only an optimistic plan.
-
-        ## Failure Drill
-
-        Pause replication and then fail over reads. The inconsistency window you observe is the real cost of the topology, and it must be explicit in your operating model.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - define whether the design is active-passive or active-active before building tools around it
-- document which region owns writes during failover and recovery
-- test consumer offset behavior across region transitions
-- track replication lag as a correctness signal, not just a throughput metric
-
----
-
-## Operator Prompt
-
-For multi region kafka replication and failover patterns (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is what turns a regional failover plan into a client behavior the team can actually trust under stress.

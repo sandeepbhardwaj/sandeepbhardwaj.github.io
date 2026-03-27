@@ -25,98 +25,144 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Event-driven Spring architecture with async failure control (Part 3) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 clarified that Spring events are in-process coordination, not durable messaging.
+Part 2 focused on async failure containment.
+Part 3 is the final maturity step: deciding which event-driven flows are allowed to remain best effort and which ones have grown important enough to deserve durable delivery and stronger ownership.
 
 ---
 
-## Problem 1: Event-driven Spring architecture with async failure control (Part 3)
+## The Final Problem Is Event Contract Escalation
 
-Problem description:
-We want to apply event-driven spring architecture with async failure control (part 3) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+Many systems start with lightweight in-process events for good reasons.
+The problem comes later when one of those listeners quietly becomes business-critical:
 
-What we are solving actually:
-We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- finance cares about it
+- another team depends on it
+- missed delivery creates real customer impact
+- but the code still treats it as best-effort async work
 
-What we are doing actually:
-
-1. make Spring Boot explicit: define a staged rollout or migration plan
-2. make Spring Boot explicit: attach clear ownership and rollback rules
-3. make Spring Boot explicit: codify verification gates around latency, errors, or correctness
-4. make Spring Boot explicit: write the operator playbook before the first real incident forces it
+That is the moment where the architecture needs to decide whether the event stays local or graduates to a durable contract.
 
 ---
 
-## Why This Topic Matters
+## Not Every Event Deserves a Broker, But Some Eventually Do
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+By part 3, the useful question is:
+"What class of guarantee does this event need now?"
+
+Typical categories:
+
+- purely local side effect
+- best-effort async convenience
+- must-observe internal event
+- cross-service durable integration event
+
+The mistake is leaving all four in the same implementation model forever.
 
 ---
 
-## Architecture Model
+## A Better Evolution Path
 
 ```mermaid
 flowchart TD
-    A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Event-driven Spring architecture with async failure control (Part 3)]
-    C -->|No| E[Rollback / revise]
+    A[In-process event] --> B[Business importance grows]
+    B --> C[Best-effort no longer acceptable]
+    C --> D[Outbox or broker-backed contract]
+    D --> E[Named ownership and monitoring]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so event-driven spring architecture with async failure control (part 3) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+This is not overengineering.
+It is just refusing to leave important business guarantees hidden inside listener callbacks.
 
 ---
 
-## Practical Design Pattern
+## Make Event Class Matter in the Code
 
 ```java
-@Configuration
-class TopicConfiguration {
+sealed interface OrderEvent permits LocalOrderAuditEvent, DurableOrderPlacedEvent {}
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Event-driven Spring architecture with async failure control (Part 3)", 3);
-    }
+record LocalOrderAuditEvent(String orderId) implements OrderEvent {}
+record DurableOrderPlacedEvent(String orderId) implements OrderEvent {}
+```
+
+Even a simple distinction like that can clarify design intent:
+
+- some events are local convenience
+- some are durable business contracts
+
+That is healthier than making all listeners look equal while depending on them unequally.
+
+> [!IMPORTANT]
+> When the business treats an event as guaranteed but the code treats it as best effort, the system is carrying hidden reliability debt.
+
+---
+
+## Durable Delivery Needs a Different Boundary
+
+For must-observe events, a typical next step is an outbox write inside the same transaction as the source-of-truth update:
+
+```java
+@Transactional
+public void checkout(Order order) {
+    orderRepository.save(order);
+    outboxRepository.save(OutboxMessage.orderPlaced(order.id()));
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in event-driven spring architecture with async failure control (part 3) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+That changes the operational model fundamentally.
+Now the event is no longer "maybe the async listener ran."
+It becomes "the state change and durable emission intent committed together."
+
+---
+
+## Ownership Matters as Much as Delivery
+
+Part 3 also needs governance:
+
+- who owns the event schema
+- who owns retries and dead-letter handling
+- who can add consumers
+- which changes are backward compatible
+
+Without that, a broker can still give you durable chaos.
 
 ---
 
 ## Failure Drill
 
-Rollout drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for event-driven spring architecture with async failure control (part 3).
+1. choose one event currently handled in-process
+2. ask whether missed delivery is truly acceptable
+3. if not, model the durable alternative explicitly
+4. compare operational ownership before and after the change
+5. decide whether the event has outgrown the local listener model
 
-That check matters before the operator playbook is treated as trustworthy because Spring issues around event-driven spring architecture with async failure control (part 3) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+This is the part-3 decision that keeps event-driven systems honest as they mature.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating event-driven spring architecture with async failure control (part 3)
-- keep customization close to the intended extension point instead of scattered overrides while validating event-driven spring architecture with async failure control (part 3)
-- observe startup, request, and shutdown phases separately while validating event-driven spring architecture with async failure control (part 3)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating event-driven spring architecture with async failure control (part 3)
+- classify each event by guarantee level, not only by implementation style
+- review whether business-critical listeners are still hiding in best-effort executors
+- promote durable events through an outbox or broker boundary when needed
+- define event ownership and compatibility expectations explicitly
+- remove local event patterns that no longer match business importance
 
 ---
 
 ## Production Checklist
 
-- promotion criteria written for the final rollout stage
-- owner for config drift and rollback clearly named
-- steady-state and failure-state metrics both in the runbook
-- post-rollout review hook defined for future changes
+- event types are classified by guarantee level
+- must-observe events are not implemented as casual best-effort listeners
+- durable event ownership and schema evolution are defined
+- retry and dead-letter behavior belongs to someone concrete
+- local events remain local only when their business impact truly allows it
 
 ---
 
 ## Key Takeaways
 
-- Event-driven Spring architecture with async failure control (Part 3) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- the runbook and rollout policy are part of the design itself
+- Part 3 of event-driven design is deciding which events deserve stronger guarantees.
+- In-process async listeners are fine for local best-effort work, not for hidden business contracts.
+- Durable delivery and ownership usually need a boundary like an outbox or broker.
+- Mature event-driven systems classify their events by business importance, not just by code shape.

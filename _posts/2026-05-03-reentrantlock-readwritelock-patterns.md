@@ -21,32 +21,45 @@ header:
   show_overlay_excerpt: false
   caption: Explicit Locking Strategies for Shared State
 ---
-`ReentrantLock` and `ReadWriteLock` are useful when intrinsic monitors are too limited for production coordination needs.
-Use them intentionally, because lock flexibility comes with complexity.
+Explicit locks are useful when `synchronized` stops being expressive enough. The mistake is assuming that more expressive also means more scalable.
+
+`ReentrantLock` and `ReadWriteLock` are tools for specific coordination problems. They help when you need control over acquisition behavior, starvation trade-offs, or read-heavy access patterns. They hurt when they are introduced just to look more advanced than intrinsic locking.
 
 ---
 
-## When to Prefer Explicit Locks
+## When Explicit Locks Are Worth It
 
-- need `tryLock()` for fail-fast behavior
-- need interruptible locking in cancellation-aware flows
-- need read/write separation for read-heavy maps
-- need fair locking semantics for starvation-sensitive paths
+Reach for explicit locks when the design needs one of these behaviors:
+
+- timed lock acquisition with `tryLock()`
+- interruptible waiting
+- fairness as an explicit trade-off
+- multiple condition queues
+- read/write separation for genuinely read-dominant state
+
+If none of those matter, `synchronized` is often clearer.
 
 ---
 
-## ReentrantLock Pattern
+## `ReentrantLock` Is About Coordination Control
+
+The strongest reason to use `ReentrantLock` is not raw throughput. It is that the API lets the caller behave intelligently under contention.
 
 ```java
-class WalletService {
+final class WalletService {
     private final ReentrantLock lock = new ReentrantLock();
-    private long balance;
+    private long balanceInCents;
 
-    boolean transferOut(long amount) {
-        lock.lock();
+    boolean transferOut(long amount) throws InterruptedException {
+        if (!lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+            return false;
+        }
+
         try {
-            if (balance < amount) return false;
-            balance -= amount;
+            if (balanceInCents < amount) {
+                return false;
+            }
+            balanceInCents -= amount;
             return true;
         } finally {
             lock.unlock();
@@ -55,59 +68,134 @@ class WalletService {
 }
 ```
 
-Timeout variant for backpressure-friendly APIs:
+That small change gives you useful production behavior:
 
-```java
-if (!lock.tryLock(100, TimeUnit.MILLISECONDS)) {
-    return false; // or explicit busy response
-}
-```
+- callers can fail fast instead of hanging
+- the request can surface backpressure honestly
+- interrupted work can stop waiting for the lock
+
+This matters much more than "explicit locks are faster."
 
 ---
 
-## ReadWriteLock Pattern
+## `ReadWriteLock` Helps Only When Reads Truly Dominate
+
+A read-write split sounds attractive, but it only pays off when:
+
+- reads are much more frequent than writes
+- read sections are short
+- writes are not long or bursty
+- the protected state can be understood as one shared structure
 
 ```java
-class ConfigStore {
+final class ConfigStore {
     private final ReadWriteLock rw = new ReentrantReadWriteLock();
-    private final Map<String, String> data = new HashMap<>();
+    private final Map<String, String> values = new HashMap<>();
 
     String get(String key) {
         rw.readLock().lock();
-        try { return data.get(key); }
-        finally { rw.readLock().unlock(); }
+        try {
+            return values.get(key);
+        } finally {
+            rw.readLock().unlock();
+        }
     }
 
     void put(String key, String value) {
         rw.writeLock().lock();
-        try { data.put(key, value); }
-        finally { rw.writeLock().unlock(); }
+        try {
+            values.put(key, value);
+        } finally {
+            rw.writeLock().unlock();
+        }
     }
 }
 ```
 
----
-
-## Operational Notes
-
-- measure contention and lock wait time before introducing lock hierarchy.
-- keep critical sections short and side-effect free.
-- never call remote APIs while holding locks.
+This is a good fit for a mostly-read configuration map. It is a bad fit for a write-heavy system where readers never stop arriving.
 
 ---
 
-## Key Takeaways
+## The Real Risk: Writer Starvation
 
-- explicit locks are valuable for advanced coordination semantics.
-- start simple; use read-write split only when real read dominance exists.
-- prioritize deadlock-free design and observability over clever locking.
+The main production failure mode with `ReadWriteLock` is not a crash. It is silent unfairness.
+
+In a read-heavy service:
+
+1. many readers acquire the read lock
+2. a writer arrives and waits
+3. more readers keep entering
+4. writes start lagging behind freshness expectations
+
+That can turn into stale configuration, delayed cache refreshes, or slow recovery behavior even while average read latency looks fine.
+
+> [!WARNING]
+> If writes are operationally important, do not judge `ReadWriteLock` only by read throughput. Measure writer wait time directly.
 
 ---
 
-## Lock Striping Pattern
+## A Better Use Case: Immutable Snapshot Reloads
 
-When one lock becomes a bottleneck, stripe state by key hash.
-You reduce contention without giving up explicit lock control.
+One of the cleanest read-heavy patterns is to keep reads tiny and make writes replace the whole snapshot.
+
+```java
+final class PricingCache {
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Map<String, BigDecimal> prices = Map.of();
+
+    BigDecimal get(String sku) {
+        lock.readLock().lock();
+        try {
+            return prices.get(sku);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    void reload(Map<String, BigDecimal> latest) {
+        Map<String, BigDecimal> snapshot = Map.copyOf(latest);
+
+        lock.writeLock().lock();
+        try {
+            prices = snapshot;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+}
+```
+
+This works well because:
+
+- reads are short
+- writes are bounded
+- no one tries to mutate shared structures from both sides
+
+If your "read-heavy" design still does expensive work inside the write lock, the model is already under strain.
+
+---
+
+## Keep Locking Rules Explicit in Code Review
+
+With explicit locks, the design burden moves from the JVM runtime to your team.
+
+That means the review standard should also rise:
+
+- which fields does this lock protect?
+- can any path return before `unlock()`?
+- is lock ordering documented when more than one lock exists?
+- are remote calls or blocking operations inside the critical section?
+- is lock upgrade being attempted indirectly?
+
+The most expensive lock bugs are the ones that look harmless in code review because the ownership rules were never written down.
+
+---
+
+## When Lock Striping Makes More Sense
+
+Sometimes the problem is not "which lock type?" It is "why is one lock protecting unrelated keys?"
+
+In that case, striping may help more than introducing a `ReadWriteLock`.
 
 ```java
 final class StripedCounter {
@@ -116,118 +204,39 @@ final class StripedCounter {
             .toArray(ReentrantLock[]::new);
     private final long[] buckets = new long[16];
 
-    void inc(String key) {
-        int idx = key.hashCode() & 15;
-        ReentrantLock l = locks[idx];
-        l.lock();
-        try { buckets[idx]++; } finally { l.unlock(); }
+    void increment(String key) {
+        int index = key.hashCode() & 15;
+        ReentrantLock lock = locks[index];
+        lock.lock();
+        try {
+            buckets[index]++;
+        } finally {
+            lock.unlock();
+        }
     }
 }
 ```
 
----
-
-## Case Study: Metadata Service With Heavy Reads
-
-For metadata services (95% reads, 5% writes), `ReadWriteLock` can reduce writer-safe read contention.
-But it only helps when read sections are short and write frequency stays low.
-
-Rollout checklist:
-
-- benchmark with production-like read/write ratio
-- measure write wait time after migration
-- verify no lock upgrade anti-patterns
-- keep fallback to plain `ReentrantLock` if writer starvation appears
+This reduces contention by shrinking the scope of sharing rather than by making one shared lock more sophisticated.
 
 ---
 
-## Dry Scenario: Write Starvation Risk
+## Operational Guidance
 
-If read traffic is continuous, non-fair `ReadWriteLock` can delay writers significantly:
+Before rolling explicit locks into production:
 
-1. many readers acquire read lock
-2. writer waits
-3. new readers keep entering before writer gets turn
+- measure lock wait time separately from business logic time
+- inspect thread dumps under load
+- benchmark with real read/write ratios, not idealized ones
+- keep a fallback path if the "optimization" worsens writer latency
 
-Mitigations:
-
-- fair lock mode where needed
-- shorter read critical sections
-- periodic write-priority design at higher layer
+Explicit locks are not a badge of maturity. They are a maintenance cost you should be able to justify.
 
 ---
 
-        ## Problem 1: When Explicit Locks Beat Implicit Synchronization
+## Key Takeaways
 
-        Problem description:
-        A service under read-heavy load often needs more control than `synchronized` gives, but teams frequently add explicit locks without defining fairness, upgrade rules, or failure behavior.
-
-        What we are solving actually:
-        We are choosing the smallest locking model that preserves correctness while keeping contention visible. The real problem is not how to lock; it is how to avoid hidden writer starvation, forgotten unlock paths, and lock ordering bugs.
-
-        What we are doing actually:
-
-        1. map which fields are protected by one lock and which state can stay lock-free
-2. use `ReadWriteLock` only when reads dominate and write sections are short
-3. treat lock acquisition order as part of the design, not an implementation detail
-4. instrument wait time so contention becomes visible before latency incidents do
-
-        ```mermaid
-flowchart LR
-    A[Readers arrive] --> B[Read lock]
-    B --> C[Shared read section]
-    D[Writer arrives] --> E[Write lock queue]
-    E --> F[Exclusive write section]
-```
-
-        This section is worth making concrete because architecture advice around reentrantlock readwritelock patterns often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        final class PricingCache {
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private Map<String, BigDecimal> values = Map.of();
-
-    BigDecimal get(String key) {
-        lock.readLock().lock();
-        try {
-            return values.get(key);
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    void reload(Map<String, BigDecimal> latest) {
-        lock.writeLock().lock();
-        try {
-            values = Map.copyOf(latest);
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Run a synthetic workload with 95 percent reads and long writer sections. If reader latency stays flat but writes never complete, you have a starvation or lock-ordering problem, not a throughput win.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - capture thread dumps and look for threads blocked on the same monitor or write lock
-- time lock acquisition separately from business logic execution
-- verify every lock path releases in `finally`, especially early returns and exceptions
-- review whether a single immutable snapshot can replace one of the lock-protected paths
-
-        ## Review Checklist
-
-        - Document which lock protects which state.
-- Avoid upgrading from read lock to write lock inside the same code path.
-- Fail code review if lock ordering is implicit or inconsistent.
+- `ReentrantLock` is useful when acquisition behavior is part of the design.
+- `ReadWriteLock` only helps when reads are truly dominant and writes stay short.
+- Writer starvation is the risk most teams underestimate.
+- Lock ownership, ordering, and hold time matter more than choosing the fanciest API.

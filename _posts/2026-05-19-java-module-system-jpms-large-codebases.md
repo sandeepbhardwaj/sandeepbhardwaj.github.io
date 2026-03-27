@@ -21,23 +21,41 @@ header:
   show_overlay_excerpt: false
   caption: Strong Encapsulation and Dependency Boundaries
 ---
-JPMS gives compile-time and runtime enforcement of architecture boundaries.
-In large codebases, this helps stop dependency sprawl and accidental internal API usage.
+JPMS is most valuable when a codebase already knows it has architecture boundary problems and wants the compiler and runtime to help enforce the rules.
+
+That is the right way to think about it. JPMS is not mainly a packaging feature. It is a boundary-enforcement tool. In large codebases, that can be extremely useful, but only when the migration is grounded in real ownership and dependency cleanup.
 
 ---
 
-## What JPMS Actually Enforces
+## What JPMS Actually Gives You
 
-- explicit module dependencies via `requires`
-- explicit public surface via `exports`
-- strong encapsulation of non-exported packages
-- controlled reflection via `opens`
+The useful promises are concrete:
 
-This is stronger than package naming conventions alone.
+- explicit dependencies through `requires`
+- explicit public surface through `exports`
+- strong encapsulation of internal packages
+- targeted reflective access through `opens`
+
+That is stronger than naming conventions, architecture docs, or hoping people do not import the wrong package.
 
 ---
 
-## Practical `module-info.java` Example
+## Why Large Codebases Struggle With It
+
+The friction usually comes from history, not from module syntax.
+
+Common blockers:
+
+- split packages
+- unclear subsystem ownership
+- reflection-heavy frameworks
+- old assumptions that everything lives happily on the classpath
+
+That is why JPMS migrations fail when treated as a one-step modernization task. The module descriptor only works well when the architecture underneath it is already becoming clearer.
+
+---
+
+## A Small `module-info.java` Is Enough to Show the Point
 
 ```java
 module com.company.billing {
@@ -51,127 +69,117 @@ module com.company.billing {
 }
 ```
 
-Use `opens` only for frameworks that need reflection.
-Avoid global `open module ...` unless absolutely required.
+The important distinction is deliberate exposure:
+
+- `exports` says what other modules may compile against
+- `opens` says what reflective frameworks may inspect
+
+That difference is where a lot of the design value sits.
 
 ---
 
-## Migration Strategy for Existing Monoliths
+## Start With a Boundary That Is Already Mostly Clean
 
-1. map current package dependency graph (`jdeps` + build graph).
-2. identify stable API packages per subsystem.
-3. eliminate split packages before modularization.
-4. modularize leaf libraries first.
-5. modularize core/shared modules after boundaries stabilize.
+The most practical migration strategy is incremental:
 
-Trying to modularize everything at once usually stalls.
+1. choose a leaf or library module with relatively clean package ownership
+2. remove split packages first
+3. identify the real API packages
+4. modularize that slice
+5. use the feedback to guide the next module
 
----
-
-## Reflection and Framework Pitfalls
-
-Common runtime errors during migration:
-
-- `InaccessibleObjectException` from reflection into non-open packages
-- libraries expecting classpath behavior on module path
-- hidden dependencies on internal JDK packages
-
-Fix by explicit `opens`/`exports` policy, not blanket weakening.
+This is much more effective than trying to modularize the whole monolith while still discovering its dependency problems.
 
 ---
 
-## Dry Run: Incremental Rollout
+## Reflection Is the Most Honest Part of the Migration
 
-Scenario: 40-module monolith without JPMS.
+JPMS often exposes things teams were already doing implicitly:
 
-1. choose one leaf module (`reporting-core`) and add `module-info.java`.
-2. compile on module path; fix illegal accesses.
-3. add CI check to prevent new split packages.
-4. repeat for other leaf modules.
-5. finally modularize top-level app module.
+- frameworks reaching into internals
+- deep reflective access without clear policy
+- accidental coupling to non-public details
 
-Validation after each step:
+When `InaccessibleObjectException` shows up, that is not merely JPMS being annoying. It is often architecture feedback.
 
-- app still boots in staging
-- integration tests pass
-- dependency graph remains acyclic
+The right reaction is not usually "open everything." It is to ask:
+
+- should this package really be reflective framework surface?
+- should the design expose a narrower API instead?
+- if `opens` is necessary, can it be targeted rather than global?
+
+> [!TIP]
+> Every `opens` should have a reason. If it does not, the migration is probably weakening the very boundary JPMS was meant to strengthen.
 
 ---
 
-## CI Guardrails
+## `open module` Is a Big Escape Hatch
 
-- run `jdeps` to detect unexpected dependencies.
-- fail build if internal package is used from another module.
-- track module graph drift over time.
+Sometimes teams fall back to `open module ...` to get moving again.
 
-Example:
+That can be useful as a temporary bridge, but it should be treated as migration debt, not as the end state. Otherwise the codebase keeps module syntax without getting much of the encapsulation benefit.
+
+The better long-term pattern is:
+
+- use narrow `opens` where reflection is required
+- keep `exports` small
+- document why each exception exists
+
+---
+
+## Good CI Guardrails Matter More Than the First Descriptor
+
+Once a few modules exist, the bigger risk is drift.
+
+Useful guardrails include:
+
+- `jdeps` checks for unexpected dependencies
+- failing builds on new split packages
+- tracking module graph changes over time
+- running integration tests on the module path early
 
 ```bash
 jdeps --recursive --multi-release 21 build/libs/app.jar
 ```
 
+JPMS pays off when the boundary rules keep holding after the initial migration.
+
+---
+
+## A Better Rollout Story
+
+Imagine a 40-module monolith.
+
+A realistic path is:
+
+1. modularize one reporting or utility leaf
+2. fix the reflective and packaging issues it exposes
+3. add CI checks so those issues do not return
+4. continue with the next cleanest slice
+5. modularize the top-level app later, once dependency direction is healthier
+
+That gives the team repeated feedback loops instead of one massive migration cliff.
+
+---
+
+## When JPMS Is Not Yet the Right Move
+
+If the codebase still has:
+
+- blurred ownership
+- widespread split packages
+- deep runtime reflection with no discipline
+- build tooling that is already fragile
+
+then the first step may be architecture cleanup rather than module descriptors.
+
+JPMS helps enforce boundaries. It does not invent good ones out of chaos.
+
 ---
 
 ## Key Takeaways
 
-- JPMS is an architectural enforcement tool, not just packaging syntax.
-- success depends on disciplined `exports`/`opens` boundaries.
-- migrate incrementally, starting from leaf modules with strong CI checks.
-
----
-
-        ## Problem 1: Use JPMS to Clarify Boundaries, Not to Create Packaging Drama
-
-        Problem description:
-        Large codebases want stronger encapsulation, but JPMS adoption often stalls because reflection, split packages, and build tooling are not mapped before the first migration step.
-
-        What we are solving actually:
-        We are solving architectural boundaries in a codebase that already has history. JPMS is useful when it exposes ownership and dependencies incrementally, not when it is introduced as a big-bang purity project.
-
-        What we are doing actually:
-
-        1. start with one boundary where package ownership is already relatively clean
-2. remove split packages before introducing module descriptors
-3. catalog reflection and deep framework access that will need `opens` or redesign
-4. migrate in slices so tests and builds keep giving feedback after each step
-
-        ```mermaid
-flowchart LR
-    A[module orders.api] --> B[module orders.core]
-    B --> C[module orders.persistence]
-    C --> D[explicit exports / opens]
-```
-
-        This section is worth making concrete because architecture advice around java module system jpms large codebases often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        module com.example.orders.core {
-    exports com.example.orders.api;
-    requires com.example.orders.persistence;
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Try to modularize a package graph with reflection-heavy frameworks and split packages in one step. The result is usually confusion, not encapsulation, and that is precisely why incremental migration matters.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - scan for reflective access before locking packages down
-- avoid using `open module` as a blanket escape hatch without documenting why
-- fix package ownership first so module boundaries reflect real architecture
-- run integration tests with the module path early in the migration, not at the end
-
-        ## Review Checklist
-
-        - Start where package ownership is already clean.
-- Document every `opens` with a reason.
-- Treat JPMS as boundary work, not syntax work.
+- JPMS is strongest as an architectural enforcement tool, not a packaging exercise.
+- Large-codebase success depends on incremental migration and honest dependency cleanup.
+- `exports` and `opens` should be deliberate and narrow.
+- The best migrations use compiler and CI feedback to keep boundaries from sliding backward.

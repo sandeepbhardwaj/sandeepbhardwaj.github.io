@@ -23,98 +23,175 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Spring AOT/native image tradeoffs for production services becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Spring AOT and GraalVM native images can produce dramatic startup and memory improvements, but they change the operational shape of a service.
+This is not a free performance switch. You are trading one set of runtime costs for a different set of build-time, compatibility, and debugging costs.
 
 ---
 
-## Problem 1: Spring AOT/native image tradeoffs for production services
+## What Spring AOT Actually Does
 
-Problem description:
-We want to apply spring aot/native image tradeoffs for production services in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on the baseline model and the safe default shape.
+Spring AOT reduces dynamic work at runtime by generating code and metadata ahead of time.
+That matters because native image builds reward applications that are explicit about:
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- reflection
+- proxies
+- resource loading
+- serialization
+- classpath scanning assumptions
 
-What we are doing actually:
-
-1. make Spring Boot explicit: identify the ownership boundary and the non-negotiable invariant
-2. make Spring Boot explicit: choose the simplest baseline design that preserves correctness
-3. make Spring Boot explicit: make observability visible from the first implementation
-4. make Spring Boot explicit: validate the baseline with one concrete failure drill
-
----
-
-## Why This Topic Matters
-
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+In a regular JVM deployment, some of these costs are paid lazily at runtime.
+In a native-image workflow, many of them have to become known up front.
 
 ---
 
-## Architecture Model
+## Why Teams Reach for Native Images
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Spring AOT/native image tradeoffs for production services]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+The usual reasons are real:
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so spring aot/native image tradeoffs for production services stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+- faster cold start
+- lower memory footprint
+- tighter scale-to-zero behavior
+- better fit for short-lived workloads or dense container packing
+
+Those are strong wins for:
+
+- serverless-style environments
+- bursty internal services
+- platform workloads where startup time matters as much as steady-state throughput
+
+But the question is never only "is startup faster?"
+The right question is whether the new operational profile matches the workload better than a tuned JVM deployment.
 
 ---
 
-## Practical Design Pattern
+## Where the Trade-Off Really Lives
+
+Native images often improve:
+
+- startup latency
+- RSS and baseline memory pressure
+- container density in some environments
+
+They often make harder:
+
+- build times
+- local development loops
+- diagnostics and debugging
+- compatibility with reflection-heavy or proxy-heavy libraries
+
+That is why AOT should be treated as a platform choice, not a code-style choice.
+
+---
+
+## A Simple Decision Model
+
+A service is a stronger native-image candidate when:
+
+- cold start matters materially
+- steady-state peak throughput is not the only priority
+- the dependency graph is reasonably well-behaved under AOT
+- the team can afford more complex CI and build pipelines
+
+A service is a weaker candidate when:
+
+- it depends heavily on runtime reflection tricks
+- startup time is irrelevant compared with long-lived throughput
+- incident debugging already requires deep JVM tooling
+- the team has not yet measured the JVM baseline honestly
+
+If you have not benchmarked a well-tuned JVM version first, you are making this decision too early.
+
+---
+
+## A Concrete Example
+
+A common pattern is a synchronous HTTP service with a moderate dependency graph and strict cold-start expectations.
 
 ```java
-@Configuration
-class TopicConfiguration {
+@RestController
+class PriceController {
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Spring AOT/native image tradeoffs for production services", 1);
+    private final PricingService pricingService;
+
+    PriceController(PricingService pricingService) {
+        this.pricingService = pricingService;
+    }
+
+    @GetMapping("/prices/{sku}")
+    PriceResponse price(@PathVariable String sku) {
+        return pricingService.lookup(sku);
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in spring aot/native image tradeoffs for production services is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+This kind of application can be a good candidate if the real pressure is startup speed and memory efficiency rather than maximum JIT-optimized throughput after hours of warm execution.
+
+---
+
+## What Breaks First
+
+Most native-image surprises come from dynamic behavior that the build cannot see clearly enough:
+
+- reflection without explicit hints
+- dynamic proxies or runtime bytecode generation
+- resources that are assumed to exist but are not included
+- libraries that behave differently under the closed-world model
+
+In other words, the failure mode is often not "Spring broke."
+The failure mode is "the application depended on runtime dynamism that was never made explicit."
+
+---
+
+## Safe Adoption Strategy
+
+Treat AOT adoption as an experiment with explicit checkpoints:
+
+1. measure JVM startup, memory, and steady-state performance first
+2. build the native image for one service with a narrow dependency surface
+3. verify feature parity, especially around serialization, reflection, and configuration binding
+4. compare startup, RSS, throughput, and developer feedback
+5. decide workload by workload, not ideology by ideology
+
+That sequence avoids the common mistake of adopting native images for the entire platform because one benchmark slide looked impressive.
 
 ---
 
 ## Failure Drill
 
-Baseline drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for spring aot/native image tradeoffs for production services.
+A useful drill is to take one reflection-heavy path, build the native image, and observe what fails:
 
-That check matters early, before rollout assumptions harden into defaults because Spring issues around spring aot/native image tradeoffs for production services often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+- JSON binding edge cases
+- proxy-based integration points
+- dynamic classpath assumptions
+- missing resources in packaged output
+
+The point of the drill is not only to fix the immediate issue.
+It is to identify whether the service is fundamentally AOT-friendly or whether the platform would spend too much time fighting the model.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating spring aot/native image tradeoffs for production services
-- keep customization close to the intended extension point instead of scattered overrides while validating spring aot/native image tradeoffs for production services
-- observe startup, request, and shutdown phases separately while validating spring aot/native image tradeoffs for production services
-- verify rollback by disabling the new behavior, not by rewriting it live while validating spring aot/native image tradeoffs for production services
+- compare native behavior against a JVM baseline before judging success
+- inspect reflection, proxy, and resource-loading paths first when the native build behaves differently
+- keep startup, RSS, and steady-state throughput as separate metrics
+- validate operational tooling early because debugging ergonomics change
+- choose one service at a time instead of rolling the model across the fleet at once
 
 ---
 
 ## Production Checklist
 
-- named extension point and explicit fallback path
-- startup or runtime metric that proves the first rollout is safe
-- configuration precedence documented for the changed path
-- rollback tested without emergency code surgery
+- the service has a measured JVM baseline
+- the dependency graph is reasonably compatible with AOT constraints
+- cold-start or memory benefits matter to the actual workload
+- CI build cost is acceptable for the team
+- rollback to the JVM artifact is straightforward
 
 ---
 
 ## Key Takeaways
 
-- Spring AOT/native image tradeoffs for production services should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- start from a measurable baseline before optimizing
+- Spring AOT and native images are workload decisions, not universal upgrades.
+- The biggest wins are usually startup and memory; the biggest costs are compatibility, tooling, and build complexity.
+- Native image adoption is strongest when measured against a good JVM baseline, not against intuition.

@@ -21,27 +21,38 @@ header:
   show_overlay_excerpt: false
   caption: Task Lifecycles with Coordinated Failure Handling
 ---
-Structured concurrency makes concurrent work follow block scope rules: tasks start inside a scope, finish inside it, and are cancelled when scope ends.
-This prevents orphan tasks and inconsistent partial results.
+Structured concurrency matters because it turns "a few concurrent calls" into one owned unit of work.
+
+Without that ownership, request handlers often leave behind exactly the kind of mess that is hard to observe in production:
+
+- sibling tasks still running after the response is gone
+- partial work completing after failure
+- inconsistent cancellation behavior
+- retries and timeouts that no longer share one budget
+
+The real value of structured concurrency is not that it is newer concurrency syntax. It is that task lifetime becomes explicit.
 
 ---
 
-## Why It Matters
+## The Problem It Solves
 
-Common async anti-pattern in request handlers:
+Unstructured async code often grows like this:
 
-- create multiple background tasks
-- return early on one failure
-- sibling tasks keep running without owner
+1. fork several tasks
+2. wait for some of them
+3. one fails or times out
+4. the request exits
+5. other tasks continue anyway
 
-Result: wasted compute, noisy logs, and hard-to-debug leaks.
-Structured scopes solve this by enforcing ownership.
+That wastes capacity and makes debugging much harder because the work no longer has a clear owner.
+
+Structured concurrency fixes that by saying: if the parent scope ends, the child work should also be resolved or cancelled within that same scope.
 
 ---
 
-## Pattern 1: Shutdown on First Failure
+## Pattern 1: All Subtasks Are Mandatory
 
-Use when all subtasks are required to build final response.
+If the final response is only valid when every subtask succeeds, `ShutdownOnFailure` is a very strong fit.
 
 ```java
 try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
@@ -56,16 +67,21 @@ try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 }
 ```
 
-Semantics:
+This gives you a clean semantic boundary:
 
-- one task fails -> siblings are cancelled
-- caller sees one failure boundary (`throwIfFailed`)
+- one task fails
+- sibling work is cancelled
+- the caller sees one failure outcome
+
+That is much easier to reason about than a collection of futures with ad hoc cancellation.
 
 ---
 
-## Pattern 2: Deadline-Bound Scope
+## Pattern 2: One Shared Deadline
 
-Tie all child tasks to a single request deadline.
+Many request handlers quietly become unreliable because each downstream call has its own timeout policy and none of them reflect the real request budget.
+
+Structured scopes make it easier to think in terms of one request deadline.
 
 ```java
 Instant deadline = Instant.now().plusMillis(350);
@@ -81,118 +97,99 @@ try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 }
 ```
 
-If deadline is exceeded, cancel subtree and map to timeout/degraded response.
+That is not just cleaner code. It is a better operational contract: the subtasks live inside the same time budget as the request.
 
 ---
 
-## Pattern 3: Partial Results by Policy (Not Accident)
+## Pattern 3: Partial Results Must Be a Policy, Not an Accident
 
-Sometimes partial response is acceptable, but policy must be explicit.
+Sometimes one dependency is optional. That is fine, but the rule should be designed explicitly.
 
-- define mandatory vs optional subtasks
-- fail request if mandatory task fails
-- substitute fallback for optional task failures
+Examples:
 
-This avoids accidental partial results caused by implementation leaks.
+- profile and orders are mandatory
+- recommendations are optional
+- fraud decision is mandatory for checkout, optional for a preview screen
 
----
-
-## Dry Run: Aggregator Endpoint
-
-Scenario: endpoint calls `profile`, `orders`, `recommendations`.
-
-1. create scope for request.
-2. fork three subtasks.
-3. `recommendations` fails fast due to timeout.
-4. with `ShutdownOnFailure`, `profile` and `orders` are cancelled.
-5. request returns single coherent error.
-
-Alternative policy:
-
-- treat `recommendations` as optional in separate nested scope.
-- if it fails, return response without recommendations.
-
-Both are valid, but choose one intentionally.
+Once that policy is clear, the code can reflect it with separate scopes or fallback handling. What you want to avoid is accidental partial success caused by one branch failing quietly while the rest of the request keeps moving.
 
 ---
 
-## Production Checklist
+## A Useful Example: Aggregator Endpoints
 
-- propagate one deadline to all child calls.
-- ensure downstream clients honor interruption/cancellation.
-- emit per-subtask latency and cancellation metrics.
-- define mandatory/optional dependency policy in code.
-- avoid hidden retries that violate request budget.
+An endpoint calls:
+
+- `profile`
+- `orders`
+- `recommendations`
+
+If all three are mandatory, one failed call should invalidate the combined result and cancel the siblings quickly.
+
+If recommendations are optional, keep that policy visible in the code rather than burying it in exception handling.
+
+This is where structured concurrency improves architecture clarity. It forces you to decide whether sibling tasks belong to the same lifecycle.
+
+```mermaid
+flowchart TD
+    A[Parent request] --> B[Structured task scope]
+    B --> C[Fetch profile]
+    B --> D[Fetch orders]
+    B --> E[Fetch recommendations]
+    C --> F[Join result or cancel siblings]
+    D --> F
+    E --> F
+```
+
+---
+
+## Cancellation Only Helps if Dependencies Cooperate
+
+One subtle point: scoped cancellation is only fully useful when downstream clients and libraries respect interruption, timeout, or cancellation signals.
+
+If a child task keeps blocking despite scope cancellation, you have gained ownership semantics in the code but not yet in the runtime behavior.
+
+That is why production rollout should verify:
+
+- HTTP clients honor cancellation or short timeouts
+- database calls have bounded wait behavior
+- retry logic does not keep running after the parent request is already done
+
+---
+
+## What to Measure in Production
+
+Good signals include:
+
+- subtask latency by dependency
+- cancellation counts
+- timeout rates inside the scope
+- orphan work reduction after migration
+- downstream saturation during failures
+
+The big win is not "more concurrency." It is cleaner failure behavior under concurrency.
+
+> [!TIP]
+> If you cannot explain which child tasks are mandatory, optional, or cancel-on-failure, the concurrency model is still underdesigned.
+
+---
+
+## When Structured Concurrency Is the Wrong Shape
+
+Avoid forcing it where the tasks do not actually share one lifecycle.
+
+For example:
+
+- fire-and-forget work that should be explicitly handed to a queue
+- background processing owned by a different subsystem
+- tasks whose retry policy outlives the request by design
+
+If the parent request does not own the outcome, it probably should not own the scope either.
 
 ---
 
 ## Key Takeaways
 
-- structured concurrency is mainly about lifecycle correctness.
-- scope-based cancellation prevents orphan background work.
-- explicit failure and partial-result policies improve reliability and debuggability.
-
----
-
-        ## Problem 1: Treat Related Tasks as One Lifecycle
-
-        Problem description:
-        Sibling asynchronous calls often outlive the request that created them, continue after a failure, or leave partial work behind because cancellation is not modeled as part of the workflow.
-
-        What we are solving actually:
-        We are solving request-level coordination. Structured concurrency is valuable because it makes fork, join, failure, and cancellation part of one parent scope instead of scattered futures.
-
-        What we are doing actually:
-
-        1. create a parent scope for the whole request or workflow
-2. fork only the subtasks that genuinely belong to that parent result
-3. cancel siblings when one failure makes the combined result invalid
-4. surface timeout and failure policy at the scope boundary
-
-        ```mermaid
-flowchart TD
-    A[Parent request] --> B[Task scope]
-    B --> C[Call pricing]
-    B --> D[Call inventory]
-    B --> E[Call fraud]
-    C --> F[Join or cancel]
-    D --> F
-    E --> F
-```
-
-        This section is worth making concrete because architecture advice around structured concurrency patterns java 21 often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-    var pricing = scope.fork(() -> pricingClient.fetch(orderId));
-    var inventory = scope.fork(() -> inventoryClient.fetch(orderId));
-    scope.join();
-    scope.throwIfFailed();
-    return new CheckoutView(pricing.get(), inventory.get());
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Simulate one dependency timing out and verify sibling tasks are cancelled quickly. If they keep running to completion, you still have unstructured background work.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - set one explicit timeout policy per task scope instead of per nested call
-- verify cancellation is observable in client metrics and logs
-- avoid forking tasks whose results are not required for the same response
-- review how partial successes should be handled before choosing shutdown-on-failure
-
-        ## Review Checklist
-
-        - Fork tasks only when the parent truly owns them.
-- Propagate cancellation intentionally.
-- Prefer one scope per workflow over nested free-form futures.
+- Structured concurrency is mainly about task ownership and lifecycle correctness.
+- It works best when related subtasks truly belong to one request or workflow.
+- Shared deadlines and cancellation policy should be visible at the scope boundary.
+- Partial results are fine when they are explicit policy, not accidental behavior.

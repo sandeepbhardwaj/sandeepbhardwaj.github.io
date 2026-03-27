@@ -23,17 +23,59 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Prove EOS scope**.
+Exactly-once semantics is one of Kafka's most overloaded phrases. Teams hear it and assume the whole workflow is protected: input, output, database write, external API call, everything. That is where the real trouble starts.
 
----
+Part 1 is about cutting through the slogan. Kafka can provide a strong scoped guarantee for consume-transform-produce flows, but the scope matters. The moment your workflow includes an external side effect, you need to reason about that boundary explicitly.
 
-## Real-World Scenario
+## Where Kafka's Guarantee Actually Lives
 
-Kafka EOS alone does not prevent duplicate side effects in external systems such as databases or HTTP APIs.
+Kafka exactly-once semantics is strongest when the unit of work stays inside Kafka:
 
----
+- consume records
+- produce derived records
+- commit the consumed offsets transactionally with the produced output
 
-## Run It Locally
+That means downstream consumers do not see partial results from an aborted transaction.
+
+```mermaid
+flowchart LR
+    A[Consume input topic] --> B[Kafka transaction]
+    B --> C[Produce output topic]
+    B --> D[Send offsets to transaction]
+    B --> E[Commit]
+```
+
+That is a real guarantee. It is just not the universal one people often repeat in architecture discussions.
+
+## The First Misunderstanding to Kill Early
+
+If the processor also writes to:
+
+- a relational database
+- Redis
+- an HTTP downstream service
+- an email or notification system
+
+Kafka cannot make that external side effect atomic just because the Kafka side is transactional.
+
+That is why "exactly once" needs a second sentence every time:
+
+"Exactly once where?"
+
+## A More Honest Example
+
+Suppose a payment processor consumes `PaymentAuthorized`, updates a database table, and publishes `PaymentSettled`.
+
+If the application:
+
+1. writes to the database
+2. crashes before completing the Kafka transaction
+
+the database side effect may survive while the Kafka output does not. On restart, the input can be replayed and the DB write can happen again unless the application protects that step separately.
+
+That is not Kafka failing. That is the workflow crossing Kafka's atomic boundary.
+
+## Local Baseline
 
 ### Prerequisites
 
@@ -66,17 +108,7 @@ services:
 docker compose up -d
 ~~~
 
----
-
-## Lab Steps
-
-1. Enable transactional producer and read_committed consumer.
-2. Add external DB side effect.
-3. Crash between side effect and offset commit.
-
----
-
-## Runnable Code Block
+For the external side-effect example, create a table that records processed events:
 
 ~~~sql
 create table processed_event (
@@ -85,88 +117,69 @@ create table processed_event (
 );
 ~~~
 
----
+That table is useful because it makes duplicate external work visible instead of theoretical.
 
-## Verify
+## Transactional Producer Skeleton
 
-~~~bash
-psql -c "select event_id,count(*) from processed_event group by event_id having count(*)>1;"
-~~~
+This is the Kafka-only core:
 
----
-
-## Failure Drill
-
-Without dedupe table, duplicates appear after restart reprocessing.
-
----
-
-## What You Should Learn
-
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
-
----
-
-        ## Problem 1: Exactly Once Is a Scoped Guarantee, Not a Marketing Phrase
-
-        Problem description:
-        Teams hear 'exactly once' and assume the whole workflow is protected, even when external databases, HTTP calls, or side effects still sit outside Kafka's atomic boundary. Build the baseline and make the risky default behavior visible.
-
-        What we are solving actually:
-        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
-
-        What we are doing actually:
-
-        1. build the smallest working topology that demonstrates the problem clearly
-2. capture one concrete correctness or latency metric before tuning
-3. exercise the happy path and one controlled failure path
-4. write down what a clean operator signal looks like before the system grows
-
-        ```mermaid
-flowchart LR
-    A[Consume] --> B[Kafka transaction]
-    B --> C[Produce output]
-    C --> D[Send offsets]
-    D --> E[Commit]
-```
-
-        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        producer.beginTransaction();
+~~~java
+producer.beginTransaction();
 for (ConsumerRecord<String, OrderEvent> record : records) {
     producer.send(transform(record));
 }
 producer.sendOffsetsToTransaction(offsets, consumer.groupMetadata());
 producer.commitTransaction();
-        ```
+~~~
 
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
+This code is good at what it is designed to do: making Kafka output and offset advancement move together.
 
-        ## Verification Notes
+What it does not do is protect the database write unless you design for that separately.
 
-        Use `read_committed` consumers and crash the processor at different points so you can observe where Kafka guarantees stop and where the wider workflow still needs idempotency.
+## A Better Failure Drill
 
-        ## Failure Drill
+Test three points:
 
-        Introduce an external side effect beside Kafka publication and replay the transaction. The mismatch is the exact reason teams still need compensation or idempotency around outside systems.
+1. crash before the external side effect
+2. crash after the external side effect but before Kafka commit
+3. crash after Kafka commit
 
-        ## Debug Steps
+The second case is the one most teams need to feel in practice. It is where the gap between Kafka-level exactly-once and business-level exactly-once becomes obvious.
 
-        Debug steps:
+~~~bash
+psql -c "select event_id, count(*) from processed_event group by event_id having count(*) > 1;"
+~~~
 
-        - separate Kafka-only guarantees from end-to-end business guarantees in the docs
-- test crashes before commit and after output send
-- check transactional IDs are stable across restarts of the same processor identity
-- review how external effects are de-duplicated because Kafka cannot do that part for you
+If the table shows duplicates after replay, the lesson has landed.
 
----
+> [!important]
+> Kafka EOS is a powerful building block. It becomes dangerous only when teams let the phrase replace system-boundary thinking.
 
-## Operator Prompt
+## What to Document for Production
 
-For exactly once semantics myths versus practical guarantees (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+### Transaction identity
+
+Your transactional IDs must be stable enough for the processor identity you intend to preserve across restarts.
+
+### External effect policy
+
+If the processor writes outside Kafka, write down how duplicates are prevented there:
+
+- idempotency key
+- dedupe table
+- unique constraint
+- compensating workflow
+
+### Consumer isolation level
+
+Readers that expect transactional behavior should use `read_committed`, otherwise the broker-side guarantee is weakened at the consumer boundary.
+
+## What This Part Should Leave You With
+
+By the end of Part 1, the team should be clear on:
+
+1. what Kafka exactly-once semantics really covers
+2. where it stops
+3. why external side effects still need their own idempotency or compensation story
+
+That clarity is more valuable than treating EOS as a blanket promise the system never actually made.

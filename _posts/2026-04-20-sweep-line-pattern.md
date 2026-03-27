@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Event Ordering and Active Set Management
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Sweep line is the interval and geometry pattern for processing events in sorted order as an imaginary line moves through space or time.
+Strong candidates define the active set carefully, because the real algorithm is not the sort itself but what is maintained while sweeping.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Convert intervals/events into sorted entry/exit points and scan once maintaining active state.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 20 Sweep Line Pattern | overlaps, active intervals, or event boundaries matter more than raw pairwise comparisons | turn starts, ends, and transitions into ordered events and maintain active state while sweeping | Meeting Rooms / Skyline-style events |
 
----
+## Problem Statement
+
+Given intervals or geometry events, compute overlap counts, active states, or transitions by processing event boundaries in order.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: events, active set, interval endpoints, line sweep.
+- Structural signal: only the event order and currently active items matter at each step.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the problem can be expressed as sorted events plus an active set, think sweep line.
 
 ## Java Template
 

@@ -24,98 +24,128 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-'Advanced transactional boundaries: propagation and isolation (Part 3)' becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 separated propagation from isolation.
+Part 2 tied both to business invariants under concurrency.
+Part 3 is the final maturity step: how do you keep transaction design understandable across teams, services, and changing business flows so that "transactional" still means something precise a year later.
 
 ---
 
-## Problem 1: 'Advanced transactional boundaries: propagation and isolation (Part 3)'
+## The Final Problem Is Transactional Meaning Drift
 
-Problem description:
-We want to apply 'advanced transactional boundaries: propagation and isolation (part 3)' in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+Transaction design often degrades quietly:
 
-What we are solving actually:
-We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- one service adds `REQUIRES_NEW` for audit
+- another adds retries around the same workflow
+- a new async step appears after commit
+- a cross-service saga is described as "still transactional" even though the atomic boundary changed completely
 
-What we are doing actually:
-
-1. make Spring Boot explicit: define a staged rollout or migration plan
-2. make Spring Boot explicit: attach clear ownership and rollback rules
-3. make Spring Boot explicit: codify verification gates around latency, errors, or correctness
-4. make Spring Boot explicit: write the operator playbook before the first real incident forces it
+That is how teams end up using one word, `transaction`, for multiple very different correctness models.
 
 ---
 
-## Why This Topic Matters
+## A Mature System Names Its Guarantees Clearly
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+By part 3, the important question is not only "which annotation do we use."
+It is:
+
+- what is atomic in one database transaction
+- what is durable but asynchronous
+- what is eventually consistent across boundaries
+- what side effects may outlive a business rollback
+
+If those answers are not named clearly, the system is already difficult to reason about.
 
 ---
 
-## Architecture Model
+## A Better Language for Review
 
 ```mermaid
 flowchart TD
-    A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote 'Advanced transactional boundaries: propagation and isolation (Part 3)']
-    C -->|No| E[Rollback / revise]
+    A[Business operation] --> B[Single-DB transaction boundary]
+    B --> C[After-commit side effects]
+    C --> D[Cross-service consistency model]
+    D --> E[Named business guarantee]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so 'advanced transactional boundaries: propagation and isolation (part 3)' stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+This is the kind of review sequence that keeps propagation, isolation, and eventual consistency from blurring into one vague concept.
 
 ---
 
-## Practical Design Pattern
+## Document the Boundary in the Code Shape
 
 ```java
-@Configuration
-class TopicConfiguration {
+record PaymentCaptureResult(boolean persisted, boolean receiptQueued) {}
+```
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("'Advanced transactional boundaries: propagation and isolation (Part 3)'", 3);
+```java
+@Service
+class PaymentCaptureService {
+
+    @Transactional
+    PaymentCaptureResult capture(PaymentCommand command) {
+        // persist payment state atomically
+        // publish receipt event after commit
+        return new PaymentCaptureResult(true, true);
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in 'advanced transactional boundaries: propagation and isolation (part 3)' is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+The value of a shape like this is not the record itself.
+It is that the operation can state clearly what it guarantees now and what it delegates to after-commit processing.
+
+> [!IMPORTANT]
+> Once a workflow crosses service boundaries, calling the whole thing "one transaction" usually hides more than it explains.
+
+---
+
+## Cross-Service Work Needs Different Words
+
+Part 3 should push teams away from transactional overclaiming.
+Some workflows are:
+
+- single-transaction and atomic
+- locally atomic with after-commit side effects
+- eventually consistent across services
+
+Those are all valid, but they are not interchangeable.
 
 ---
 
 ## Failure Drill
 
-Rollout drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for 'advanced transactional boundaries: propagation and isolation (part 3)'.
+1. choose one important business workflow
+2. map which writes are inside one database transaction
+3. map which side effects occur after commit
+4. map which steps cross service boundaries
+5. verify the documented business guarantee matches that real execution model
 
-That check matters before the operator playbook is treated as trustworthy because Spring issues around 'advanced transactional boundaries: propagation and isolation (part 3)' often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+This is how teams stop using transactional language as a comfort blanket and start using it as a precise correctness label.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating 'advanced transactional boundaries: propagation and isolation (part 3)'
-- keep customization close to the intended extension point instead of scattered overrides while validating 'advanced transactional boundaries: propagation and isolation (part 3)'
-- observe startup, request, and shutdown phases separately while validating 'advanced transactional boundaries: propagation and isolation (part 3)'
-- verify rollback by disabling the new behavior, not by rewriting it live while validating 'advanced transactional boundaries: propagation and isolation (part 3)'
+- describe transaction boundaries in business language, not only framework language
+- separate local atomicity from cross-service consistency explicitly
+- review every `REQUIRES_NEW` or after-commit side effect for semantic accuracy
+- test concurrency invariants and partial-failure semantics together
+- treat retry policies as part of the transactional meaning, not as a separate concern
 
 ---
 
 ## Production Checklist
 
-- promotion criteria written for the final rollout stage
-- owner for config drift and rollback clearly named
-- steady-state and failure-state metrics both in the runbook
-- post-rollout review hook defined for future changes
+- important workflows have named and documented consistency models
+- transaction boundaries align with clear business responsibilities
+- after-commit and cross-service behavior is not mislabeled as atomic
+- retries, idempotency, and rollback assumptions are reviewed together
+- operators can explain what "success" means at each stage of the workflow
 
 ---
 
 ## Key Takeaways
 
-- 'Advanced transactional boundaries: propagation and isolation (Part 3)' should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- the runbook and rollout policy are part of the design itself
+- Part 3 of transaction design is semantic clarity.
+- Teams need different words for atomic, after-commit, and eventually consistent work.
+- Transactional language should describe real guarantees, not hopeful intent.
+- The healthiest transaction design is the one future maintainers can still explain without mythology.

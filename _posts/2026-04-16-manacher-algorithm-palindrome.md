@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Linear-Time Palindrome Radius Computation
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Manacher’s algorithm is the palindrome pattern for computing longest palindromic spans around every center in linear time.
+Strong candidates explain the transformed-string trick and the current palindrome window, because those are what eliminate repeated center expansion.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Transform string and expand around centers with mirrored reuse to get O(n) palindrome radii.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 16 Manacher Algorithm Palindrome | longest palindromic substring or palindrome radii are needed | mirror palindrome information across the current best center and expand only when necessary | Longest Palindromic Substring |
 
----
+## Problem Statement
+
+Given a string, compute palindromic span information faster than expanding independently from every center.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: palindrome radius, center expansion, transformed string, mirror index.
+- Structural signal: centers inside the current palindrome inherit a lower-bound radius from their mirrored partner.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If naive center expansion is too slow for palindrome spans, think Manacher.
 
 ## Java Template
 

@@ -21,34 +21,45 @@ header:
   show_overlay_excerpt: false
   caption: Low-Level Bytecode Transformation Patterns
 ---
-ASM is a low-level bytecode toolkit used by frameworks, agents, and build tools.
-It gives maximum control, but mistakes can break class verification or runtime behavior.
+ASM is a precision tool for JVM platform work. It is what you reach for when source-level generation or higher-level tooling is no longer enough and you need direct control over class bytes.
+
+That power comes with a cost: the mistakes are lower-level, harder to debug, and more likely to surface as verifier errors, linkage failures, or subtly broken runtime behavior.
 
 ---
 
 ## When ASM Is Justified
 
-- instrumentation that cannot be done cleanly at source level
-- framework proxies/adapters with strict performance targets
-- build-time enhancement (for example adding generated methods)
+ASM is a good fit when you need:
 
-For most app code, prefer source-level generation first.
+- bytecode instrumentation for agents
+- framework or build-time enhancement
+- generated methods or adapters with strict performance requirements
+- transformations that cannot be expressed cleanly at source level
+
+It is a poor fit when:
+
+- ordinary code generation would do
+- the transformation contract is vague
+- the team cannot support bytecode-level debugging and verification
+
+The right question is not "can ASM do this?" It usually can. The better question is whether the transformation remains understandable and testable after the excitement wears off.
 
 ---
 
-## Core Visitor Pipeline
+## The Core Pipeline Is Small
 
-Typical transformation flow:
+At a high level, ASM work is straightforward:
 
-1. read class bytes with `ClassReader`
-2. chain custom `ClassVisitor`/`MethodVisitor`
-3. write transformed bytes via `ClassWriter`
-4. verify class correctness before runtime use
+1. read bytes with `ClassReader`
+2. apply one or more visitors
+3. emit transformed bytes with `ClassWriter`
+4. verify before those bytes reach production
 
 ```java
 byte[] transform(byte[] original) {
     ClassReader reader = new ClassReader(original);
-    ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+    ClassWriter writer = new ClassWriter(reader,
+            ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
     ClassVisitor visitor = new TimingClassVisitor(Opcodes.ASM9, writer);
     reader.accept(visitor, 0);
@@ -57,22 +68,26 @@ byte[] transform(byte[] original) {
 }
 ```
 
----
-
-## Example: Inject Simple Method Timing
-
-High-level idea:
-
-- at method entry: capture `System.nanoTime()` into local var
-- at method exit: compute elapsed and emit telemetry call
-
-This is a common agent/plugin use case, but must preserve stack/local frame correctness.
+The mechanics are not the hard part. The contract is.
 
 ---
 
-## Verification Step (Non-Negotiable)
+## Define a Narrow Transformation Contract
 
-Always verify transformed bytecode in CI.
+Before writing visitors, define:
+
+- which classes are eligible
+- which methods are eligible
+- what exactly changes
+- what must remain unchanged
+
+This matters because the most common ASM failure is overreach. A transformation that begins as "add timing to these methods" can quietly turn into a broad mini-framework if matchers and assumptions stay loose.
+
+---
+
+## Verification Is Non-Negotiable
+
+Every transformed class should be treated like compiler output and verified accordingly.
 
 ```java
 ClassReader cr = new ClassReader(transformedBytes);
@@ -80,105 +95,84 @@ ClassWriter cw = new ClassWriter(0);
 cr.accept(new CheckClassAdapter(cw), 0);
 ```
 
-Also load transformed classes in isolated tests to catch linkage/verification issues early.
+Also load transformed classes in tests whenever possible. Passing source compilation is not enough. The runtime verifier is the real judge here.
 
 ---
 
-## Dry Run: Build-Time Enhancement Pipeline
+## A Useful Example: Method Timing
 
-1. compile source classes normally.
-2. post-process selected classes with ASM enhancer task.
-3. verify enhanced classes with ASM checker.
-4. run integration tests against enhanced artifact.
-5. publish artifact only if enhancement and tests pass.
+A common ASM use case is inserting timing logic:
 
-This avoids shipping unverified transformed bytecode.
+- record `System.nanoTime()` on entry
+- compute elapsed time on exit
+- emit telemetry
 
----
+That sounds simple, but correctness still depends on:
 
-## Compatibility and Versioning
+- preserving stack discipline
+- keeping frame computation valid
+- handling all return paths
+- avoiding semantic changes to the method
 
-- align ASM version with target JDK bytecode level.
-- test transformations across all supported JDK runtimes.
-- keep transformation rules explicit by class/method signatures.
-
-Bytecode assumptions can break silently after JDK upgrades.
+This is why "small instrumentation" is still real compiler-style work.
 
 ---
 
-## Common Mistakes
+## Be Careful With `COMPUTE_FRAMES`
 
-- broad transformations without precise matchers
-- skipping frame/max stack recomputation and verification
-- injecting logic that changes business semantics unintentionally
-- losing debug metadata (line numbers/local vars)
+`COMPUTE_FRAMES` and `COMPUTE_MAXS` can reduce manual bookkeeping, but they are not magic. They should be used with an understanding of what the visitor is actually changing.
+
+If the team relies on them blindly, it becomes harder to explain why one transformation survives a JDK upgrade and another one breaks.
+
+The practical rule is simple: use the helper flags when appropriate, but keep the transformation narrow enough that the generated shape is still understandable.
+
+---
+
+## Build-Time and Runtime ASM Have Different Risk Profiles
+
+Build-time enhancement is usually easier to reason about because:
+
+- verification can happen before shipping
+- integration tests can run on the enhanced artifact
+- rollback means publishing a different artifact
+
+Runtime transformation through agents raises the stakes because invalid output can affect startup or live execution directly.
+
+That does not make runtime ASM wrong. It just means the rollout bar should be higher.
+
+---
+
+## A Good CI Story
+
+If ASM is part of the build or runtime pipeline, CI should include:
+
+- transformed-byte verification
+- targeted integration tests on transformed classes
+- supported JDK coverage
+- class structure or behavior checks where shape matters
+
+This is how bytecode tooling stops being "clever" and becomes dependable.
+
+---
+
+## Keep the Intent Explainable
+
+One underrated requirement is plain-language documentation of the bytecode contract:
+
+- what gets transformed
+- why it gets transformed
+- what invariants must hold afterward
+
+If only the author of the visitor can explain the transformation, the system is fragile even before bugs appear.
+
+> [!WARNING]
+> ASM is safest when the transformation is smaller than the temptation to generalize it.
 
 ---
 
 ## Key Takeaways
 
-- ASM is a precision tool for framework/platform engineering.
-- verify every transformation and keep scope narrow.
-- treat bytecode tooling like compiler infrastructure with strong test gates.
-
----
-
-        ## Problem 1: Transform Bytecode Only When the Contract Is Precise
-
-        Problem description:
-        ASM gives full control, which also means it can create invalid frames, verifier errors, or unreadable instrumentation when the transformation contract is vague.
-
-        What we are solving actually:
-        We are solving low-level class transformation with discipline. The important question is not whether ASM can do it; it is whether the transformation remains testable, minimal, and understandable six months later.
-
-        What we are doing actually:
-
-        1. define exactly which method or field shape the visitor expects
-2. keep transformations narrow and local rather than building a generic mini-framework
-3. run verification and bytecode diff tests as part of CI
-4. pair ASM usage with plain-language documentation of the intent
-
-        ```mermaid
-flowchart LR
-    A[Original .class] --> B[ASM visitor]
-    B --> C[Modified bytecode]
-    C --> D[Verifier + tests]
-```
-
-        This section is worth making concrete because architecture advice around bytecode engineering asm practical intro often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        ClassReader reader = new ClassReader(bytes);
-ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
-reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
-    @Override
-    public MethodVisitor visitMethod(int access, String name, String desc, String sig, String[] ex) {
-        return super.visitMethod(access, name, desc, sig, ex);
-    }
-}, 0);
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Deliberately run the transformed class through the verifier and a smoke test. If the only validation is that the code compiled, the transformation is not production-ready.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - use `COMPUTE_FRAMES` carefully and understand when it changes behavior
-- diff input and output class structures during development
-- test on the exact bytecode level you deploy
-- avoid broad transformation rules that match more classes over time
-
-        ## Review Checklist
-
-        - Keep visitors narrow.
-- Verify transformed classes automatically.
-- Document the bytecode contract in plain language.
+- ASM is a low-level tool for precise transformation, not casual metaprogramming.
+- The hard part is defining and preserving the transformation contract.
+- Verification and runtime-shape testing are essential.
+- Narrow, explainable visitors age much better than broad "generic" bytecode frameworks.

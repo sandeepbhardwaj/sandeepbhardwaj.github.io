@@ -21,29 +21,37 @@ header:
   show_overlay_excerpt: false
   caption: Reliable Event Publication with Transactional Boundaries
 ---
-Outbox pattern solves the dual-write problem: persisting business data and publishing an event reliably.
-Instead of doing both in separate systems in one step, you persist publish intent in the same DB transaction.
+The outbox pattern exists because dual writes fail in ordinary, boring ways.
+
+If a service commits business state to the database and then separately publishes an event, there is always a gap where one succeeds and the other does not. The outbox turns that one hard cross-system problem into:
+
+- one local transaction
+- one replayable publication step
+
+That is why it remains one of the most practical reliability patterns in microservices.
 
 ---
 
-## Core Problem (Without Outbox)
+## The Real Problem Is the Gap
 
-1. order row committed in DB
-2. process crashes before publishing Kafka event
-3. downstream services never see the order
+Without an outbox:
 
-Business state diverges across services.
+1. the order row commits
+2. the process crashes before the Kafka publish succeeds
+3. downstream services never hear about the order
+
+Now the system has locally correct state and globally inconsistent behavior.
+
+The outbox pattern closes that gap by making "intent to publish" part of the same database transaction as the business change.
 
 ---
 
-## Outbox Transaction Boundary
+## The Transaction Boundary Should Be Boring
 
-In one DB transaction:
+Inside one transaction:
 
-- write business entity
-- write outbox event row
-
-A separate relay process publishes pending outbox rows to broker and marks them delivered.
+- write the domain state
+- write the outbox row
 
 ```java
 @Transactional
@@ -51,20 +59,57 @@ public void createOrder(CreateOrderCommand cmd) {
     Order order = orderRepository.save(Order.from(cmd));
 
     OutboxEvent event = OutboxEvent.create(
-        UUID.randomUUID().toString(),
-        "orders.events.v1",
-        order.getId().toString(),
-        "OrderCreated",
-        serialize(new OrderCreated(order.getId(), order.getVersion()))
+            UUID.randomUUID().toString(),
+            "orders.events.v1",
+            order.getId().toString(),
+            "OrderCreated",
+            serialize(new OrderCreated(order.getId(), order.getVersion()))
     );
 
     outboxRepository.save(event);
 }
 ```
 
+After that, a relay or CDC pipeline can publish the outbox rows independently.
+
+That is the core simplification: publication becomes replayable because the intent is already durable.
+
 ---
 
-## Recommended Outbox Schema
+## The Relay Is Supposed to Be At-Least-Once
+
+The relay should be simple and replay-safe:
+
+```java
+List<OutboxEvent> batch = outboxRepository.fetchPending(limit);
+for (OutboxEvent event : batch) {
+    try {
+        broker.publish(event.topic(), event.eventKey(), event.payload(), event.id());
+        outboxRepository.markSent(event.id(), Instant.now());
+    } catch (Exception ex) {
+        outboxRepository.recordFailure(event.id(), ex.getMessage());
+    }
+}
+```
+
+This is intentionally at-least-once. If the relay crashes after publish but before marking the row sent, the event may be published again after restart.
+
+That is normal, and it is why downstream idempotency is still part of the design.
+
+---
+
+## Outbox Schema Should Support Operations, Not Just Storage
+
+An outbox row should usually include:
+
+- event ID
+- aggregate type and ID
+- event type
+- topic
+- event key
+- payload
+- publication status
+- creation and publication timestamps
 
 ```sql
 create table outbox_event (
@@ -79,97 +124,36 @@ create table outbox_event (
   created_at timestamp not null,
   published_at timestamp null
 );
-
-create index idx_outbox_pending_created
-  on outbox_event(status, created_at);
 ```
 
-Keep status transitions simple: `PENDING -> SENT` (or `FAILED` with retry metadata).
+That metadata is not just useful for code. It is how operators understand lag, retries, and publication drift.
 
 ---
 
-## Relay Worker Pattern
+## Ordering Still Needs Attention
 
-```java
-List<OutboxEvent> batch = outboxRepository.fetchPending(limit);
-for (OutboxEvent event : batch) {
-    try {
-        broker.publish(event.topic(), event.eventKey(), event.payload(), event.id());
-        outboxRepository.markSent(event.id(), Instant.now());
-    } catch (Exception ex) {
-        outboxRepository.recordFailure(event.id(), ex.getMessage());
-    }
-}
-```
+If consumers need per-aggregate ordering:
 
-Important:
+- use the aggregate ID as the event key
+- publish pending rows in created order
+- keep retry behavior from scrambling the logical sequence
 
-- at-least-once publication is expected
-- consumers must be idempotent by event ID
-- retries should be bounded with backoff
+The outbox solves reliable publication intent. It does not remove the need to think about event ordering semantics.
 
 ---
 
-## Ordering and Partitioning
+## The Best Failure Drill
 
-If order is required per aggregate:
+The most realistic drill is:
 
-- set Kafka key to `aggregate_id`
-- use one event stream per aggregate type where possible
-- publish in outbox `created_at` order for pending batch
+1. publish succeeds
+2. relay crashes before marking the outbox row as sent
+3. relay restarts and republishes
+4. consumer deduplicates by event ID
 
-This preserves logical ordering across retries and relay restarts.
+If the consumer cannot tolerate that replay, the system is not actually complete yet. The outbox gives you reliable publication intent, but consumer idempotency still closes the loop.
 
----
-
-## Dry Run: Crash Between Publish and Mark-Sent
-
-1. relay publishes event successfully.
-2. relay crashes before `markSent` update.
-3. on restart, same outbox row appears pending again.
-4. event may be published second time.
-5. consumer deduplicates by event ID and applies once.
-
-This is normal outbox behavior; consumer idempotency is mandatory.
-
----
-
-## Operations Checklist
-
-- monitor pending outbox count
-- monitor age of oldest pending event
-- alert on repeated publish failures per topic
-- archive/delete sent rows with retention policy
-- isolate relay throughput limits from main request traffic
-
-Outbox is both a data consistency pattern and an ops pattern.
-
----
-
-## Key Takeaways
-
-- outbox gives reliable publish intent without distributed transactions.
-- relay is at-least-once by design; consumer idempotency completes correctness.
-- observe backlog and failure metrics continuously to prevent silent drift.
-
----
-
-        ## Problem 1: Treat the Outbox as a Reliability Boundary, Not a Convenience Table
-
-        Problem description:
-        Publishing events directly after a database commit creates a classic dual-write gap where state changes and message emission can diverge under failure.
-
-        What we are solving actually:
-        We are solving atomic business-state change plus eventual publication. The outbox pattern works because it turns one hard distributed write into a local transaction followed by a replayable relay step.
-
-        What we are doing actually:
-
-        1. write domain state and the outbox row in the same database transaction
-2. make the relay idempotent so crashes and replays are harmless
-3. track publication status separately from business state
-4. monitor relay lag because delayed emission is still an operational incident
-
-        ```mermaid
+```mermaid
 flowchart LR
     A[Service transaction] --> B[(Business tables)]
     A --> C[(Outbox table)]
@@ -177,36 +161,28 @@ flowchart LR
     D --> E[Kafka topic]
 ```
 
-        This section is worth making concrete because architecture advice around outbox pattern java microservices often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
+---
 
-        ## Production Example
+## Lag Is a First-Class Incident Signal
 
-        ```java
-        transactionTemplate.executeWithoutResult(status -> {
-    orderRepository.save(order);
-    outboxRepository.save(OutboxMessage.forEvent(orderPlaced));
-});
-        ```
+Useful outbox metrics include:
 
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
+- pending outbox count
+- age of the oldest pending row
+- relay publish failures
+- relay throughput
+- backlog by event type or topic
 
-        ## Failure Drill
+An outbox that is quietly accumulating lag is already a reliability incident, even if the main write path still looks healthy.
 
-        Crash the service after the transaction commits but before the relay publishes. If the event still reaches Kafka after restart without duplication, the boundary is doing its job.
+> [!TIP]
+> Treat outbox backlog age the way you treat consumer lag. It is a delayed-integrity signal, not just an internal implementation detail.
 
-        ## Debug Steps
+---
 
-        Debug steps:
+## Key Takeaways
 
-        - store event type, key, payload, and publication metadata explicitly
-- monitor outbox backlog age and relay throughput
-- keep business transaction size reasonable so the outbox does not hide slow writes
-- test recovery with the relay down, not only when everything is healthy
-
-        ## Review Checklist
-
-        - One local transaction for state plus outbox.
-- Relay must be replay-safe.
-- Lag on the outbox is a first-class metric.
+- The outbox pattern solves the dual-write gap by making publish intent transactional.
+- The relay should be replay-safe and is normally at-least-once.
+- Consumer idempotency is still required because republish after relay failure is expected behavior.
+- Outbox lag and failure metrics are part of the architecture, not optional ops extras.

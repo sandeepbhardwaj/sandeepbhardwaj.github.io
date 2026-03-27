@@ -21,17 +21,34 @@ header:
   show_overlay_excerpt: false
   caption: Subset State Dynamic Programming
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Bitmask DP is the subset-state pattern for problems where the entire choice history can be encoded as a set of taken items.
+Strong candidates define the mask semantics precisely, because once the subset meaning is fuzzy, transitions and complexity analysis both fall apart.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Represent subsets as bitmasks and transition over remaining choices.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 26 Bitmask Dp Pattern | the state is a small subset of items and transitions depend on which items are already used | encode the subset as bits and DP over masks instead of explicit set objects | Traveling Salesman Style DP |
 
----
+## Problem Statement
+
+Given a small set of items with combinatorial dependencies, compute the best answer by treating each subset as one DP state.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: subset DP, mask state, used items, traveling salesman, assignment.
+- Structural signal: the mask fully summarizes which decisions are already committed.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If n is small and the state is “which items are already chosen,” think bitmask DP.
 
 ## Java Template
 

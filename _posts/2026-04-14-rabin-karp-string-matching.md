@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Hash-Based Substring Search
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Rabin-Karp is the rolling-hash string-matching pattern for comparing many same-length substrings quickly.
+Strong candidates emphasize that the hash is a fast filter, not a proof by itself, and they explain collision handling explicitly.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Use rolling hash windows to compare substrings efficiently with collision checks.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 14 Rabin Karp String Matching | many fixed-length substring comparisons are needed | maintain a rolling hash so each window shift is O(1) | Find Pattern in Text |
 
----
+## Problem Statement
+
+Given a text and pattern, or many equal-length substring checks, avoid rebuilding string comparisons from scratch at every shift.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: rolling hash, substring hash, collision, fixed-length window.
+- Structural signal: consecutive windows differ by one outgoing and one incoming character.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If many same-length substring checks are needed and rolling comparison helps, think Rabin-Karp.
 
 ## Java Template
 

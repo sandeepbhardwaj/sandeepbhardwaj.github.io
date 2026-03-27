@@ -25,98 +25,160 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Advanced caching in Spring with Caffeine + Redis + invalidation (Part 2) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 established the real issue: once you add Caffeine, Redis, and invalidation, the design is no longer just about speed.
+Part 2 is where the harder production question appears: how do you keep that cache hierarchy trustworthy when writes, fan-out lag, and partial failures all arrive at once.
 
 ---
 
-## Problem 1: Advanced caching in Spring with Caffeine + Redis + invalidation (Part 2)
+## The Harder Problem Is Consistency Under Change
 
-Problem description:
-We want to apply advanced caching in spring with caffeine + redis + invalidation (part 2) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+The first cache design often works in quiet traffic:
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- read from local cache
+- fall back to Redis
+- repopulate from the database
+- invalidate on update
 
-What we are doing actually:
+The second version is where it gets real:
 
-1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
-2. make Spring Boot explicit: introduce one hardening mechanism at a time
-3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
-4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
+- an update races with a hot read path
+- one node invalidates correctly and another misses the event
+- Redis is slow exactly when the local cache expires
+- repeated misses trigger a thundering herd toward the database
 
----
-
-## Why This Topic Matters
-
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+That is why part 2 should focus on coordination and failure behavior, not on cache annotation basics.
 
 ---
 
-## Architecture Model
+## The Real Design Question Is Stampede and Stale Window Control
+
+Two questions matter more than raw hit rate:
+
+- how long can stale data survive after a write
+- what happens when many readers miss at the same time
+
+If the team cannot answer both, the cache hierarchy may be fast but still unsafe.
+
+---
+
+## A Better Operational Model
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Advanced caching in Spring with Caffeine + Redis + invalidation (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Source-of-record update] --> B[Redis and local-cache invalidation]
+    B --> C[Cross-node propagation lag]
+    C --> D[Next read path and refill behavior]
+    D --> E[Observed stale window and load spike]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so advanced caching in spring with caffeine + redis + invalidation (part 2) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+This is the sequence to review in production.
+If one of those links is only "probably fine," the cache design is not mature yet.
 
 ---
 
-## Practical Design Pattern
+## Protect Refill Paths from Stampedes
+
+When a hot key expires or is invalidated, many callers may race to repopulate it.
+Some form of per-key coordination is often worth the complexity.
 
 ```java
-@Configuration
-class TopicConfiguration {
+class ProductCacheService {
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Advanced caching in Spring with Caffeine + Redis + invalidation (Part 2)", 2);
+    private final ConcurrentHashMap<String, ReentrantLock> keyLocks = new ConcurrentHashMap<>();
+
+    ProductView getProduct(String productId) {
+        ProductView local = localCache.getIfPresent(productId);
+        if (local != null) {
+            return local;
+        }
+
+        ReentrantLock lock = keyLocks.computeIfAbsent(productId, ignored -> new ReentrantLock());
+        lock.lock();
+        try {
+            ProductView secondCheck = localCache.getIfPresent(productId);
+            if (secondCheck != null) {
+                return secondCheck;
+            }
+            return refillFromRedisOrSource(productId);
+        } finally {
+            lock.unlock();
+        }
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in advanced caching in spring with caffeine + redis + invalidation (part 2) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+This is not the only option, but it shows the right concern: refill pressure itself needs a policy.
+
+---
+
+## Invalidation Ordering Matters
+
+The most common subtle bug is update ordering:
+
+1. write new value to source of record
+2. publish invalidation
+3. some nodes still serve old local values
+4. one node repopulates from stale distributed state
+
+If the invalidation path and refill path are not sequenced carefully, the system can keep reintroducing stale data after the write has already committed.
+
+> [!IMPORTANT]
+> An invalidation strategy is only complete if it explains what happens during propagation delay, not only after all nodes eventually converge.
+
+---
+
+## Degraded Cache Modes Need Rules Too
+
+Part 1 already framed Redis failure as important.
+Part 2 is where you need to decide what degraded mode looks like:
+
+- keep serving local cache for a short grace window
+- bypass Redis and hit the database directly
+- fail closed for data that must not be stale
+- drop non-essential cache warmup entirely
+
+Those modes should differ by data class.
+Product catalog reads and entitlement checks should not share the same stale-data tolerance.
 
 ---
 
 ## Failure Drill
 
-Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for advanced caching in spring with caffeine + redis + invalidation (part 2).
+A strong drill here is invalidation lag plus refill pressure:
 
-That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around advanced caching in spring with caffeine + redis + invalidation (part 2) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. warm the same key on multiple nodes
+2. update the source of record
+3. delay one invalidation path artificially
+4. force high read traffic immediately after the update
+5. measure stale-window duration and refill amplification
+
+This tells you whether the hierarchy stays correct under change, not only whether it is fast under steady-state reads.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating advanced caching in spring with caffeine + redis + invalidation (part 2)
-- keep customization close to the intended extension point instead of scattered overrides while validating advanced caching in spring with caffeine + redis + invalidation (part 2)
-- observe startup, request, and shutdown phases separately while validating advanced caching in spring with caffeine + redis + invalidation (part 2)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating advanced caching in spring with caffeine + redis + invalidation (part 2)
+- measure stale-read incidents alongside hit rates
+- inspect refill amplification, not only miss counts
+- trace invalidation from source-of-record write to every cache layer
+- verify degraded behavior when Redis is slow or unavailable
+- keep cache key shape and invalidation triggers explicit in code reviews
 
 ---
 
 ## Production Checklist
 
-- mixed-config or mixed-version behavior exercised once
-- error or timeout path measured under real startup/runtime timing
-- override and rollback rules still simple after hardening
-- incident notes updated with the real failure signature
+- stale-window tolerance is documented per data class
+- refill behavior is protected against hot-key stampedes
+- invalidation paths are tested across multiple nodes
+- degraded cache behavior is intentional rather than accidental
+- metrics distinguish local hits, Redis hits, misses, and stale-read events
 
 ---
 
 ## Key Takeaways
 
-- Advanced caching in Spring with Caffeine + Redis + invalidation (Part 2) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- harden one failure mode at a time instead of stacking speculative complexity
+- Part 2 of cache design is about change management, not just read speed.
+- The two hardest problems are stale-window control and refill stampede control.
+- A hybrid cache is only trustworthy when invalidation ordering is as explicit as lookup ordering.
+- Hit rate is useful, but stale correctness is the metric that protects the business.

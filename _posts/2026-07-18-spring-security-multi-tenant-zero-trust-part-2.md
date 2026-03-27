@@ -25,98 +25,158 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Spring Security for multi-tenant and zero-trust service edges (Part 2) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 focused on the edge: separating authentication, tenant resolution, and authorization so a valid identity cannot silently become a valid tenant switch.
+Part 2 goes deeper into the next risk: once the edge accepts a request, how do you preserve tenant truth across downstream calls, async work, and operator access without leaking context or widening trust accidentally.
 
 ---
 
-## Problem 1: Spring Security for multi-tenant and zero-trust service edges (Part 2)
+## The Harder Problem Is Context Propagation Without Context Leakage
 
-Problem description:
-We want to apply spring security for multi-tenant and zero-trust service edges (part 2) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+Multi-tenant systems often validate the first hop correctly and then become weaker internally.
+The usual failure pattern looks like this:
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- the edge authenticates the user
+- the tenant is validated once
+- a downstream call switches to a broad service credential
+- async processing loses the original tenant context
+- support or operator paths bypass the same tenant checks entirely
 
-What we are doing actually:
-
-1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
-2. make Spring Boot explicit: introduce one hardening mechanism at a time
-3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
-4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
+That creates an unpleasant illusion: the request looked zero-trust at ingress, but became trust-me semantics after the first hop.
 
 ---
 
-## Why This Topic Matters
+## Trust Boundaries Must Survive Internal Hops
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+The important follow-up question after edge validation is:
+"What exactly do downstream services need to know?"
+
+Usually the answer is some combination of:
+
+- tenant identifier
+- caller identity or delegated subject
+- service identity
+- scopes or permissions
+- correlation metadata for auditing
+
+If all of that gets collapsed into "internal call from a trusted service," the multi-tenant model becomes much weaker than the external design suggests.
 
 ---
 
-## Architecture Model
+## A Safer Propagation Shape
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Spring Security for multi-tenant and zero-trust service edges (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Authenticated request] --> B[Tenant validation]
+    B --> C[Request-scoped security context]
+    C --> D[Outbound client adds tenant-aware headers or token claims]
+    D --> E[Downstream service revalidates context]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so spring security for multi-tenant and zero-trust service edges (part 2) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+That last step matters.
+Zero trust is weakened immediately if downstream systems treat propagated tenant data as true without their own validation rules.
 
 ---
 
-## Practical Design Pattern
+## Keep Propagation Explicit in Code
 
 ```java
-@Configuration
-class TopicConfiguration {
-
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Spring Security for multi-tenant and zero-trust service edges (Part 2)", 2);
-    }
+@Bean
+RestClient restClient(RestClient.Builder builder) {
+    return builder
+            .requestInterceptor((request, body, execution) -> {
+                TenantPrincipal principal = TenantSecurityContext.current();
+                request.getHeaders().add("X-Tenant-Id", principal.tenantId());
+                request.getHeaders().add("X-Subject-Id", principal.subject());
+                return execution.execute(request, body);
+            })
+            .build();
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in spring security for multi-tenant and zero-trust service edges (part 2) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+This does two useful things:
+
+- makes propagation policy reviewable
+- keeps the service from "forgetting" tenant context on one ad hoc call path
+
+It still assumes the current tenant context is trustworthy and request-scoped.
+That means cleanup remains non-negotiable.
+
+> [!IMPORTANT]
+> Thread-local tenant context becomes a data leak risk the moment it crosses async boundaries without an explicit handoff strategy.
+
+---
+
+## Async Boundaries Need Special Handling
+
+Part 1 already stressed clearing request-scoped context.
+Part 2 is where async work becomes dangerous:
+
+- `@Async` listeners may run on pooled threads
+- scheduler threads may be reused across tenants
+- background workflows may no longer have an end-user identity at all
+
+That means async code needs a deliberate model:
+
+- copy only the identity fields that are safe and necessary
+- clear them after work finishes
+- prefer explicit arguments or event payloads over ambient context when possible
+
+If the async workflow becomes durable or long-lived, a signed or validated message contract is usually safer than trying to carry live thread context forward.
+
+---
+
+## Operator Access Needs a Different Contract
+
+Support engineers, break-glass administrators, and platform operators should not fit awkwardly into the same tenant model as ordinary users.
+If they do, teams often end up with broad hidden bypasses.
+
+A safer pattern is to distinguish:
+
+- tenant-scoped user access
+- support access with explicit elevation and audit
+- platform-level service access
+
+That separation keeps "global operator" from becoming "unbounded tenant impersonation without traceability."
 
 ---
 
 ## Failure Drill
 
-Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for spring security for multi-tenant and zero-trust service edges (part 2).
+A strong drill here is downstream tenant confusion:
 
-That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around spring security for multi-tenant and zero-trust service edges (part 2) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. authenticate a user in tenant `A`
+2. let the edge validate correctly
+3. invoke an internal service hop with mismatched or missing tenant context
+4. verify the downstream service rejects or quarantines the request
+5. inspect logs to confirm the system records the identity mismatch clearly
+
+This is how you discover whether zero-trust assumptions survive beyond the first filter chain.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating spring security for multi-tenant and zero-trust service edges (part 2)
-- keep customization close to the intended extension point instead of scattered overrides while validating spring security for multi-tenant and zero-trust service edges (part 2)
-- observe startup, request, and shutdown phases separately while validating spring security for multi-tenant and zero-trust service edges (part 2)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating spring security for multi-tenant and zero-trust service edges (part 2)
+- trace identity and tenant context across internal hops, not only at ingress
+- inspect async executors and schedulers for context leakage risk
+- verify downstream services revalidate propagated context instead of trusting headers blindly
+- separate operator flows from ordinary tenant flows in tests and audits
+- confirm denial paths are observable and attributable to the correct trust boundary
 
 ---
 
 ## Production Checklist
 
-- mixed-config or mixed-version behavior exercised once
-- error or timeout path measured under real startup/runtime timing
-- override and rollback rules still simple after hardening
-- incident notes updated with the real failure signature
+- downstream propagation rules are explicit and reviewed
+- request-scoped tenant context is cleared across sync and async paths
+- downstream services do not blindly trust upstream tenant headers
+- support and operator access models are explicit and auditable
+- identity mismatch events are visible in logs, metrics, and alerts
 
 ---
 
 ## Key Takeaways
 
-- Spring Security for multi-tenant and zero-trust service edges (Part 2) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- harden one failure mode at a time instead of stacking speculative complexity
+- Zero trust is not complete at ingress; it has to survive internal propagation too.
+- Multi-tenant security gets weaker quickly when async paths or internal calls lose or over-broaden context.
+- Explicit propagation code is usually safer than ambient, implicit context spread.
+- Operator access should be modeled separately from normal tenant access so elevation stays visible and auditable.

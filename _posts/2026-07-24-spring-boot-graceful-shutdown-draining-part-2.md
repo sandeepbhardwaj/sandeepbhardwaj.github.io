@@ -25,98 +25,139 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Graceful shutdown and connection draining in Spring Boot (Part 2) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 established the basic shutdown story: stop new traffic, let in-flight work finish, and stay inside the platform termination budget.
+Part 2 goes deeper into the real edge cases teams hit later: long-lived connections, background consumers, and workloads that do not behave like one short HTTP request.
 
 ---
 
-## Problem 1: Graceful shutdown and connection draining in Spring Boot (Part 2)
+## The Harder Problem Is Long-Lived Work
 
-Problem description:
-We want to apply graceful shutdown and connection draining in spring boot (part 2) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+Shutdown gets much harder when the service owns work that outlives a normal request:
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- streaming responses
+- SSE or WebSocket sessions
+- queue consumers with in-progress handlers
+- scheduled jobs that might fire while the process is draining
 
-What we are doing actually:
-
-1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
-2. make Spring Boot explicit: introduce one hardening mechanism at a time
-3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
-4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
+These are the places where "Spring graceful shutdown is enabled" can still leave the service operationally unsafe.
 
 ---
 
-## Why This Topic Matters
+## Not All Work Drains the Same Way
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+HTTP traffic, background jobs, and consumers need different shutdown semantics:
+
+- short request/response traffic usually needs a bounded completion window
+- queue consumers often need to stop polling before they stop processing
+- stream-style connections may need explicit cutover or reconnect behavior
+
+If all of those are treated as one generic drain process, the shutdown story is incomplete.
 
 ---
 
-## Architecture Model
+## A More Complete Shutdown Sequence
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Graceful shutdown and connection draining in Spring Boot (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Termination begins] --> B[Readiness drops]
+    B --> C[New HTTP traffic stops]
+    B --> D[Consumers stop polling]
+    B --> E[Schedulers stop starting new work]
+    C --> F[In-flight work drains or times out]
+    D --> F
+    E --> F
+    F --> G[Process exits]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so graceful shutdown and connection draining in spring boot (part 2) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+That is closer to the real contract teams need to review.
+Shutdown is not only a web-server concern once the service owns asynchronous or long-lived work.
 
 ---
 
-## Practical Design Pattern
+## Consumer Shutdown Needs a Separate Policy
+
+One common miss is message consumption that keeps pulling work after the service has already started to drain.
+At minimum, the service needs a way to stop new intake while letting current handlers finish or time out.
 
 ```java
-@Configuration
-class TopicConfiguration {
+@Component
+class ShutdownAwareConsumerGate {
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Graceful shutdown and connection draining in Spring Boot (Part 2)", 2);
+    private final AtomicBoolean acceptingMessages = new AtomicBoolean(true);
+
+    @EventListener
+    void onClosed(ContextClosedEvent event) {
+        acceptingMessages.set(false);
+    }
+
+    boolean acceptingMessages() {
+        return acceptingMessages.get();
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in graceful shutdown and connection draining in spring boot (part 2) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+This is intentionally simple, but it shows the right idea:
+shutdown-safe services stop admitting new units of work before they try to finish the old ones.
+
+> [!IMPORTANT]
+> If the service continues polling queues or accepting new background tasks during drain, graceful shutdown is mostly cosmetic.
+
+---
+
+## Long-Lived Connections Need an Explicit Exit Story
+
+Part 1 covered standard request draining.
+Part 2 should force a harder question:
+
+- what should happen to SSE clients
+- how should WebSocket clients reconnect
+- how long may a long poll remain open
+
+Sometimes the right answer is a bounded drain window.
+Sometimes it is to terminate with a retryable signal and let the client reconnect elsewhere.
+
+The point is that the behavior should be chosen, not discovered accidentally during rollout.
 
 ---
 
 ## Failure Drill
 
-Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for graceful shutdown and connection draining in spring boot (part 2).
+A strong drill for this topic is mixed-workload termination:
 
-That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around graceful shutdown and connection draining in spring boot (part 2) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. keep normal HTTP traffic flowing
+2. keep one background consumer busy
+3. keep one long-lived connection open
+4. terminate one instance
+5. verify each workload type follows the intended drain or reconnect path
+
+This is more realistic than testing only short request completion, because it exercises the parts of shutdown most teams forget.
+
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating graceful shutdown and connection draining in spring boot (part 2)
-- keep customization close to the intended extension point instead of scattered overrides while validating graceful shutdown and connection draining in spring boot (part 2)
-- observe startup, request, and shutdown phases separately while validating graceful shutdown and connection draining in spring boot (part 2)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating graceful shutdown and connection draining in spring boot (part 2)
+- separate shutdown behavior for HTTP, consumers, schedulers, and long-lived connections
+- verify consumers stop intake before the process begins final drain
+- inspect whether long-lived connections have a bounded and predictable exit path
+- keep platform kill budget longer than the sum of the real drain windows
+- test with live traffic and mixed workloads, not only idle termination
 
 ---
 
 ## Production Checklist
 
-- mixed-config or mixed-version behavior exercised once
-- error or timeout path measured under real startup/runtime timing
-- override and rollback rules still simple after hardening
-- incident notes updated with the real failure signature
+- readiness, consumer intake, and scheduler admission all stop in the right order
+- long-lived connections have a defined reconnect or termination contract
+- background executors and consumers respect shutdown state
+- drain timing is validated against real platform termination windows
+- mixed-workload shutdown drills are part of rollout confidence
 
 ---
 
 ## Key Takeaways
 
-- Graceful shutdown and connection draining in Spring Boot (Part 2) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- harden one failure mode at a time instead of stacking speculative complexity
+- Part 2 of graceful shutdown is about non-HTTP work and long-lived traffic.
+- Safe termination means stopping intake before draining existing work.
+- Long-lived connections need an explicit reconnect or timeout strategy.
+- A shutdown story is only complete when it covers the full workload mix the service actually owns.

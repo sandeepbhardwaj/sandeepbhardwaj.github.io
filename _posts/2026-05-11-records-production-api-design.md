@@ -21,22 +21,37 @@ header:
   show_overlay_excerpt: false
   caption: Immutable Data Contracts with Minimal Boilerplate
 ---
-Java records are best used for immutable data contracts.
-They reduce boilerplate and make API boundary models explicit, especially for request/response DTOs and event payloads.
+Java records are most valuable at boundaries where value semantics are a feature, not a limitation.
+
+That makes them excellent for request models, response models, event payloads, and read-oriented projections. It does not make them the right answer for every class in a codebase.
+
+The strongest production use of records is not "less boilerplate." It is clearer contracts.
 
 ---
 
-## Where Records Work Best
+## Where Records Fit Naturally
 
-- REST/gRPC request and response models
-- event payloads published to Kafka or queues
-- read-model projections from domain entities
+Records work best when the type is meant to be:
 
-Avoid records for persistence entities or aggregates that require lifecycle mutation and lazy loading.
+- immutable
+- explicit about its components
+- compared by value
+- easy to serialize and test
+
+Typical examples:
+
+- REST or gRPC DTOs
+- Kafka event payloads
+- query-side projections
+- internal commands crossing module boundaries
+
+They are much weaker for mutation-heavy domain entities, ORM-managed lifecycle objects, or types whose identity and behavior matter more than raw data shape.
 
 ---
 
-## Example: Boundary DTO with Invariant Validation
+## Records Make Boundary Assumptions Visible
+
+One quiet advantage of records is that they force you to name the contract clearly.
 
 ```java
 public record InvoiceSummary(String id, BigDecimal amount, String currency) {
@@ -54,19 +69,24 @@ public record InvoiceSummary(String id, BigDecimal amount, String currency) {
 }
 ```
 
-Compact constructors are the right place for simple structural invariants.
+This is useful because:
+
+- callers can see the shape immediately
+- invalid state is rejected early
+- tests get stable value semantics for free
+
+The compact constructor is a good place for structural validation. It is not the place for workflow logic.
 
 ---
 
-## Record + Jackson Integration
+## Records and JSON Contracts
 
-Records serialize cleanly with modern Jackson versions.
-Use explicit property names when you need stable external contracts.
+Records work well with modern Jackson setups and similar serializers, but that convenience should not hide the bigger point: component names are part of your contract.
 
 ```java
 public record CreateOrderRequest(
-    @JsonProperty("customer_id") String customerId,
-    @JsonProperty("items") List<OrderItem> items
+        @JsonProperty("customer_id") String customerId,
+        @JsonProperty("items") List<OrderItem> items
 ) {
     public CreateOrderRequest {
         if (customerId == null || customerId.isBlank()) {
@@ -80,117 +100,89 @@ public record CreateOrderRequest(
 }
 ```
 
----
-
-## Versioning Strategy
-
-Field changes in records are API changes.
-Treat them as contract evolution, not simple refactors.
-
-- adding optional field: usually backward compatible for consumers
-- renaming/removing field: breaking change, requires version bump
-- changing semantics of existing field: breaking from business perspective even if type stays same
-
-Use `v1`, `v2` DTO packages or endpoint versioning for breaking updates.
+If you rename a component casually, you may be making a wire-level breaking change, not performing a harmless refactor.
 
 ---
 
-## Dry Run: Mutable DTO to Record Migration
+## The Main Production Benefit: Fewer Ambiguous DTOs
 
-Current state:
+Many backend codebases accumulate mutable DTOs with:
 
-- mutable `OrderResponse` POJO used by controllers and tests
+- setters used only in tests
+- half-populated instances during mapping
+- accidental mutation after validation
+- unclear equality behavior
 
-Migration steps:
+Records improve that boundary by making the data carrier explicit and closed after construction.
 
-1. introduce new record `OrderResponseV2` with same JSON shape.
-2. add mapper from domain entity -> `OrderResponseV2`.
-3. update controller return type to record.
-4. run contract tests against golden JSON snapshots.
-5. remove old mutable DTO after one release cycle.
+That usually leads to:
 
-Result:
+- simpler mapping code
+- safer controller and handler logic
+- clearer contract tests
 
-- no accidental setter-based mutation in controller/service layers
-- simpler equality semantics for tests (`equals/hashCode` generated)
+This is why records are often more valuable at API boundaries than deep inside the domain model.
 
 ---
 
-## Common Mistakes
+## Versioning Still Matters
 
-- putting business workflow logic inside record methods
-- using records as JPA entities
-- silently changing record component names and breaking wire contracts
-- exposing internal domain objects directly as API records without anti-corruption mapping
+Records do not eliminate compatibility work. They often make it more visible.
+
+Changes to record components should be treated as contract evolution:
+
+- adding an optional field may be compatible
+- renaming a component is often breaking
+- removing a field is usually breaking
+- changing field meaning is a breaking change even if the type stays the same
+
+That means public record evolution still needs the same discipline as any other API type.
+
+---
+
+## A Sensible Migration Path
+
+If you are replacing a mutable DTO with a record:
+
+1. keep the external JSON shape the same first
+2. introduce mapping into the new record type
+3. validate with contract or snapshot tests
+4. remove setter-based assumptions from tests and callers
+
+This keeps the migration about boundary quality instead of turning it into a wide refactor.
+
+---
+
+## Where Records Become a Bad Fit
+
+Avoid forcing records into places where the model needs:
+
+- lazy loading
+- state transitions over time
+- identity semantics separate from value equality
+- behavior-heavy invariants that live beyond construction
+
+That is why records are a poor fit for many JPA entities and aggregate roots.
+
+> [!WARNING]
+> A record used as a persistence entity often creates more friction than clarity. The problem is not that records are "too modern." It is that the lifecycle model is different.
+
+---
+
+## Review Questions for Record Adoption
+
+- Is this type truly a value carrier?
+- Does immutability help the boundary?
+- Are constructor checks limited to structural invariants?
+- Will component changes affect external compatibility?
+
+If the type needs rich lifecycle behavior, a regular class is usually the better tool.
 
 ---
 
 ## Key Takeaways
 
-- records are excellent for immutable API and messaging contracts.
-- validate structural invariants in compact constructors.
-- treat record component changes as versioned contract changes.
-
----
-
-        ## Problem 1: Use Records at Boundaries Where Immutability Is an Asset
-
-        Problem description:
-        Teams often replace every DTO and domain type with records without deciding where immutable value semantics help and where lifecycle-heavy entities still need behavior.
-
-        What we are solving actually:
-        We are placing records where they strengthen API clarity, equality, and serialization contracts. The goal is not to turn every object into a record; it is to make boundary data explicit and stable.
-
-        What we are doing actually:
-
-        1. use records for request, response, and event payloads with clear value semantics
-2. validate invariants in the compact constructor so invalid data cannot exist
-3. keep mutation-heavy aggregates as regular classes with behavior
-4. treat record evolution as contract evolution and version it carefully
-
-        ```mermaid
-flowchart LR
-    A[HTTP / Messaging boundary] --> B[Record input]
-    B --> C[Validation]
-    C --> D[Domain service]
-```
-
-        This section is worth making concrete because architecture advice around records production api design often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        public record CreateCustomerRequest(String email, String country) {
-    public CreateCustomerRequest {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("email is required");
-        }
-        if (country == null || country.isBlank()) {
-            throw new IllegalArgumentException("country is required");
-        }
-    }
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Try to evolve a record used in public APIs by renaming or reordering components. You will immediately see why records work best where versioning and migration rules are already explicit.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - review serialization compatibility before changing record components
-- keep domain rules close to the constructor instead of scattered setters
-- avoid hiding behavior-heavy aggregates behind records just to look modern
-- test equality and JSON mapping when records cross service boundaries
-
-        ## Review Checklist
-
-        - Use records for value carriers, not long-lived mutable entities.
-- Keep constructors small and invariant-focused.
-- Document compatibility expectations for public record types.
+- Records are strongest at boundaries where immutability and value semantics improve clarity.
+- They reduce DTO ambiguity more than they reduce boilerplate.
+- Compact constructors are good for structural invariants, not workflow logic.
+- Treat record component changes as contract changes, not casual refactors.

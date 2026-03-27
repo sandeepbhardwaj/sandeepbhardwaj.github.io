@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Negative Edge Shortest Paths
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Bellman-Ford is the single-source shortest-path pattern for graphs where negative edge weights are allowed.
+Strong candidates know exactly why Dijkstra fails here, and they explain Bellman-Ford in terms of repeated edge relaxation plus one extra pass for negative-cycle detection.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Relax all edges repeatedly to support negative edges and detect negative cycles.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 08 Bellman Ford Algorithm | single-source shortest path includes negative edges or negative-cycle checks | relax every edge repeatedly until shortest simple paths have fully propagated | Shortest Path with Negative Edges |
 
----
+## Problem Statement
+
+Given a weighted directed graph that may contain negative edges, compute source distances safely and detect whether a reachable negative cycle exists.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: negative edge, negative cycle, repeated relaxation, source distances.
+- Structural signal: after i passes, the best path using at most i edges has been propagated.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If weights can be negative and you still need shortest paths, think Bellman-Ford.
 
 ## Java Template
 

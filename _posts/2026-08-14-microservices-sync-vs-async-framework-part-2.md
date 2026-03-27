@@ -23,96 +23,176 @@ header:
   show_overlay_excerpt: false
   caption: Microservices Architecture and Reliability Patterns
 ---
-Sync vs async communication selection framework (Part 2) is not just a diagramming exercise. The hard part is deciding where ownership, failure handling, and change coordination should live once the system is split across services.
+Part 1 focused on choosing between synchronous and asynchronous communication based on business contract. Part 2 focuses on what happens after that initial choice, when retries, timeouts, duplicate delivery, and ambiguous outcomes start showing up in production.
 
----
+This is where many seemingly reasonable designs break. A synchronous call that was fine at low traffic becomes a latency amplifier. An asynchronous handoff that looked decoupled becomes hard to reason about because nobody owns the status model. The real architecture question becomes: how do we handle uncertainty after the first design decision?
 
-## Problem 1: Sync vs async communication selection framework (Part 2)
+## The Hardest Case: Ambiguous Success
 
-Problem description:
-We want to use sync vs async communication selection framework (part 2) without creating hidden coupling, rollout friction, or a distributed monolith. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+The most dangerous communication outcome is not clean success or clean failure. It is uncertainty.
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For service architectures, the hidden risk is usually coupling that migrates from code into network boundaries and release processes.
+Examples:
 
-What we are doing actually:
+- synchronous request timed out, but the downstream side effect may have succeeded
+- asynchronous command was accepted, but the consumer has not processed it yet
+- an event was published twice and two consumers reacted differently
 
-1. make the service landscape explicit: stress the baseline with the most likely failure or contention mode
-2. make the service landscape explicit: introduce one hardening mechanism at a time
-3. make the service landscape explicit: measure the operational trade-off instead of trusting intuition
-4. make the service landscape explicit: document where the pattern should stop and another pattern should begin
+The system needs an explicit answer for what callers, operators, and downstream services should do in those states.
 
----
+## When Sync Starts To Break Down
 
-## Why This Topic Matters
+A synchronous flow is often still the right choice for immediate decisions, but it becomes risky when:
 
-- service boundaries become release and incident boundaries too
-- latency and ownership trade-offs often dominate abstract purity
-- one unclear contract can multiply operational friction across many teams
+- multiple services sit on the same user-facing critical path
+- retries are layered in several places
+- the caller cannot distinguish business rejection from transient failure
+- the same write may be attempted again after an ambiguous timeout
 
----
+At that point, the problem is no longer "REST versus Kafka." It is ownership of uncertain outcomes.
 
-## Architecture Model
+## When Async Starts To Break Down
+
+Asynchronous communication can reduce coupling, but it introduces its own failure shapes:
+
+- no clear user-visible status
+- duplicate delivery without idempotent handling
+- consumers that lag without any freshness signal
+- durable handoff in one system but no durable state transition in another
+
+Async architecture is healthy only when delayed completion is made explicit rather than hidden.
+
+> [!WARNING]
+> Asynchronous handoff is not automatically safer than synchronous communication. It is safer only when the business can tolerate delayed truth and the platform can make that delay visible.
+
+## A Better Second-Level Framework
+
+After the initial sync-vs-async decision, apply a second filter:
+
+| Question | If yes | Design consequence |
+| --- | --- | --- |
+| Can the caller observe an ambiguous timeout? | Yes | require idempotency or status lookup |
+| Can the same logical command be delivered twice? | Yes | require duplicate-safe handling |
+| Can the work complete after the caller disconnects? | Yes | expose durable status model |
+| Can downstream lag change user expectations? | Yes | define freshness semantics |
+
+This is the layer where reliable systems separate themselves from merely functional ones.
+
+## A Useful Example: Order Submission
+
+Suppose a client submits an order.
+
+Synchronous part:
+
+- validate cart
+- compute price
+- create pending order
+
+Asynchronous part:
+
+- reserve inventory
+- authorize payment
+- publish order-confirmed side effects
+
+The weak design says:
+
+- return success once the request is accepted
+- hope downstream coordination completes
+
+The stronger design says:
+
+- return an order ID and explicit status
+- make the order lifecycle queryable
+- define what `PENDING`, `CONFIRMED`, and `FAILED` actually mean
+
+That turns async uncertainty into a product contract rather than a support ticket.
+
+## Architecture Picture
 
 ```mermaid
-flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Sync vs async communication selection framework (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+flowchart LR
+    C[Client] --> S[Sync acceptance boundary]
+    S --> O[(Durable order state)]
+    O --> A[Async workflow]
+    A --> U[Status updates / compensations]
+    U --> Q[Status query API]
 ```
 
-The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once sync vs async communication selection framework (part 2) is live.
-If a diagram cannot make those boundaries obvious, the implementation usually hides coupling rather than removing it.
+The key point is that once a workflow spans time, the system needs a durable status model. Without it, async design is just delayed ambiguity.
 
----
+## Retries Need Different Treatment In Each Style
 
-## Practical Design Pattern
+For synchronous paths:
+
+- retry only short-lived transport failures
+- avoid broad retries on non-idempotent writes
+- distinguish retryable dependency errors from business rejection
+
+For asynchronous paths:
+
+- expect replay
+- make consumers idempotent
+- define dead-letter and reprocessing behavior clearly
+
+This difference is why one generic "retry policy" rarely works across both styles.
+
+## Backpressure Is Also A Communication Choice
+
+A synchronous service under load may:
+
+- reject quickly
+- queue briefly
+- shed optional work
+
+An asynchronous pipeline under load may:
+
+- allow lag to grow
+- throttle producers
+- route to dead letter or delayed retry
+
+These are all communication-level decisions because they shape what the caller believes about system progress.
+
+## Code Should Reflect The Status Model
 
 ```java
-public final class ServiceBoundary {
-    public Decision evaluate(Command command) {
-        // Keep ownership and failure policy explicit for: Sync vs async communication selection framework (Part 2)
-        return Decision.accept();
-    }
+public enum OrderProcessingStatus {
+    ACCEPTED,
+    PENDING_CONFIRMATION,
+    CONFIRMED,
+    FAILED
 }
+
+public record OrderSubmissionResponse(
+        String orderId,
+        OrderProcessingStatus status
+) {}
 ```
 
-The example is small on purpose: it shows where the decision enters and who owns the consequence when sync vs async communication selection framework (part 2) is applied.
-That is usually more valuable in review than a larger demo that hides contracts behind extra scaffolding.
+This kind of API helps because it prevents the system from pretending asynchronous work is already complete. The client gets a durable reference point instead of an optimistic lie.
 
----
+## Common Failure Modes
 
-## Failure Drill
+- synchronous paths with no idempotency for ambiguous timeouts
+- asynchronous designs with no status lookup or lifecycle model
+- retries layered at client, gateway, service, and broker
+- delayed consumers with no freshness SLO
+- events used for work that really needed immediate authoritative answer
 
-Hardening drill: degrade one dependency and observe whether the boundary still contains failure instead of amplifying it for sync vs async communication selection framework (part 2).
+These failure modes usually appear together, which is why part 2 has to go deeper than the original sync-versus-async choice.
 
-That drill matters while the design is being stressed by mixed versions, retries, or recovery edge cases because service boundaries around sync vs async communication selection framework (part 2) usually break through coordination delay and unclear ownership long before they break through code syntax.
+## Failure Drills Worth Running
 
----
+Run these scenarios:
 
-## Debug Steps
+1. synchronous write succeeds downstream but times out before client sees response
+2. asynchronous consumer processes the same command twice
+3. workflow remains pending longer than product expects
+4. retry storm hits a service that already uses async fan-out internally
 
-Debug steps:
-
-- map the exact ownership boundary before discussing implementation mechanics while validating sync vs async communication selection framework (part 2)
-- measure network and retry impact separately from business logic correctness while validating sync vs async communication selection framework (part 2)
-- look for hidden coupling in shared databases, release order, or schemas while validating sync vs async communication selection framework (part 2)
-- validate canary behavior under one realistic dependency failure while validating sync vs async communication selection framework (part 2)
-
----
-
-## Production Checklist
-
-- retry, timeout, and ownership behavior tested together
-- contract drift caught by one verification gate
-- failure containment proven without widening the blast radius
-- migration checkpoint recorded for the next rollout step
-
----
+If the team cannot explain the caller contract and operator workflow for each case, the communication model is still incomplete.
 
 ## Key Takeaways
 
-- Sync vs async communication selection framework (Part 2) should be designed as a production decision, not just an implementation detail
-- boundaries are only good when ownership and failure semantics remain clear
-- harden one failure mode at a time instead of stacking speculative complexity
+- The initial sync-vs-async choice is only the first design decision; the harder part is handling uncertainty after that choice.
+- Ambiguous outcomes require idempotency, durable status, or both.
+- Synchronous and asynchronous paths need different retry, backpressure, and visibility strategies.
+- A communication design is production-ready only when callers can tell the difference between acceptance, completion, and failure.

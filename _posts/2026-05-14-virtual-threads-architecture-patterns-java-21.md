@@ -22,33 +22,46 @@ header:
   show_overlay_excerpt: false
   caption: Scalable Thread Per Task Architecture
 ---
-Virtual threads let you keep a simple blocking style while scaling to much higher concurrency for I/O-heavy services.
-The key is to combine them with explicit resource budgets.
+Virtual threads make blocking-style Java code viable at much higher concurrency, but they do not make the system unbounded.
+
+That distinction matters. Virtual threads remove a lot of platform-thread scarcity. They do not remove the limits of databases, HTTP pools, downstream APIs, or CPU budgets.
+
+The teams that get the most value from virtual threads are the ones that keep the simple programming model while remaining strict about resource control.
 
 ---
 
-## Where Virtual Threads Fit
+## Where Virtual Threads Fit Best
 
-- request fan-out to multiple downstream services
-- high-concurrency APIs that mostly wait on network/disk
-- migration from complex callback/reactive code where readability suffered
+They are strongest when the work is:
 
-Less suitable for CPU-bound workloads where thread count is not the bottleneck.
+- I/O-heavy
+- easy to express in a request-per-task style
+- previously burdened by callback complexity or oversized thread pools
 
----
+Typical examples:
 
-## Core Architecture Pattern
+- endpoint fan-out to several downstream services
+- background coordination tasks waiting on network or disk
+- migration away from complicated asynchronous code that became hard to maintain
 
-- one virtual thread per request or subtask
-- explicit limits for scarce dependencies (DB pool, third-party APIs)
-- bounded timeouts and cancellation budgets
-- per-request correlation IDs in logs and metrics
-
-Virtual threads remove thread scarcity, not dependency scarcity.
+They are a weaker fit for CPU-bound work, where the bottleneck is not thread availability in the first place.
 
 ---
 
-## Example: Fan-Out Endpoint with Timeouts
+## The Real Architecture Rule
+
+The useful mental model is:
+
+- one virtual thread per request or subtask is fine
+- one unbounded dependency flood is not
+
+This is why virtual-thread adoption should always be paired with explicit dependency budgets.
+
+If you do not cap scarce dependencies, the code may look beautifully simple while the system collapses under downstream saturation.
+
+---
+
+## A Good Starting Pattern: Readable Fan-Out
 
 ```java
 try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -61,13 +74,20 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 }
 ```
 
-This keeps concurrency readable without callback nesting.
+This is the kind of code virtual threads make attractive again:
+
+- straightforward control flow
+- parallel waiting
+- no callback nesting
+- timeouts still explicit
+
+The readability win is real. Just do not confuse readable concurrency with infinite concurrency.
 
 ---
 
-## Dependency Budgeting Example
+## Budget the Dependencies That Are Actually Scarce
 
-Protect downstream capacity with semaphores or rate limits.
+If a service fans out to a dependency with a limited connection pool, a rate limit, or a fragile downstream SLO, that dependency still needs guarding.
 
 ```java
 Semaphore inventoryBudget = new Semaphore(120);
@@ -82,115 +102,89 @@ public Inventory fetchInventory(String sku) throws Exception {
 }
 ```
 
-Without this, thousands of virtual threads can overwhelm a finite dependency.
+This matters because thousands of cheap virtual threads can still converge on one expensive bottleneck.
+
+Without an explicit budget, virtual threads can make overload easier to trigger, not harder.
 
 ---
 
-## Pinning Risks and Detection
+## Pinning Is the Subtle Failure Mode
 
-Virtual threads can be pinned to carrier threads in some blocking sections.
-Common causes:
+Virtual threads can sometimes stay mounted to carrier threads longer than you expect.
 
-- long-running `synchronized` blocks around blocking I/O
-- native calls that do not unmount
-- legacy libraries with monitor-heavy hot paths
+Common causes include:
 
-Validation steps:
+- broad `synchronized` blocks around blocking calls
+- native or legacy code that prevents unmounting
+- monitor-heavy libraries on hot paths
 
-1. run load test with virtual-thread configuration.
-2. capture JFR and inspect virtual thread pinning events.
-3. replace broad synchronized regions with finer locks where possible.
+That means migration should include diagnostics, not just code changes.
 
----
+```mermaid
+flowchart LR
+    A[Incoming request] --> B[Virtual thread]
+    B --> C[Blocking I/O task]
+    C --> D{Resource budget available?}
+    D -->|Yes| E[Dependency call]
+    D -->|No| F[Fast fail / queue / timeout]
+    E --> G[Response]
+```
 
-## Dry Run: Incremental Migration
-
-Current service: fixed thread pool (200 threads), p95 latency 380ms at peak.
-
-1. migrate one read-heavy endpoint to virtual thread executor.
-2. keep same downstream clients and same timeouts.
-3. add semaphore budget for each dependency.
-4. compare p95/p99 latency, error rate, and dependency saturation.
-5. roll out gradually per endpoint.
-
-Expected result:
-
-- improved concurrency and simpler code
-- stable downstream load because budgets remain enforced
+This is the useful architecture picture: cheap concurrency at the caller, bounded capacity at the dependency.
 
 ---
 
-## Common Mistakes
+## A Sensible Migration Path
 
-- assuming virtual threads remove need for backpressure
-- migrating all endpoints at once without per-endpoint validation
-- ignoring dependency pool limits (DB/HTTP connection pools)
-- keeping unbounded retries that multiply load under failure
+Do not migrate the entire service in one go.
+
+A better path is:
+
+1. choose one read-heavy endpoint
+2. keep the same downstream clients and timeout rules
+3. add dependency budgets where needed
+4. load test with JFR enabled
+5. inspect latency, saturation, and pinning signals before broadening adoption
+
+That keeps the migration empirical and reduces the risk of blaming or praising virtual threads for the wrong reason.
+
+---
+
+## What to Measure
+
+The most important signals are usually not "how many virtual threads exist?"
+
+They are:
+
+- request latency under load
+- downstream pool saturation
+- timeout and rejection behavior
+- pinned virtual thread events
+- heap and memory behavior during bursts
+
+If those are healthy, the migration is helping. If not, cheap thread creation is not the missing piece.
+
+---
+
+## When They Are the Wrong Optimization
+
+Virtual threads are not a cure for:
+
+- CPU-heavy computation
+- unbounded retry storms
+- poor timeout discipline
+- under-sized or overloaded downstream resources
+
+In those cases, the problem is usually capacity management or algorithmic cost, not the threading model.
+
+> [!WARNING]
+> If a service only becomes stable after adding semaphores, timeouts, and dependency budgets, that does not mean virtual threads failed. It means those controls were always necessary.
 
 ---
 
 ## Key Takeaways
 
-- virtual threads simplify concurrency for blocking I/O services.
-- combine them with strict resource limits and timeout budgets.
-- validate with load testing and pinning diagnostics before broad rollout.
-
----
-
-        ## Problem 1: Design for Cheap Concurrency, Not Infinite Concurrency
-
-        Problem description:
-        Virtual threads remove a lot of platform-thread scarcity, but services still fail when they keep hidden blocking, unbounded downstream fan-out, or synchronized hot spots.
-
-        What we are solving actually:
-        We are solving the request architecture around virtual threads. The benefit comes from simpler thread-per-task code with explicit backpressure, not from assuming the runtime will absorb every bottleneck.
-
-        What we are doing actually:
-
-        1. use one virtual thread per independent request or task
-2. bound downstream concurrency even if the caller side is cheap
-3. remove synchronized blocks and native calls that pin carriers in hot paths
-4. measure queue depth, DB pool saturation, and external client limits together
-
-        ```mermaid
-flowchart TD
-    A[Incoming request] --> B[Virtual thread]
-    B --> C[Business logic]
-    C --> D[Bounded DB / HTTP client]
-    D --> E[Response]
-```
-
-        This section is worth making concrete because architecture advice around virtual threads architecture patterns java 21 often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
-    Future<OrderSummary> summary = executor.submit(() -> orderService.fetch(orderId));
-    Future<List<Shipment>> shipments = executor.submit(() -> shipmentService.fetch(orderId));
-    return new OrderPage(summary.get(), shipments.get());
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Load the service until database or HTTP pools saturate. If latency explodes even though thread creation is cheap, the bottleneck was never thread count in the first place.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - look for pinned-carrier warnings and synchronized hot spots during profiling
-- treat connection pool sizing as the real concurrency ceiling for I/O workloads
-- avoid converting CPU-heavy loops into millions of virtual-thread tasks
-- compare request latency and memory pressure with the old pool model under the same load
-
-        ## Review Checklist
-
-        - Keep concurrency bounded around scarce downstream resources.
-- Prefer structured task orchestration over ad-hoc task spawning.
-- Profile for carrier pinning before declaring success.
+- Virtual threads simplify blocking I/O concurrency, especially for request fan-out.
+- They remove thread scarcity, not dependency scarcity.
+- Resource budgets, timeouts, and pinning diagnostics should be part of every serious rollout.
+- The best outcome is simpler code with the same or better operational control.

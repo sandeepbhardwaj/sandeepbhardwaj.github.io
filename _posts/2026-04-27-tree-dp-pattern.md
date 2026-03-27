@@ -21,17 +21,34 @@ header:
   show_overlay_excerpt: false
   caption: Hierarchical State Combination on Trees
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Tree DP is the dynamic-programming pattern for aggregating optimal answers over rooted subtrees.
+Strong candidates explain what each subtree state means before writing DFS, because tree DP is easy to code incorrectly when the child-to-parent contract is unclear.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Define DP state per node and combine child contributions in post-order traversal.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 27 Tree Dp Pattern | the problem is on a tree and each node answer depends on child subtree answers | run DFS and return a well-defined DP state from each subtree | House Robber III |
 
----
+## Problem Statement
+
+Given a tree-structured problem, compute an answer where each node combines information from its children without introducing cycles.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: tree DP, subtree state, rerooting, post-order aggregation.
+- Structural signal: each subtree can be solved independently once the parent-child direction is fixed.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the graph is a tree and each answer is built from child subtrees, think tree DP.
 
 ## Java Template
 

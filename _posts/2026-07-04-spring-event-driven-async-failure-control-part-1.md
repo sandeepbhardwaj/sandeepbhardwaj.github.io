@@ -24,98 +24,188 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Event-driven Spring architecture with async failure control becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Spring makes event-driven application code look deceptively simple.
+Publish an event, add a listener, maybe annotate it with `@Async`, and the code feels decoupled immediately.
+The real questions begin after that: what is the delivery contract, where does failure go, and what business state is allowed to commit before listeners finish.
 
 ---
 
-## Problem 1: Event-driven Spring architecture with async failure control
+## Start With the Right Mental Model
 
-Problem description:
-We want to apply event-driven spring architecture with async failure control in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on the baseline model and the safe default shape.
+Spring application events are not a broker.
+They are in-process notifications inside one application runtime.
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+That means:
 
-What we are doing actually:
+- they are great for local decoupling
+- they are not durable by default
+- they do not create cross-service reliability guarantees
+- async listeners change timing and failure behavior immediately
 
-1. make Spring Boot explicit: identify the ownership boundary and the non-negotiable invariant
-2. make Spring Boot explicit: choose the simplest baseline design that preserves correctness
-3. make Spring Boot explicit: make observability visible from the first implementation
-4. make Spring Boot explicit: validate the baseline with one concrete failure drill
-
----
-
-## Why This Topic Matters
-
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+A lot of architecture confusion disappears once that model is stated plainly.
 
 ---
 
-## Architecture Model
+## When Spring Events Are a Good Fit
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Event-driven Spring architecture with async failure control]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+They work well when you want to separate concerns inside one service:
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so event-driven spring architecture with async failure control stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+- order creation triggers audit logging
+- user registration triggers welcome-email preparation
+- domain state changes trigger cache invalidation or projections
+
+In those cases, events reduce direct coupling between components without forcing every side effect into one service method.
+
+They are a bad fit when the system actually needs:
+
+- durable retries
+- cross-service delivery guarantees
+- backpressure between independent systems
+- replay or historical event recovery
+
+That is where messaging infrastructure belongs, not just `ApplicationEventPublisher`.
 
 ---
 
-## Practical Design Pattern
+## The First Boundary: Before or After Commit
+
+One of the most important design choices is whether the listener should run:
+
+- inside the transaction
+- after transaction commit
+- asynchronously after commit
+
+Those are very different business semantics.
+
+If a listener updates another table inside the same transaction, failure may correctly roll everything back.
+If a listener sends email or triggers a webhook, tying that side effect directly to the transaction may be the wrong durability model.
+
+This is why `@TransactionalEventListener` matters more than most teams realize.
+
+---
+
+## A Concrete Example
+
+Suppose checkout should persist the order first, then notify other internal components.
 
 ```java
-@Configuration
-class TopicConfiguration {
+@Service
+class CheckoutService {
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Event-driven Spring architecture with async failure control", 1);
+    private final ApplicationEventPublisher publisher;
+    private final OrderRepository orderRepository;
+
+    CheckoutService(ApplicationEventPublisher publisher, OrderRepository orderRepository) {
+        this.publisher = publisher;
+        this.orderRepository = orderRepository;
+    }
+
+    @Transactional
+    public void checkout(Order order) {
+        orderRepository.save(order);
+        publisher.publishEvent(new OrderPlacedEvent(order.id(), order.customerId()));
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in event-driven spring architecture with async failure control is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+Now the important question is not whether the event gets published.
+The important question is what downstream listeners are allowed to assume about transaction state.
+
+---
+
+## Listener Choices Change the Contract
+
+A listener like this:
+
+```java
+@Component
+class AuditListener {
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    void onOrderPlaced(OrderPlacedEvent event) {
+        // write audit trail, send notification, update projection
+    }
+}
+```
+
+means the listener runs only after the surrounding transaction commits successfully.
+That is often the cleanest default for side effects that should not happen when the main write rolls back.
+
+If you add `@Async`, you are changing the model again:
+
+- the caller no longer waits
+- failures no longer travel back through the original request path
+- observability around dropped work becomes mandatory
+
+Async is not just faster. It is a reliability decision.
+
+---
+
+## Where Teams Get Burned
+
+The common failure modes are predictable:
+
+- assuming in-process events are durable
+- using async listeners without explicit failure handling
+- publishing events before commit and treating them as committed truth
+- mixing business-critical work with "nice to have" side effects in one listener path
+
+The biggest mistake is thinking "event-driven" automatically means resilient.
+It often just means the failure moved somewhere less visible.
+
+---
+
+## Failure Control Must Be Designed
+
+For async listeners, decide explicitly:
+
+- what happens when the listener throws
+- how retries are handled
+- whether failures are logged, metered, or dead-lettered somewhere
+- which side effects are allowed to be lost and which are not
+
+If the side effect cannot be lost, a plain async Spring event may be the wrong abstraction.
+
+That usually points toward an outbox pattern or broker-backed workflow instead.
 
 ---
 
 ## Failure Drill
 
-Baseline drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for event-driven spring architecture with async failure control.
+A strong drill for this topic is simple:
 
-That check matters early, before rollout assumptions harden into defaults because Spring issues around event-driven spring architecture with async failure control often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. publish an event from a transactional service method
+2. handle it with an async listener
+3. force the listener to fail after the main transaction commits
+4. verify the team can answer what happened, how it was observed, and whether the business state is still acceptable
+
+That drill exposes the real delivery contract faster than a design diagram will.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating event-driven spring architecture with async failure control
-- keep customization close to the intended extension point instead of scattered overrides while validating event-driven spring architecture with async failure control
-- observe startup, request, and shutdown phases separately while validating event-driven spring architecture with async failure control
-- verify rollback by disabling the new behavior, not by rewriting it live while validating event-driven spring architecture with async failure control
+- verify whether listeners run inside the transaction, after commit, or asynchronously
+- log and measure listener failures explicitly instead of assuming they surface naturally
+- separate critical state changes from optional notifications
+- inspect executor configuration when using `@Async`
+- escalate to an outbox or broker when the side effect needs durability or replay
 
 ---
 
 ## Production Checklist
 
-- named extension point and explicit fallback path
-- startup or runtime metric that proves the first rollout is safe
-- configuration precedence documented for the changed path
-- rollback tested without emergency code surgery
+- listener timing relative to transaction commit is explicit
+- async execution uses a named executor, not an accidental default
+- listener failures are visible in logs, metrics, and alerts
+- critical side effects are not relying on in-memory delivery guarantees
+- the team can explain which events are best-effort and which require durable delivery
 
 ---
 
 ## Key Takeaways
 
-- Event-driven Spring architecture with async failure control should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- start from a measurable baseline before optimizing
+- Spring events are excellent for in-process decoupling, not for pretending a broker exists where one does not.
+- `@TransactionalEventListener` changes business semantics in important ways and should be chosen deliberately.
+- `@Async` changes the failure model as much as it changes latency.
+- If the side effect must survive crashes and retries, move beyond plain in-process events.

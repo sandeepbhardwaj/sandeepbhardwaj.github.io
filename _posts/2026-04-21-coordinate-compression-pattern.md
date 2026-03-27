@@ -21,17 +21,34 @@ header:
   show_overlay_excerpt: false
   caption: Order-Preserving Index Compaction
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Coordinate compression is the mapping pattern for replacing huge sparse values with dense ranks while preserving relative order.
+Strong candidates explain what property must stay invariant after compression: usually ordering, equality, and adjacency in sorted rank space.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Map large sparse coordinates to compact dense indices while preserving order.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 21 Coordinate Compression Pattern | values are too large or sparse for direct indexing but only relative order matters | map distinct sorted values to compact indices without changing comparisons | Range Query Preprocessing |
 
----
+## Problem Statement
+
+Given very large coordinates or values, compress them into a small index range so arrays, trees, or Fenwick-style structures become feasible.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: large coordinates, rank mapping, sparse values, discretization.
+- Structural signal: the algorithm needs dense indices, not the original numeric magnitude.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the values are huge but only order and identity matter, think coordinate compression.
 
 ## Java Template
 

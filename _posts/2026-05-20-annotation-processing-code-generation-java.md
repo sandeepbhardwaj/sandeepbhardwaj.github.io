@@ -21,23 +21,39 @@ header:
   show_overlay_excerpt: false
   caption: Compile Time Generation for Safer APIs
 ---
-Annotation processing lets you generate code and validate contracts at compile time.
-This reduces runtime reflection, catches errors earlier, and removes repetitive boilerplate.
+Annotation processing is most useful when it moves mechanical, rule-based work to compile time without hiding the important parts of the system.
+
+That is the line to keep in mind. Good code generation removes repetition, enforces conventions, and improves runtime behavior. Bad code generation creates a second codebase that nobody understands when something breaks.
 
 ---
 
-## Good Use Cases
+## The Best Use Cases Are Boring on Purpose
 
-- mapper/adapter generation
-- REST client stubs from annotated interfaces
+Annotation processing works well for patterns that are:
+
+- repetitive
+- deterministic
+- low-ambiguity
+- easier to validate at compile time than at runtime
+
+Good examples:
+
+- mappers and adapters
+- generated registries or metadata indexes
+- client stubs
 - compile-time validation of framework annotations
-- metadata registries for startup performance
 
-Avoid generating business logic that becomes hard to debug.
+Weak examples:
+
+- policy-heavy business rules
+- code whose behavior changes based on lots of implicit context
+- generation that is hard to reason about without reading the processor internals
+
+If the generated code becomes more mysterious than the handwritten code it replaced, the trade-off is usually bad.
 
 ---
 
-## Minimal Annotation + Processor Shape
+## A Minimal Processor Shape
 
 ```java
 @Target(ElementType.TYPE)
@@ -55,9 +71,9 @@ public final class AutoFactoryProcessor extends AbstractProcessor {
         for (Element element : roundEnv.getElementsAnnotatedWith(AutoFactory.class)) {
             if (element.getKind() != ElementKind.CLASS) {
                 processingEnv.getMessager().printMessage(
-                    Diagnostic.Kind.ERROR,
-                    "@AutoFactory can only target classes",
-                    element
+                        Diagnostic.Kind.ERROR,
+                        "@AutoFactory can only target classes",
+                        element
                 );
                 continue;
             }
@@ -67,132 +83,117 @@ public final class AutoFactoryProcessor extends AbstractProcessor {
     }
 
     private void generateFactory(TypeElement type) {
-        // Use Filer to create source file and write deterministic code.
+        // Use Filer to create deterministic generated source.
     }
 }
 ```
 
-Important: always emit actionable diagnostics with exact element location.
+This is enough to show the two qualities that matter most:
+
+- actionable diagnostics
+- deterministic output
 
 ---
 
-## Deterministic Codegen Rules
+## Determinism Is Not a Nice-to-Have
 
-Generated output should be stable across machines and build runs.
+Generated code should be stable across machines, clean builds, and CI runs.
 
-- sort members and elements before generation
-- avoid timestamps/random IDs in generated files
-- keep formatting consistent to reduce diff noise
+That means:
 
-Deterministic output is mandatory for trustworthy CI and reviews.
+- sort members and inputs before generation
+- avoid timestamps and random IDs in output
+- keep formatting stable
+- make naming conventions predictable
 
----
-
-## Incremental Build Considerations
-
-Processors that read unrelated files/classpath resources can break incremental compilation.
-Keep processing local to annotated elements where possible.
-
-If processor is aggregating (global index generation), document that cost and test build impact.
+If generated files churn for no semantic reason, code review quality drops quickly and teams stop trusting the tool.
 
 ---
 
-## Dry Run: Introducing Codegen in Existing Service
+## Compiler Errors Are Part of the Product
 
-1. add annotation and processor in dedicated `processor` module.
-2. generate code for one simple target (for example `UserMapper`).
-3. compare generated output with handwritten baseline.
-4. enforce compile failure on invalid annotation usage.
-5. add snapshot tests for generated source.
-6. migrate remaining boilerplate gradually.
+One of the clearest signs of processor quality is what happens when someone uses the annotation incorrectly.
 
-This keeps adoption safe and reviewable.
+Bad processor behavior:
+
+- vague messages
+- stack traces with no source location
+- silently skipping invalid inputs
+
+Good processor behavior:
+
+- precise, human-readable error
+- attached to the exact source element
+- explains how to fix the mistake
+
+In practice, this matters as much as the generated code itself.
+
+> [!TIP]
+> If a processor saves boilerplate but produces confusing compile failures, it is still hurting developer velocity.
 
 ---
 
-## CI and Quality Checklist
+## Keep the Processor’s Job Small
 
-- fail build on processor errors.
-- include generated sources in test compilation.
-- add golden-file tests for key generated classes.
-- run clean builds in CI to detect missing generation dependencies.
-- verify IDE and CI produce identical generated output.
+A strong processor usually does one of two things:
+
+- validate a compile-time contract
+- generate straightforward code from explicit annotated input
+
+It should not become a hidden framework runtime living inside the compiler.
+
+That is why the best generated code often looks almost boring:
+
+- predictable package
+- predictable class name
+- readable methods
+- little or no hidden policy
+
+Generated code should be debuggable by ordinary engineers, not just by the processor author.
 
 ---
 
-## Common Mistakes
+## Incremental Build Behavior Is a Real Architectural Concern
 
-- silently skipping invalid annotations instead of failing compilation
-- generating unreadable code no one can troubleshoot
-- mixing runtime dependencies into processor module
-- non-deterministic generation order causing flaky diffs
+Processors that scan too broadly or depend on unrelated files can damage build performance and confuse IDE behavior.
+
+Try to keep processing close to annotated elements. If the processor must aggregate global state, document that cost and test it intentionally.
+
+This matters more in large codebases than in toy examples because build friction compounds across teams.
+
+---
+
+## A Sensible Rollout Pattern
+
+If a codebase is adopting annotation processing for the first time:
+
+1. put the processor in its own module
+2. choose one narrow target, such as a mapper or factory
+3. compare generated output against a handwritten baseline
+4. add tests for invalid annotation usage
+5. add snapshot or golden-file tests where output shape matters
+6. expand only after the processor proves stable and understandable
+
+That keeps adoption reviewable and makes rollback easy.
+
+---
+
+## Treat Generated Code as Production Code
+
+That means:
+
+- generated sources participate in tests
+- generated APIs are versioned carefully if other modules depend on them
+- clean CI builds are part of validation
+- IDE and CI generation should match
+
+The processor is infrastructure. It deserves the same discipline as any other build-critical component.
 
 ---
 
 ## Key Takeaways
 
-- annotation processing is powerful for compile-time safety and boilerplate removal.
-- processor quality depends on diagnostics, determinism, and build behavior.
-- treat generated code as production code with tests and review discipline.
-
----
-
-        ## Problem 1: Move Repetitive Boilerplate to Compile Time, but Keep It Observable
-
-        Problem description:
-        Code generation saves time only when the generated output is deterministic, reviewable, and easier to debug than the boilerplate it replaces.
-
-        What we are solving actually:
-        We are solving repetitive, pattern-based code at build time. Annotation processing is valuable when it removes mechanical work without hiding business rules or making compiler failures impossible to understand.
-
-        What we are doing actually:
-
-        1. generate only code that follows stable conventions and low-ambiguity rules
-2. keep generated packages and naming predictable for IDE and diff visibility
-3. fail compilation with specific messages when the input annotation usage is invalid
-4. treat the processor as public infrastructure with tests, not as a clever side script
-
-        ```mermaid
-flowchart LR
-    A[Annotated source] --> B[Annotation processor]
-    B --> C[Generated source]
-    C --> D[Compile + tests]
-```
-
-        This section is worth making concrete because architecture advice around annotation processing code generation java often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        @SupportedAnnotationTypes("com.example.GenerateMapper")
-public final class MapperProcessor extends AbstractProcessor {
-    @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        // validate input and emit generated type
-        return false;
-    }
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Break an annotation contract intentionally and confirm the processor emits an actionable compile error. If failures are cryptic, the tool is adding friction rather than reducing it.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - keep generation deterministic so builds are reproducible
-- write golden-file tests for generated output where the shape matters
-- avoid generating business logic that should stay readable in hand-written code
-- version generated APIs carefully when they become consumed by other modules
-
-        ## Review Checklist
-
-        - Generate conventions, not policy-heavy business rules.
-- Make compiler errors precise and human-readable.
-- Test generated output as an API surface.
+- Annotation processing is strongest for deterministic, low-ambiguity code generation and compile-time validation.
+- Diagnostics and output stability matter as much as the generation logic.
+- Keep generated code readable and keep processor responsibilities narrow.
+- Treat the processor and its output like production infrastructure, not clever build magic.

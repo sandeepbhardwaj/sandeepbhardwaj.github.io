@@ -23,40 +23,80 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Harden the outbox contract with a better envelope and routing strategy**.
+Part 1 closed the dual-write gap. Part 2 is about the next problem teams hit almost immediately: the events are now reliably published, but the contract is still too raw. Routing is awkward, metadata is thin, and consumers have little help when they need to deduplicate or debug replay.
 
----
+This is where the outbox pattern starts maturing from "reliable publish" into "operationally useful event stream."
 
-## Problem 1: Turn Raw Outbox Rows Into Useful Event Contracts
+## Reliability Is Not the Same as Event Quality
 
-Problem description:
-A basic outbox row is enough to publish events, but production systems also need event versioning, partition keys, routing discipline, and idempotent consumers.
+An outbox row can be durable and still be hard to live with downstream.
 
-What we are solving actually:
-We are solving event-contract quality after reliability.
-Once the dual-write gap is closed, the next risk is publishing hard-to-route or hard-to-dedupe events that create downstream operational pain.
+Common weaknesses:
 
-What we are doing actually:
+- no event version
+- no clear partition key
+- no correlation metadata
+- raw CDC topic naming that leaks table structure into event design
 
-1. Enrich the outbox schema with version and partition metadata.
-2. Use Debezium EventRouter to map database rows into event topics cleanly.
-3. Add consumer-side dedupe to absorb replay and connector restart scenarios.
+Those gaps do not usually break day one. They hurt during replay, debugging, or when the event contract needs to evolve.
 
 ```mermaid
 flowchart LR
-    A[Outbox row] --> B[EventRouter SMT]
-    B --> C[Topic by event type]
-    B --> D[Key by partition_key]
-    C --> E[Idempotent consumer]
+    A[Outbox table row] --> B[Debezium EventRouter]
+    B --> C[Domain event topic]
+    B --> D[Kafka key from partition_key]
+    C --> E[Consumer dedupe and tracing]
 ```
 
-## Real-World Scenario
+Part 2 is about adding that missing shape.
 
-An order write succeeds, but app crashes before publish; outbox+CDC is needed to close this dual-write gap.
+## A Better Envelope
 
----
+The outbox row should carry enough information for routing and downstream control without turning into an everything-table.
 
-## Run It Locally
+A good baseline includes:
+
+- event id
+- aggregate id
+- event type
+- event version
+- partition key
+- payload
+- created timestamp
+- correlation id if the system already uses one
+
+This gives consumers and operators enough context to reason about the event without reverse-engineering database state.
+
+## Why EventRouter Helps
+
+Raw CDC output is valuable for transport, but not always a clean event contract. Debezium EventRouter can convert outbox rows into a more useful topic and key shape.
+
+~~~json
+{
+  "transforms": "outbox",
+  "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+  "transforms.outbox.route.by.field": "event_type",
+  "transforms.outbox.table.field.event.key": "partition_key"
+}
+~~~
+
+That does two important things:
+
+- routes by a meaningful event type instead of raw table shape
+- preserves the partition key needed for downstream ordering
+
+## Why Consumer Idempotency Still Matters
+
+Outbox plus CDC improves reliability, but consumers still need to survive replay and restart behavior.
+
+Connector restarts, reprocessing, or operational recovery may cause an event to be seen again. That is why a consumer-side dedupe table or idempotency key remains useful even in a well-built outbox flow.
+
+The right mental model is:
+
+- outbox protects the publish boundary
+- consumer idempotency protects the side-effect boundary
+
+## Local Setup
 
 ### Prerequisites
 
@@ -89,72 +129,48 @@ services:
 docker compose up -d
 ~~~
 
----
+## What to Verify in Part 2
 
-## Lab Steps
+A stronger verification target than "message arrived" is:
 
-1. Add `event_version` and `partition_key` columns.
-2. Use Debezium EventRouter SMT.
-3. Route by event_type and key by partition_key.
-4. Add idempotent consumer table.
-
----
-
-## Runnable Code Block
-
-~~~json
-{
-  "transforms": "outbox",
-  "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-  "transforms.outbox.route.by.field": "event_type",
-  "transforms.outbox.table.field.event.key": "partition_key"
-}
-~~~
-
----
-
-## Verify
+1. topic naming now reflects event meaning
+2. keying matches downstream ordering needs
+3. envelope metadata is enough for debugging and replay
+4. consumer dedupe absorbs a connector restart or replay safely
 
 ~~~bash
-kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.event.OrderCreated --from-beginning --property print.key=true
+kafka-console-consumer \
+  --bootstrap-server localhost:9092 \
+  --topic orders.event.OrderCreated \
+  --from-beginning \
+  --property print.key=true
 ~~~
 
----
+That one check already shows whether the event stream became more usable.
 
-## Failure Drill
+> [!important]
+> If replay is part of your recovery story, replay metadata is part of the event contract, not optional decoration.
 
-Restart connector and replay event; dedupe table should prevent duplicate side effects.
+## Common Mistakes
 
----
+### Leaving the outbox too raw
 
-## Debug Steps
+You solved the dual-write gap, but downstream teams now inherit a contract that is difficult to route or evolve.
 
-Debug steps:
+### Forgetting version too long
 
-- verify topic routing and event keys match downstream ordering expectations
-- make event version part of the contract before schema drift becomes a problem
-- test connector restart and replay behavior with idempotent consumer logic enabled
-- inspect whether the outbox envelope carries enough metadata for debugging and audit
+Once multiple consumers exist, adding version late becomes more painful than adding it early.
 
-## Operational Note
+### Assuming CDC reliability removes consumer-side dedupe needs
 
-A well-designed outbox envelope keeps future migrations cheaper.
-Teams that skip version, routing, or correlation metadata usually pay for that decision during the first large replay or downstream contract split.
+It does not. Reliability and side-effect idempotency solve different problems.
 
-## What You Should Learn
+## What This Part Should Leave You With
 
-- reliable publishing is only part one; event shape and routing quality matter too
-- EventRouter helps convert raw CDC rows into usable event streams
-- replay safety depends on metadata discipline and consumer idempotency
+After Part 2, the team should understand:
 
----
+1. why a reliable outbox still needs a disciplined event envelope
+2. how EventRouter improves topic and key shape
+3. why replay safety still depends on downstream idempotency
 
-## Operator Prompt
-
-For outbox plus cdc with debezium for reliable event publishing (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
-
----
-
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That is the step that turns outbox from a transport fix into a durable eventing pattern.

@@ -23,36 +23,65 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Move schema safety checks from tribal knowledge into CI gates**.
+Part 1 made schema safety explicit. Part 2 is where we stop trusting memory and review culture alone. Compatibility policy has to move into CI, because once delivery pressure rises, any rule that depends entirely on human attention will eventually be bypassed.
 
----
+This part is not about teaching people what backward compatibility means. It is about enforcing the policy before the change reaches a merge button.
 
-## Problem 1: Catch Incompatible Schemas Before They Merge
+## What CI Is Actually Protecting
 
-Problem description:
-Even teams that understand schema evolution still ship breaking changes when review is rushed or compatibility rules live only in memory.
+The point of schema checks in CI is not bureaucracy. It is to move detection earlier than runtime and earlier than human fatigue.
 
-What we are solving actually:
-We are solving enforcement, not education.
-A schema policy that is written down but not checked automatically will eventually be bypassed under delivery pressure.
+A useful gate can answer:
 
-What we are doing actually:
-
-1. Add schema checks to CI.
-2. Fail the build on incompatible changes.
-3. Require human migration notes when a change needs careful rollout context.
+- does this change violate the declared compatibility mode
+- does the subject naming in the PR match real production subjects
+- is there a migration note when the syntax passes but the semantics are risky
 
 ```mermaid
 flowchart LR
-    A[Schema change in PR] --> B[CI compatibility check]
-    B -->|Pass| C[Merge allowed]
-    B -->|Fail| D[PR blocked]
-    D --> E[Fix schema or document migration]
+    A[Schema change in PR] --> B[CI compatibility gate]
+    B -->|Pass| C[Merge can proceed]
+    B -->|Fail| D[Engineer fixes or documents migration]
 ```
 
----
+This is the difference between "we believe we follow schema discipline" and "the repo actually enforces it."
 
-## Run It Locally
+## Why Automation Is Not Enough by Itself
+
+A registry check can tell you whether a rule was violated syntactically. It usually cannot tell you whether the field meaning was repurposed in a way that will confuse downstream consumers.
+
+That is why the stronger pattern is:
+
+- automated compatibility enforcement
+- required migration note for risky changes
+- human review for semantic meaning
+
+CI handles repeatable rules. People still have to evaluate meaning.
+
+## What a Useful Gate Looks Like
+
+Even if the exact vendor tooling differs, the policy is recognizable:
+
+~~~text
+CI gates:
+- backward compatibility
+- forward compatibility when the rollout requires it
+- prohibition on field renumbering or unsafe narrowing
+- migration note for semantically risky changes
+~~~
+
+The key is that the build fails loudly when the contract is broken.
+
+## The Test That Builds Confidence
+
+Do not just run the command and call it done. Keep one intentionally incompatible change around as a repeatable proof that the gate still catches what it claims to catch.
+
+That simple drill does two things:
+
+- verifies the pipeline is checking the right subjects and rules
+- prevents the safety net from quietly drifting into irrelevance
+
+## Local Setup
 
 ### Prerequisites
 
@@ -85,83 +114,40 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Right Verification for Part 2
 
-## Lab Steps
-
-1. Add schema check job in CI.
-2. Block incompatible changes.
-3. Require migration note for every schema PR.
-
----
-
-## Runnable Code Block
-
-~~~text
-CI gates:
-- backward compatibility
-- forward compatibility (if required)
-- prohibited field renumber/type narrowing
-~~~
-
-The exact tooling depends on your registry and serializer stack, but the principle is constant:
-schema changes must fail automatically when they violate policy.
-
----
-
-## Verify
+Use a deliberately incompatible schema change in a test branch or local CI path and confirm the build blocks it.
 
 ~~~bash
-# run schema check command in pipeline
-# (tooling depends on registry vendor)
+# run schema compatibility check in CI or locally
+# exact command depends on registry tooling
 ~~~
 
-Verification is not just “the command runs.”
-You want proof that a deliberately bad change fails loudly and blocks the merge path.
+The meaningful proof is not "the job exists." It is "a bad change cannot slip through quietly."
 
----
+## Common Mistakes
 
-## Failure Drill
+### Gating only one compatibility direction
 
-Inject an intentional incompatible schema change in a test PR and verify the build fails.
-This is the fastest way to confirm that policy is truly enforced rather than merely documented.
+That may be fine, or it may be incomplete, depending on how old and new readers and writers coexist during rollout.
 
----
+### Allowing manual registry edits outside review
 
-## Common Pitfalls
+Once production subjects can change outside the controlled path, the CI gate stops being authoritative.
 
-- checking only backward compatibility when the rollout model needs more
-- treating CI as enough while skipping migration notes for risky semantic changes
-- allowing manual registry edits outside the reviewed workflow
-- letting one-off exceptions accumulate until the policy becomes meaningless
+### Assuming syntactic safety equals semantic safety
 
----
+A field can remain technically compatible while still changing meaning in a way that hurts consumers.
 
-## Debug Steps
+> [!important]
+> Schema CI should be a merge guard, not an advisory report. If the policy matters, the build has to own the consequence.
 
-Debug steps:
+## What This Part Should Leave You With
 
-- keep an intentionally incompatible test change around as a repeatable CI safety check
-- verify the subject naming convention in CI matches the real production subject layout
-- distinguish syntactic compatibility from semantic meaning changes in review notes
-- make build failures actionable so engineers know exactly which rule was broken
+After Part 2, the team should understand:
 
----
+1. why schema safety has to become an automated gate
+2. what automation can and cannot verify
+3. why migration notes still matter for semantic risk
 
-## What You Should Learn
-
-- schema compatibility needs automated enforcement, not just shared understanding
-- CI turns compatibility from a best practice into a contract
-- migration notes still matter because semantic risk is bigger than syntax alone
-
----
-
-## Operator Prompt
-
-For schema evolution with avro and protobuf compatibility contracts (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
-
----
-
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That is how schema discipline survives real delivery pressure instead of disappearing at the first rushed release.

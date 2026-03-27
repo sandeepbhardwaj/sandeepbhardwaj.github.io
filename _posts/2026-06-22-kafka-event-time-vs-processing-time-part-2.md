@@ -23,17 +23,62 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Grace period and lateness policy**.
+Part 1 forced the time model into the open. Part 2 is about what happens after that: once you choose event time, you still have to decide how much lateness you are willing to absorb, how long a window remains correctable, and what the system should do with data that arrives too late to include safely.
 
----
+This is where a time model turns into a policy.
 
-## Real-World Scenario
+## The Practical Decision Behind Grace
 
-Delayed and out-of-order events can distort business metrics when processing-time windows are used blindly.
+Grace is not just a technical window parameter. It is a statement about how long the system is willing to wait for truth to catch up.
 
----
+For example:
 
-## Run It Locally
+~~~text
+Window policy:
+- size: 5m
+- grace: 2m
+- later than grace: drop and count explicitly
+~~~
+
+That policy should reflect business expectations:
+
+- is late correction more important than low latency
+- can dashboards tolerate revision
+- do downstream consumers accept amended aggregates
+
+If those questions are not answered, grace becomes an arbitrary number copied from another project.
+
+## What Grace Changes
+
+Longer grace:
+
+- accepts more delayed events
+- increases the period in which results may still change
+- can make downstream consumers handle late corrections longer
+
+Shorter grace:
+
+- stabilizes output sooner
+- drops more late data
+- demands stronger visibility into what was excluded
+
+Neither setting is "correct" in the abstract. It depends on what your pipeline owes to its consumers.
+
+## The Failure You Want to Make Explicit
+
+The worst outcome is not simply that a late event was dropped. The worst outcome is that the system dropped or corrected data and nobody knew which policy caused it.
+
+That is why a late-event counter or audit metric matters as much as the grace value itself.
+
+```mermaid
+flowchart LR
+    A[Event arrives late] --> B{Within grace?}
+    B -->|Yes| C[Update windowed result]
+    B -->|No| D[Drop or side-route]
+    D --> E[Late-event metric]
+```
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,103 +111,49 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Right Validation Drill
 
-## Lab Steps
+Send a batch of out-of-order events in three groups:
 
-1. Configure grace window.
-2. Measure drop/correction behavior.
-3. Align with business SLA.
+1. comfortably within grace
+2. just at the boundary
+3. clearly beyond grace
 
----
+Then inspect:
 
-## Runnable Code Block
-
-~~~text
-Window policy:
-- size: 5m
-- grace: 2m
-- late beyond grace: drop with metric
-~~~
-
----
-
-## Verify
+- corrected aggregate output
+- explicit late-event counters
+- whether the result behavior matches the written policy
 
 ~~~bash
 # inspect late-event counter and corrected aggregate output
 ~~~
 
----
+That test is better than arguing about grace in the abstract because it forces the policy to produce observable outcomes.
 
-## Failure Drill
+> [!important]
+> If the system drops late events, that fact should be visible in metrics and runbooks. Silent lateness loss is a correctness problem, not just an observability gap.
 
-Send out-of-order events beyond grace and verify explicit drop handling.
+## Common Mistakes
 
----
+### Choosing grace before defining the consumer expectation
 
-## What You Should Learn
+If nobody knows whether the result is allowed to change after publication, the grace setting is floating without a contract.
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+### Treating late drops as harmless
 
----
+Some late data is business-critical. If it must be excluded, that should be an explicit and reviewable decision.
 
-        ## Problem 1: Choose Time Semantics Before You Tune Windows
+### Never testing replay and backfill together
 
-        Problem description:
-        Late events, out-of-order delivery, and backfills create different answers depending on whether the topology uses processing time or event time. Harden the baseline against the edge cases that appear under load and replay.
+Those are exactly the moments when lateness policy becomes real instead of theoretical.
 
-        What we are solving actually:
-        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
+## What This Part Should Leave You With
 
-        What we are doing actually:
+After Part 2, the team should understand:
 
-        1. introduce the hardening mechanism one layer at a time
-2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
-3. measure what becomes safer and what becomes more complex
-4. leave behind a rule the team can apply during future changes
+1. what grace means in operational and business terms
+2. how the pipeline behaves for in-grace and out-of-grace events
+3. why late-event visibility is part of the contract
 
-        ```mermaid
-flowchart LR
-    A[Event timestamp] --> B[Window assignment]
-    C[Processing timestamp] --> D[Alternative window assignment]
-    B --> E[Aggregation result]
-    D --> F[Different result]
-```
-
-        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        Consumed.with(Serdes.String(), eventSerde)
-    .withTimestampExtractor((record, partitionTime) -> record.value().eventTimeEpochMs());
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Feed the same event set in order and out of order, then compare the window results. If the answers surprise the team, the time model still is not explicit enough.
-
-        ## Failure Drill
-
-        Backfill yesterday's events into a topology configured for processing time and inspect the aggregates. The wrong answer teaches more than a definition paragraph ever will.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - write down the late-arrival policy before choosing grace periods
-- separate event timestamp extraction from business parsing logic
-- test backfill and replay flows, not only live ordered traffic
-- monitor dropped late events so data loss is visible
-
----
-
-## Operator Prompt
-
-For event time versus processing time tradeoffs in stream pipelines (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is what turns time semantics from an internal detail into a stream-processing policy the team can defend.

@@ -22,31 +22,30 @@ header:
   caption: Modern Backend Development with Java 8
   show_overlay_excerpt: false
 ---
-`Optional<T>` makes absence explicit in API contracts.
-Used correctly, it reduces null-related defects and clarifies service-layer behavior.
-Used incorrectly, it adds noise and confusion.
+`Optional<T>` is most useful when absence is part of the contract.
+It is much less useful when teams treat it as a general-purpose replacement for `null`.
 
----
+In production systems, the real question is not "should we use Optional?" It is "where does absence belong in this API, and who is responsible for turning that absence into a business decision?"
 
-# Where Optional Fits
+## Quick Summary
 
-Best fit:
+| Question | Good use of `Optional` | Poor use of `Optional` |
+| --- | --- | --- |
+| Return type | Repository lookups, parsing helpers, maybe-present derived values | Methods that should always return a value |
+| Parameters | Rarely needed | Most application methods |
+| Fields | Usually avoid | Entities, DTOs, request/response models |
+| Controllers | Fine at mapping edge | Poor if leaked through the whole stack |
 
-- repository return values
-- service helper methods returning “maybe value”
-- transformation pipelines (`map`, `flatMap`, `filter`)
+## Where Optional Actually Helps
 
-Avoid:
+`Optional` works best when a caller needs to decide what to do with absence.
 
-- entity fields
-- DTO fields
-- method parameters
+Typical examples:
 
----
-
-# Repository + Service Policy Patterns
-
-Repository:
+- repository methods like `findById`
+- cache lookups where missing data is normal
+- parsing or lookup helpers
+- transformation pipelines where values may disappear after filtering
 
 ```java
 public interface UserRepository {
@@ -54,7 +53,44 @@ public interface UserRepository {
 }
 ```
 
-Policy 1 (absence is error):
+That contract is clear: the repository might not find a row, and the caller must decide how to handle it.
+
+## Where Optional Usually Makes Code Worse
+
+The most common misuses come from pushing `Optional` into places where it does not improve the contract.
+
+Avoid it in:
+
+- JPA entity fields
+- DTO fields
+- JSON request and response models
+- method parameters
+
+```java
+class UserDto {
+    private Optional<String> email; // avoid
+}
+```
+
+That does not make the payload clearer. It makes serialization, validation, and general team understanding worse.
+
+> [!warning]
+> `Optional` is a good return-type tool. It is usually a poor domain-model field type and an awkward method-parameter type.
+
+## Think in Terms of Policy
+
+The real value of `Optional` appears when the repository layer returns "maybe," and the service layer turns that into policy.
+
+```mermaid
+flowchart LR
+    A[Repository returns Optional] --> B{Service policy}
+    B -->|absence is expected| C[Return Optional or fallback]
+    B -->|absence is exceptional| D[Throw domain exception]
+    C --> E[Controller maps result]
+    D --> E
+```
+
+### Policy 1: Absence Is an Error
 
 ```java
 public User getUserOrThrow(Long id) {
@@ -63,7 +99,9 @@ public User getUserOrThrow(Long id) {
 }
 ```
 
-Policy 2 (absence is valid):
+This is often the right choice for command flows and request paths where the caller expects a real aggregate.
+
+### Policy 2: Absence Is Valid
 
 ```java
 public Optional<UserProfile> findProfile(Long userId) {
@@ -73,12 +111,15 @@ public Optional<UserProfile> findProfile(Long userId) {
 }
 ```
 
----
+This is a good fit when the business rule really allows "not found" or "not applicable" as a normal outcome.
 
-# map, flatMap, filter in Real Flows
+## Use `map`, `flatMap`, and `filter` for Simple Decisions
+
+The nicest `Optional` code tends to be short and local.
 
 ```java
-Optional<String> email = userRepository.findById(id).map(User::getEmail);
+Optional<String> email = userRepository.findById(id)
+        .map(User::getEmail);
 ```
 
 ```java
@@ -91,165 +132,171 @@ Optional<User> activeUser = userRepository.findById(id)
         .filter(User::isActive);
 ```
 
----
+These operations are expressive when the business rule is still easy to read in one pass.
 
-# orElse vs orElseGet (Important)
+## Do Not Build Giant Optional Pipelines
 
-`orElse` evaluates its argument eagerly.
+This starts out elegant and often ends up opaque:
 
 ```java
-User user = userRepository.findById(id)
-        .orElse(createDefaultUser()); // always executes createDefaultUser()
+userRepository.findById(id)
+        .filter(User::isActive)
+        .map(User::getAccount)
+        .flatMap(Account::getPrimaryPlan)
+        .filter(Plan::isBillable)
+        .map(planMapper::toResponse);
 ```
 
-`orElseGet` evaluates lazily.
+There is nothing technically wrong with this style, but once real logging, metrics, validation, and branching enter the picture, debugging gets harder.
+
+A better production version is often:
 
 ```java
-User user = userRepository.findById(id)
-        .orElseGet(this::createDefaultUser); // executes only when empty
-```
+public Optional<PlanResponse> findBillablePlan(Long userId) {
+    return userRepository.findById(userId)
+            .filter(User::isActive)
+            .flatMap(this::extractBillablePlan)
+            .map(planMapper::toResponse);
+}
 
-Prefer `orElseGet` for expensive fallback creation.
-
----
-
-# Common Mistakes
-
-## Blind `get()`
-
-Bad:
-
-```java
-User user = userRepository.findById(id).get();
-```
-
-Use `orElseThrow` with domain exception.
-
-## Optional as DTO field
-
-Bad:
-
-```java
-class UserDto {
-    Optional<String> email;
+private Optional<Plan> extractBillablePlan(User user) {
+    return user.getAccount()
+            .flatMap(Account::getPrimaryPlan)
+            .filter(Plan::isBillable);
 }
 ```
 
-Prefer nullable field with clear API documentation.
+The code still uses `Optional`, but the business steps now have names.
 
-## Optional as method parameter
+## `orElse` vs `orElseGet` Is Not a Small Detail
 
-Bad:
+This is one of the most important `Optional` footguns in production code.
+
+`orElse` eagerly evaluates the fallback expression:
 
 ```java
-void updateEmail(Optional<String> email)
+User user = userRepository.findById(id)
+        .orElse(createDefaultUser());
 ```
 
-Prefer overloads or explicit nullable parameter semantics.
+Even when the user exists, `createDefaultUser()` still runs.
 
----
-
-# API Boundary Guidance
-
-- Repository to Service: Optional is great
-- Service to Controller: decide policy and return concrete result or exception
-- DTO/JSON boundary: avoid Optional fields
-
-This keeps contracts explicit without polluting serialization models.
-
----
-
-# Controller Mapping Pattern
-
-Keep Optional handling centralized in service layer or one mapping utility.
+`orElseGet` is lazy:
 
 ```java
-public ResponseEntity<UserDto> getUser(Long id) {
+User user = userRepository.findById(id)
+        .orElseGet(this::createDefaultUser);
+```
+
+That difference matters when the fallback allocates objects, calls another service, or produces side effects.
+
+> [!important]
+> Use `orElseGet` when the fallback is expensive, effectful, or non-trivial. Reserve `orElse` for cheap constant defaults.
+
+## Controller Boundaries Should Be Explicit
+
+Controllers should not be full of `isPresent()` and `get()` calls. The cleaner pattern is to keep business policy in the service and map the final outcome at the HTTP edge.
+
+```java
+@GetMapping("/users/{id}")
+public ResponseEntity<UserProfile> getUser(@PathVariable Long id) {
     return userService.findProfile(id)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
 }
 ```
 
-This avoids scattering `if (isPresent)` checks across controllers.
+This is a good use of `Optional`: absence is turned into a clear HTTP decision at the boundary.
 
----
+## Common Mistakes That Keep Showing Up
 
-# Avoid Over-Chaining
-
-Long Optional chains become hard to debug:
+### Blind `get()`
 
 ```java
-// too dense for many teams when business rules grow
-userRepo.findById(id).filter(...).map(...).flatMap(...).map(...);
+User user = userRepository.findById(id).get(); // avoid
 ```
 
-Preferred approach for complex flows:
+If absence is impossible, encode that with `orElseThrow`. If absence is expected, keep it as `Optional`.
 
-1. keep one or two Optional ops inline
-2. extract meaningful helper methods
-3. log domain decisions outside chain when needed
+### Optional Parameters
 
-Readability matters more than “functional purity.”
+```java
+public void updateEmail(Optional<String> email) // avoid
+```
 
----
+This forces every caller to wrap values before calling the method, and it rarely improves readability.
 
-# Testing Optional Contracts
+A better API is usually one of these:
 
-For methods returning `Optional<T>`, test both outcomes explicitly:
+```java
+public void updateEmail(String email)
+public void clearEmail()
+```
 
-- value present path
-- empty path
+or:
 
-Also verify side effects are not executed on empty values when using `map` chains.
+```java
+public void updateEmail(@Nullable String email)
+```
 
----
+if your team has a clear nullable contract.
 
-# Best Practices Checklist
+### Optional Fields in Entities or DTOs
 
-- use Optional mainly as return type
-- prefer `orElseThrow()` in request paths
-- use `map/flatMap/filter` over `isPresent/get`
-- prefer `orElseGet` for heavy fallback logic
-- keep chains readable; extract helpers when long
+This creates more friction than clarity. Domain fields can still be nullable internally as long as the service and API contracts are explicit.
 
----
+## Testing Optional Contracts
 
-# Related Posts
+If a method returns `Optional<T>`, test both branches.
+
+```java
+@Test
+void returnsEmptyWhenUserIsInactive() {
+    when(userRepository.findById(42L))
+            .thenReturn(Optional.of(inactiveUser()));
+
+    Optional<UserProfile> result = userService.findProfile(42L);
+
+    assertThat(result).isEmpty();
+}
+```
+
+```java
+@Test
+void mapsActiveUserToProfile() {
+    when(userRepository.findById(42L))
+            .thenReturn(Optional.of(activeUser()));
+
+    Optional<UserProfile> result = userService.findProfile(42L);
+
+    assertThat(result).isPresent();
+}
+```
+
+For methods using `orElseGet`, it is also worth testing that the fallback is not evaluated when the value is present.
+
+## A Practical Decision Rule
+
+Use `Optional` when all three of these are true:
+
+1. absence is part of the method contract
+2. the caller must decide what absence means
+3. the code becomes clearer, not just more fashionable
+
+If those are not true, a normal return type plus a well-defined exception or a nullable field at the right boundary is often the better design.
+
+## Best Practices Checklist
+
+- use `Optional` mainly for return types
+- keep repository contracts explicit
+- convert absence into policy in the service layer
+- prefer `orElseThrow` over blind `get()`
+- prefer `orElseGet` over `orElse` for expensive fallbacks
+- keep chains short enough to debug
+- avoid `Optional` in entities, DTOs, and most method parameters
+
+## Related Posts
 
 - [Collectors Deep Dive](/java/java-8-collectors-deep-dive/)
 - [Functional Interfaces Advanced](/java/java-8-functional-interfaces-advanced/)
 - [CompletableFuture Deep Dive](/java/completablefuture/java-8-completablefuture-deep-dive/)
-
----
-
-        ## Problem 1: Turn Optional in Java 8 — Correct Usage in Production Systems Into a Reusable Engineering Choice
-
-        Problem description:
-        The surface syntax is usually not the hard part. Teams run into trouble when they adopt the idea without deciding where it fits, what trade-off it introduces, and how they will validate the result after shipping.
-
-        What we are solving actually:
-        We are turning optional in java 8 — correct usage in production systems into a bounded design decision instead of a memorized feature summary.
-
-        What we are doing actually:
-
-        1. choose one concrete use case for the feature or pattern
-        2. define the invariant or compatibility rule that must stay true
-        3. validate the behavior with one failure-oriented check
-        4. keep a note on when the simpler alternative is still the better choice
-
-        ```mermaid
-flowchart LR
-    A[Concept] --> B[Concrete use case]
-    B --> C[Validation rule]
-    C --> D[Operational confidence]
-```
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - check the feature under upgrade, rollback, or mixed-version conditions
-        - keep the smallest possible example that reproduces the intended rule
-        - prefer explicit behavior over magical convenience when trade-offs are unclear
-        - document one misuse pattern so future edits do not repeat it

@@ -23,134 +23,128 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Turn the tuning into a real deployment runbook with guardrails**.
+Part 1 measured eager rebalance pain. Part 2 reduced disruption with cooperative assignment and static membership. Part 3 is where that tuning becomes operationally real: rollout sequencing, lag gates, readiness discipline, and abort conditions that prevent a deployment from turning into group churn.
 
----
+This is where zero-downtime claims either become believable or collapse under deployment habits.
 
-## Problem 1: How Do We Roll Consumers Safely in Production?
+## Why Tuning Alone Is Not Enough
 
-Problem description:
-Even after tuning assignors and membership, a production rollout can still cause trouble if multiple instances restart too quickly, readiness is wrong, or lag is already elevated before deployment begins.
+You can choose the right assignor and still cause trouble if production rollouts:
 
-What we are solving actually:
-We are solving operational discipline.
-Configuration improvements reduce rebalance pain, but zero-downtime behavior usually depends on rollout sequencing, lag gates, and clear abort conditions.
+- restart too many consumers at once
+- begin while lag is already elevated
+- rely on shallow readiness checks
+- overlap with autoscaling or other membership churn
 
-What we are doing actually:
-
-1. Roll one instance at a time.
-2. Pause autoscaling or other concurrent capacity changes during the rollout.
-3. Gate each step on lag stabilization and consumer readiness.
-4. Abort or roll back when rebalance duration or lag growth crosses a defined threshold.
-
----
-
-## Rollout Control Flow
+That is why deployment discipline is part of rebalance design, not an afterthought.
 
 ```mermaid
 flowchart TD
     A[Start rollout] --> B[Restart one consumer]
-    B --> C{Lag stable and consumer ready?}
+    B --> C{Ready and lag stable?}
     C -->|Yes| D[Proceed to next consumer]
     C -->|No| E[Pause rollout]
-    E --> F{Threshold exceeded?}
-    F -->|Yes| G[Abort / rollback]
+    E --> F{Abort threshold exceeded?}
+    F -->|Yes| G[Rollback or stop]
     F -->|No| H[Wait and re-check]
     H --> C
 ```
 
-This is the missing layer in many teams.
-They tune Kafka settings but still deploy in a way that defeats those gains.
+The rollout loop is simple on purpose. Operators need something they can trust under pressure.
 
----
-
-## Production-Oriented Guardrails
+## The Guardrails That Matter Most
 
 Before rollout:
 
-- confirm lag is near normal baseline
-- confirm no consumer is already unhealthy
-- pause horizontal autoscaler if it may churn the group during rollout
-- ensure readiness means "able to consume safely," not just "process started"
+- lag should be near normal baseline
+- no consumer should already be unhealthy
+- autoscaling or other concurrent group changes should be paused if possible
+- readiness should mean "able to poll and process safely," not only "process started"
 
----
+During rollout:
 
-## Lab Steps
+- move one instance at a time
+- wait for readiness and lag stabilization
+- compare rebalance duration and lag slope with the known baseline
 
-1. Roll one pod at a time.
-2. Pause autoscaler during rollout.
-3. Gate next step on lag stabilization.
-4. Abort on rebalance-duration threshold.
+These are not ceremonial checks. They are the difference between controlled change and unnecessary churn.
 
-This is where the series becomes a runbook instead of a tuning note.
-Operational sequencing is part of the solution.
-
----
-
-## Example Guardrails
+## Example Abort Conditions
 
 ~~~text
 Rollback trigger example:
-- rebalance > 20s for 3 consecutive events
-- lag growth slope > threshold
-- consumer fails readiness after restart window
-- partition movement exceeds expected safe envelope
+- rebalance duration exceeds safe threshold repeatedly
+- lag growth slope stays above agreed limit
+- restarted consumer fails readiness in the allowed window
+- partition movement exceeds expected envelope
 ~~~
 
-Pick thresholds from your measured baseline, not from guesswork.
-If Part 2 normally stabilizes in 5 seconds, then 20 seconds may be a sensible abort threshold.
-If your environment normally needs 30 seconds, a 20-second threshold will only create false alarms.
+The exact values should come from the earlier measurements in this series, not from copied generic numbers.
 
----
+## Local Setup
 
-## Verify
+### Prerequisites
+
+- Docker Desktop
+- Java 21
+- Kafka CLI tools
+
+### Local Stack
+
+~~~yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on: [zookeeper]
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+~~~
 
 ~~~bash
-# pre/post deploy lag snapshots
-kafka-consumer-groups --bootstrap-server localhost:9092 --all-groups --describe
+docker compose up -d
 ~~~
 
-Also capture:
+## The Right Drill for Part 3
 
-- rebalance event duration
-- assignment churn count
-- time until lag slope returns to normal
-- consumer readiness time after restart
+Simulate a slow-starting consumer during rollout and verify that the deployment gate pauses progression instead of continuing optimistically.
 
----
+Then repeat with background lag already elevated before the rollout begins.
 
-## Failure Drill
+Those drills are more valuable than a clean happy-path restart because they test whether the guardrails can actually stop a bad deployment in time.
 
-Simulate slow startup initialization and verify the rollout gate halts progression.
-Then simulate elevated background lag before rollout and verify the deployment does not continue just because each pod eventually becomes ready.
+> [!important]
+> A consumer that becomes "ready" before it is truly participating in stable consumption can make the whole rollout look healthier than it really is.
 
----
+## Common Mistakes
 
-## Example Deployment Checklist
+### Equating process readiness with consumer readiness
 
-1. Confirm baseline lag and consumer health are normal.
-2. Restart only one consumer instance.
-3. Wait for readiness plus lag stabilization.
-4. Check rebalance duration against threshold.
-5. Continue only if all gates pass.
+If the instance has started but is not polling reliably yet, the deployment signal is still premature.
 
-This checklist is intentionally simple because operators need something they can apply during incidents or late-night deploys without reinterpreting design notes.
+### Letting autoscaling and rollout happen together
 
----
+That mixes two sources of group churn and makes behavior harder to interpret.
 
-## Debug Steps
+### Using thresholds with no baseline context
 
-Debug steps:
+An abort rule is only useful if it reflects what normal stabilization actually looks like in your environment.
 
-- inspect whether readiness turns green before the consumer is actually polling
-- compare pre-deploy and post-deploy lag slope, not just absolute lag
-- verify autoscaling or restart automation is not changing multiple consumers at once
-- test rollback conditions in staging instead of inventing them during an incident
+## What This Part Should Leave You With
 
----
+After Part 3, the team should understand:
 
-## What You Should Learn
+1. why deployment sequencing is part of rebalance safety
+2. which gates should control rollout progression
+3. how to define an abort path that is grounded in real baseline behavior
 
-- zero-downtime consumer deploys depend on rollout discipline as much as client settings
-- measured guardrails turn restart tuning into an operational runbook
-- the right rollback threshold comes from your baseline, not a copied number from another team
+That is what turns rebalance tuning into a runbook a production team can use confidently.

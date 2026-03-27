@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Dependency Resolution in DAGs
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Topological sort is the graph pattern for turning dependency constraints in a DAG into a valid execution or build order.
+Strong candidates explain why the graph must be acyclic, what indegree or finish order represents, and how cycle detection is part of the algorithm instead of an afterthought.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Use indegree (Kahn) or DFS finish order to produce valid ordering in DAG workflows.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 03 Topological Sort Pattern | ordering must respect directed dependencies in a DAG | process only nodes whose prerequisites are already satisfied | Course Schedule II |
 
----
+## Problem Statement
+
+Given directed dependency edges, produce a valid ordering if one exists, or detect that a cycle makes the ordering impossible.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: prerequisite, build order, dependency graph, DAG, cycle detection.
+- Structural signal: every valid next step must currently have no unresolved incoming dependency.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you see dependency ordering in a directed graph and need one valid sequence, think topological sort.
 
 ## Java Template
 

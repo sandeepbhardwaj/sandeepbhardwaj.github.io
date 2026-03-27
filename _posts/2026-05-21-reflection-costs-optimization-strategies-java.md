@@ -21,23 +21,34 @@ header:
   show_overlay_excerpt: false
   caption: Reducing Reflection Overhead in Hot Paths
 ---
-Reflection is useful for extensibility and framework infrastructure, but expensive when used repeatedly in hot paths.
-The right strategy is selective optimization, not blanket removal.
+Reflection is not automatically a performance problem. Repeated reflection in hot paths is.
+
+That distinction matters because many systems waste time "removing reflection" broadly when the real problem is much narrower:
+
+- repeated metadata lookup
+- repeated accessibility work
+- repeated reflective dispatch inside request paths
+
+The right goal is not purity. It is to pay reflective costs once where possible and keep them out of the code that runs on every request.
 
 ---
 
 ## Where Reflection Usually Hurts
 
-- repeated method/field lookup per request
+Reflection tends to hurt in four places:
+
+- method or field discovery on every request
 - per-request annotation scanning
 - reflective invocation inside tight loops
-- startup classpath scanning without caching
+- startup scanning that is accidentally repeated at runtime
 
-Most overhead comes from repeated metadata work, not one-time setup.
+One-time reflective setup is often fine. Unbounded repetition is where CPU and allocation costs start becoming visible.
 
 ---
 
-## Step 1: Cache Metadata Once
+## The First Move Is Usually Metadata Caching
+
+If the code repeatedly discovers the same member information, cache it once.
 
 ```java
 public final class AccessorCache {
@@ -64,120 +75,109 @@ public final class AccessorCache {
 }
 ```
 
-Lookup cost is paid once per class, not once per request.
+This changes the cost model:
+
+- discovery happens once per class
+- invocation becomes cheaper and more predictable
+- request-time work gets simpler
+
+That is often enough to solve the real problem.
 
 ---
 
-## Step 2: Move Hot Reflection to MethodHandles or Codegen
+## Separate Startup Reflection From Request Reflection
 
-If reflection remains in p95 path after caching:
+A useful design question is:
 
-- use precomputed `MethodHandle` where signatures are stable
-- move to generated codecs/mappers for ultra-hot serialization/deserialization paths
+Is this cost paid once at startup, or every time traffic hits the service?
 
-Generated direct calls generally beat reflective dispatch for stable contracts.
+Those are different problems.
 
----
+- startup-heavy applications may care about classpath scanning and annotation indexing
+- high-throughput services usually care about per-request dispatch cost
 
-## Step 3: Separate Startup and Runtime Optimizations
-
-Startup-heavy apps care about scanning cost.
-Throughput-heavy apps care about per-request dispatch cost.
-Measure separately:
-
-- cold start initialization time
-- steady-state CPU and allocation rate
-
-Different bottlenecks need different fixes.
+If you do not separate those two, you can easily optimize the wrong phase.
 
 ---
 
-## Dry Run: Controller Argument Binder Optimization
+## `MethodHandle` Is Often the Right Next Step
 
-Before:
+When reflection still shows up in a profiled hot path after caching, `MethodHandle` is often a better fit than repeated reflective invocation.
 
-- every request scans annotations and resolves parameter accessors reflectively
+```java
+MethodHandle handle = MethodHandles.lookup()
+        .findVirtual(Order.class, "status", MethodType.methodType(String.class));
 
-After:
+String status = (String) handle.invokeExact(order);
+```
 
-1. precompute controller metadata at startup.
-2. cache parameter resolvers per endpoint method.
-3. replace reflective invoke with bound method handle.
-4. re-run load test and compare p95 latency + CPU.
+This is useful when:
 
-Typical result: lower CPU and fewer allocations with no API behavior change.
+- the call site is stable
+- the signature is known
+- the code path is hot enough to justify the change
+
+It is much less useful when the problem is actually poor architecture or repeated metadata scanning elsewhere.
 
 ---
 
-## Common Mistakes
+## Sometimes Code Generation Is Better Than Reflection
 
-- micro-optimizing reflection before profiling
-- replacing reflection everywhere and losing framework flexibility
-- caching without bounds in dynamic plugin environments
-- ignoring module encapsulation rules when accessing non-public members
+If the contract is stable and performance-sensitive, generated accessors or mappers may be better than any reflective strategy.
+
+That is especially true for:
+
+- serialization paths
+- mapping-heavy frameworks
+- startup metadata registries
+
+This is not because reflection is evil. It is because stable contracts often deserve direct code once the hotspot is proven.
+
+---
+
+## A Good Example: Controller Argument Binding
+
+Suppose a web layer currently:
+
+- scans annotations for each request
+- resolves parameter metadata repeatedly
+- uses reflection to invoke handlers every time
+
+A stronger design is:
+
+1. scan and validate controller metadata at startup
+2. build immutable handler descriptors
+3. cache parameter resolvers
+4. replace reflective hot-path calls with bound handles where it matters
+
+That keeps flexibility while moving the expensive introspection out of the request path.
+
+---
+
+## Be Careful in Dynamic Plugin Systems
+
+Caching is good, but in dynamic environments it also needs an ownership story.
+
+If classes can appear and disappear over time, unbounded caches keyed by class or classloader can become a leak.
+
+That means reflection optimization has to match the lifecycle model of the system, not just the benchmark.
+
+---
+
+## Profiling Still Comes First
+
+This article only makes sense when the reflective cost is measured.
+
+If profiling shows reflection is not meaningfully present in the critical path, broad rewrites are usually a waste.
+
+> [!TIP]
+> Reflection often gets blamed because it is easy to see in code. Optimize it only when it is also easy to see in the profile.
 
 ---
 
 ## Key Takeaways
 
-- reflection is acceptable when localized and cached.
-- optimize only measured hotspots.
-- use method handles or code generation when reflective dispatch dominates critical paths.
-
----
-
-        ## Problem 1: Pay Reflection Costs Once, Not on Every Request
-
-        Problem description:
-        Reflection is often blamed broadly, but the real pain usually comes from repeated lookups, accessibility checks, and conversion work inside hot request paths.
-
-        What we are solving actually:
-        We are solving hot-path introspection overhead. The practical move is to front-load metadata discovery and replace repeated reflective lookups with cached handles or precomputed plans.
-
-        What we are doing actually:
-
-        1. separate one-time metadata discovery from per-request invocation
-2. cache field, method, or constructor lookups aggressively
-3. switch to `MethodHandle` where the call site is hot and stable
-4. reconsider whether generated code removes the need for reflection entirely
-
-        ```mermaid
-flowchart TD
-    A[Startup scan] --> B[Metadata cache]
-    B --> C[MethodHandle / accessor]
-    C --> D[Request path]
-```
-
-        This section is worth making concrete because architecture advice around reflection costs optimization strategies java often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        MethodHandle handle = MethodHandles.lookup()
-    .findVirtual(Order.class, "status", MethodType.methodType(String.class));
-
-String status = (String) handle.invokeExact(order);
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Profile a mapper or serializer before and after caching reflective metadata. If latency barely moves, reflection was not the bottleneck and the optimization should stop there.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - profile first so reflection work is measured in context
-- cache reflective metadata in immutable registries built at startup
-- avoid repeated `setAccessible` or member discovery in request code
-- check whether the framework already offers generated or bytecode-based alternatives
-
-        ## Review Checklist
-
-        - Cache metadata once.
-- Use MethodHandles for hot stable paths.
-- Do not optimize reflection in cold code.
+- Reflection is fine in many places; repeated reflection in hot paths is not.
+- Cache metadata first before reaching for more invasive changes.
+- Use `MethodHandle` or generated code when a stable reflective hotspot remains.
+- Always distinguish startup costs from request-time costs before optimizing.

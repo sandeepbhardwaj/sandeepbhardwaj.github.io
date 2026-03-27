@@ -21,24 +21,51 @@ header:
   show_overlay_excerpt: false
   caption: Immutable Context Propagation Without ThreadLocal Drift
 ---
-Scoped values provide immutable, lexically scoped context propagation.
-They are a safer replacement for many `ThreadLocal` use cases in concurrent Java services.
+Scoped values are useful because they make request context feel like scoped input instead of hidden thread state.
+
+That is the real improvement over many `ThreadLocal` usages. The problem with request context was rarely "we need a place to put the request ID." The problem was that the lifetime and ownership of that context were easy to get wrong.
 
 ---
 
-## Why Teams Move Away from ThreadLocal
+## Why `ThreadLocal` Starts to Hurt
 
-`ThreadLocal` commonly causes:
+`ThreadLocal` is often acceptable in small code paths, but it becomes fragile in larger concurrent systems because it encourages:
 
-- context bleed on pooled threads when cleanup is missed
-- hidden mutable state across call chains
-- fragile behavior in async boundaries
+- implicit state instead of explicit boundaries
+- cleanup mistakes on pooled threads
+- confusing behavior at async boundaries
+- context that outlives the request that created it
 
-Scoped values solve this by making context lifetime explicit in code.
+Scoped values improve this by making context lifetime lexical and visible in the code.
 
 ---
 
-## Basic Pattern
+## The Right Use Case: Cross-Cutting Metadata
+
+Good candidates for scoped values are things that are:
+
+- request-scoped
+- immutable for the duration of the request
+- needed across many layers
+
+Examples:
+
+- request ID
+- trace or correlation ID
+- tenant ID
+- authenticated principal identifier
+
+What does not belong there:
+
+- mutable domain state
+- large request payloads
+- objects that should be passed as ordinary parameters
+
+If the data is business input rather than cross-cutting metadata, pass it explicitly.
+
+---
+
+## The Basic Pattern Is Intentionally Simple
 
 ```java
 static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
@@ -56,32 +83,15 @@ void serviceA() {
 }
 ```
 
-`REQUEST_ID` is only readable inside the lexical scope.
+The important part is not the syntax. It is that the context is only valid inside the bound scope.
+
+That makes it much harder for one request to accidentally leak state into another.
 
 ---
 
-## What Belongs in Scoped Values
+## This Works Especially Well With Virtual Threads
 
-Good candidates:
-
-- trace/request correlation ID
-- tenant ID
-- security principal ID
-
-Avoid putting:
-
-- mutable objects
-- large payloads
-- domain entities that should be passed explicitly
-
-Use scoped values for cross-cutting metadata, not business data transport.
-
----
-
-## Virtual Threads + Scoped Values
-
-Scoped values work naturally with virtual-thread request models.
-Bind once at request entry and read across nested calls without explicit parameter threading everywhere.
+Scoped values fit naturally with modern request-per-task designs because they preserve the idea that request context belongs to one bounded unit of work.
 
 ```java
 static final ScopedValue<String> TENANT = ScopedValue.newInstance();
@@ -94,90 +104,76 @@ try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
 }
 ```
 
----
-
-## Dry Run: HTTP Request Lifecycle
-
-1. HTTP filter extracts `X-Request-Id` and `tenant-id`.
-2. filter binds scoped values and invokes controller.
-3. controller/service/repository logs include scoped context.
-4. response returns; lexical scope ends automatically.
-5. next request on reused platform thread sees no old context.
-
-This directly prevents cross-request context leakage.
+That keeps context propagation readable without pushing metadata through every method signature.
 
 ---
 
-## Testing Guidance
+## Keep Bindings at Entry Points
 
-- add integration test that sends two requests with different IDs and verifies logs/trace tags do not mix.
-- add unit tests for methods that expect scoped context and fail fast when missing.
-- keep bindings near protocol entry points (HTTP/gRPC/message listener).
+The best place to bind scoped values is usually at a protocol boundary:
+
+- HTTP filter
+- gRPC interceptor
+- message listener entry point
+
+That is where request context is first known and where its lifetime should begin.
+
+Deep business code should mostly consume scoped metadata, not decide when it starts existing.
+
+---
+
+## A Practical Request Flow
+
+For an HTTP request:
+
+1. extract `X-Request-Id` and tenant information
+2. bind scoped values in the filter or entry layer
+3. let controllers and services read them where needed
+4. return the response
+5. allow the scope to end automatically
+
+That is a much healthier model than "set some thread locals and hope cleanup always happens."
+
+```mermaid
+flowchart TD
+    A[HTTP filter / interceptor] --> B[Bind scoped values]
+    B --> C[Controller]
+    C --> D[Service]
+    D --> E[Repository / logger / audit]
+```
+
+---
+
+## Fail Fast When Context Is Required
+
+If a method truly requires context, do not silently default it away.
+
+For example, a missing request ID or tenant binding in a path that depends on it should be treated as a programming error or boundary bug, not as an invitation to invent fallback values.
+
+That keeps context propagation honest.
+
+---
+
+## Test for Isolation, Not Just Happy Path Access
+
+The strongest tests are not "can I read the request ID?"
+
+They are:
+
+- two concurrent requests do not see each other's values
+- reused threads do not carry old context
+- missing scoped bindings fail predictably
+
+That is the class of bug scoped values are best at preventing.
+
+> [!TIP]
+> Scoped values are a good fit when the data is truly metadata. If reviewers start seeing business decisions depend on hidden scoped objects, the design is drifting.
 
 ---
 
 ## Key Takeaways
 
-- scoped values provide immutable, bounded context propagation.
-- they reduce thread-local leakage risk, especially with concurrency.
-- use them for observability and security metadata with strict scope boundaries.
-
----
-
-        ## Problem 1: Make Request Context Lifetimes Visible in Code
-
-        Problem description:
-        Cross-cutting request metadata such as request ID, tenant, and auth context tends to leak across thread pools or async boundaries when it is stored in mutable thread-local state.
-
-        What we are solving actually:
-        We are solving bounded context propagation. Scoped values matter because they align context lifetime with lexical scope, which is much easier to review and much harder to leak.
-
-        What we are doing actually:
-
-        1. bind immutable context once at the protocol boundary
-2. read it from nested services only when it is truly cross-cutting metadata
-3. keep domain data as parameters instead of smuggling it through context
-4. test that one request cannot see another request's values on reused threads
-
-        ```mermaid
-flowchart TD
-    A[HTTP filter] --> B[Bind scoped values]
-    B --> C[Controller]
-    C --> D[Service]
-    D --> E[Repository / logger]
-```
-
-        This section is worth making concrete because architecture advice around scoped values request context propagation often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
-
-void doFilter(Request request, Runnable next) {
-    ScopedValue.where(REQUEST_ID, request.header("X-Request-Id")).run(next);
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Drive two requests with different request IDs through the same worker pool and verify no log line crosses the boundary. That is the regression ThreadLocal-based systems are most likely to hide.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - bind scoped values only at request entry, not deep in business logic
-- keep bound objects immutable so nested code cannot create hidden coupling
-- fail fast when required scoped values are missing instead of silently defaulting
-- review test fixtures for parallel execution because context bugs are timing-sensitive
-
-        ## Review Checklist
-
-        - Use scoped values for metadata, not business payload transport.
-- Prefer lexical scope over manual cleanup.
-- Verify isolation with concurrent integration tests.
+- Scoped values make request context lifetime explicit and bounded.
+- They are best for immutable cross-cutting metadata, not business payload transport.
+- Bind them at request entry points and let scope end automatically.
+- Their biggest win is isolation and clarity, especially in concurrent code.

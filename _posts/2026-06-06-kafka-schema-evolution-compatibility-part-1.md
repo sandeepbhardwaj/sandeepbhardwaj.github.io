@@ -23,34 +23,73 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Establish a baseline schema-compatibility workflow before rollout automation**.
+Schema evolution is rarely where a Kafka program feels exciting, but it is where a lot of quiet production damage starts. A producer deploys a "small" payload change, one older consumer cannot deserialize it, and now the topic contract is broken in the middle of a rolling rollout.
 
----
+Part 1 is about building the discipline before automation: a baseline contract, explicit compatibility rules, and mixed-version testing that proves the change is safe in a real deployment window.
 
-## Problem 1: Change Event Schemas Without Breaking Existing Consumers
+## The Design Problem Behind the Syntax
 
-Problem description:
-Kafka event schemas evolve over time as products add fields, retire old ones, or reshape payloads.
-Without explicit compatibility discipline, one producer change can break live consumers at deserialization time.
+This is not fundamentally an Avro problem or a Protobuf problem. It is a coordination problem.
 
-What we are solving actually:
-We are solving safe evolution of shared contracts.
-The goal is not just “version the schema”; it is making sure old and new producers and consumers can coexist during real deployments.
+The real questions are:
 
-What we are doing actually:
-
-1. Register a baseline schema version.
-2. Introduce only compatibility-preserving changes first.
-3. Test mixed-version producers and consumers before operational rollout.
+- which fields are safe to add
+- which changes break old readers or writers
+- how long old consumers are expected to coexist with new producers
+- whether the team treats the registry as a guardrail or as a box-checking step
 
 ```mermaid
 flowchart LR
-    A[Schema v1] --> B[Add compatible change]
-    B --> C[Registry compatibility check]
-    C --> D[Mixed-version consumer test]
+    A[Schema v1 in production] --> B[Producer proposes change]
+    B --> C[Compatibility check]
+    C --> D[Mixed-version test]
+    D --> E[Safe rollout]
 ```
 
----
+A contract is only trustworthy when both the registry and the running consumers agree.
+
+## A Safer Baseline Change
+
+For Part 1, keep the change intentionally boring: add an optional field or one with a compatible default. That teaches the process without dragging the team into advanced compatibility edge cases too early.
+
+For example:
+
+~~~proto
+message PaymentCreated {
+  string payment_id = 1;
+  int64 amount_minor = 2;
+  string currency = 3;
+  string merchant_id = 4;
+}
+~~~
+
+If `merchant_id` is a new optional addition, older consumers can usually continue to read the record without crashing, assuming the compatibility mode and serializer behavior are aligned.
+
+## The Changes That Deserve More Fear
+
+Teams get into trouble when they:
+
+- renumber fields
+- change meaning without changing names
+- remove fields still needed by older readers
+- switch a field from optional to effectively required during rollout
+
+Those are not harmless refactors. They are contract changes with operational blast radius.
+
+> [!warning]
+> A schema change that passes review because it "looks tiny" can still be the most dangerous change in the release if older consumers are still alive.
+
+## Why Mixed-Version Testing Matters
+
+A registry compatibility check is necessary, but it is not the whole proof.
+
+You still want to test:
+
+- old consumer reading new producer data
+- new consumer reading historical data
+- at least one rolling deployment window where versions coexist
+
+If you only test latest producer with latest consumer, you are testing a lab state that production rarely stays in.
 
 ## Run It Locally
 
@@ -85,75 +124,43 @@ services:
 docker compose up -d
 ~~~
 
----
+## Verification Flow
 
-## Lab Steps
-
-1. Register v1 schema.
-2. Produce and consume v1.
-3. Add compatible v2 optional field.
-4. Validate mixed-version consumers.
-
----
-
-## Runnable Code Block
-
-~~~proto
-message PaymentCreated {
-  string payment_id = 1;
-  int64 amount_minor = 2;
-  string currency = 3;
-  string merchant_id = 4; // compatible add
-}
-~~~
-
-The important first lesson is that “compatible” usually means additive and well-ordered.
-Renumbering or changing existing field meaning is where teams create real breakage.
-
----
-
-## Verify
+First verify the registry sees the expected latest version:
 
 ~~~bash
 curl -s http://localhost:8081/subjects/payment-value/versions/latest
 ~~~
 
-Also consume both v1 and v2 payloads through the same reader to confirm deserialization behavior, not just registry acceptance.
+Then do the more important test: produce both versions and read them through the consumer version you actually intend to keep live during rollout.
 
----
+That second check catches the real integration mistakes.
 
-## Failure Drill
+## Operational Guidance
 
-Attempt to remove or renumber a field and confirm the compatibility check fails.
-That failure is valuable because it turns a future production incident into an earlier CI or pre-merge event.
+### Write down allowed versus forbidden changes
 
----
+Do not leave compatibility rules as tribal knowledge. A short team policy is often enough:
 
-## Debug Steps
+- adding optional fields is allowed
+- field renumbering is forbidden
+- semantic repurposing of existing fields is forbidden
+- removals require a migration plan
 
-Debug steps:
+### Align subject naming and ownership
 
-- verify the registry subject and compatibility mode you think you are testing is actually the one being used
-- test mixed-version producer and consumer combinations, not only latest-to-latest
-- treat field renumbering or meaning changes as dangerous even if names look similar
-- record a concrete list of allowed versus prohibited schema changes for the team
+If nobody knows which subject belongs to which event stream, the registry becomes harder to trust during incidents.
 
----
+### Treat schema review like API review
 
-## What You Should Learn
+Because that is what it is. A topic schema is not just serialization detail; it is an interface shared across teams and time.
 
-- schema evolution is a contract-management problem, not just a serialization detail
-- additive changes are the safest baseline starting point
-- registry checks matter, but runtime mixed-version tests matter too
+## What This Part Should Leave You With
 
----
+After Part 1, the team should understand:
 
-## Operator Prompt
+1. why additive, compatibility-preserving changes are the right baseline
+2. why registry acceptance is necessary but insufficient
+3. why mixed-version runtime tests are part of real contract safety
 
-For schema evolution with avro and protobuf compatibility contracts (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
-
----
-
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That baseline makes later schema governance and automation credible instead of ceremonial.

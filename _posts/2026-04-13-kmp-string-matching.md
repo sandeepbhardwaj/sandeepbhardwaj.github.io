@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Linear-Time Pattern Matching
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+KMP is the string-matching pattern for finding a pattern in linear time by reusing prefix information after mismatches.
+Strong candidates explain the prefix-function or LPS array in words, not just code, because it is the core invariant that prevents backtracking in the text.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Precompute LPS table to avoid re-checking characters during pattern search.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 13 Kmp String Matching | you need exact pattern search without rescanning already-matched text | reuse the longest proper prefix that is also a suffix after mismatch | Find All Pattern Occurrences |
 
----
+## Problem Statement
+
+Given a text and a pattern, find matches efficiently even when the pattern contains repeated prefix structure that brute force would keep rechecking.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: pattern search, LPS, prefix function, fallback after mismatch.
+- Structural signal: mismatch handling jumps inside the pattern using already-known prefix overlap.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If exact string search needs to stay linear despite repeated prefixes, think KMP.
 
 ## Java Template
 

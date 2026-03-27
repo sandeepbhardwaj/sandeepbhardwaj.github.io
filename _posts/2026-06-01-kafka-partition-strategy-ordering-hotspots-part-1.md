@@ -23,42 +23,60 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Build the baseline partition-key strategy and measure skew**.
+Part 1 is about getting honest about the trade-off. A Kafka partition key is not a minor producer detail. It decides where ordering exists, where load concentrates, and which customers will be first to feel pain when traffic becomes uneven.
 
----
+In this first pass, we deliberately do not "fix" hotspots. We establish the baseline keying model, measure skew, and make the ordering requirement explicit. If you skip that step, every later mitigation becomes guesswork.
 
-## Problem 1: Keep Ordering Without Creating Hot Partitions
+## The Real Design Question
 
-Problem description:
-Kafka preserves ordering only within a partition, so key choice directly affects both correctness and load distribution.
+Most teams start with a sentence like "we need ordering." That is too vague to guide key selection.
 
-What we are solving actually:
-We are solving a trade-off between ordering guarantees and partition balance.
-If we key too broadly, we lose useful ordering. If we key too narrowly, one hot tenant or customer can overload a single partition.
+The useful question is narrower:
 
-What we are doing actually:
+- do you need ordering per user, per tenant, per account, or per aggregate
+- do you need strict ordering for every event, or only within a subset of lifecycle transitions
+- what happens operationally if one high-volume key dominates one partition
 
-1. Start with a business key that preserves the ordering we truly need.
-2. Observe how that key maps traffic across partitions.
-3. Measure whether a real hotspot appears before “optimizing” the strategy.
+If the key is too coarse, unrelated work gets serialized. If the key is too fine, you lose the ordering boundary the business actually depends on.
 
 ```mermaid
 flowchart LR
-    A[Events keyed by customerId] --> B[Kafka partitioner]
-    B --> C1[Partition 1]
-    B --> C2[Partition 2]
-    B --> C3[Partition 3]
-    A --> D[One hot customer]
-    D --> C2
+    A[Producer emits order events] --> B{Partition key}
+    B -->|customerId| C[Ordering per customer]
+    B -->|tenantId| D[Ordering per tenant]
+    B -->|orderId| E[Ordering per order only]
+    C --> F[Risk: one heavy customer can create skew]
+    D --> G[Risk: one large tenant can dominate a partition]
+    E --> H[Risk: related events may land apart]
 ```
 
-## Real-World Scenario
+## A Concrete Failure Mode
 
-A single high-volume tenant overloads one partition, creating lag spikes and delayed processing for that key.
+Imagine a multi-tenant commerce platform:
 
----
+- normal tenants create a few hundred order events per minute
+- one enterprise tenant creates tens of thousands during a flash sale
+- downstream consumers update inventory and customer-visible order status
 
-## Run It Locally
+If events are keyed by `tenantId`, all of that tenant's traffic is pinned to one partition. Ordering is preserved, but one partition now carries a disproportionate share of work. Lag for that tenant grows first, then retry storms and consumer backpressure follow.
+
+That is why partition-key design is both a correctness decision and a capacity decision.
+
+## What to Measure Before Changing Anything
+
+For the baseline, you want evidence, not opinion. Capture:
+
+- records produced per partition
+- consumer lag per partition
+- end-to-end latency for hot keys versus normal keys
+- the percentage of total traffic owned by the busiest partition
+
+One useful internal threshold is simple: if one partition consistently carries a multiple of the median partition load, you already have a distribution problem even if the cluster is not yet failing.
+
+> [!important]
+> A balanced cluster can still hide a bad key strategy during normal traffic. The key is only proven under skew, not under average load.
+
+## Local Baseline Setup
 
 ### Prerequisites
 
@@ -89,72 +107,95 @@ services:
 
 ~~~bash
 docker compose up -d
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic orders.events \
+  --partitions 6 \
+  --replication-factor 1
 ~~~
 
----
+## Producer Baseline
 
-## Lab Steps
-
-1. Create `orders.events` with 6 partitions.
-2. Publish events keyed by `customerId`.
-3. Consume with one group and capture lag per partition.
-
----
-
-## Runnable Code Block
+Start with the plain business key you think you need. Here we use `customerId` because the requirement is "preserve order within one customer's order lifecycle."
 
 ~~~java
-String key = order.customerId();
-ProducerRecord<String, String> rec =
-    new ProducerRecord<>("orders.events", key, payload);
-producer.send(rec);
+public ProducerRecord<String, String> toRecord(OrderEvent event) {
+    String payload = objectMapper.writeValueAsString(event);
+    return new ProducerRecord<>("orders.events", event.customerId(), payload);
+}
 ~~~
 
----
+That is enough for Part 1. Do not jump to salted keys or custom partitioners yet. First prove whether the natural key is actually a problem.
 
-## Verify
+## Simulate Skew Instead of Assuming It
+
+Run a baseline workload with mostly even traffic, then a skewed workload where one customer dominates.
+
+~~~java
+for (int i = 0; i < 100_000; i++) {
+    String customerId = (i % 10 == 0) ? "customer-hot" : "customer-" + (i % 500);
+    OrderEvent event = new OrderEvent(customerId, "order-" + i, "CREATED");
+    producer.send(toRecord(event));
+}
+producer.flush();
+~~~
+
+This does not model every production workload, but it is enough to expose whether one key can monopolize a partition.
+
+## How to Observe Partition Skew
+
+Kafka itself will not give you the whole story unless you look per partition. At minimum:
 
 ~~~bash
-kafka-topics --bootstrap-server localhost:9092 --create --topic orders.events --partitions 6 --replication-factor 1
-kafka-consumer-groups --bootstrap-server localhost:9092 --group orders-cg --describe
+kafka-consumer-groups --bootstrap-server localhost:9092 \
+  --group orders-cg \
+  --describe
 ~~~
 
----
+If you have application metrics, add partition-level counters or logs around record handling:
 
-## Failure Drill
+~~~java
+for (ConsumerRecord<String, String> record : records) {
+    metrics.counter(
+        "orders.consumer.partition.records",
+        "partition", Integer.toString(record.partition())
+    ).increment();
+}
+~~~
 
-Send 70% traffic for one customerId. Verify one partition lags heavily.
+That turns "we think partition 2 is hot" into something you can actually verify.
 
----
+## What Healthy Looks Like
 
-## Debug Steps
+At this stage, success is not "no skew ever appears." Success is:
 
-Debug steps:
+- the ordering boundary is explicit
+- the hottest partition is identifiable
+- the skew is measurable enough to compare against later mitigations
+- the team can explain why the chosen key exists
 
-- record per-partition lag, not just total group lag
-- confirm the chosen key actually matches the ordering requirement
-- replay a skewed workload to see whether one tenant dominates one partition
-- avoid changing key strategy before you have a measured baseline
+If you cannot explain the business invariant behind the key, you are not ready to redesign it.
 
-## Operational Note
+## Common Mistakes in This Phase
 
-The baseline experiment is worth keeping around even after mitigation work starts.
-Teams often forget what “normal skew” looked like before redesigning keys, which makes later tuning debates subjective instead of evidence-based.
+### Using a key nobody can defend
 
-## What You Should Learn
+Teams often inherit a key because "that is what the first version used." When traffic changes, nobody remembers whether the key protects a real invariant or an accidental one.
 
-- partition-key design is a correctness and load-distribution decision at the same time
-- a clean baseline measurement is necessary before applying mitigation strategies
-- hotspot diagnosis starts with per-partition lag and skew visibility
+### Looking only at total lag
 
----
+Group lag can stay acceptable while one partition is already in trouble. Hotspot diagnosis starts with partition-level visibility.
 
-## Operator Prompt
+### Jumping straight to mitigation
 
-For kafka partition strategy for ordering and hotspot mitigation (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+Salted keys, repartitioning, and custom partitioners all add cognitive and operational cost. They are justified only after the baseline shows a real imbalance.
 
----
+## What This Part Should Leave You With
 
-## Final Operations Note
+By the end of Part 1, you should be able to answer three questions confidently:
 
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+1. What exact unit of ordering do we require?
+2. Which key currently enforces that ordering?
+3. How uneven is the resulting partition distribution under skew?
+
+That baseline is the foundation for every mitigation that comes next. Without it, hotspot work becomes folklore instead of engineering.

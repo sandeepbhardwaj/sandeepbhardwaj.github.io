@@ -22,15 +22,33 @@ header:
   show_overlay_excerpt: false
   caption: Constant-Time Cache Eviction Structures
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
+LRU and LFU cache design is the systems pattern for combining fast lookup with explicit eviction policy under strict `O(1)` operation goals.
+Strong candidates do not stop at naming the data structures. They explain why the hash map and ordering structure must stay in sync after every `get`, `put`, promotion, and eviction.
 
----
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-## Why This Pattern Matters
+## Pattern Summary Table
 
-Combine hashmap + linked structures (or frequency buckets) for O(1) cache operations.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 29 Lru And Lfu Cache Design | the API needs constant-time lookup, update, and policy-based eviction | combine direct access through hashing with a structure that preserves recency or frequency order | Design an LRU Cache |
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+## Problem Statement
+
+Design a cache with strict access and update requirements where eviction depends on a policy such as least recently used or least frequently used.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: cache, eviction policy, `O(1)` get/put, recency, frequency.
+- Structural signal: lookup and eviction order must both be efficient, so one data structure alone is not enough.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the design requires constant-time access plus policy-aware eviction, think hash map plus ordering structure.
 
 ---
 

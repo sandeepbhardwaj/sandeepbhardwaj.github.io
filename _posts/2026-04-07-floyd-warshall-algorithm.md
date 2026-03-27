@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: All-Pairs Shortest Path DP
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Floyd-Warshall is the dynamic-programming pattern for all-pairs shortest paths when every node can potentially act as an intermediate waypoint.
+Strong candidates explain the “allowed intermediates up to k” state clearly, because that is the real reason the cubic recurrence is correct.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Dynamic programming over intermediate vertices computes all-pairs shortest paths in O(n^3).
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 07 Floyd Warshall Algorithm | you need shortest distances between every pair of nodes | allow one more intermediate node at a time and relax every pair through it | All-Pairs Shortest Paths |
 
----
+## Problem Statement
+
+Given a weighted directed graph, compute shortest distances between all node pairs and detect negative cycles if they exist.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: all pairs shortest path, transitive closure, negative cycle, dense graph.
+- Structural signal: after processing node k, paths may use only intermediates from the first k nodes.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the problem asks for every-pair shortest distances, not just one source, think Floyd-Warshall.
 
 ## Java Template
 

@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Counting Under Numeric Bound Constraints
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Digit DP is the counting pattern for numeric ranges where brute force over every number is impossible but digit-by-digit constraints are manageable.
+Strong candidates explain the `tight` flag and state compression carefully, because the whole technique depends on counting valid prefixes without exceeding the bound.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-DP on digits with tight/started/state flags to count numbers satisfying constraints.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 25 Digit Dp Pattern | counting or optimizing over a huge numeric range depends on digit-wise rules | build the number digit by digit while tracking bound-tightness and extra state | Count Numbers with Digit Constraints |
 
----
+## Problem Statement
+
+Given a numeric range and a digit-based rule, count or optimize over all valid numbers without iterating through the entire range.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: digit DP, tight flag, leading zeros, count numbers in [0,n].
+- Structural signal: every partial prefix is either still tied to the bound or already safely below it.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the domain is a huge integer range and the rule is digit-based, think digit DP.
 
 ## Java Template
 
