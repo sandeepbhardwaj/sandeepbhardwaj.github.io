@@ -1,13 +1,10 @@
 ---
+title: Designing a Stock Exchange System
+date: 2026-03-21
 categories:
 - Distributed Systems
 - Architecture
 - Backend
-date: 2026-03-21
-seo_title: Designing a Stock Exchange System - Matching Engine, Market Data, and Scale
-seo_description: Step-by-step stock exchange system design covering problem
-  statement, functional requirements, NFRs, high-level architecture, matching
-  engine, market data, scalability, and low-latency design trade-offs.
 tags:
 - distributed-systems
 - architecture
@@ -17,10 +14,13 @@ tags:
 - matching-engine
 - order-book
 - scalability
-title: Designing a Stock Exchange System
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Designing a Stock Exchange System - Matching Engine, Market Data, and Scale
+seo_description: Step-by-step stock exchange system design covering problem
+  statement, functional requirements, NFRs, high-level architecture, matching
+  engine, market data, scalability, and low-latency design trade-offs.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

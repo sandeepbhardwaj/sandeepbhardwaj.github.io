@@ -1,10 +1,8 @@
 ---
+title: Default Methods in Java 8 -- A Deep Dive for Backend Engineers
+date: 2026-02-28
 categories:
 - Java
-date: 2026-02-28
-seo_description: Learn Java 8 default methods with practical interface patterns, API
-  evolution strategies, conflict resolution rules, and backend design examples.
-seo_title: Java 8 Default Methods Explained for Backend Engineers
 tags:
 - java
 - java8
@@ -12,10 +10,12 @@ tags:
 - interfaces
 - api-design
 - backward-compatibility
-title: Default Methods in Java 8 -- A Deep Dive for Backend Engineers
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java 8 Default Methods Explained for Backend Engineers
+seo_description: Learn Java 8 default methods with practical interface patterns, API
+  evolution strategies, conflict resolution rules, and backend design examples.
 header:
   overlay_image: "/assets/images/java-default-methods-banner.svg"
   overlay_filter: 0.2

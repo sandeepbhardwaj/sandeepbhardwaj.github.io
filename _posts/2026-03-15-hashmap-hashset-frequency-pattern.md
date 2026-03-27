@@ -1,11 +1,9 @@
 ---
+title: HashMap and HashSet Frequency Pattern in Java - Interview Preparation Guide
+date: 2026-03-15
 categories:
 - DSA
 - Java
-date: 2026-03-15
-seo_title: HashMap and HashSet Frequency Pattern in Java - Interview Preparation Guide
-seo_description: Learn HashMap and HashSet frequency patterns in Java with counting,
-  lookup, and linear-time matching examples.
 tags:
 - dsa
 - java
@@ -13,10 +11,12 @@ tags:
 - hashset
 - frequency-pattern
 - algorithms
-title: HashMap and HashSet Frequency Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: HashMap and HashSet Frequency Pattern in Java - Interview Preparation Guide
+seo_description: Learn HashMap and HashSet frequency patterns in Java with counting,
+  lookup, and linear-time matching examples.
 header:
   overlay_image: "/assets/images/hashmap-hashset-banner.svg"
   overlay_filter: 0.35

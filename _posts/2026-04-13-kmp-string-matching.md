@@ -1,21 +1,21 @@
 ---
+title: KMP String Matching in Java - Interview Preparation Guide
+date: 2026-04-13
 categories:
 - DSA
 - Java
-date: 2026-04-13
-seo_title: KMP String Matching in Java - Interview Preparation Guide
-seo_description: Implement linear-time substring search in Java using LPS prefix-function
-  preprocessing.
 tags:
 - dsa
 - java
 - kmp
 - strings
 - algorithms
-title: KMP String Matching in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: KMP String Matching in Java - Interview Preparation Guide
+seo_description: Implement linear-time substring search in Java using LPS prefix-function
+  preprocessing.
 header:
   overlay_image: "/assets/images/kmp-string-matching-banner.svg"
   overlay_filter: 0.35

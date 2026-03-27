@@ -1,118 +1,207 @@
 ---
+title: Sync vs async communication selection framework (Part 3)
+date: 2026-08-26
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-26
-seo_title: Sync vs async communication selection framework (Part 3) - Advanced Guide
-seo_description: Advanced practical guide on sync vs async communication selection
-  framework (part 3) with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Sync vs async communication selection framework (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Sync vs async communication selection framework (Part 3) - Advanced Guide
+seo_description: Advanced practical guide on sync vs async communication selection
+  framework (part 3) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
   caption: Microservices Architecture and Reliability Patterns
 ---
-Sync vs async communication selection framework (Part 3) is not just a diagramming exercise. The hard part is deciding where ownership, failure handling, and change coordination should live once the system is split across services.
+Part 1 is usually about choosing a communication style.
+Part 2 is usually about failure semantics.
+Part 3 is where teams discover whether the decision can survive real rollout pressure.
 
----
+That is why this stage is less about architecture diagrams and more about governance, migration sequence, and operational discipline.
+The communication model is only "chosen" once the organization knows how to release it safely.
 
-## Problem 1: Sync vs async communication selection framework (Part 3)
+## Quick Summary
 
-Problem description:
-We want to use sync vs async communication selection framework (part 3) without creating hidden coupling, rollout friction, or a distributed monolith. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+| Rollout question | Strong answer |
+| --- | --- |
+| How do we introduce the new boundary? | phased rollout with explicit success and rollback gates |
+| Who owns failure during migration? | one team, named clearly, per boundary |
+| What blocks promotion? | user-facing correctness, latency, and operational health signals |
+| What usually breaks migrations? | unclear fallback path and hidden coupling to old flows |
 
-What we are solving actually:
-We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For service architectures, the hidden risk is usually coupling that migrates from code into network boundaries and release processes.
+The invariant for this stage is:
+the new sync or async boundary must improve the system without making rollback, ownership, or diagnosis less clear.
 
-What we are doing actually:
+## What Part 3 Is Really About
 
-1. make the service landscape explicit: define a staged rollout or migration plan
-2. make the service landscape explicit: attach clear ownership and rollback rules
-3. make the service landscape explicit: codify verification gates around latency, errors, or correctness
-4. make the service landscape explicit: write the operator playbook before the first real incident forces it
+By the time a team reaches this stage, the abstract debate is mostly over.
+They usually already know whether the interaction *should* be sync, async, or mixed.
 
----
+Now the questions are harder:
 
-## Why This Topic Matters
+- how do we migrate traffic safely?
+- what dual-write or dual-read period is acceptable?
+- who is allowed to roll back?
+- how do we know the new path is actually better?
 
-- service boundaries become release and incident boundaries too
-- latency and ownership trade-offs often dominate abstract purity
-- one unclear contract can multiply operational friction across many teams
+Those are rollout and governance questions.
+Treating them as implementation details is how "good architecture" turns into release pain.
 
----
+## A Better Promotion Model
 
-## Architecture Model
+Use progressive rollout with explicit gates.
 
 ```mermaid
 flowchart TD
-    A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Sync vs async communication selection framework (Part 3)]
-    C -->|No| E[Rollback / revise]
+    A[Approved design] --> B[Shadow or canary rollout]
+    B --> C{Correctness and SLO gates pass?}
+    C -->|Yes| D[Promote traffic]
+    C -->|No| E[Rollback or hold]
+    E --> F[Fix contract, capacity, or ownership issue]
 ```
 
-The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once sync vs async communication selection framework (part 3) is live.
-If a diagram cannot make those boundaries obvious, the implementation usually hides coupling rather than removing it.
+This matters for both sync and async designs:
 
----
+- sync migrations often fail through latency or cascading dependency pressure
+- async migrations often fail through hidden ownership, replay, or monitoring gaps
 
-## Practical Design Pattern
+The promotion gate must reflect the failure mode the architecture is most likely to introduce.
 
-```java
-public final class ServiceBoundary {
-    public Decision evaluate(Command command) {
-        // Keep ownership and failure policy explicit for: Sync vs async communication selection framework (Part 3)
-        return Decision.accept();
-    }
-}
-```
+## What to Measure Before Promotion
 
-The example is small on purpose: it shows where the decision enters and who owns the consequence when sync vs async communication selection framework (part 3) is applied.
-That is usually more valuable in review than a larger demo that hides contracts behind extra scaffolding.
+For sync paths:
 
----
+- p95 and p99 latency
+- timeout and retry rate
+- downstream saturation
+- fallback-path activation rate
 
-## Failure Drill
+For async paths:
 
-Rollout drill: degrade one dependency and observe whether the boundary still contains failure instead of amplifying it for sync vs async communication selection framework (part 3).
+- consumer lag
+- duplicate processing rate
+- dead-letter rate
+- end-to-end completion delay
 
-That drill matters before the operator playbook is treated as trustworthy because service boundaries around sync vs async communication selection framework (part 3) usually break through coordination delay and unclear ownership long before they break through code syntax.
+For both:
 
----
+- business correctness checks
+- rollback time
+- operator confidence in diagnosing issues
 
-## Debug Steps
+If the migration is fast but the team cannot explain whether it is correct, the rollout is not ready.
 
-Debug steps:
+## Ownership Must Be Explicit
 
-- map the exact ownership boundary before discussing implementation mechanics while validating sync vs async communication selection framework (part 3)
-- measure network and retry impact separately from business logic correctness while validating sync vs async communication selection framework (part 3)
-- look for hidden coupling in shared databases, release order, or schemas while validating sync vs async communication selection framework (part 3)
-- validate canary behavior under one realistic dependency failure while validating sync vs async communication selection framework (part 3)
+One of the ugliest migration failures is shared accountability.
 
----
+Examples:
 
-## Production Checklist
+- API team owns producer logic, platform team owns broker, but nobody owns consumer lag
+- checkout team owns request path, billing team owns event consumer, but rollback decision is unclear
+- old synchronous contract remains half-supported, so every incident becomes a negotiation
 
-- service ownership and rollback responsibilities finalized
-- SLO and contract checks attached to promotion gates
-- operator playbook covers degradation and reversal clearly
-- post-migration cleanup rule prevents old coupling from lingering
+Before rollout, write down:
 
----
+1. who owns the new boundary
+2. who can stop promotion
+3. who can trigger rollback
+4. what happens to the old path after migration succeeds
+
+If those answers live only in Slack memory, the architecture is not operationally complete.
+
+## Hidden Coupling Is the Main Migration Risk
+
+Teams often claim they moved to async while still depending on:
+
+- synchronous shared database reads
+- release-order coordination between services
+- manual replay scripts no one owns
+- undocumented schema timing assumptions
+
+That is not decoupling.
+That is coupling redistributed across more systems.
+
+The best governance question is:
+"What coupling are we removing, and what new operational contract are we accepting instead?"
+
+## Rollout Patterns That Actually Help
+
+### Shadow mode
+
+The new path observes or processes traffic without becoming authoritative.
+Good for correctness comparison and lag measurement.
+
+### Canary
+
+A small slice of traffic uses the new path first.
+Good for surfacing tail latency or duplicate handling behavior.
+
+### Dual-publish or dual-read with clear stop rules
+
+Sometimes useful, but dangerous if the end condition is vague.
+Never start a dual mode without a documented plan to end it.
+
+### Hard rollback path
+
+The old flow still exists temporarily, but ownership of rollback is clear and tested.
+
+## Common Failure Modes
+
+### Promotion gate is too technical
+
+The migration passes because dashboards are green while user-visible correctness is wrong.
+
+### Rollback is theoretically possible but operationally unclear
+
+Everyone believes rollback exists until the first incident forces a real decision.
+
+### Async migration ignores reconciliation
+
+The system publishes events, but there is no plan for lag, duplicates, or replay after partial failure.
+
+### Sync migration underestimates dependency amplification
+
+One extra remote call per request looks harmless until peak traffic turns it into a latency cliff.
+
+## A Practical Governance Checklist
+
+Before full promotion:
+
+- the new boundary has one clearly named owner
+- success and rollback gates are written down
+- the old path has a retirement plan
+- correctness checks exist beyond infrastructure health
+- on-call knows which metrics prove the migration is healthy
+- replay, duplicate handling, or fallback semantics are documented
+
+These are not administrative details.
+They are part of the architecture.
+
+## When to Slow Down on Purpose
+
+Do not force migration speed if:
+
+- consumer lag is unstable
+- tail latency is climbing under canary load
+- rollback is not rehearsed
+- support teams cannot explain the new failure modes
+
+A slow promotion with clear ownership is better than a fast migration followed by months of trust erosion.
 
 ## Key Takeaways
 
-- Sync vs async communication selection framework (Part 3) should be designed as a production decision, not just an implementation detail
-- boundaries are only good when ownership and failure semantics remain clear
-- the runbook and rollout policy are part of the design itself
+- Part 3 is where communication choices become operating policy.
+- Promotion gates must reflect the failure mode the new boundary is likely to introduce.
+- Ownership and rollback clarity matter as much as code correctness.
+- If the migration removes code coupling but creates operational ambiguity, it is not a net improvement yet.

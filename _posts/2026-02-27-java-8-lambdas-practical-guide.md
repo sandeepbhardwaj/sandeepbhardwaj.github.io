@@ -1,10 +1,8 @@
 ---
+title: Java 8 Lambdas -- A Practical Guide for Spring Boot Developers
+date: 2026-02-27
 categories:
 - Java
-date: 2026-02-27
-seo_description: Learn Java 8 lambda expressions with real-world Spring Boot examples,
-  architecture insights, pros and cons, and production best practices.
-seo_title: Java 8 Lambdas Explained with Real Backend Examples
 tags:
 - java
 - java8
@@ -13,10 +11,12 @@ tags:
 - spring-boot
 - streams
 - concurrency
-title: Java 8 Lambdas -- A Practical Guide for Spring Boot Developers
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java 8 Lambdas Explained with Real Backend Examples
+seo_description: Learn Java 8 lambda expressions with real-world Spring Boot examples,
+  architecture insights, pros and cons, and production best practices.
 header:
   overlay_image: "/assets/images/java-lambdas-banner.svg"
   overlay_filter: 0.4

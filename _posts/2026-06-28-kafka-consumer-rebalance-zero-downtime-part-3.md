@@ -1,22 +1,22 @@
 ---
+title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 3)
+date: 2026-06-28
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-28
-seo_title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 3)
-seo_description: 'Hands-on guide: Consumer Group Rebalance Internals and Zero Downtime
-  Tuning. Deployment runbook and guardrails.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Consumer Group Rebalance Internals and Zero Downtime Tuning (Part 3)
+seo_description: 'Hands-on guide: Consumer Group Rebalance Internals and Zero Downtime
+  Tuning. Deployment runbook and guardrails.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

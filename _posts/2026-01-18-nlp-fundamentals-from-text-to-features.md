@@ -1,21 +1,21 @@
 ---
+title: 'NLP Fundamentals: From Raw Text to Useful Features'
+date: 2026-01-18
 categories:
 - AI
 - ML
-date: 2026-01-18
-seo_title: 'NLP Fundamentals: From Raw Text to Useful Features'
-seo_description: A practical deep dive into core NLP pipeline design, text preprocessing,
-  feature extraction, and evaluation.
 tags:
 - ai
 - ml
 - nlp
 - text-processing
 - feature-extraction
-title: 'NLP Fundamentals: From Raw Text to Useful Features'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'NLP Fundamentals: From Raw Text to Useful Features'
+seo_description: A practical deep dive into core NLP pipeline design, text preprocessing,
+  feature extraction, and evaluation.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

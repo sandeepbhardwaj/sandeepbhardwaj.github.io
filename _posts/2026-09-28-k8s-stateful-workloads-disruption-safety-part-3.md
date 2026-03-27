@@ -1,24 +1,24 @@
 ---
+title: Stateful workloads on Kubernetes with disruption safety (Part 3)
+date: 2026-09-28
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-28
-seo_title: Stateful workloads on Kubernetes with disruption safety (Part 3) - Advanced
-  Guide
-seo_description: Advanced practical guide on stateful workloads on kubernetes with
-  disruption safety (part 3) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: Stateful workloads on Kubernetes with disruption safety (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Stateful workloads on Kubernetes with disruption safety (Part 3) - Advanced
+  Guide
+seo_description: Advanced practical guide on stateful workloads on kubernetes with
+  disruption safety (part 3) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
@@ -59,9 +59,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Stateful workloads on Kubernetes with disruption safety (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The diagram centers on workload behavior, control-plane signals, and recovery paths because stateful workloads on kubernetes with disruption safety (part 3) is judged during rollout and saturation, not in a quiet namespace.

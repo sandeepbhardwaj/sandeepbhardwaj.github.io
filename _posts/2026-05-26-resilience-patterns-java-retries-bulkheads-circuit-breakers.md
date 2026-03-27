@@ -1,21 +1,21 @@
 ---
+title: Resilience Patterns in Java (Retries Bulkheads Circuit Breakers)
+date: 2026-05-26
 categories:
 - Java
 - Backend
-date: 2026-05-26
-seo_title: Resilience Patterns in Java Microservices
-seo_description: Apply retry, bulkhead, and circuit breaker controls in Java services
-  under failure.
 tags:
 - java
 - resilience
 - retries
 - circuit-breaker
 - backend
-title: Resilience Patterns in Java (Retries Bulkheads Circuit Breakers)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Resilience Patterns in Java Microservices
+seo_description: Apply retry, bulkhead, and circuit breaker controls in Java services
+  under failure.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

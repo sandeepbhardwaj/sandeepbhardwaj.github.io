@@ -1,21 +1,21 @@
 ---
+title: 'Computer Vision: CNN Foundations and Modern Practice'
+date: 2026-01-20
 categories:
 - AI
 - ML
-date: 2026-01-20
-seo_title: 'Computer Vision: CNN Foundations and Modern Practice'
-seo_description: A practical guide to computer vision fundamentals, CNN architecture
-  intuition, training tactics, and deployment constraints.
 tags:
 - ai
 - ml
 - computer-vision
 - cnn
 - deep-learning
-title: 'Computer Vision: CNN Foundations and Modern Practice'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Computer Vision: CNN Foundations and Modern Practice'
+seo_description: A practical guide to computer vision fundamentals, CNN architecture
+  intuition, training tactics, and deployment constraints.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

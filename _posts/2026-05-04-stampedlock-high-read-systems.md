@@ -1,20 +1,20 @@
 ---
+title: StampedLock in High-Read Systems — Java Guide
+date: 2026-05-04
 categories:
 - Java
 - Backend
-date: 2026-05-04
-seo_title: StampedLock in High-Read Java Systems
-seo_description: Apply optimistic reads and lock conversion safely using StampedLock
-  in read-heavy services.
 tags:
 - java
 - concurrency
 - stampedlock
 - backend
-title: StampedLock in High-Read Systems — Java Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: StampedLock in High-Read Java Systems
+seo_description: Apply optimistic reads and lock conversion safely using StampedLock
+  in read-heavy services.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

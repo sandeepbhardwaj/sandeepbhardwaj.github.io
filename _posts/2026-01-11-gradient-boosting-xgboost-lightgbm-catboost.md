@@ -1,11 +1,9 @@
 ---
+title: Gradient Boosting with XGBoost, LightGBM, and CatBoost
+date: 2026-01-11
 categories:
 - AI
 - ML
-date: 2026-01-11
-seo_title: Gradient Boosting with XGBoost, LightGBM, and CatBoost
-seo_description: A practical in-depth guide to gradient boosting, tuning strategy,
-  and production trade-offs across XGBoost, LightGBM, and CatBoost.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - xgboost
 - lightgbm
 - catboost
-title: Gradient Boosting with XGBoost, LightGBM, and CatBoost
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Gradient Boosting with XGBoost, LightGBM, and CatBoost
+seo_description: A practical in-depth guide to gradient boosting, tuning strategy,
+  and production trade-offs across XGBoost, LightGBM, and CatBoost.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

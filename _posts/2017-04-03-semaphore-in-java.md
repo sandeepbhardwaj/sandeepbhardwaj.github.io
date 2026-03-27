@@ -20,172 +20,229 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-A `Semaphore` controls how many threads can access a shared resource at the same time.
+A `Semaphore` is one of the simplest ways to stop "too much parallelism" from becoming an outage.
+It does not make a system faster by itself.
+It makes concurrency explicit and bounded.
 
-## Problem description:
+That is why semaphores show up in real systems around rate-limited APIs, connection-heavy services, and fragile downstream dependencies.
 
-We need to limit concurrency against a shared dependency or scarce resource instead of letting unlimited requests pile in.
+## Quick Decision Guide
 
-What we are solving actually:
+| Need | Semaphore fit | Better alternative when needed |
+| --- | --- | --- |
+| limit how many callers proceed at once | strong | `Semaphore` is built for this |
+| enforce requests-per-second policy | weak | rate limiter or token bucket |
+| queue work and smooth bursts | weak | bounded queue or executor policy |
+| protect one critical section | mixed | `Lock` or synchronized block may be clearer |
+| isolate one downstream from consuming all capacity | strong | semaphore bulkhead is a common choice |
 
-We are solving admission control, not scheduling.
-The semaphore decides how many callers may proceed at once and forces the rest to wait or fail fast.
+The key idea is simple:
+a semaphore controls concurrency, not business priority and not overall throughput strategy.
 
-What we are doing actually:
+## What Problem It Actually Solves
 
-1. Create a semaphore with a permit count equal to safe concurrency.
-2. Acquire before entering the protected work.
-3. Release in `finally` so permits are never leaked.
+Semaphores solve admission control.
+
+You decide how many threads or tasks may enter a protected area at once.
+Anyone above that limit must wait, time out, or fail fast.
+
+That is different from:
+
+- a queue, which stores work
+- a lock, which protects a critical section
+- a rate limiter, which controls events over time
+
+Mixing those ideas is where most semaphore misuse starts.
+
+## The Mental Model
+
+Imagine a dependency can safely handle 20 in-flight calls.
+If your service lets 200 requests hit it in parallel, failures and tail latency often get worse before any retry logic even begins.
+
+A semaphore makes that concurrency budget explicit:
 
 ```mermaid
 flowchart LR
-    A[Incoming task] --> B{Permit available?}
+    A[Incoming request] --> B{Permit available?}
     B -->|Yes| C[Acquire permit]
-    B -->|No| D[Wait or timeout]
-    C --> E[Use dependency]
+    B -->|No| D[Wait or fail fast]
+    C --> E[Call dependency]
     E --> F[Release permit]
 ```
 
-## Real-World Use Cases
+The dependency still might fail.
+The semaphore just prevents your own process from stampeding it.
 
-- limiting concurrent outbound API calls
-- database connection throttling
-- download/upload slot management
-- rate-limited integrations
+## Basic Java Example
 
-## Core Concept
+```java
+import java.util.concurrent.Semaphore;
 
-A semaphore has permits:
+public final class DownstreamClient {
+    private final Semaphore permits = new Semaphore(20);
 
-- `acquire()` takes a permit (waits if none available)
-- `release()` returns a permit
+    public Response fetch(Request request) throws InterruptedException {
+        permits.acquire();
+        try {
+            return callRemoteService(request);
+        } finally {
+            permits.release();
+        }
+    }
 
-You can also choose fairness:
+    private Response callRemoteService(Request request) {
+        return new Response();
+    }
+}
+```
+
+This version is correct in one important way:
+the permit is released in `finally`.
+That is non-negotiable.
+
+## Why `tryAcquire` Often Fits Production Better
+
+Blocking forever is rarely a good production default.
+If a request path is latency-sensitive, a timeout usually produces a more understandable failure mode.
+
+```java
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+public final class PaymentGatewayClient {
+    private final Semaphore permits = new Semaphore(10);
+
+    public PaymentResult authorize(PaymentRequest request) throws InterruptedException {
+        if (!permits.tryAcquire(100, TimeUnit.MILLISECONDS)) {
+            throw new DependencyBusyException("payment provider concurrency budget exhausted");
+        }
+
+        try {
+            return callProvider(request);
+        } finally {
+            permits.release();
+        }
+    }
+
+    private PaymentResult callProvider(PaymentRequest request) {
+        return new PaymentResult();
+    }
+}
+```
+
+This turns hidden queueing into an explicit policy:
+either get a permit quickly or fail in a controlled way.
+
+## Fairness: Useful, but Not Free
+
+Java lets you create a fair semaphore:
 
 ```java
 Semaphore fair = new Semaphore(10, true);
 ```
 
-Fair semaphores reduce starvation risk, but may have lower throughput.
+Fairness reduces starvation risk because waiting threads acquire permits in first-in-first-out order more often.
 
-## Java 8 Style Example
+That can be worth it when:
 
-```java
-import java.util.concurrent.Semaphore;
+- tasks are similar in cost
+- starvation is unacceptable
+- predictability matters more than raw throughput
 
-public class SemaphoreExample {
-    private static final Semaphore semaphore = new Semaphore(2);
+It can hurt when:
 
-    public static void main(String[] args) {
-        for (int i = 0; i < 5; i++) {
-            final int id = i;
-            new Thread(() -> runTask(id), "worker-" + id).start();
-        }
-    }
+- you want maximum throughput under contention
+- the protected work has very uneven cost
+- strict arrival order creates extra scheduling overhead
 
-    private static void runTask(int id) {
-        try {
-            semaphore.acquire();
-            System.out.println("Task " + id + " acquired permit");
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            semaphore.release();
-            System.out.println("Task " + id + " released permit");
-        }
-    }
-}
-```
+Fairness is not "more correct" by default.
+It is a policy choice.
 
-## Timeout Pattern (`tryAcquire`)
+## Strong Use Cases
 
-In request paths, blocking forever is dangerous. Prefer timeout-based acquisition.
+### Bulkhead around a dependency
 
-```java
-if (!semaphore.tryAcquire(100, TimeUnit.MILLISECONDS)) {
-    throw new RuntimeException("dependency busy, please retry");
-}
-try {
-    callDownstream();
-} finally {
-    semaphore.release();
-}
-```
+A separate semaphore per downstream is a common resilience pattern:
 
-This gives predictable backpressure behavior under saturation.
+- one semaphore for payment provider calls
+- one semaphore for email delivery
+- one semaphore for search API access
 
-## Bulkhead Pattern with Semaphore
+That prevents one slow dependency from consuming every worker thread.
 
-A common production pattern is one semaphore per downstream dependency:
+### Concurrency cap around expensive local work
 
-- `paymentApiSemaphore` for payment provider
-- `searchApiSemaphore` for search dependency
-- `emailApiSemaphore` for notifications
+Semaphores can also protect memory-heavy or CPU-heavy operations where too many parallel tasks create internal collapse.
 
-This prevents one slow dependency from consuming all worker capacity.
+### Virtual threads still need resource limits
 
-## Permit Leak Prevention
+Virtual threads make blocking cheaper.
+They do not make remote systems infinitely scalable.
+Even with virtual threads, semaphores are still useful to cap access to real bottlenecks.
 
-Permit leaks are serious: eventually all requests block.
+## Common Mistakes
 
-Checklist:
+### Treating semaphore as a rate limiter
 
-1. release only if acquisition succeeded
-2. use `finally` always
-3. avoid branching paths that skip release
-4. track available permits and waiting threads in metrics
+A semaphore controls how many tasks run at once.
+It does not guarantee "100 requests per second."
+Those are different constraints.
 
-## JDK 11 and Java 17 Notes
+### Releasing without successful acquisition
 
-`Semaphore` API is stable in JDK 11 and Java 17. The same concurrency-limit pattern is still the recommended approach.
+If the code calls `release()` when `acquire()` never succeeded, the permit count becomes wrong.
+That can silently weaken the safety boundary.
 
-## Java 21+ Example (Virtual Threads)
+### Holding permits across slow or unrelated work
 
-```java
-try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
-    Semaphore semaphore = new Semaphore(50);
+Acquire only around the part that truly needs bounded concurrency.
+If you hold the permit across extra parsing, logging, retries, or unrelated CPU work, the limit becomes less meaningful.
 
-    for (int i = 0; i < 10_000; i++) {
-        int id = i;
-        executor.submit(() -> {
-            semaphore.acquire();
-            try {
-                // remote call / IO task
-            } finally {
-                semaphore.release();
-            }
-            return id;
-        });
-    }
-}
-```
+### Using one global semaphore for unrelated resources
 
-This is useful when you run many lightweight tasks but still need strict external resource limits.
+That often creates accidental coupling.
+One noisy dependency can block traffic that should have been isolated.
 
-## Java 25 Note
+## Permit Leaks Are a Real Incident Class
 
-`Semaphore` API remains stable. The same design works; focus on observability and backpressure instead of API migration.
+Semaphore bugs often show up as "everything started timing out" rather than an obvious exception.
 
-## Monitoring Checklist
+A leaked permit means some waiting tasks will never proceed even though the dependency may be healthy.
 
-- `availablePermits()` trend
+Good habits:
+
+- release in `finally`
+- keep acquisition and release close together
+- avoid branching logic that can skip release
+- expose metrics for permit availability and timeout count
+
+## Observability Checklist
+
+At minimum, measure:
+
+- current available permits
 - acquire timeout count
-- average wait time before acquire
-- request failure rate during saturation
+- average acquire wait time
+- failure rate while permit-starved
+- downstream latency while permits are saturated
 
-## Debug steps:
+Without those signals, teams often guess at the correct permit count instead of tuning it from evidence.
 
-- log acquisition failures and timeouts separately from downstream failures
-- verify permits are released only after successful acquisition
-- compare `availablePermits()` trends with real downstream saturation
-- use fairness only when starvation risk matters more than throughput
+## When Not to Use a Semaphore
 
-These signals tell you whether permit counts match real dependency capacity.
+Do not reach for a semaphore first when the real problem is:
+
+- work should be queued and drained gradually
+- rate over time must be limited
+- only one thread may mutate shared state
+- the system needs backpressure at a higher architectural boundary
+
+A semaphore is excellent for bounded in-flight concurrency.
+It is mediocre when forced to act like every other control mechanism.
 
 ## Key Takeaways
 
-- Semaphore is a concurrency limiter, not a queue.
-- Always release permits in `finally`.
-- Combine semaphores with retry and timeout logic in production systems.
-- Prefer timeout-based acquisition on latency-sensitive paths.
+- A semaphore is an admission-control tool, not a queue and not a rate limiter.
+- `tryAcquire` with a timeout is often safer than waiting forever on request paths.
+- Fairness is a tradeoff, not an automatic upgrade.
+- The real production value comes from using semaphores as explicit concurrency budgets around fragile resources.

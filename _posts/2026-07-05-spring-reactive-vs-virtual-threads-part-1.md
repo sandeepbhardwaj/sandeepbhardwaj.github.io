@@ -1,24 +1,24 @@
 ---
+title: Reactive vs virtual threads decision model in Spring services
+date: 2026-07-05
 categories:
 - Java
 - Spring Boot
 - Backend
-date: 2026-07-05
-seo_title: Reactive vs virtual threads decision model in Spring services - Advanced
-  Guide
-seo_description: Advanced practical guide on reactive vs virtual threads decision
-  model in spring services with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - spring-boot
 - backend
 - architecture
 - production
-title: Reactive vs virtual threads decision model in Spring services
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Reactive vs virtual threads decision model in Spring services - Advanced
+  Guide
+seo_description: Advanced practical guide on reactive vs virtual threads decision
+  model in spring services with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,21 +1,21 @@
 ---
+title: Graph Traversal Pattern in Java - Interview Preparation Guide
+date: 2026-03-25
 categories:
 - DSA
 - Java
-date: 2026-03-25
-seo_title: Graph Traversal Pattern in Java - Interview Preparation Guide
-seo_description: Learn graph traversal in Java using BFS and DFS with adjacency lists,
-  connected components, and traversal safety.
 tags:
 - dsa
 - java
 - graph
 - bfs
 - dfs
-title: Graph Traversal Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Graph Traversal Pattern in Java - Interview Preparation Guide
+seo_description: Learn graph traversal in Java using BFS and DFS with adjacency lists,
+  connected components, and traversal safety.
 header:
   overlay_image: "/assets/images/graph-traversal-banner.svg"
   overlay_filter: 0.35

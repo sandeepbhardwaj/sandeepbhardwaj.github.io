@@ -1,20 +1,20 @@
 ---
+title: Bitmask DP Pattern in Java - Interview Preparation Guide
+date: 2026-04-26
 categories:
 - DSA
 - Java
-date: 2026-04-26
-seo_title: Bitmask DP Pattern in Java - Interview Preparation Guide
-seo_description: Model subset states in Java with bitmask DP for assignment, TSP-style,
-  and covering problems.
 tags:
 - dsa
 - java
 - bitmask-dp
 - dynamic-programming
-title: Bitmask DP Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Bitmask DP Pattern in Java - Interview Preparation Guide
+seo_description: Model subset states in Java with bitmask DP for assignment, TSP-style,
+  and covering problems.
 header:
   overlay_image: "/assets/images/bitmask-dp-pattern-banner.svg"
   overlay_filter: 0.35

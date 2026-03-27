@@ -6,6 +6,9 @@ categories:
 tags:
 - java
 - java-basics
+toc: true
+toc_label: In This Article
+toc_icon: cog
 seo_title: 'Varargs in Java: Variable-Argument Methods with Examples'
 seo_description: Learn Java varargs syntax, overload rules, and common pitfalls with
   practical examples.
@@ -14,9 +17,6 @@ header:
   overlay_filter: 0.4
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
-toc: true
-toc_label: In This Article
-toc_icon: cog
 ---
 Varargs let a Java method accept zero or more arguments of the same type without forcing callers to build an array manually.
 

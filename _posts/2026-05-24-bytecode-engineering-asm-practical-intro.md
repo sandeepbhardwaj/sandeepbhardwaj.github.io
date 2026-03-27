@@ -1,20 +1,20 @@
 ---
+title: Bytecode Engineering with ASM — Practical Intro
+date: 2026-05-24
 categories:
 - Java
 - Backend
-date: 2026-05-24
-seo_title: Bytecode Engineering with ASM in Java
-seo_description: Generate and transform Java bytecode directly using ASM for advanced
-  tooling and frameworks.
 tags:
 - java
 - asm
 - bytecode
 - jvm
-title: Bytecode Engineering with ASM — Practical Intro
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Bytecode Engineering with ASM in Java
+seo_description: Generate and transform Java bytecode directly using ASM for advanced
+  tooling and frameworks.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

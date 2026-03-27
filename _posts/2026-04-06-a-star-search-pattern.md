@@ -1,21 +1,21 @@
 ---
+title: A* Search Pattern in Java - Interview Preparation Guide
+date: 2026-04-06
 categories:
 - DSA
 - Java
-date: 2026-04-06
-seo_title: A* Search Pattern in Java - Interview Preparation Guide
-seo_description: Use A* in Java for heuristic-guided shortest path search on grids
-  and weighted maps.
 tags:
 - dsa
 - java
 - a-star
 - graph
 - pathfinding
-title: A* Search Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: A* Search Pattern in Java - Interview Preparation Guide
+seo_description: Use A* in Java for heuristic-guided shortest path search on grids
+  and weighted maps.
 header:
   overlay_image: "/assets/images/a-star-search-pattern-banner.svg"
   overlay_filter: 0.35

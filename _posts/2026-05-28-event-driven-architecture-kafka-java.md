@@ -1,20 +1,20 @@
 ---
+title: Event-Driven Architecture with Kafka and Java
+date: 2026-05-28
 categories:
 - Java
 - Backend
-date: 2026-05-28
-seo_title: Event-Driven Architecture with Kafka Java Guide
-seo_description: Build event-driven Java systems with contract-first topics and scalable
-  consumers.
 tags:
 - java
 - kafka
 - event-driven
 - microservices
-title: Event-Driven Architecture with Kafka and Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Event-Driven Architecture with Kafka Java Guide
+seo_description: Build event-driven Java systems with contract-first topics and scalable
+  consumers.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

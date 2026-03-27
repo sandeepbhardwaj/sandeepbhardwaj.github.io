@@ -1,123 +1,188 @@
 ---
+title: Strategy + factory composition for runtime pluggable behavior
+date: 2026-11-01
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-01
-seo_title: Strategy + factory composition for runtime pluggable behavior - Advanced
-  Guide
-seo_description: Advanced practical guide on strategy + factory composition for runtime
-  pluggable behavior with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Strategy + factory composition for runtime pluggable behavior
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Strategy + factory composition for runtime pluggable behavior - Advanced
+  Guide
+seo_description: Advanced practical guide on strategy + factory composition for runtime
+  pluggable behavior with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
   caption: Advanced Design Patterns with Java
 ---
-Strategy + factory composition for runtime pluggable behavior is most useful when the pattern clarifies a real design pressure instead of decorating the codebase with abstractions. The production value comes from making extension, composition, and debugging easier.
+Strategy plus factory is one of the most overused combinations in Java codebases.
+Teams reach for it when they want "clean extensibility," but the real question is more specific:
+do we have multiple valid behaviors, and is selecting the right one a stable responsibility that deserves its own boundary?
 
----
+When the answer is yes, this pair works well.
+When the answer is vague, the result is often a registry of tiny classes plus a factory that mostly moves `if` statements around.
 
-## Problem 1: Strategy + factory composition for runtime pluggable behavior
+## Quick Summary
 
-Problem description:
-We want strategy + factory composition for runtime pluggable behavior to solve a specific design problem without turning the code into ceremonial abstraction. This part focuses on the baseline model and the safe default shape.
+| Question | Strong fit | Weak fit |
+| --- | --- | --- |
+| Do you have several interchangeable algorithms or policies? | yes | no, there is one dominant path |
+| Is runtime selection a real responsibility? | yes | no, selection is trivial and local |
+| Will new variants arrive over time? | yes | rarely |
+| Can callers depend on one stable interface? | yes | no, each variant changes the contract |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For design patterns, the hidden risk is choosing abstraction because it sounds elegant instead of because it absorbs a real source of change.
+Strategy handles the behavior swap.
+Factory handles the selection and assembly.
+The pair is useful only when both responsibilities are genuinely present.
 
-What we are doing actually:
+## Where This Pattern Actually Helps
 
-1. make the pattern assembly explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the pattern assembly explicit: choose the simplest baseline design that preserves correctness
-3. make the pattern assembly explicit: make observability visible from the first implementation
-4. make the pattern assembly explicit: validate the baseline with one concrete failure drill
+A good example is payment pricing or shipping policy selection.
+Suppose the system must choose behavior based on:
 
----
+- tenant plan
+- market
+- fulfillment mode
+- experiment flag
 
-## Why This Topic Matters
+The application should not have this logic scattered across controllers and services.
+It should ask for one policy object that already represents the chosen behavior.
 
-- patterns should absorb a real source of change or composition pressure
-- the cost of abstraction is justified only when it simplifies evolution or debugging
-- clear pattern boundaries reduce accidental responsibility overlap
+That is the moment Strategy plus Factory starts paying rent.
 
----
-
-## Architecture Model
-
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Strategy + factory composition for runtime pluggable behavior]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
-
-The diagram highlights composition points and responsibility flow because strategy + factory composition for runtime pluggable behavior only pays off when abstraction reduces debugging and change cost.
-Keeping that flow visible prevents the pattern from turning into decorative indirection.
-
----
-
-## Practical Design Pattern
+## A Concrete Example: Shipping Cost Policies
 
 ```java
-public interface TopicBehavior {
-    Result execute(Command command);
+public interface ShippingCostStrategy {
+    Money calculate(Shipment shipment);
 }
 
-public final class TopicResolver {
-    TopicBehavior resolve(Context context) {
-        // Compose the right behavior for: Strategy + factory composition for runtime pluggable behavior
-        return command -> Result.success();
+public final class FlatRateShipping implements ShippingCostStrategy {
+    @Override
+    public Money calculate(Shipment shipment) {
+        return Money.of(499);
+    }
+}
+
+public final class DistanceBasedShipping implements ShippingCostStrategy {
+    @Override
+    public Money calculate(Shipment shipment) {
+        long cents = 299 + shipment.distanceKm() * 12L;
+        return Money.of(cents);
+    }
+}
+
+public final class ShippingStrategyFactory {
+    public ShippingCostStrategy resolve(TenantContext tenant, Shipment shipment) {
+        if (tenant.isEnterprise() && shipment.isLocal()) {
+            return new FlatRateShipping();
+        }
+        return new DistanceBasedShipping();
     }
 }
 ```
 
-This pattern example is intentionally modest because strategy + factory composition for runtime pluggable behavior should clarify one source of change before it introduces any new layers.
-When the abstraction does not make responsibilities easier to follow, adding more pattern machinery rarely helps.
+The important design choice is not "we used a pattern."
+It is that strategy selection now has one visible home.
 
----
+## Why This Can Be Better Than One Big `switch`
 
-## Failure Drill
+The improvement is not automatic.
+It appears when the following are true:
 
-Baseline drill: add one new behavior variant and verify the pattern extension path stays clearer than editing one giant class for strategy + factory composition for runtime pluggable behavior.
+- each strategy has meaningful logic of its own
+- the selection rules deserve tests
+- different teams or product changes add new variants over time
+- callers should not know how the variant was chosen
 
-That drill matters early, before rollout assumptions harden into defaults because strategy + factory composition for runtime pluggable behavior should prove it reduces change friction under pressure, not just that the abstraction reads nicely in isolation.
+In that situation, one giant `switch` often becomes a pressure sink for unrelated concerns.
+The factory gives the selection logic a boundary, and the strategies keep the behavior modular.
 
----
+## The Biggest Failure Mode
 
-## Debug Steps
+Many teams split the code into strategies too early.
 
-Debug steps:
+Warning signs:
 
-- name the exact design pressure before choosing the pattern vocabulary while validating strategy + factory composition for runtime pluggable behavior
-- keep one place where the composition order is visible while validating strategy + factory composition for runtime pluggable behavior
-- check whether the pattern reduces change cost or merely moves it around while validating strategy + factory composition for runtime pluggable behavior
-- remove abstraction if the extension path is still harder than plain code while validating strategy + factory composition for runtime pluggable behavior
+- each strategy is 5 lines long and barely differs
+- the factory still needs huge nested conditionals
+- strategies keep reaching back into shared mutable services
+- every new variant requires touching half the existing strategies anyway
 
----
+That is not pluggability.
+That is ceremony.
 
-## Production Checklist
+> [!warning]
+> If the selection logic is still the hardest part to understand after introducing Strategy plus Factory, the abstraction may have moved complexity instead of reducing it.
 
-- source of change that justifies the abstraction written down
-- composition boundary visible in code review
-- debugging path clearer after the pattern than before
-- fallback simpler implementation still understood by the team
+## Composition Boundaries Matter
 
----
+The factory should usually own:
+
+- variant selection
+- dependency wiring for the chosen strategy
+- default or fallback strategy choice
+
+The strategy should usually own:
+
+- the actual behavior for one policy or algorithm
+- only the dependencies needed to execute that behavior
+
+If strategies start selecting other strategies on the fly, the boundary is getting muddy.
+
+## Better Alternatives Sometimes Exist
+
+### Plain methods
+
+Use a simple `switch` or map lookup when there are only a few stable variants and no real extension pressure.
+
+### Enum plus behavior map
+
+Useful when the variant set is closed and easy to enumerate.
+
+### Rules engine or configuration table
+
+Better when non-developers change the selection logic frequently or the matrix of conditions is highly dynamic.
+
+Strategy plus Factory is strongest when the behavior implementations are code-owned and selection is meaningful, but still understandable.
+
+## Testing Strategy
+
+Test it in two layers:
+
+1. each strategy's behavior
+2. the factory's selection rules
+
+That means questions like:
+
+- does enterprise local shipping resolve to the correct strategy?
+- does distance-based pricing calculate correctly at boundary distances?
+- does adding a new strategy avoid changing unrelated callers?
+
+If the only tests are end-to-end, you have probably hidden too much inside the composition layer.
+
+## A Practical Decision Rule
+
+Use Strategy plus Factory when all of these are true:
+
+1. the caller should depend on one stable behavior interface
+2. runtime selection rules are real and worth isolating
+3. each variant has enough logic to deserve its own implementation
+
+Skip it when one method can still tell the truth more clearly.
 
 ## Key Takeaways
 
-- Strategy + factory composition for runtime pluggable behavior should be designed as a production decision, not just an implementation detail
-- patterns should clarify the source of change, not decorate the code
-- start from a measurable baseline before optimizing
+- Strategy solves interchangeable behavior. Factory solves choosing and wiring it.
+- The pair is useful only when both responsibilities are real.
+- Good implementations make selection visible and keep variant logic local.
+- Bad implementations create many classes without reducing decision complexity.

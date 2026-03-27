@@ -1,10 +1,9 @@
 ---
+title: Two Pointers Technique in Java - Interview Preparation Guide
+date: 2026-03-01
 categories:
 - DSA
 - Java
-date: 2026-03-01
-seo_title: Two Pointers Technique in Java - Interview Preparation Guide
-seo_description: Master two pointer patterns in Java for arrays, strings, and linked lists with recognition signals, diagrams, mental models, and interview-ready solutions.
 tags:
 - dsa
 - java
@@ -13,10 +12,11 @@ tags:
 - linked-list
 - algorithms
 - interview-preparation
-title: Two Pointers Technique in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Two Pointers Technique in Java - Interview Preparation Guide
+seo_description: Master two pointer patterns in Java for arrays, strings, and linked lists with recognition signals, diagrams, mental models, and interview-ready solutions.
 header:
   overlay_image: "/assets/images/two-pointers-banner.svg"
   overlay_filter: 0.35

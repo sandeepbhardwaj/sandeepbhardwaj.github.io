@@ -1,21 +1,21 @@
 ---
+title: Advanced Binary Search on Answer in Java - Interview Preparation Guide
+date: 2026-04-23
 categories:
 - DSA
 - Java
-date: 2026-04-23
-seo_title: Advanced Binary Search on Answer in Java - Interview Preparation Guide
-seo_description: Solve optimization constraints in Java by binary searching monotonic
-  feasible answers.
 tags:
 - dsa
 - java
 - binary-search
 - optimization
 - algorithms
-title: Advanced Binary Search on Answer in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Advanced Binary Search on Answer in Java - Interview Preparation Guide
+seo_description: Solve optimization constraints in Java by binary searching monotonic
+  feasible answers.
 header:
   overlay_image: "/assets/images/binary-search-on-answer-advanced-banner.svg"
   overlay_filter: 0.35

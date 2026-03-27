@@ -1,22 +1,22 @@
 ---
+title: Feature Stores and Training-Serving Consistency
+date: 2026-01-26
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-26
-seo_title: Feature Stores and Training-Serving Consistency
-seo_description: A practical guide to feature stores, point-in-time correctness, online/offline
-  parity, and feature governance for production ML.
 tags:
 - ai
 - ml
 - feature-store
 - mlops
 - data-engineering
-title: Feature Stores and Training-Serving Consistency
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Feature Stores and Training-Serving Consistency
+seo_description: A practical guide to feature stores, point-in-time correctness, online/offline
+  parity, and feature governance for production ML.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

@@ -1,22 +1,22 @@
 ---
+title: Leader election and failure detection tradeoffs (Part 2)
+date: 2026-12-14
 categories:
 - Distributed Systems
 - Architecture
 - Backend
-date: 2026-12-14
-seo_title: Leader election and failure detection tradeoffs (Part 2) - Advanced Guide
-seo_description: Advanced practical guide on leader election and failure detection
-  tradeoffs (part 2) with architecture decisions, trade-offs, and production patterns.
 tags:
 - distributed-systems
 - architecture
 - reliability
 - backend
 - java
-title: Leader election and failure detection tradeoffs (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Leader election and failure detection tradeoffs (Part 2) - Advanced Guide
+seo_description: Advanced practical guide on leader election and failure detection
+  tradeoffs (part 2) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
@@ -57,7 +57,7 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Leader election and failure detection tradeoffs (Part 2)]
+    B --> C[Refined design]
     C --> D[Trade-off measurement]
     D --> E[Operational decision]
 ```

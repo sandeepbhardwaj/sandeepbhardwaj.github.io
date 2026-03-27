@@ -1,20 +1,20 @@
 ---
+title: ReentrantLock and ReadWriteLock Patterns in Java
+date: 2026-05-03
 categories:
 - Java
 - Backend
-date: 2026-05-03
-seo_title: ReentrantLock and ReadWriteLock Patterns in Java
-seo_description: Use explicit lock APIs in Java for advanced coordination and lock-state
-  control.
 tags:
 - java
 - concurrency
 - reentrantlock
 - readwritelock
-title: ReentrantLock and ReadWriteLock Patterns in Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: ReentrantLock and ReadWriteLock Patterns in Java
+seo_description: Use explicit lock APIs in Java for advanced coordination and lock-state
+  control.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

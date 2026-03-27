@@ -1,21 +1,21 @@
 ---
+title: 'Decision Trees: From Splits to Pruning'
+date: 2026-01-09
 categories:
 - AI
 - ML
-date: 2026-01-09
-seo_title: 'Decision Trees: From Splits to Pruning'
-seo_description: A deep practical guide to decision trees, split criteria, pruning,
-  interpretability, and production trade-offs.
 tags:
 - ai
 - ml
 - decision-trees
 - classification
 - regression
-title: 'Decision Trees: From Splits to Pruning'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Decision Trees: From Splits to Pruning'
+seo_description: A deep practical guide to decision trees, split criteria, pruning,
+  interpretability, and production trade-offs.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

@@ -1,20 +1,20 @@
 ---
+title: Structured Concurrency Patterns in Java 21+
+date: 2026-05-15
 categories:
 - Java
 - Backend
-date: 2026-05-15
-seo_title: Structured Concurrency Patterns for Java Backends
-seo_description: Coordinate concurrent subtasks with scoped lifecycle and failure
-  propagation in Java.
 tags:
 - java
 - structured-concurrency
 - java21
 - concurrency
-title: Structured Concurrency Patterns in Java 21+
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Structured Concurrency Patterns for Java Backends
+seo_description: Coordinate concurrent subtasks with scoped lifecycle and failure
+  propagation in Java.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

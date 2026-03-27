@@ -1,11 +1,9 @@
 ---
+title: 'RAG Architecture: Retrieval-Augmented Generation'
+date: 2026-01-24
 categories:
 - AI
 - ML
-date: 2026-01-24
-seo_title: 'RAG Architecture: Retrieval-Augmented Generation'
-seo_description: A practical deep dive into RAG system design, indexing, retrieval
-  quality, grounding, and production evaluation.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - llm
 - retrieval
 - search
-title: 'RAG Architecture: Retrieval-Augmented Generation'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'RAG Architecture: Retrieval-Augmented Generation'
+seo_description: A practical deep dive into RAG system design, indexing, retrieval
+  quality, grounding, and production evaluation.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

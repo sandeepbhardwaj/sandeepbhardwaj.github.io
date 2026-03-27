@@ -56,7 +56,7 @@ What we are doing actually:
 classDiagram
     class DiscountStrategy {
       <<interface>>
-      +apply(double) double
+      +apply()
     }
     class RegularDiscount
     class PremiumDiscount

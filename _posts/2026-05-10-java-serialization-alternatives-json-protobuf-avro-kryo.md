@@ -1,11 +1,9 @@
 ---
+title: Java Serialization Alternatives (JSON Protobuf Avro Kryo)
+date: 2026-05-10
 categories:
 - Java
 - Backend
-date: 2026-05-10
-seo_title: Java Serialization Alternatives Guide for Backend Systems
-seo_description: Select serialization formats in Java based on latency, size, schema
-  evolution, and interoperability.
 tags:
 - java
 - serialization
@@ -13,10 +11,12 @@ tags:
 - avro
 - json
 - kryo
-title: Java Serialization Alternatives (JSON Protobuf Avro Kryo)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java Serialization Alternatives Guide for Backend Systems
+seo_description: Select serialization formats in Java based on latency, size, schema
+  evolution, and interoperability.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

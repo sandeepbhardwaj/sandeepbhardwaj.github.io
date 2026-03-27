@@ -1,21 +1,21 @@
 ---
+title: Foreign Function and Memory API — Practical Java Guide
+date: 2026-05-17
 categories:
 - Java
 - Backend
-date: 2026-05-17
-seo_title: Foreign Function and Memory API Practical Guide
-seo_description: Use modern Java native interop APIs to replace JNI-heavy patterns
-  safely.
 tags:
 - java
 - ffm
 - native
 - interop
 - jvm
-title: Foreign Function and Memory API — Practical Java Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Foreign Function and Memory API Practical Guide
+seo_description: Use modern Java native interop APIs to replace JNI-heavy patterns
+  safely.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

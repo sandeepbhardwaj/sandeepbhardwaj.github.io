@@ -1,22 +1,22 @@
 ---
+title: Retry Topics DLQ Design and Poison Message Governance (Part 1)
+date: 2026-06-05
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-05
-seo_title: Retry Topics DLQ Design and Poison Message Governance (Part 1)
-seo_description: 'Hands-on guide: Retry Topics DLQ Design and Poison Message Governance.
-  Build retry topology.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Retry Topics DLQ Design and Poison Message Governance (Part 1)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Retry Topics DLQ Design and Poison Message Governance (Part 1)
+seo_description: 'Hands-on guide: Retry Topics DLQ Design and Poison Message Governance.
+  Build retry topology.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

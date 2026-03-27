@@ -1,11 +1,9 @@
 ---
+title: Sequence Modeling with RNN, LSTM, and GRU
+date: 2026-01-21
 categories:
 - AI
 - ML
-date: 2026-01-21
-seo_title: Sequence Modeling with RNN, LSTM, and GRU
-seo_description: A practical guide to recurrent sequence models, where they still
-  fit, and how they compare with transformer approaches.
 tags:
 - ai
 - ml
@@ -13,10 +11,12 @@ tags:
 - lstm
 - gru
 - sequence-modeling
-title: Sequence Modeling with RNN, LSTM, and GRU
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Sequence Modeling with RNN, LSTM, and GRU
+seo_description: A practical guide to recurrent sequence models, where they still
+  fit, and how they compare with transformer approaches.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

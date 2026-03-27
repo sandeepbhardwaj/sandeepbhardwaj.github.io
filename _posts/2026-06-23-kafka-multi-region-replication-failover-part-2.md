@@ -1,22 +1,22 @@
 ---
+title: Multi Region Kafka Replication and Failover Patterns (Part 2)
+date: 2026-06-23
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-23
-seo_title: Multi Region Kafka Replication and Failover Patterns (Part 2)
-seo_description: 'Hands-on guide: Multi Region Kafka Replication and Failover Patterns.
-  Client failover behavior.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Multi Region Kafka Replication and Failover Patterns (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Multi Region Kafka Replication and Failover Patterns (Part 2)
+seo_description: 'Hands-on guide: Multi Region Kafka Replication and Failover Patterns.
+  Client failover behavior.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

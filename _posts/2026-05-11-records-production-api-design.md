@@ -1,20 +1,20 @@
 ---
+title: Records in Production API Design — Java Guide
+date: 2026-05-11
 categories:
 - Java
 - Backend
-date: 2026-05-11
-seo_title: Java Records in Production API Design
-seo_description: Use Java records for immutable contracts and cleaner backend API
-  boundaries.
 tags:
 - java
 - records
 - api-design
 - backend
-title: Records in Production API Design — Java Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java Records in Production API Design
+seo_description: Use Java records for immutable contracts and cleaner backend API
+  boundaries.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

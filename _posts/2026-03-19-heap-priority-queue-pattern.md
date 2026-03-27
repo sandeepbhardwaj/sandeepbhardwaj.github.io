@@ -1,21 +1,21 @@
 ---
+title: Heap and Priority Queue Pattern in Java - Interview Preparation Guide
+date: 2026-03-19
 categories:
 - DSA
 - Java
-date: 2026-03-19
-seo_title: Heap and Priority Queue Pattern in Java - Interview Preparation Guide
-seo_description: Master heap and priority queue patterns in Java for top-k, streaming
-  median, scheduling, and greedy optimization.
 tags:
 - dsa
 - java
 - heap
 - priority-queue
 - algorithms
-title: Heap and Priority Queue Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Heap and Priority Queue Pattern in Java - Interview Preparation Guide
+seo_description: Master heap and priority queue patterns in Java for top-k, streaming
+  median, scheduling, and greedy optimization.
 header:
   overlay_image: "/assets/images/heap-priority-queue-banner.svg"
   overlay_filter: 0.35

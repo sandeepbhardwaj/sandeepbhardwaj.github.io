@@ -22,11 +22,26 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-Reversing a linked list is one of the cleanest pointer problems in DSA. It looks simple, but it teaches an important lesson: when we change links in place, the order of updates matters more than the updates themselves.
+Reversing a linked list iteratively is one of the best pointer-discipline problems in interviews.
+The code is short, but only if the mutation order is exactly right.
 
-## Problem 1: Reverse Linked List Iteratively
+The real lesson is not "how to reverse a list."
+It is how to rewire a structure in place without losing reachability.
 
-Problem description:
+## Quick Summary
+
+| Signal | What it means |
+| --- | --- |
+| singly linked list | all movement is through `next` pointers |
+| in-place reversal | we must rewire links, not copy values |
+| constant extra space | iterative pointer manipulation is the right direction |
+| mutation safety matters | save the next node before changing the current link |
+
+The core invariant is:
+`prev` is the head of the already reversed prefix, and `current` is the first node not yet reversed.
+
+## Problem Statement
+
 Given the head of a singly linked list, reverse the list and return the new head.
 
 Example:
@@ -34,16 +49,8 @@ Example:
 - Input: `1 -> 2 -> 3 -> 4 -> 5`
 - Output: `5 -> 4 -> 3 -> 2 -> 1`
 
-What we are solving actually:
-We are not just "reading the list backward." We are changing the direction of every `next` pointer so the list can be traversed from the old tail back toward the old head. The tricky part is making those changes without losing access to the remaining nodes.
-
-What we are doing actually:
-
-1. Keep `prev` as the head of the already reversed portion.
-2. Keep `current` as the node we are currently processing.
-3. Save `current.next` in `nextNode` before changing anything.
-4. Reverse one link by pointing `current.next` to `prev`.
-5. Move all pointers one step forward and repeat.
+We are not "reading the list backward."
+We are changing every `next` pointer so traversal goes in the opposite direction.
 
 ```java
 class Solution {
@@ -63,69 +70,134 @@ class Solution {
 }
 ```
 
+## The Only Mutation Order That Matters
+
+Each iteration has three responsibilities:
+
+1. preserve the rest of the list
+2. reverse one pointer
+3. advance the processing window
+
+That produces the standard order:
+
+1. `nextNode = current.next`
+2. `current.next = prev`
+3. `prev = current`
+4. `current = nextNode`
+
+If you change that order carelessly, you either lose the untouched suffix or create a cycle.
+
 ## Why This Works
 
-At any moment:
+At every step:
 
 - `prev` points to a correctly reversed partial list
-- `current` points to the first node not processed yet
-- everything after `current` is still in its original order
+- `current` points to the first node still in original direction
+- everything after `current` is still intact
 
-Each loop iteration moves exactly one node from the original part into the reversed part. Because we save `nextNode` first, we never lose the remaining list.
+Each loop removes exactly one node from the unreversed suffix and adds it to the front of the reversed prefix.
+Because we save `nextNode` first, we never lose the remainder.
+
+That is the whole proof idea.
 
 ## Dry Run
 
-For `1 -> 2 -> 3 -> 4 -> 5`:
+Input:
 
-1. Start with `prev = null`, `current = 1`
-2. Save `nextNode = 2`, set `1.next = null`, move `prev = 1`, `current = 2`
-3. Save `nextNode = 3`, set `2.next = 1`, move `prev = 2 -> 1`, `current = 3`
-4. Save `nextNode = 4`, set `3.next = 2`, move `prev = 3 -> 2 -> 1`, `current = 4`
-5. Continue until `current = null`
+```text
+1 -> 2 -> 3 -> 4 -> 5
+```
 
-At the end, `prev` points to `5 -> 4 -> 3 -> 2 -> 1`, which is the answer.
+Initial state:
+
+- `prev = null`
+- `current = 1`
+
+Iteration 1:
+
+- save `nextNode = 2`
+- set `1.next = null`
+- move `prev = 1`
+- move `current = 2`
+
+Current picture:
+
+```text
+prev:    1
+current: 2 -> 3 -> 4 -> 5
+```
+
+Iteration 2:
+
+- save `nextNode = 3`
+- set `2.next = 1`
+- move `prev = 2 -> 1`
+- move `current = 3`
+
+Current picture:
+
+```text
+prev:    2 -> 1
+current: 3 -> 4 -> 5
+```
+
+Continue until `current = null`.
+At that moment, `prev` is the new head:
+
+```text
+5 -> 4 -> 3 -> 2 -> 1
+```
 
 ## Common Mistakes
 
-1. Forgetting to save `nextNode` before changing `current.next`
-2. Returning `head` instead of `prev`
-3. Updating `current` before reversing the pointer
-4. Thinking a second pass is needed when one pass is enough
+### Forgetting to save the next node
 
-## Debug Steps
+If you assign `current.next = prev` first and do not preserve the old `current.next`, you lose the rest of the list immediately.
 
-Debug steps:
+### Returning `head`
 
-- print `prev`, `current`, and `nextNode` at each iteration
-- test `null`, one-node, and two-node lists first
-- check that no node is skipped and no cycle is created
-- verify that the final returned node is the old tail
+After reversal, the old head is the tail.
+The correct return value is `prev`.
 
-## Boundary Cases
+### Updating `current` too early
 
-- empty list returns `null`
-- single node returns the same node
-- two nodes should simply swap direction
-- large lists still work in one pass with constant extra space
+If you move `current` before reversing the link, the rewiring step no longer applies to the right node.
+
+### Thinking reversal means value swapping
+
+This is a pointer problem, not an array problem.
+We are changing links, not exchanging data fields.
+
+## Boundary Cases Worth Testing
+
+- `null` -> `null`
+- one node -> same node
+- two nodes -> direction swaps cleanly
+- already reversed-looking mental model -> still same algorithm
+
+These cases are useful because they expose whether your pointer updates rely on accidental assumptions.
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
-## Why Iterative Reversal Is a Core Pattern
+## What This Pattern Generalizes To
 
-This same pointer update pattern appears in:
+Iterative reversal is a building block for many harder linked-list problems:
 
 - reverse a sublist
 - reverse nodes in `k` groups
-- reorder list style problems
-- palindrome linked-list checks
+- reorder a list
+- check linked-list palindrome in `O(1)` extra space
+- split and weave linked-list halves
 
-So this is more than one interview question. It is a reusable linked-list building block.
+That is why interviewers like this problem.
+It is small, but it reveals whether you can mutate pointer structure safely.
 
 ## Key Takeaways
 
-- iterative reversal is controlled pointer rewiring, not value swapping
-- the order `save next`, `reverse link`, `move pointers` is the whole algorithm
-- `prev` becomes the new head after the traversal finishes
+- Reversing a linked list iteratively is controlled pointer rewiring.
+- The invariant is that `prev` is already reversed and `current` is the next node to process.
+- The update order `save next -> reverse link -> move pointers` is the algorithm.
+- If you can explain why reachability is never lost, you understand the pattern, not just the code.

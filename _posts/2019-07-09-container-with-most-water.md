@@ -23,24 +23,54 @@ header:
   show_overlay_excerpt: false
 ---
 This is a classic two-pointer optimization problem.
-The key challenge is not computing the area, but knowing which boundary can be safely moved without missing the optimal answer.
+The difficulty is not computing an area.
+It is proving which boundary can be discarded without missing the optimal answer.
 
----
+## Quick Summary
 
-## Problem 1: Container With Most Water
+| Signal | What it tells you |
+| --- | --- |
+| answer depends on two ends of a range | think opposite-direction pointers |
+| area uses `min(leftHeight, rightHeight)` | the shorter wall is the bottleneck |
+| width shrinks every move | any future improvement must come from height |
 
-Problem description:
-Given an array `height`, choose two indices `i` and `j` to form a container. The amount of water it can hold is `min(height[i], height[j]) * (j - i)`. Return the maximum possible area.
+The key invariant is:
+once one wall is the shorter side, keeping that same wall while shrinking width cannot produce a better answer.
 
-What we are solving actually:
-Brute force checks every pair of lines, which is quadratic. The real insight is that width always shrinks when we move inward, so the only hope of improving the area is to increase the limiting height.
+## Problem Statement
 
-What we are doing actually:
+Given an array `height`, choose two indices `i` and `j` to form a container.
+The amount of water it holds is:
 
-1. Start with the widest possible container using the leftmost and rightmost lines.
-2. Compute the current area.
-3. Move the pointer at the shorter height because that side limits the area.
-4. Keep the best area seen during the inward scan.
+`min(height[i], height[j]) * (j - i)`
+
+Return the maximum possible area.
+
+## Why Brute Force Misses the Pattern
+
+Brute force checks every pair of lines, which is `O(n^2)`.
+That works, but it ignores the structure of the formula.
+
+Area depends on two things:
+
+- width: `j - i`
+- limiting height: `min(height[i], height[j])`
+
+When we move inward, width always gets smaller.
+So if a later container is going to be better, the limiting height must improve enough to offset that lost width.
+
+That is the whole reason a linear scan becomes possible.
+
+## Optimal Approach
+
+1. start with the widest possible container: leftmost and rightmost walls
+2. compute its area
+3. move the pointer at the shorter wall
+4. keep the best area seen so far
+
+Why move the shorter wall?
+Because it is the current bottleneck.
+Moving the taller wall keeps the same limiting height while shrinking width, so that move cannot help.
 
 ```java
 class Solution {
@@ -52,12 +82,12 @@ class Solution {
         while (left < right) {
             int h = Math.min(height[left], height[right]);
             int w = right - left;
-            best = Math.max(best, h * w); // Current container area.
+            best = Math.max(best, h * w);
 
             if (height[left] < height[right]) {
-                left++; // Only a taller left side can offset the lost width.
+                left++;
             } else {
-                right--; // Only a taller right side can offset the lost width.
+                right--;
             }
         }
 
@@ -66,14 +96,6 @@ class Solution {
 }
 ```
 
-Debug steps:
-
-- print `left`, `right`, the two heights, and the computed area each iteration
-- test `[1,8,6,2,5,4,8,3,7]` and a tiny case like `[1,1]`
-- verify the invariant that every discarded shorter boundary cannot lead to a better answer with the current opposite boundary
-
----
-
 ## Why Moving the Shorter Side Is Correct
 
 Suppose:
@@ -81,86 +103,79 @@ Suppose:
 - left height = `2`
 - right height = `10`
 
-The container height is limited by `2`, not `10`.
-If we move the taller side inward:
+The current water height is limited by `2`.
+If we move the right wall inward:
 
-- width becomes smaller
-- limiting height is still at most `2`
+- width gets smaller
+- the limiting height is still at most `2`
 
-So the area cannot improve from that move.
+So that move cannot improve the answer.
 
-That is the entire greedy argument:
-
-- width always decreases
-- therefore we only move the side that might let the limiting height increase
-
----
+The only rational hope is to move the shorter wall and search for a taller bottleneck.
 
 ## Dry Run
 
 Input: `[1,8,6,2,5,4,8,3,7]`
 
 1. `left=0 (1)`, `right=8 (7)`
-   area = `min(1,7) * 8 = 8`
-   move `left` because `1` is the shorter side
-
+   area = `1 * 8 = 8`
+   move `left`
 2. `left=1 (8)`, `right=8 (7)`
-   area = `min(8,7) * 7 = 49`
+   area = `7 * 7 = 49`
    best = `49`
-   move `right` because `7` is the shorter side
-
+   move `right`
 3. `left=1 (8)`, `right=7 (3)`
    area = `3 * 6 = 18`
    move `right`
-
 4. continue inward
 
-No later area beats `49`, so the answer is `49`.
+No later container beats `49`, so the answer is `49`.
 
----
+## Visual Intuition
 
-## Why Brute Force Is Wasteful
+```text
+left                             right
+  v                                v
+[ 1, 8, 6, 2, 5, 4, 8, 3, 7 ]
 
-Brute force considers every pair `(i, j)`.
-But once we know one side is shorter, many of those pairs are obviously dominated.
+Current area is limited by the shorter wall.
+If that shorter wall stays the same and width shrinks, the area cannot improve.
+```
 
-Example:
-
-- fixed left height = `2`
-- moving the right pointer inward only reduces width
-
-If the left side stays at `2`, none of those narrower containers can beat a wider one with the same limiting side.
-
-That is why the two-pointer scan can safely prune so much work.
-
----
+That is why the shorter wall is the only side worth discarding.
 
 ## Common Mistakes
 
-1. moving both pointers every iteration
-2. always moving the taller side
-3. using `while (left <= right)` and processing zero-width containers
-4. overcomplicating the proof instead of focusing on the limiting-height argument
+1. moving both pointers every round
+2. moving the taller wall by default
+3. using `left <= right` and evaluating zero-width containers
+4. memorizing the rule without understanding the limiting-height argument
 
----
+## Debug Checklist
 
-## Boundary Cases
+- print `left`, `right`, both heights, and area each iteration
+- test `[1,1]` to confirm the smallest valid case
+- test `[1,8,6,2,5,4,8,3,7]` and confirm the answer is `49`
+- say the invariant out loud: the shorter wall is the only useful side to move
 
-- two elements -> that single pair is the answer
-- all equal heights -> best comes from widest pair
-- strictly increasing or decreasing heights -> pointer movement still works naturally
+## Pattern Generalization
 
----
+This belongs to the same family as:
+
+- `Two Sum II`
+- `Valid Palindrome`
+- `3Sum` after sorting
+
+The common question is:
+which move safely discards impossible candidates without losing the optimum?
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
----
-
 ## Key Takeaways
 
-- this is a two-pointer problem driven by a pruning argument
-- the shorter boundary is the only rational pointer to move
-- width shrinks every step, so future improvement can only come from a taller limiting side
+- This is a pruning argument disguised as a two-pointer problem.
+- The shorter wall is the current bottleneck, so it is the only side worth moving.
+- Width always decreases, so later improvement can only come from a better limiting height.

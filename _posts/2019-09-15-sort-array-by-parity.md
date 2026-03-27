@@ -22,25 +22,51 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This is a partition problem, not a sorting problem.
-We do not care about the exact order inside the even group or the odd group, only that all even numbers come first.
+This problem sounds like sorting, but the real job is partitioning.
+We do not need the even numbers in ascending order or the odd numbers in ascending order.
+We only need the array divided into two groups: evens first, odds after.
 
----
+Once you notice that, the problem becomes a clean two-pointer partition instead of an unnecessary full sort.
 
-## Problem 1: Sort Array by Parity
+## Quick Summary
 
-Problem description:
-Given an integer array `nums`, reorder it in place so that all even numbers appear before all odd numbers. Any valid arrangement is acceptable.
+| Signal | What it means |
+| --- | --- |
+| "Any valid arrangement" | relative order inside each group does not matter |
+| in-place output | we should mutate the array instead of building another one |
+| even vs odd classification | every element belongs to one of two buckets |
 
-What we are solving actually:
-The word "sort" is misleading here. We are not asked to fully order the array. We just need to partition it into two groups. That means a linear-time two-pointer partition is enough.
+The core invariant is:
+everything before `left` is already in the even region, and everything after `right` is already in the odd region.
 
-What we are doing actually:
+## Problem Statement
 
-1. Move `left` forward until it finds an odd number in the wrong region.
-2. Move `right` backward until it finds an even number in the wrong region.
-3. Swap those two misplaced values.
-4. Continue until the pointers cross.
+Given an integer array `nums`, reorder it in place so that all even numbers appear before all odd numbers.
+Any valid arrangement is acceptable.
+
+That last sentence matters a lot.
+It removes the need for stability and removes the need for real sorting.
+
+## The Right Mental Model
+
+Think of the array as three regions:
+
+```text
+[ confirmed evens | unknown region | confirmed odds ]
+         left                        right
+```
+
+`left` moves forward looking for the first odd value that does not belong in the even prefix.
+`right` moves backward looking for the first even value that does not belong in the odd suffix.
+When both pointers stop, those two values are misplaced relative to the partition, so we swap them.
+
+That is the same pattern behind many in-place partition problems:
+
+- move all negatives to one side
+- partition around a pivot
+- group values by a binary property
+
+## Java Solution
 
 ```java
 class Solution {
@@ -50,16 +76,16 @@ class Solution {
 
         while (left < right) {
             while (left < right && nums[left] % 2 == 0) {
-                left++; // This value already belongs to the even prefix.
+                left++;
             }
 
             while (left < right && nums[right] % 2 != 0) {
-                right--; // This value already belongs to the odd suffix.
+                right--;
             }
 
             int temp = nums[left];
             nums[left] = nums[right];
-            nums[right] = temp; // Swap the misplaced odd/even pair into correct regions.
+            nums[right] = temp;
         }
 
         return nums;
@@ -67,100 +93,135 @@ class Solution {
 }
 ```
 
-Debug steps:
+## Why This Works
 
-- print `left`, `right`, and the array after each swap
-- test `[3,1,2,4]`, `[2,4,6]`, and `[1,3,5]`
-- verify the invariant that all indices `< left` are even and all indices `> right` are odd
+When `nums[left]` is even, it already belongs in the left partition, so moving `left` forward is always safe.
 
----
+When `nums[right]` is odd, it already belongs in the right partition, so moving `right` backward is always safe.
 
-## Two-Pointer Partition Idea
+When both loops stop:
 
-The array gradually splits into three regions:
+- `nums[left]` is odd and sitting too far left
+- `nums[right]` is even and sitting too far right
 
-- confirmed evens on the left
-- unknown values in the middle
-- confirmed odds on the right
+Swapping them fixes both mistakes at once.
 
-`left` and `right` shrink the unknown region until nothing remains.
-This is exactly the same partition style used in many quicksort-like and array-rearrangement problems.
-
----
+Every iteration shrinks the unknown region.
+That is why the algorithm finishes in linear time.
 
 ## Dry Run
 
-Input: `[3,1,2,4]`
+Input:
 
-1. `left` stops at `3` because it is odd
-2. `right` stops at `4` because it is even
-3. swap -> array becomes `[4,1,2,3]`
+```text
+[3, 1, 2, 4]
+```
 
-Continue:
+Initial state:
 
-4. `left` stops at `1`
-5. `right` stops at `2`
-6. swap -> array becomes `[4,2,1,3]`
+- `left = 0`
+- `right = 3`
 
-Pointers cross, so we stop.
+Step 1:
 
-Any even-first arrangement is valid, so `[4,2,1,3]` is a correct answer.
+- `nums[left] = 3`, so `left` stops immediately
+- `nums[right] = 4`, so `right` stops immediately
+- swap indices `0` and `3`
 
----
+Array becomes:
 
-## Why This Is Not Stable
+```text
+[4, 1, 2, 3]
+```
 
-This in-place partition does not preserve original relative order.
+Step 2:
 
-Example:
+- `left` moves from index `0` to `1` because `4` is already even
+- `nums[left] = 1`, so `left` stops
+- `right` moves from index `3` to `2` because `3` is already odd
+- `nums[right] = 2`, so `right` stops
+- swap indices `1` and `2`
 
-- input evens: `2, 4`
-- output may still contain `2, 4`, but stability is not guaranteed in general
+Array becomes:
 
-That is fine because the problem does not require stability.
-If stable order is required, extra space is usually the simpler solution.
+```text
+[4, 2, 1, 3]
+```
 
----
-
-## Stable Variant
-
-For a stable version:
-
-1. collect all evens in original order
-2. collect all odds in original order
-3. write them back
-
-That costs `O(n)` extra space, but preserves the original order inside each group.
-
----
+Now `left` and `right` cross, so we stop.
+This is a valid answer because every even number is before every odd number.
 
 ## Common Mistakes
 
-1. expecting the in-place partition to be stable
-2. forgetting `left < right` in the inner loops
-3. using full sorting with a comparator when partitioning is enough
-4. not recognizing that this is closer to partition than to sorting
+### Treating it like a real sort
 
----
+If you call a general sorting API with a parity-based comparator, you are solving a simpler problem with a heavier tool.
+The partition solution is both faster and easier to explain.
+
+### Forgetting the inner `left < right` guards
+
+Without those guards, one pointer can run past the other and cause unnecessary swaps or index mistakes.
+
+### Assuming stability
+
+This in-place partition does not preserve the original order among evens or among odds.
+That is fine here because the problem does not require it.
+
+### Not naming the invariant
+
+If you only say "use two pointers," the solution sounds memorized.
+A stronger explanation is:
+"Everything before `left` is already valid even-region output, and everything after `right` is already valid odd-region output."
+
+## Stable Variant
+
+If the requirement changed to:
+"keep the original order of evens and keep the original order of odds,"
+then this in-place approach is no longer the best fit.
+
+A simple stable version is:
+
+1. collect evens in order
+2. collect odds in order
+3. write them back
+
+That uses `O(n)` extra space, but it preserves order and keeps the reasoning simple.
+
+This tradeoff appears often in interviews:
+in-place partition is great when order does not matter, but stability usually costs extra memory or more complex rotation logic.
 
 ## Boundary Cases
 
-- all even -> unchanged
-- all odd -> unchanged
-- alternating parity -> several swaps
-- single element -> unchanged
-
----
+- all even: array stays valid with no meaningful swaps
+- all odd: array stays valid with no meaningful swaps
+- one element: already partitioned
+- alternating parity: pointers will perform multiple swaps, but still only linear work overall
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
----
+Each element is examined at most a small constant number of times.
+No auxiliary array is needed.
+
+## What This Pattern Generalizes To
+
+This is one example of a broader interview pattern:
+binary partition with two pointers.
+
+The same reasoning helps with:
+
+- partitioning values around a pivot
+- moving zeroes or negatives into a target region
+- grouping values by a yes/no predicate
+
+The reusable lesson is:
+once each element belongs to one of two regions, opposite-direction pointers are often enough.
 
 ## Key Takeaways
 
-- this is an in-place partition problem, not a full sorting problem
-- the invariant is: even prefix on the left, odd suffix on the right
-- if stable order matters, use extra space instead of forcing it into the partition version
+- The word "sort" is misleading here. This is a partition problem.
+- The invariant is more important than the code: even prefix on the left, odd suffix on the right.
+- In-place partition is optimal when stability is not required.
+- If order inside each group matters, use a different approach instead of forcing stability into the swap-based version.

@@ -1,24 +1,24 @@
 ---
+title: Strategy + factory composition for runtime pluggable behavior (Part 3)
+date: 2026-11-25
 categories:
 - Java
 - Design Patterns
 - Architecture
-date: 2026-11-25
-seo_title: Strategy + factory composition for runtime pluggable behavior (Part 3)
-  - Advanced Guide
-seo_description: Advanced practical guide on strategy + factory composition for runtime
-  pluggable behavior (part 3) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - design-patterns
 - architecture
 - backend
 - software-design
-title: Strategy + factory composition for runtime pluggable behavior (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Strategy + factory composition for runtime pluggable behavior (Part 3)
+  - Advanced Guide
+seo_description: Advanced practical guide on strategy + factory composition for runtime
+  pluggable behavior (part 3) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
@@ -59,9 +59,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Strategy + factory composition for runtime pluggable behavior (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The diagram highlights composition points and responsibility flow because strategy + factory composition for runtime pluggable behavior (part 3) only pays off when abstraction reduces debugging and change cost.

@@ -58,10 +58,10 @@ What we are doing actually:
 ```mermaid
 classDiagram
     class AbstractImportJob {
-      +run(String)
-      #parse(String) List~String~
-      #validate(List~String~)
-      #persist(List~String~)
+      +run()
+      #parse()
+      #validate()
+      #persist()
     }
     class CsvImportJob
     class JsonImportJob

@@ -1,20 +1,20 @@
 ---
+title: Pattern Matching for switch in Java 21+ Production Guide
+date: 2026-05-13
 categories:
 - Java
 - Backend
-date: 2026-05-13
-seo_title: Pattern Matching switch in Java 21 for Production
-seo_description: Simplify branching logic and improve type safety using pattern matching
-  switch in Java.
 tags:
 - java
 - java21
 - pattern-matching
 - switch
-title: Pattern Matching for switch in Java 21+ Production Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Pattern Matching switch in Java 21 for Production
+seo_description: Simplify branching logic and improve type safety using pattern matching
+  switch in Java.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

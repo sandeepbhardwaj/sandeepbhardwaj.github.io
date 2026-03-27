@@ -1,10 +1,9 @@
 ---
+title: Sliding Window Technique in Java - Interview Preparation Guide
+date: 2026-03-13
 categories:
 - DSA
 - Java
-date: 2026-03-13
-seo_title: Sliding Window Technique in Java - Interview Preparation Guide
-seo_description: Master sliding window patterns in Java with fixed and variable windows, frequency maps, monotonic deques, recognition signals, and interview-ready reasoning.
 tags:
 - dsa
 - java
@@ -13,10 +12,11 @@ tags:
 - deque
 - algorithms
 - interview-preparation
-title: Sliding Window Technique in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Sliding Window Technique in Java - Interview Preparation Guide
+seo_description: Master sliding window patterns in Java with fixed and variable windows, frequency maps, monotonic deques, recognition signals, and interview-ready reasoning.
 header:
   overlay_image: "/assets/images/sliding-window-banner.svg"
   overlay_filter: 0.35

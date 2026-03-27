@@ -1,20 +1,20 @@
 ---
+title: Netty Fundamentals for High-Performance Networking
+date: 2026-05-09
 categories:
 - Java
 - Backend
-date: 2026-05-09
-seo_title: Netty Fundamentals for High-Performance Java Networking
-seo_description: Build low-latency event-driven network services with Netty in Java.
 tags:
 - java
 - netty
 - networking
 - backend
 - performance
-title: Netty Fundamentals for High-Performance Networking
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Netty Fundamentals for High-Performance Java Networking
+seo_description: Build low-latency event-driven network services with Netty in Java.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

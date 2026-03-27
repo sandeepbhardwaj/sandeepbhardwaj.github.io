@@ -1,21 +1,21 @@
 ---
+title: Intervals Pattern in Java - Interview Preparation Guide
+date: 2026-03-20
 categories:
 - DSA
 - Java
-date: 2026-03-20
-seo_title: Intervals Pattern in Java - Interview Preparation Guide
-seo_description: Learn interval algorithms in Java including merge, insert, overlap
-  detection, and meeting room scheduling.
 tags:
 - dsa
 - java
 - intervals
 - sorting
 - algorithms
-title: Intervals Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Intervals Pattern in Java - Interview Preparation Guide
+seo_description: Learn interval algorithms in Java including merge, insert, overlap
+  detection, and meeting room scheduling.
 header:
   overlay_image: "/assets/images/intervals-banner.svg"
   overlay_filter: 0.35

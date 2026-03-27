@@ -1,21 +1,21 @@
 ---
+title: Java NIO.2 File System and Path API Deep Dive
+date: 2026-05-08
 categories:
 - Java
 - Backend
-date: 2026-05-08
-seo_title: Java NIO.2 File System and Path API Guide
-seo_description: Use Java NIO.2 APIs for safe, scalable file and path operations in
-  backend services.
 tags:
 - java
 - nio2
 - filesystem
 - io
 - backend
-title: Java NIO.2 File System and Path API Deep Dive
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java NIO.2 File System and Path API Guide
+seo_description: Use Java NIO.2 APIs for safe, scalable file and path operations in
+  backend services.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

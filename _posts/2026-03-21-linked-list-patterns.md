@@ -1,11 +1,9 @@
 ---
+title: Linked List Patterns in Java - Interview Preparation Guide
+date: 2026-03-21
 categories:
 - DSA
 - Java
-date: 2026-03-21
-seo_title: Linked List Patterns in Java - Interview Preparation Guide
-seo_description: Linked list patterns in Java explained through real-world
-  trade-offs, failure modes, performance costs, and interview-ready heuristics.
 tags:
 - dsa
 - java
@@ -14,10 +12,12 @@ tags:
 - algorithms
 - performance
 - architecture
-title: Linked List Patterns in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Linked List Patterns in Java - Interview Preparation Guide
+seo_description: Linked list patterns in Java explained through real-world
+  trade-offs, failure modes, performance costs, and interview-ready heuristics.
 header:
   overlay_image: "/assets/images/linked-list-banner.svg"
   overlay_filter: 0.35

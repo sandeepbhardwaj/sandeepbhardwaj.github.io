@@ -1,23 +1,23 @@
 ---
+title: 'Progressive delivery: canary and blue-green in production (Part 3)'
+date: 2026-09-29
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-29
-seo_title: 'Progressive delivery: canary and blue-green in production (Part 3) - Advanced
-  Guide'
-seo_description: 'Advanced practical guide on progressive delivery: canary and blue-green
-  in production (part 3) with architecture decisions, trade-offs, and production patterns.'
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: 'Progressive delivery: canary and blue-green in production (Part 3)'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Progressive delivery: canary and blue-green in production (Part 3) - Advanced
+  Guide'
+seo_description: 'Advanced practical guide on progressive delivery: canary and blue-green
+  in production (part 3) with architecture decisions, trade-offs, and production patterns.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
@@ -58,9 +58,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote 'Progressive delivery: canary and blue-green in production (Part 3)']
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The diagram centers on workload behavior, control-plane signals, and recovery paths because 'progressive delivery: canary and blue-green in production (part 3)' is judged during rollout and saturation, not in a quiet namespace.

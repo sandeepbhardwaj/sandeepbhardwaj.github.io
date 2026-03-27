@@ -1,22 +1,22 @@
 ---
+title: Rate limiting and fairness in multi-tenant microservices
+date: 2026-08-08
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-08
-seo_title: Rate limiting and fairness in multi-tenant microservices - Advanced Guide
-seo_description: Advanced practical guide on rate limiting and fairness in multi-tenant
-  microservices with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Rate limiting and fairness in multi-tenant microservices
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Rate limiting and fairness in multi-tenant microservices - Advanced Guide
+seo_description: Advanced practical guide on rate limiting and fairness in multi-tenant
+  microservices with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

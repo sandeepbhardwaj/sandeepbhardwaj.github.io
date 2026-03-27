@@ -1,22 +1,22 @@
 ---
+title: Consistency patterns without distributed transactions
+date: 2026-08-09
 categories:
 - Java
 - Microservices
 - Architecture
-date: 2026-08-09
-seo_title: Consistency patterns without distributed transactions - Advanced Guide
-seo_description: Advanced practical guide on consistency patterns without distributed
-  transactions with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - microservices
 - distributed-systems
 - architecture
 - backend
-title: Consistency patterns without distributed transactions
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Consistency patterns without distributed transactions - Advanced Guide
+seo_description: Advanced practical guide on consistency patterns without distributed
+  transactions with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,12 +1,10 @@
 ---
+title: 'MLOps Foundations: Pipelines, Versioning, and Reproducibility'
+date: 2026-01-25
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-25
-seo_title: 'MLOps Foundations: Pipelines, Versioning, Reproducibility'
-seo_description: A practical guide to MLOps fundamentals including data and model
-  versioning, reproducible pipelines, and deployment workflows.
 tags:
 - ai
 - ml
@@ -14,10 +12,12 @@ tags:
 - pipelines
 - reproducibility
 - deployment
-title: 'MLOps Foundations: Pipelines, Versioning, and Reproducibility'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'MLOps Foundations: Pipelines, Versioning, Reproducibility'
+seo_description: A practical guide to MLOps fundamentals including data and model
+  versioning, reproducible pipelines, and deployment workflows.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

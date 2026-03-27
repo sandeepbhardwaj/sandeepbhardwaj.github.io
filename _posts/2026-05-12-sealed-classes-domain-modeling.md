@@ -1,19 +1,19 @@
 ---
+title: Sealed Classes for Domain Modeling in Java
+date: 2026-05-12
 categories:
 - Java
 - Backend
-date: 2026-05-12
-seo_title: Sealed Classes for Domain Modeling in Java
-seo_description: Model closed domain hierarchies safely using sealed classes in Java.
 tags:
 - java
 - sealed-classes
 - domain-modeling
 - oop
-title: Sealed Classes for Domain Modeling in Java
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Sealed Classes for Domain Modeling in Java
+seo_description: Model closed domain hierarchies safely using sealed classes in Java.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

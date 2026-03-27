@@ -1,22 +1,22 @@
 ---
+title: End-to-End ML System Design Playbook
+date: 2026-01-31
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-31
-seo_title: End-to-End ML System Design Playbook
-seo_description: A complete practical playbook for designing, deploying, and operating
-  production machine learning systems end to end.
 tags:
 - ai
 - ml
 - system-design
 - mlops
 - production-ml
-title: End-to-End ML System Design Playbook
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: End-to-End ML System Design Playbook
+seo_description: A complete practical playbook for designing, deploying, and operating
+  production machine learning systems end to end.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

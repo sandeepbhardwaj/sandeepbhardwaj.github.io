@@ -1,21 +1,21 @@
 ---
+title: Dynamic Programming Pattern in Java - Interview Preparation Guide
+date: 2026-03-28
 categories:
 - DSA
 - Java
-date: 2026-03-28
-seo_title: Dynamic Programming Pattern in Java - Interview Preparation Guide
-seo_description: Master dynamic programming in Java with state definition, transitions,
-  memoization, and tabulation patterns.
 tags:
 - dsa
 - java
 - dynamic-programming
 - dp
 - algorithms
-title: Dynamic Programming Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Dynamic Programming Pattern in Java - Interview Preparation Guide
+seo_description: Master dynamic programming in Java with state definition, transitions,
+  memoization, and tabulation patterns.
 header:
   overlay_image: "/assets/images/dynamic-programming-banner.svg"
   overlay_filter: 0.35

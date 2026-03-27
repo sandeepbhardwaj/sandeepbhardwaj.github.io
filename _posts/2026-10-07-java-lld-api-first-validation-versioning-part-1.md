@@ -1,119 +1,219 @@
 ---
+title: API-first LLD with strict validation and versioning boundaries
+date: 2026-10-07
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-07
-seo_title: API-first LLD with strict validation and versioning boundaries - Advanced
-  Guide
-seo_description: Advanced practical guide on api-first lld with strict validation
-  and versioning boundaries with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: API-first LLD with strict validation and versioning boundaries
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: API-first LLD with strict validation and versioning boundaries - Advanced
+  Guide
+seo_description: Advanced practical guide on api-first lld with strict validation
+  and versioning boundaries with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-API-first LLD with strict validation and versioning boundaries matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+API-first design is valuable because clients do not care how elegant the inside of the service is.
+They care whether the contract is predictable, validation is clear, and version changes do not break them unexpectedly.
 
----
+That is why API-first LLD is not just about OpenAPI documents or controller annotations.
+It is about deciding where request validation ends, where domain invariants begin, and how versioning stops at the edge instead of infecting the whole model.
 
-## Problem 1: API-first LLD with strict validation and versioning boundaries
+## Quick Summary
 
-Problem description:
-We want api-first lld with strict validation and versioning boundaries to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on the baseline model and the safe default shape.
+| Concern | Good boundary | Bad boundary |
+| --- | --- | --- |
+| request validation | API layer or request mapper | spread across controllers, services, and entities |
+| domain invariant | aggregate or domain method | DTO annotations pretending to be business safety |
+| versioning | edge translation layer | `V1`, `V2`, `V3` types everywhere |
+| client contract evolution | explicit compatibility rules | accidental breakage through internal refactors |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+Part 1 is about the baseline move:
+keep the external contract explicit and narrow, then translate it into a stable domain command model.
 
-What we are doing actually:
+## API-First Does Not Mean DTO-First Everywhere
 
-1. make the domain model explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the domain model explicit: choose the simplest baseline design that preserves correctness
-3. make the domain model explicit: make observability visible from the first implementation
-4. make the domain model explicit: validate the baseline with one concrete failure drill
+The first trap is letting external request models become the internal domain language.
 
----
+That usually creates these problems:
 
-## Why This Topic Matters
+- version suffixes leak into services
+- domain rules are duplicated in request validators
+- internal code starts depending on field names chosen for backward compatibility
+- every API change forces domain churn
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+The healthier rule is:
+design the API intentionally, then translate it once.
 
----
+## A Practical Example
 
-## Architecture Model
+Suppose the public API creates subscriptions.
+Version 2 adds an optional billing cycle and a stricter email rule.
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[API-first LLD with strict validation and versioning boundaries]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
-
-The model is deliberately centered on boundary, invariant, and change pressure so api-first lld with strict validation and versioning boundaries reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
-
----
-
-## Practical Design Pattern
+At the edge:
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: API-first LLD with strict validation and versioning boundaries
+public record CreateSubscriptionRequestV2(
+        String customerId,
+        String planCode,
+        String email,
+        String billingCycle
+) {}
+```
+
+Inside the system:
+
+```java
+public record CreateSubscriptionCommand(
+        CustomerId customerId,
+        PlanCode planCode,
+        EmailAddress emailAddress,
+        BillingCycle billingCycle
+) {}
+```
+
+And the translator owns the boundary:
+
+```java
+public final class SubscriptionRequestMapper {
+    public CreateSubscriptionCommand toCommand(CreateSubscriptionRequestV2 request) {
+        if (request.customerId() == null || request.customerId().isBlank()) {
+            throw new IllegalArgumentException("customerId is required");
+        }
+        if (request.planCode() == null || request.planCode().isBlank()) {
+            throw new IllegalArgumentException("planCode is required");
+        }
+        if (request.email() == null || !request.email().contains("@")) {
+            throw new IllegalArgumentException("valid email is required");
+        }
+
+        BillingCycle cycle = request.billingCycle() == null
+                ? BillingCycle.MONTHLY
+                : BillingCycle.valueOf(request.billingCycle().toUpperCase());
+
+        return new CreateSubscriptionCommand(
+                new CustomerId(request.customerId()),
+                new PlanCode(request.planCode()),
+                new EmailAddress(request.email()),
+                cycle
+        );
     }
 }
 ```
 
-The code stays compact so the design boundary for api-first lld with strict validation and versioning boundaries is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+This gives the API layer a real job:
+guard the wire contract and translate it into domain language.
 
----
+## Validation Has Two Homes, Not One
 
-## Failure Drill
+Good systems usually validate in two places:
 
-Baseline drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for api-first lld with strict validation and versioning boundaries.
+### Edge validation
 
-That drill matters early, before rollout assumptions harden into defaults because object designs for api-first lld with strict validation and versioning boundaries often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+Used for:
 
----
+- required fields
+- format checks
+- parseability
+- API compatibility rules
 
-## Debug Steps
+### Domain validation
 
-Debug steps:
+Used for:
 
-- write one failing invariant test before changing the design while validating api-first lld with strict validation and versioning boundaries
-- inspect whether responsibilities are gathering in one object for convenience while validating api-first lld with strict validation and versioning boundaries
-- prefer boundaries that stay understandable during refactor pressure while validating api-first lld with strict validation and versioning boundaries
-- use tests to expose temporal coupling or hidden dependencies while validating api-first lld with strict validation and versioning boundaries
+- state transition legality
+- cross-field business rules
+- aggregate invariants
+- policy decisions
 
----
+Confusing these layers creates fragile designs.
+If the request DTO is the only place a rule exists, internal callers can bypass it.
+If the aggregate is expected to parse raw wire formats, the domain becomes polluted with transport concerns.
 
-## Production Checklist
+## Versioning Should Stop at the Boundary
 
-- one invariant stated in code and in tests
-- boundary between aggregate or collaborators kept explicit
-- change-cost signal identified before adding extra abstractions
-- refactor path that does not weaken the model during rollout
+One of the healthiest API-first moves is to refuse to let versioning spread inward.
 
----
+Bad sign:
+
+- `CreateSubscriptionV2Service`
+- `CreateSubscriptionV2Validator`
+- `SubscriptionV2Entity`
+
+Better shape:
+
+- `CreateSubscriptionRequestV2`
+- `SubscriptionRequestMapper`
+- stable internal command and aggregate model
+
+This keeps the compatibility burden where it belongs:
+at the system edge.
+
+## Common Design Mistakes
+
+### Entities depend on request models
+
+Now the domain changes whenever the wire contract changes.
+
+### Validation annotations are treated as full business safety
+
+`@NotBlank` is useful, but it is not a replacement for "customer cannot change billing cycle while suspended."
+
+### Versioning logic leaks across the codebase
+
+That usually means there is no proper translation boundary.
+
+### Controllers become orchestration centers
+
+If the controller parses, validates, translates, applies business policy, and formats errors, the LLD is already overloaded at the edge.
+
+## Testing Strategy
+
+Test API-first design in layers:
+
+1. request validation tests
+2. request-to-command mapping tests
+3. domain invariant tests
+4. compatibility tests between versions
+
+Useful scenarios:
+
+- v2 request with missing email fails at the edge
+- absent billing cycle maps to a default
+- invalid plan is rejected by the domain, not only the DTO layer
+- adding a new optional API field does not break internal command handling
+
+These tests are powerful because they confirm boundary placement, not just happy-path behavior.
+
+## When Simpler Design Is Better
+
+If the service is internal-only, short-lived, and unlikely to need version evolution, a lighter boundary may be fine.
+Not every small endpoint needs a large translation layer.
+
+But the moment the API becomes:
+
+- public
+- shared by multiple clients
+- backward-compatibility sensitive
+- likely to evolve independently from domain rules
+
+the translation boundary becomes worth the cost quickly.
 
 ## Key Takeaways
 
-- API-first LLD with strict validation and versioning boundaries should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- start from a measurable baseline before optimizing
+- API-first LLD is about preserving a clean contract boundary, not just documenting endpoints.
+- Edge validation and domain invariants are different responsibilities and should stay separate.
+- Versioning should stop at request mapping boundaries instead of spreading across the domain.
+- A stable internal command model usually survives API evolution better than DTO-driven design.

@@ -1,22 +1,22 @@
 ---
+title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 1)
+date: 2026-06-07
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-07
-seo_title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 1)
-seo_description: 'Hands-on guide: Exactly Once Semantics Myths Versus Practical Guarantees.
-  Prove EOS scope.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 1)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Exactly Once Semantics Myths Versus Practical Guarantees (Part 1)
+seo_description: 'Hands-on guide: Exactly Once Semantics Myths Versus Practical Guarantees.
+  Prove EOS scope.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

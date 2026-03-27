@@ -1,20 +1,20 @@
 ---
+title: Binary Search Pattern in Java - Interview Preparation Guide
+date: 2026-03-16
 categories:
 - DSA
 - Java
-date: 2026-03-16
-seo_title: Binary Search Pattern in Java – Complete Interview Guide (Exact Match, Bounds, Answer Space)
-seo_description: Learn binary search patterns in Java with exact match, lower bound, and answer-space problems. Includes intuition, edge cases, and interview-ready explanations.
 tags:
 - dsa
 - java
 - binary-search
 - algorithms
 - interview-preparation
-title: Binary Search Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Binary Search Pattern in Java – Complete Interview Guide (Exact Match, Bounds, Answer Space)
+seo_description: Learn binary search patterns in Java with exact match, lower bound, and answer-space problems. Includes intuition, edge cases, and interview-ready explanations.
 header:
   overlay_image: "/assets/images/binary-search-banner.svg"
   overlay_filter: 0.35

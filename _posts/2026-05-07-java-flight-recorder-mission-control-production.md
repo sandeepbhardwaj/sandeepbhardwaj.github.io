@@ -1,21 +1,21 @@
 ---
+title: Java Flight Recorder and Mission Control in Production
+date: 2026-05-07
 categories:
 - Java
 - Backend
-date: 2026-05-07
-seo_title: Java Flight Recorder and Mission Control Production Guide
-seo_description: Diagnose production JVM behavior with low-overhead profiling via
-  JFR and JMC.
 tags:
 - java
 - jfr
 - observability
 - performance
 - jmc
-title: Java Flight Recorder and Mission Control in Production
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Java Flight Recorder and Mission Control Production Guide
+seo_description: Diagnose production JVM behavior with low-overhead profiling via
+  JFR and JMC.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

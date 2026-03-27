@@ -1,22 +1,22 @@
 ---
+title: HPA/VPA interactions and autoscaling anti-patterns
+date: 2026-09-02
 categories:
 - Kubernetes
 - Platform
 - Backend
-date: 2026-09-02
-seo_title: HPA/VPA interactions and autoscaling anti-patterns - Advanced Guide
-seo_description: Advanced practical guide on hpa/vpa interactions and autoscaling
-  anti-patterns with architecture decisions, trade-offs, and production patterns.
 tags:
 - kubernetes
 - platform-engineering
 - reliability
 - backend
 - operations
-title: HPA/VPA interactions and autoscaling anti-patterns
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: HPA/VPA interactions and autoscaling anti-patterns - Advanced Guide
+seo_description: Advanced practical guide on hpa/vpa interactions and autoscaling
+  anti-patterns with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

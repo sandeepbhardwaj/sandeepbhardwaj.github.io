@@ -59,7 +59,7 @@ What we are doing actually:
 classDiagram
     class PaymentProcessor {
       <<interface>>
-      +charge(PaymentRequest) PaymentResult
+      +charge()
     }
     class StripeSdkClient
     class PayPalSdkClient

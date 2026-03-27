@@ -1,117 +1,243 @@
 ---
+title: Plugin-oriented LLD with classloader boundaries (Part 2)
+date: 2026-10-17
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-17
-seo_title: Plugin-oriented LLD with classloader boundaries (Part 2) - Advanced Guide
-seo_description: Advanced practical guide on plugin-oriented lld with classloader
-  boundaries (part 2) with architecture decisions, trade-offs, and production patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: Plugin-oriented LLD with classloader boundaries (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Plugin-oriented LLD with classloader boundaries (Part 2) - Advanced Guide
+seo_description: Advanced practical guide on plugin-oriented lld with classloader
+  boundaries (part 2) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-Plugin-oriented LLD with classloader boundaries (Part 2) matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Part 1 established the baseline:
+plugin systems live or die by boundary discipline, not by clever discovery code.
 
----
+Part 2 is where the easy version stops working.
+Once plugins evolve independently, the hard questions show up:
 
-## Problem 1: Plugin-oriented LLD with classloader boundaries (Part 2)
+- what API is truly stable?
+- what may cross the classloader boundary?
+- how are incompatible plugins rejected?
+- who owns lifecycle and failure isolation?
 
-Problem description:
-We want plugin-oriented lld with classloader boundaries (part 2) to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+If those answers are vague, the plugin model usually turns into a runtime coupling trap.
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+## Quick Summary
 
-What we are doing actually:
+| Design question | Good default | Common failure |
+| --- | --- | --- |
+| What classes may cross the boundary? | only host API and simple value types | plugin internals leak into host code |
+| How is compatibility checked? | explicit version/capability contract | hope classloading fails loudly enough |
+| Who owns plugin lifecycle? | host runtime | plugins self-manage shared resources |
+| How are failures contained? | isolate and disable per plugin | one broken plugin corrupts the whole process |
 
-1. make the domain model explicit: stress the baseline with the most likely failure or contention mode
-2. make the domain model explicit: introduce one hardening mechanism at a time
-3. make the domain model explicit: measure the operational trade-off instead of trusting intuition
-4. make the domain model explicit: document where the pattern should stop and another pattern should begin
+The key rule is:
+classloader isolation only helps when the API boundary is stricter than the implementation boundary.
 
----
+## The Stable API Jar Matters More Than the Loader
 
-## Why This Topic Matters
+Teams often spend more time on loading mechanics than on contract design.
+That is backwards.
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+The host needs a small, boring, stable API surface that plugins implement.
 
----
-
-## Architecture Model
-
-```mermaid
-flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Plugin-oriented LLD with classloader boundaries (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
-```
-
-The model is deliberately centered on boundary, invariant, and change pressure so plugin-oriented lld with classloader boundaries (part 2) reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
-
----
-
-## Practical Design Pattern
+Example:
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: Plugin-oriented LLD with classloader boundaries (Part 2)
+public interface PricingPlugin {
+    String id();
+    Money quote(PricingRequest request);
+}
+```
+
+That interface should be:
+
+- versioned deliberately
+- free of host internals
+- small enough to keep compatible
+- expressive enough to avoid constant plugin breakage
+
+If the plugin contract is unstable, classloader tricks do not save the architecture.
+
+## What Should Cross the Boundary
+
+A healthy plugin boundary usually allows:
+
+- host-owned interfaces
+- simple request/response DTOs
+- explicit extension-point exceptions
+- immutable value types
+
+A dangerous boundary allows:
+
+- host ORM entities
+- framework container internals
+- mutable shared state
+- plugin-private utility types masquerading as API
+
+That is how "plugin support" quietly turns into binary coupling.
+
+## The Compatibility Check Should Be Explicit
+
+Do not rely on `ClassNotFoundException` as your compatibility strategy.
+
+Use an explicit descriptor:
+
+```java
+public record PluginDescriptor(
+        String pluginId,
+        String apiVersion,
+        Set<String> capabilities
+) {}
+```
+
+Then validate before activation:
+
+```java
+public final class PluginCompatibility {
+    public void verify(PluginDescriptor descriptor) {
+        if (!"2.x".equals(descriptor.apiVersion())) {
+            throw new IllegalStateException("Unsupported plugin API version: " + descriptor.apiVersion());
+        }
     }
 }
 ```
 
-The code stays compact so the design boundary for plugin-oriented lld with classloader boundaries (part 2) is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+That gives the runtime a readable rejection path instead of a pile of low-level linkage failures.
 
----
+## A Better Loading Model
 
-## Failure Drill
+Think in terms of four responsibilities:
 
-Hardening drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for plugin-oriented lld with classloader boundaries (part 2).
+```mermaid
+flowchart LR
+    A[Plugin artifact] --> B[Compatibility check]
+    B --> C[Dedicated classloader]
+    C --> D[Plugin instance]
+    D --> E[Managed lifecycle]
+```
 
-That drill matters while the design is being stressed by mixed versions, retries, or recovery edge cases because object designs for plugin-oriented lld with classloader boundaries (part 2) often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+Loading is only step three.
+Most runtime pain is actually in steps two and five.
 
----
+## Failure Isolation Is a Design Requirement
 
-## Debug Steps
+A plugin architecture is not just about extensibility.
+It is about limiting blast radius.
 
-Debug steps:
+The host should be able to:
 
-- write one failing invariant test before changing the design while validating plugin-oriented lld with classloader boundaries (part 2)
-- inspect whether responsibilities are gathering in one object for convenience while validating plugin-oriented lld with classloader boundaries (part 2)
-- prefer boundaries that stay understandable during refactor pressure while validating plugin-oriented lld with classloader boundaries (part 2)
-- use tests to expose temporal coupling or hidden dependencies while validating plugin-oriented lld with classloader boundaries (part 2)
+- reject one incompatible plugin
+- disable one unhealthy plugin
+- observe one plugin's errors separately
+- unload or restart one plugin without corrupting host state
 
----
+That means plugin code should not own global singletons, unmanaged thread pools, or static caches that live beyond the plugin lifecycle.
 
-## Production Checklist
+## Classloader Boundaries Do Not Solve State Ownership
 
-- edge-case rule encoded as a failing test before refactor
-- coupling increase measured against the promised design benefit
-- debug path still shorter after the extra abstraction
-- design notes updated with the new invariant pressure
+This is the subtle trap.
+Teams see separate classloaders and assume that means "good isolation."
 
----
+It does not, if the plugin still reaches into:
+
+- shared databases with uncontrolled schemas
+- mutable host registries
+- process-wide static state
+- side effects with no host mediation
+
+Classloaders isolate types.
+They do not isolate operational consequences.
+
+## A Practical Java Shape
+
+```java
+public interface Plugin {
+    PluginDescriptor descriptor();
+    void start(PluginContext context);
+    void stop();
+}
+
+public final class PluginRuntime {
+    public LoadedPlugin load(Path artifact) {
+        PluginDescriptor descriptor = descriptorReader.read(artifact);
+        compatibility.verify(descriptor);
+
+        PluginClassLoader loader = classLoaderFactory.create(artifact);
+        Plugin plugin = pluginFactory.instantiate(loader, descriptor);
+
+        plugin.start(pluginContext);
+        return new LoadedPlugin(descriptor, loader, plugin);
+    }
+}
+```
+
+The important part is not the exact factory arrangement.
+It is that the host owns:
+
+- compatibility
+- lifecycle
+- context
+- unloading
+
+The plugin only owns plugin behavior.
+
+## Where Plugin Architectures Usually Break
+
+### Boundary types keep growing
+
+If every release adds more host classes to the plugin API, the boundary is not stable.
+
+### Host and plugin share mutable state casually
+
+That is how debugging becomes impossible.
+
+### Unloading never really works
+
+Lingering thread locals, executors, or static caches keep old classloaders alive.
+
+### Versioning is social, not technical
+
+If compatibility depends on "everyone remembering the rule," it will fail under release pressure.
+
+## Testing Strategy
+
+Test the plugin system at three levels:
+
+1. API contract tests
+2. compatibility and rejection tests
+3. lifecycle tests under load and failure
+
+Useful cases include:
+
+- plugin compiled against unsupported API version
+- plugin throws during startup
+- plugin leaks resources across stop/start cycles
+- host disables one plugin while others continue normally
+
+## Practical Rule of Thumb
+
+The plugin boundary should be narrower than teams first want and more explicit than they first expect.
+
+If plugins need deep host object access to remain useful, the system probably has not found the right extension point yet.
 
 ## Key Takeaways
 
-- Plugin-oriented LLD with classloader boundaries (Part 2) should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- harden one failure mode at a time instead of stacking speculative complexity
+- The stable API contract matters more than the loading trick.
+- Classloader isolation helps with types, not with operational ownership.
+- Compatibility checks should be explicit and readable before activation.
+- A plugin runtime should own lifecycle, failure isolation, and unloading discipline.

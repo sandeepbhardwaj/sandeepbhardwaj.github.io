@@ -1,12 +1,10 @@
 ---
+title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
+date: 2026-02-04
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-02-04
-seo_title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
-seo_description: 'A production-focused guide for AI agents: system architecture, safety
-  guardrails, tool governance, testing, and operations.'
 tags:
 - ai
 - ml
@@ -14,10 +12,12 @@ tags:
 - agentic-ai
 - llm
 - mlops
-title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Building Production AI Agents: Architecture, Guardrails, and Evaluation'
+seo_description: 'A production-focused guide for AI agents: system architecture, safety
+  guardrails, tool governance, testing, and operations.'
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

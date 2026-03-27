@@ -1,21 +1,21 @@
 ---
+title: Cross-Validation and Experiment Design for ML
+date: 2026-01-07
 categories:
 - AI
 - ML
-date: 2026-01-07
-seo_title: Cross-Validation and Experiment Design for ML
-seo_description: A practical guide to cross-validation, data splitting strategies,
-  and reliable experiment design in machine learning.
 tags:
 - ai
 - ml
 - cross-validation
 - experimentation
 - model-selection
-title: Cross-Validation and Experiment Design for ML
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Cross-Validation and Experiment Design for ML
+seo_description: A practical guide to cross-validation, data splitting strategies,
+  and reliable experiment design in machine learning.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

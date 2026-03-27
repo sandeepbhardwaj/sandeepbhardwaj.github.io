@@ -1,24 +1,24 @@
 ---
+title: Refactoring anemic domain models into behavior-rich design (Part 2)
+date: 2026-10-15
 categories:
 - Java
 - Design
 - Architecture
-date: 2026-10-15
-seo_title: Refactoring anemic domain models into behavior-rich design (Part 2) - Advanced
-  Guide
-seo_description: Advanced practical guide on refactoring anemic domain models into
-  behavior-rich design (part 2) with architecture decisions, trade-offs, and production
-  patterns.
 tags:
 - java
 - lld
 - oop
 - architecture
 - design
-title: Refactoring anemic domain models into behavior-rich design (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Refactoring anemic domain models into behavior-rich design (Part 2) - Advanced
+  Guide
+seo_description: Advanced practical guide on refactoring anemic domain models into
+  behavior-rich design (part 2) with architecture decisions, trade-offs, and production
+  patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
@@ -59,7 +59,7 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Refactoring anemic domain models into behavior-rich design (Part 2)]
+    B --> C[Refined design]
     C --> D[Trade-off measurement]
     D --> E[Operational decision]
 ```

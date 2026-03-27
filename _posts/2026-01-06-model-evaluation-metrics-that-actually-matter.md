@@ -1,21 +1,21 @@
 ---
+title: Model Evaluation Metrics That Actually Matter
+date: 2026-01-06
 categories:
 - AI
 - ML
-date: 2026-01-06
-seo_title: Model Evaluation Metrics That Actually Matter
-seo_description: How to choose and use ML metrics that align with real business cost
-  across classification, regression, and ranking.
 tags:
 - ai
 - ml
 - evaluation
 - metrics
 - model-validation
-title: Model Evaluation Metrics That Actually Matter
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Model Evaluation Metrics That Actually Matter
+seo_description: How to choose and use ML metrics that align with real business cost
+  across classification, regression, and ranking.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

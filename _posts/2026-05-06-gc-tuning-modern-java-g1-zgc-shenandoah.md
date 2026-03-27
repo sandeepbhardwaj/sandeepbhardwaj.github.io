@@ -1,11 +1,9 @@
 ---
+title: GC Tuning in Modern Java (G1 ZGC Shenandoah) Guide
+date: 2026-05-06
 categories:
 - Java
 - Backend
-date: 2026-05-06
-seo_title: GC Tuning in Modern Java for Production Systems
-seo_description: Tune Java garbage collectors using pause-time, throughput, and allocation
-  telemetry.
 tags:
 - java
 - gc
@@ -13,10 +11,12 @@ tags:
 - zgc
 - shenandoah
 - performance
-title: GC Tuning in Modern Java (G1 ZGC Shenandoah) Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: GC Tuning in Modern Java for Production Systems
+seo_description: Tune Java garbage collectors using pause-time, throughput, and allocation
+  telemetry.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

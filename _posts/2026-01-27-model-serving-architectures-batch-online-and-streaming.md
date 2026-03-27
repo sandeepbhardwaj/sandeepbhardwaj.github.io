@@ -1,12 +1,10 @@
 ---
+title: 'Model Serving Architectures: Batch, Online, and Streaming'
+date: 2026-01-27
 categories:
 - AI
 - ML
 - MLOps
-date: 2026-01-27
-seo_title: 'Model Serving Architectures: Batch, Online, and Streaming'
-seo_description: A practical architecture guide to model serving patterns, latency
-  trade-offs, and reliability controls in production ML systems.
 tags:
 - ai
 - ml
@@ -14,10 +12,12 @@ tags:
 - inference
 - mlops
 - architecture
-title: 'Model Serving Architectures: Batch, Online, and Streaming'
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: 'Model Serving Architectures: Batch, Online, and Streaming'
+seo_description: A practical architecture guide to model serving patterns, latency
+  trade-offs, and reliability controls in production ML systems.
 header:
   overlay_image: "/assets/images/ai-ml-series-banner.svg"
   overlay_filter: 0.35

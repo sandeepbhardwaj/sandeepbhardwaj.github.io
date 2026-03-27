@@ -1,21 +1,21 @@
 ---
+title: Digit DP Pattern in Java - Interview Preparation Guide
+date: 2026-04-25
 categories:
 - DSA
 - Java
-date: 2026-04-25
-seo_title: Digit DP Pattern in Java - Interview Preparation Guide
-seo_description: Count numbers under digit constraints in Java with tight-bound state
-  transitions.
 tags:
 - dsa
 - java
 - digit-dp
 - dynamic-programming
 - algorithms
-title: Digit DP Pattern in Java - Interview Preparation Guide
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Digit DP Pattern in Java - Interview Preparation Guide
+seo_description: Count numbers under digit constraints in Java with tight-bound state
+  transitions.
 header:
   overlay_image: "/assets/images/digit-dp-pattern-banner.svg"
   overlay_filter: 0.35

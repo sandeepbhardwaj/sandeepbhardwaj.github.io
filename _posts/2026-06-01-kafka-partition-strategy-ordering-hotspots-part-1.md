@@ -1,22 +1,22 @@
 ---
+title: Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 1)
+date: 2026-06-01
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-01
-seo_title: Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 1)
-seo_description: 'Hands-on guide: Kafka Partition Strategy for Ordering and Hotspot
-  Mitigation. Build baseline key strategy.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 1)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Kafka Partition Strategy for Ordering and Hotspot Mitigation (Part 1)
+seo_description: 'Hands-on guide: Kafka Partition Strategy for Ordering and Hotspot
+  Mitigation. Build baseline key strategy.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

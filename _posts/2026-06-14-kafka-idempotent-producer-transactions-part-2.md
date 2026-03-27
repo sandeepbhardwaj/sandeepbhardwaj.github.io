@@ -1,22 +1,22 @@
 ---
+title: Idempotent Producers and Kafka Transactions in Practice (Part 2)
+date: 2026-06-14
 categories:
 - Java
 - Kafka
 - Distributed Systems
-date: 2026-06-14
-seo_title: Idempotent Producers and Kafka Transactions in Practice (Part 2)
-seo_description: 'Hands-on guide: Idempotent Producers and Kafka Transactions in Practice.
-  Transactional consume-transform-produce.'
 tags:
 - java
 - kafka
 - distributed-systems
 - streaming
 - backend
-title: Idempotent Producers and Kafka Transactions in Practice (Part 2)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Idempotent Producers and Kafka Transactions in Practice (Part 2)
+seo_description: 'Hands-on guide: Idempotent Producers and Kafka Transactions in Practice.
+  Transactional consume-transform-produce.'
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35

@@ -1,23 +1,23 @@
 ---
+title: Adaptive concurrency limits and overload protection (Part 3)
+date: 2026-12-30
 categories:
 - Distributed Systems
 - Architecture
 - Backend
-date: 2026-12-30
-seo_title: Adaptive concurrency limits and overload protection (Part 3) - Advanced
-  Guide
-seo_description: Advanced practical guide on adaptive concurrency limits and overload
-  protection (part 3) with architecture decisions, trade-offs, and production patterns.
 tags:
 - distributed-systems
 - architecture
 - reliability
 - backend
 - java
-title: Adaptive concurrency limits and overload protection (Part 3)
 toc: true
-toc_icon: cog
 toc_label: In This Article
+toc_icon: cog
+seo_title: Adaptive concurrency limits and overload protection (Part 3) - Advanced
+  Guide
+seo_description: Advanced practical guide on adaptive concurrency limits and overload
+  protection (part 3) with architecture decisions, trade-offs, and production patterns.
 header:
   overlay_image: "/assets/images/java-advanced-generic-banner.svg"
   overlay_filter: 0.35
@@ -58,9 +58,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Adaptive concurrency limits and overload protection (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The model keeps ownership, latency, and recovery visible because adaptive concurrency limits and overload protection (part 3) is only useful when operators can still reason about it during partial failure.
