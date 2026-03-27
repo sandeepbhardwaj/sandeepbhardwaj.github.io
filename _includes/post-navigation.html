@@ -1,0 +1,26 @@
+{% if page.previous or page.next %}
+  <section class="post-navigation" aria-label="Post navigation">
+    <div class="post-panel__intro">
+      <h2 class="page__section-title">Continue reading</h2>
+    </div>
+    <div class="post-navigation__grid">
+      {% if page.previous %}
+        <a class="post-navigation__link post-navigation__link--previous" href="{{ page.previous.url | relative_url }}">
+          <span class="post-navigation__eyebrow">Previous</span>
+          <span class="post-navigation__title">{{ page.previous.title }}</span>
+        </a>
+      {% else %}
+        <span class="post-navigation__link post-navigation__link--placeholder" aria-hidden="true"></span>
+      {% endif %}
+
+      {% if page.next %}
+        <a class="post-navigation__link post-navigation__link--next" href="{{ page.next.url | relative_url }}">
+          <span class="post-navigation__eyebrow">Next</span>
+          <span class="post-navigation__title">{{ page.next.title }}</span>
+        </a>
+      {% else %}
+        <span class="post-navigation__link post-navigation__link--placeholder" aria-hidden="true"></span>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}

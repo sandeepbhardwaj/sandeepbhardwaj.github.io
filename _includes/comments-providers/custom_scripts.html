@@ -16,7 +16,7 @@
 {% assign lang = integration_comments.lang | default: "en" | strip %}
 {% assign loading = integration_comments.loading | default: "lazy" | strip %}
 
-{% if integration_provider == "giscus" and page.comments and giscus_enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
+{% if jekyll.environment == "production" and integration_provider == "giscus" and page.comments and giscus_enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
   <script>
     (function () {
       "use strict";

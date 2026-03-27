@@ -6,7 +6,7 @@
 {% assign category = integration_comments.category | default: "" | strip %}
 {% assign category_id = integration_comments.category_id | default: "" | strip %}
 
-{% if integration_provider == "giscus" and page.comments and giscus_enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
+{% if jekyll.environment == "production" and integration_provider == "giscus" and page.comments and giscus_enabled and repo != "" and repo_id != "" and category != "" and category_id != "" %}
   <section class="page__comments">
     <h2 class="page__section-title">Comments</h2>
     <div class="giscus"></div>

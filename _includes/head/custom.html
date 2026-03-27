@@ -28,15 +28,16 @@
   {% assign load_ads_script = false %}
 {% endif %}
 
-{% if adsense_client != "" %}
-<meta name="google-adsense-account" content="{{ adsense_client }}">
-{% endif %}
 <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
 <link rel="shortcut icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
 
 {% if page.ads == false %}
   {% assign ads_enabled = false %}
   {% assign load_ads_script = false %}
+{% endif %}
+
+{% if load_ads_script and adsense_client != "" %}
+<meta name="google-adsense-account" content="{{ adsense_client }}">
 {% endif %}
 
 {% if load_ads_script and adsense_client != "" %}
