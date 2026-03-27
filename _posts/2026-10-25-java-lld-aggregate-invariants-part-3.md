@@ -58,9 +58,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Aggregate design and invariants in rich domain models (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The model is deliberately centered on boundary, invariant, and change pressure so aggregate design and invariants in rich domain models (part 3) reads like a design decision instead of an object diagram.

@@ -76,7 +76,7 @@ If you treat it like a Decorator, you risk framing the problem as feature compos
 classDiagram
     class ReportService {
       <<interface>>
-      +getReport(String, UserContext) String
+      +getReport()
     }
     class RealReportService
     class SecuredCachedReportProxy

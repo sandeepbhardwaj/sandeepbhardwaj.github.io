@@ -58,7 +58,7 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for 'Progressive delivery: canary and blue-green in production (Part 2)']
+    B --> C[Refined design]
     C --> D[Trade-off measurement]
     D --> E[Operational decision]
 ```

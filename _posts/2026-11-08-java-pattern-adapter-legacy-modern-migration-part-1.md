@@ -100,14 +100,14 @@ the modern code talks to one clean target interface, and the adapter owns the tr
 classDiagram
     class PaymentGateway {
       <<interface>>
-      +authorize(request) PaymentResult
+      +authorize()
     }
     class LegacyPaymentsAdapter {
-      -LegacyPaymentsClient legacyClient
-      +authorize(request) PaymentResult
+      -legacyClient
+      +authorize()
     }
     class LegacyPaymentsClient {
-      +makePayment(customerId, amountInCents, currency) LegacyResponse
+      +makePayment()
     }
     class AuthorizationRequest
     class PaymentResult

@@ -130,21 +130,21 @@ many small rule objects share one contract, and the application composes them in
 
 ```mermaid
 classDiagram
-    class Specification~T~ {
+    class Specification {
       <<interface>>
-      +isSatisfiedBy(candidate) boolean
-      +and(other) Specification~T~
-      +or(other) Specification~T~
-      +not() Specification~T~
+      +isSatisfiedBy()
+      +and()
+      +or()
+      +not()
     }
     class Customer
     class IsActiveCustomer
     class NotBlockedCustomer
     class MinimumSpend
 
-    Specification~T~ <|.. IsActiveCustomer
-    Specification~T~ <|.. NotBlockedCustomer
-    Specification~T~ <|.. MinimumSpend
+    Specification <|.. IsActiveCustomer
+    Specification <|.. NotBlockedCustomer
+    Specification <|.. MinimumSpend
     IsActiveCustomer ..> Customer : evaluates
     NotBlockedCustomer ..> Customer : evaluates
     MinimumSpend ..> Customer : evaluates

@@ -59,9 +59,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Stateful workloads on Kubernetes with disruption safety (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The diagram centers on workload behavior, control-plane signals, and recovery paths because stateful workloads on kubernetes with disruption safety (part 3) is judged during rollout and saturation, not in a quiet namespace.

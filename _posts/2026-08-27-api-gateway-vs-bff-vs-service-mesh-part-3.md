@@ -58,9 +58,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote API Gateway vs BFF vs service mesh responsibilities (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once api gateway vs bff vs service mesh responsibilities (part 3) is live.

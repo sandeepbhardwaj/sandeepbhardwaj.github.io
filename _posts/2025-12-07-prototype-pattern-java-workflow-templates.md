@@ -55,8 +55,8 @@ What we are doing actually:
 ```mermaid
 classDiagram
     class OnboardingWorkflowTemplate {
-      +copy() OnboardingWorkflowTemplate
-      +withSlaHours(int) OnboardingWorkflowTemplate
+      +copy()
+      +withSlaHours()
     }
     class WorkflowStep
     OnboardingWorkflowTemplate --> WorkflowStep

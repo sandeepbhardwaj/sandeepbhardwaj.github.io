@@ -59,9 +59,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Strategy + factory composition for runtime pluggable behavior (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The diagram highlights composition points and responsibility flow because strategy + factory composition for runtime pluggable behavior (part 3) only pays off when abstraction reduces debugging and change cost.

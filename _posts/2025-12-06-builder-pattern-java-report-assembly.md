@@ -163,22 +163,22 @@ it makes the construction boundary and the immutable result visible at a glance.
 ```mermaid
 classDiagram
     class AnalyticsReport {
-      -String reportId
-      -String title
-      -Map~String,String~ filters
-      -List~String~ warnings
-      -Instant generatedAt
+      -reportId
+      -title
+      -filters
+      -warnings
+      -generatedAt
     }
     class Builder {
-      -String reportId
-      -String title
-      -Map~String,String~ filters
-      -List~String~ warnings
-      -Instant generatedAt
-      +filter(key, value) Builder
-      +warning(message) Builder
-      +generatedAt(timestamp) Builder
-      +build() AnalyticsReport
+      -reportId
+      -title
+      -filters
+      -warnings
+      -generatedAt
+      +filter()
+      +warning()
+      +generatedAt()
+      +build()
     }
 
     AnalyticsReport ..> Builder : built from

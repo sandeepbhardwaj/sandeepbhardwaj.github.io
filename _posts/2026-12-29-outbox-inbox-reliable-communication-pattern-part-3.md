@@ -58,9 +58,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Outbox + inbox pattern for reliable service communication (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The model keeps ownership, latency, and recovery visible because outbox + inbox pattern for reliable service communication (part 3) is only useful when operators can still reason about it during partial failure.

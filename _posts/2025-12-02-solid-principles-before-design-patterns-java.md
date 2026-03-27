@@ -80,19 +80,19 @@ This violates multiple principles at once:
 ```mermaid
 classDiagram
     class RefundService {
-      +RefundResult process(Order)
+      +process()
     }
     class PaymentGateway {
       <<interface>>
-      +refund(Order)
+      +refund()
     }
     class RefundNotifier {
       <<interface>>
-      +notifySuccess(Order)
+      +notifySuccess()
     }
     class RefundAuditLog {
       <<interface>>
-      +record(Order)
+      +record()
     }
     RefundService --> PaymentGateway
     RefundService --> RefundNotifier

@@ -57,9 +57,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote Idempotency keys and dedupe stores for write APIs (Part 3)]
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once idempotency keys and dedupe stores for write apis (part 3) is live.

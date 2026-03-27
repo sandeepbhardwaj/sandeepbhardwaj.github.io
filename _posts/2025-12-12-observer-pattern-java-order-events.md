@@ -56,12 +56,12 @@ What we are doing actually:
 ```mermaid
 classDiagram
     class OrderEventPublisher {
-      +subscribe(OrderListener)
-      +publish(OrderPlacedEvent)
+      +subscribe()
+      +publish()
     }
     class OrderListener {
       <<interface>>
-      +onOrderPlaced(OrderPlacedEvent)
+      +onOrderPlaced()
     }
     OrderEventPublisher --> OrderListener
     OrderListener <|.. EmailListener

@@ -60,9 +60,9 @@ What we are doing actually:
 classDiagram
     class CommerceRegionFactory {
       <<interface>>
-      +taxCalculator() TaxCalculator
-      +invoiceFormatter() InvoiceFormatter
-      +paymentPolicy() PaymentPolicy
+      +taxCalculator()
+      +invoiceFormatter()
+      +paymentPolicy()
     }
     class IndiaRegionFactory
     class EuropeRegionFactory

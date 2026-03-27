@@ -10,11 +10,15 @@
 }
 
 .page__content > .full-width,
-.page__content > .mermaid-shell,
 .page__content > figure,
 .page__content > .taxonomy-page,
 .page__content > .error-404 {
   max-width: 100%;
+}
+
+.page__content > .mermaid-shell {
+  max-width: min(100%, var(--content-width));
+  width: 100%;
 }
 
 .type-post .page__content > p:first-of-type {

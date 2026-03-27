@@ -69,7 +69,7 @@ That is a good place for decorators.
 classDiagram
     class CommandHandler {
       <<interface>>
-      +handle(command) Result
+      +handle()
     }
     class CoreOrderHandler
     class LoggingDecorator

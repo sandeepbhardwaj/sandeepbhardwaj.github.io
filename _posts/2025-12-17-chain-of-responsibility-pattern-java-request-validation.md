@@ -115,10 +115,10 @@ shared handler structure and the explicit `next` link that creates the pipeline.
 classDiagram
     class ValidationHandler {
       <<abstract>>
-      -ValidationHandler next
-      +linkWith(next) ValidationHandler
-      +handle(request) void
-      #validate(request) void
+      -next
+      +linkWith()
+      +handle()
+      #validate()
     }
     class AuthValidationHandler
     class CartValidationHandler

@@ -81,11 +81,11 @@ But if you truly need one shared immutable registry, this is one of the safer pl
 ```mermaid
 classDiagram
     class AppConfigurationRegistry {
-      -Map~String,String~ values
+      -values
       -AppConfigurationRegistry()
-      +getInstance() AppConfigurationRegistry
-      +get(String) String
-      +isEnabled(String) boolean
+      +getInstance()
+      +get()
+      +isEnabled()
     }
 ```
 

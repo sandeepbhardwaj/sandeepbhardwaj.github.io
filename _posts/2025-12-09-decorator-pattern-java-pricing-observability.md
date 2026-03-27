@@ -84,7 +84,7 @@ Decorator gives you a better shape:
 classDiagram
     class PriceCalculator {
       <<interface>>
-      +calculate(Cart) double
+      +calculate()
     }
     class BasePriceCalculator
     class PriceCalculatorDecorator

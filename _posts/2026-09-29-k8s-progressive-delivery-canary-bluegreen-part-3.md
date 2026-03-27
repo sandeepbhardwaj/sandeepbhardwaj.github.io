@@ -58,9 +58,9 @@ What we are doing actually:
 ```mermaid
 flowchart TD
     A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote 'Progressive delivery: canary and blue-green in production (Part 3)']
-    C -->|No| E[Rollback / revise]
+    B --> C{Gates pass}
+    C -->|Yes| D[Promote rollout]
+    C -->|No| E[Rollback and revise]
 ```
 
 The diagram centers on workload behavior, control-plane signals, and recovery paths because 'progressive delivery: canary and blue-green in production (part 3)' is judged during rollout and saturation, not in a quiet namespace.

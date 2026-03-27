@@ -53,11 +53,11 @@ The pressure is “how do I keep one stable export workflow while allowing one c
 classDiagram
     class ReportExporter {
       <<interface>>
-      +export(SalesReport) String
+      +export()
     }
     class ExportService {
-      +run(SalesReport, ExportType) String
-      -createExporter(ExportType) ReportExporter
+      +run()
+      -createExporter()
     }
     ReportExporter <|.. CsvReportExporter
     ReportExporter <|.. JsonReportExporter

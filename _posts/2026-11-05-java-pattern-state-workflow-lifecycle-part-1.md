@@ -100,11 +100,11 @@ it makes the legal transitions visible before we even look at Java classes.
 ```mermaid
 stateDiagram-v2
     [*] --> Draft
-    Draft --> Confirmed: confirm()
-    Draft --> Cancelled: cancel()
-    Confirmed --> Packed: pack()
-    Confirmed --> Cancelled: cancel()
-    Packed --> Shipped: ship()
+    Draft --> Confirmed: confirm
+    Draft --> Cancelled: cancel
+    Confirmed --> Packed: pack
+    Confirmed --> Cancelled: cancel
+    Packed --> Shipped: ship
     Shipped --> [*]
     Cancelled --> [*]
 ```
