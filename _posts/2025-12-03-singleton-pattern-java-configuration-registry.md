@@ -21,55 +21,62 @@ header:
   caption: Java Design Patterns Series
   show_overlay_excerpt: false
 ---
-Singleton is the most overused pattern in Java.
-That does not make it useless. It means it must be applied carefully and only when a single shared instance is truly part of the problem definition.
+Singleton is the most overused pattern in Java for one reason:
+it solves a real problem, but it also offers a very tempting shortcut to global state.
 
----
+That means the right question is not "is singleton bad?"
+It is "is one shared instance actually part of the domain, or are we using it to avoid better dependency boundaries?"
 
-## Problem 1: Shared Configuration Registry Without Hidden Mutable State
+Configuration registry is one of the few examples where Singleton can still make sense, but only under tight constraints.
 
-Problem description:
-Our application loads environment-specific feature flags and service endpoints once during startup.
-Many parts of the application need read-only access to that configuration.
+## Quick Summary
 
-What we are solving actually:
-We are solving controlled shared access, not “easy global access.”
-If configuration is loaded once, remains immutable, and is genuinely process-wide, a singleton can be a reasonable boundary.
-If the object starts holding mutable runtime state, the same pattern quickly turns into hidden global coupling.
+| Question | Good answer for Singleton | Warning sign |
+| --- | --- | --- |
+| Does exactly one process-wide instance make sense? | yes | not really, but convenient |
+| Is the state immutable after startup? | yes | no, callers keep changing it |
+| Would dependency injection work just as well? | sometimes, and often better | ignored because singleton is easier |
+| Is test isolation still easy? | yes, if singleton stays small and immutable | no, tests leak state through global access |
 
-What we are doing actually:
-
-1. Create one immutable configuration holder.
-2. Initialize it lazily and safely.
-3. Expose read-only accessors only.
-4. Keep mutation and runtime refresh logic out of the singleton itself.
-
----
+The safe rule is:
+singleton is acceptable for process-wide immutable state, and dangerous for mutable runtime behavior.
 
 ## When Singleton Is Legitimate
 
-Good use cases:
+Singleton can be reasonable when all of these are true:
 
-- process-wide immutable configuration
-- a coordinated registry with controlled lifecycle
-- lightweight stateless services where multiple instances add no value
+1. the instance is genuinely process-wide
+2. multiple instances would not add value
+3. the state is immutable or tightly controlled
+4. lifecycle is simple and explicit
 
-Bad use cases:
+Good examples:
 
-- hiding global mutable state
-- replacing dependency injection
-- sharing state to avoid proper object design
+- immutable startup configuration
+- carefully owned registry metadata
+- a tiny bootstrap-time adapter around one shared resource
 
----
+Bad examples:
 
-## Example Problem
+- request-scoped data disguised as a singleton
+- mutable caches with unclear ownership
+- counters, toggles, or feature state modified from everywhere
+- "easy access from anywhere"
 
-Our application loads environment-specific feature flags and service endpoints once during startup.
-Every part of the application needs read-only access to that configuration.
+## A Configuration Registry Is a Narrowly Valid Case
 
----
+Configuration is a better singleton candidate because:
 
-## UML
+- it is loaded once
+- it is usually shared across the process
+- most callers only need read access
+- immutability is often desirable anyway
+
+That still does not mean every configuration object must be a singleton.
+Constructor injection is often cleaner.
+But if you truly need one shared immutable registry, this is one of the safer places to use the pattern.
+
+## Structure at a Glance
 
 ```mermaid
 classDiagram
@@ -82,9 +89,10 @@ classDiagram
     }
 ```
 
----
+The important part is not the pattern label.
+It is that callers get read-only access to stable configuration, not to a global mutation hub.
 
-## Implementation Walkthrough
+## A Better Java Implementation
 
 ```java
 import java.util.Collections;
@@ -103,7 +111,7 @@ public final class AppConfigurationRegistry {
     }
 
     private static final class Holder {
-        private static final AppConfigurationRegistry INSTANCE = new AppConfigurationRegistry(); // Lazy, classloader-safe initialization.
+        private static final AppConfigurationRegistry INSTANCE = new AppConfigurationRegistry();
     }
 
     public static AppConfigurationRegistry getInstance() {
@@ -120,77 +128,94 @@ public final class AppConfigurationRegistry {
 }
 ```
 
-Usage:
+This is a good example because it is intentionally boring.
+It loads data once, wraps it immutably, and exposes read-only behavior.
 
-```java
-public final class CheckoutService {
-    public void printConfiguration() {
-        AppConfigurationRegistry config = AppConfigurationRegistry.getInstance();
-        System.out.println(config.get("payment.provider"));
-        System.out.println(config.isEnabled("feature.dynamicPricing"));
-    }
-}
-```
+## Why the Holder Idiom Is the Right Default Here
 
-This example keeps the singleton intentionally boring. That is a good property.
-It exposes read-only configuration and avoids becoming a hidden dependency bucket for unrelated concerns such as request-scoped data, counters, or mutable caches.
-
----
-
-## Why the Holder Idiom Works
-
-It gives:
+The initialization-on-demand holder idiom gives you:
 
 - lazy initialization
-- thread-safe instance creation via class loading semantics
-- no explicit synchronization cost on reads
+- thread-safe construction through class loading
+- no synchronization overhead on reads
 
-That is a better default than manually synchronized `getInstance()` methods in most Java codebases.
+That is usually better than:
 
----
+- synchronized `getInstance()`
+- ad hoc double-checked locking
+- custom initialization flags
 
-## What to Avoid
+If the only thing you need is one lazily initialized immutable instance, the holder idiom is the least noisy solution.
 
-Do not evolve this into a mutable dumping ground:
+## Where Singleton Starts Becoming Dangerous
 
-```java
-public void put(String key, String value) {
-    // This is exactly how a clean singleton turns into hidden global state.
-}
-```
+### Mutable global state
 
-If runtime updates are needed, introduce a well-defined refresh mechanism with explicit synchronization and ownership.
+Once the singleton starts exposing mutation methods, it stops being a clean registry and becomes hidden shared state.
 
----
+### Implicit dependencies
 
-## Testing Considerations
+If services call `getInstance()` deep inside business code, the dependency is now global and harder to substitute or test.
 
-Singletons complicate test isolation.
-This example reduces the problem by keeping the singleton immutable.
+### Multiple logical runtimes
 
-If tests need alternative configuration, a better design is:
+Classloader boundaries, plugin systems, or test containers can create more than one "singleton" anyway.
+That makes casual assumptions fragile.
 
-- keep the singleton only at application bootstrap
-- pass actual values into services via constructors
+### Feature creep
 
-That way the singleton is a startup detail, not a deep runtime dependency.
+A configuration singleton often starts clean, then accumulates:
 
-That distinction is what usually separates acceptable singleton usage from the kind that makes a codebase harder to test and reason about.
+- refresh logic
+- metrics
+- caches
+- environment branching
 
----
+That is when the boundary should usually be split.
 
-## Debug Steps
+## Better Alternatives When the Design Grows
 
-Debug steps:
+Prefer constructor injection when:
 
-- confirm the singleton is immutable after construction
-- verify tests do not depend on hidden state left by previous test cases
-- inspect whether `getInstance()` is being used as a shortcut instead of proper dependency wiring
-- check whether different classloaders or test runners create multiple logical singleton instances
+- the object is really just a dependency
+- tests need easy substitution
+- the lifecycle is already managed by an application framework
 
----
+Prefer explicit registry ownership when:
+
+- refresh or reload behavior exists
+- different subsystems need different configuration views
+- plugin or tenant boundaries matter
+
+Singleton is not wrong just because dependency injection exists.
+It is wrong when it hides a richer lifecycle than the pattern can safely carry.
+
+## Testing Strategy
+
+If you keep Singleton, keep it easy to test by making the instance:
+
+- immutable
+- small
+- read-only
+
+Also test:
+
+- initialization behavior
+- values are not externally mutable
+- callers do not rely on hidden runtime mutation
+
+The moment tests need "reset singleton state" hooks, the design is usually drifting in the wrong direction.
 
 ## Practical Rule
 
-If you cannot explain why exactly one instance must exist, do not use Singleton.
-If the only reason is “easy access from anywhere,” that is not a valid reason.
+Use Singleton only when exactly one instance is a real design fact, not just a convenience.
+
+For configuration registries, that can be true.
+For most other runtime behavior, constructor injection or explicit ownership is usually the better answer.
+
+## Key Takeaways
+
+- Singleton is safest when the shared instance is small, immutable, and process-wide by design.
+- Configuration registry is one of the more legitimate use cases, but even there the boundary should stay narrow.
+- The holder idiom is a cleaner default than custom synchronization.
+- If the singleton becomes mutable or hard to test, it is probably solving the wrong problem.

@@ -23,101 +23,187 @@ header:
   show_overlay_excerpt: false
   caption: Distributed System Design Patterns and Tradeoffs
 ---
-Distributed rate limiting algorithms at scale is a systems trade-off, not a binary rule. Latency, ownership, failure recovery, and operator visibility all matter more than whether the pattern sounds theoretically elegant.
+Rate limiting is usually introduced as a traffic-control feature, but in distributed systems it is really a semantics problem. What exactly are you limiting: requests per second, tokens consumed, writes per tenant, concurrent sessions, or expensive operations against a shared dependency? If that answer is vague, the limiter may be technically correct and still wrong for the business.
 
----
+The second reality is that "distributed" changes the problem more than the algorithm name does. The moment multiple instances enforce the same policy, you are dealing with clock skew, hot keys, partial updates, store latency, and fairness tradeoffs that do not exist in a single-process limiter.
 
-## Problem 1: Distributed rate limiting algorithms at scale
+## Quick Summary
 
-Problem description:
-We want distributed rate limiting algorithms at scale to improve reliability and coordination without creating operational complexity we cannot observe or recover from. This part focuses on the baseline model and the safe default shape.
+| Algorithm | Best at | Main downside |
+| --- | --- | --- |
+| Fixed window | Simple quotas and cheap counters | Allows boundary bursts and coarse fairness |
+| Sliding log/window | Better fairness over time | More memory, more coordination cost |
+| Token bucket | Controlled bursts with steady refill | Requires careful refill semantics across instances |
+| Leaky bucket | Smoothing egress rate | Less intuitive for tenant-facing quotas |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For distributed systems, the hidden risk is that a locally correct mechanism can still fail badly once latency, partial failure, and recovery are involved.
+The more important choice is often not the algorithm itself. It is the consistency model of the limit and the ownership of the counters.
 
-What we are doing actually:
+## Start With the Policy, Not the Primitive
 
-1. make the distributed workflow explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the distributed workflow explicit: choose the simplest baseline design that preserves correctness
-3. make the distributed workflow explicit: make observability visible from the first implementation
-4. make the distributed workflow explicit: validate the baseline with one concrete failure drill
+Before choosing a limiter, define the invariant in operational terms.
 
----
+Examples:
 
-## Why This Topic Matters
+- no tenant may exceed 500 writes per minute across all regions
+- one API key may burst to 50 requests, then sustain 10 per second
+- anonymous traffic must never consume more than 20 percent of shared capacity
+- each customer gets an isolated concurrency budget, not just a request-rate budget
 
-- correctness depends on time, retries, and partial failure, not only code structure
-- operators need clear recovery rules when coordination breaks down
-- latency and ownership trade-offs matter as much as algorithmic elegance
+Those are different policies and they often need different implementations.
 
----
+A common mistake is to choose token bucket because it sounds modern, then discover the real problem was fairness between noisy tenants or protecting a single backend shard from hot-key traffic.
 
-## Architecture Model
+## What Distributed Actually Adds
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Distributed rate limiting algorithms at scale]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+A local limiter is easy: one process owns the counter and time source. A distributed limiter must answer harder questions:
 
-The model keeps ownership, latency, and recovery visible because distributed rate limiting algorithms at scale is only useful when operators can still reason about it during partial failure.
-A simpler picture here is a feature: it exposes the trade-off the rest of the design must honor.
+- where is the source of truth for allowance or depletion
+- what happens if the counter store is slow or unavailable
+- how much over-admission is acceptable during races
+- whether limits are globally strict or approximately enforced
+- how hot tenants are partitioned to avoid one central bottleneck
 
----
+These are product decisions as much as technical ones. A payment API may require strict quotas and deterministic rejection. An analytics ingestion path may accept approximate fairness in exchange for lower latency and higher availability.
 
-## Practical Design Pattern
+## Algorithm Tradeoffs in Practice
 
-```text
-Control loop for Distributed rate limiting algorithms at scale:
-- choose one ownership rule
-- measure one correctness signal
-- define one rollback gate
-- avoid unbounded coordination
-```
+### Fixed window
 
-The sketch is not trying to simulate the whole system. It is there to pin down the most important control point behind distributed rate limiting algorithms at scale.
-Once that point is explicit, the team can add retries, leases, or replication details without losing the recovery story.
+Fixed window counters are attractive because they are simple to implement with a shared cache or database key. They work well for coarse quotas and dashboards are easy to explain.
 
----
+Their biggest weakness is the boundary effect. A client can send a burst at the end of one window and another at the beginning of the next, effectively doubling short-term throughput while still appearing compliant.
 
-## Failure Drill
+Use fixed windows when:
 
-Baseline drill: introduce a partial failure or delay and verify the coordination rule fails safely instead of ambiguously for distributed rate limiting algorithms at scale.
+- simplicity matters more than precise fairness
+- quotas are coarse, such as per minute or per hour
+- some burstiness is acceptable
 
-That drill matters early, before rollout assumptions harden into defaults because distributed rate limiting algorithms at scale only earns its complexity when recovery behavior stays understandable under delay, replay, or partial failure.
+### Sliding window or sliding log
 
----
+Sliding approaches reduce boundary artifacts and are better when the user-visible promise is smooth fairness. They cost more because you track events with finer granularity or maintain additional buckets.
 
-## Debug Steps
+Use them when:
 
-Debug steps:
+- tenant fairness matters visibly
+- abuse prevention needs time-smooth enforcement
+- you can afford more state and coordination work
 
-- measure the failure mode that matters before tuning the mechanism while validating distributed rate limiting algorithms at scale
-- check whether ownership, timeout, and replay rules are explicit while validating distributed rate limiting algorithms at scale
-- separate control-plane signals from data-plane success assumptions while validating distributed rate limiting algorithms at scale
-- test operator playbooks with synthetic drills before trusting them in production while validating distributed rate limiting algorithms at scale
+### Token bucket
 
----
+Token bucket is a strong default for public APIs because it matches how humans think about quotas: allow bounded bursts, then refill steadily. It is especially useful when occasional spikes are healthy but sustained overload is not.
 
-## Production Checklist
+The distributed challenge is refill ownership. If multiple nodes refill or consume tokens without a single authoritative view, you will over-admit during races.
 
-- ownership rule defined for the coordination point
-- latency or correctness budget attached to the mechanism
-- partial-failure recovery signal exposed to operators
-- rollback move documented before the pattern spreads
+Use token bucket when:
 
----
+- controlled bursting is desirable
+- limits need to feel permissive but still bounded
+- you have a robust shared counter or sharded token authority
 
-## Key Takeaways
+### Leaky bucket
 
-- Distributed rate limiting algorithms at scale should be designed as a production decision, not just an implementation detail
-- distributed mechanisms need recovery rules as much as steady-state logic
-- start from a measurable baseline before optimizing
+Leaky bucket is useful when you care about output smoothness more than burst semantics. It behaves more like traffic shaping than simple quota enforcement.
 
----
+Use it when:
 
-## Design Review Prompt
+- downstream systems require steady pacing
+- queue smoothing matters more than tenant-visible burst allowance
 
-A useful final check for distributed rate limiting algorithms at scale is whether the ownership boundary, rollback path, and main SLO signal can all be explained in three sentences. If not, the design is probably still too implicit.
+## Strictness Versus Availability
+
+This is one of the most important design choices and one that teams often avoid naming.
+
+When the rate-limit store is degraded, should the system:
+
+- fail open and risk overuse
+- fail closed and reject healthy traffic
+- fall back to local approximate limits
+
+There is no universally correct answer.
+
+Examples:
+
+- login protection and fraud controls often prefer fail closed
+- customer-facing APIs with strong uptime commitments often prefer approximate local fallback
+- internal control-plane operations may reserve a protected bypass lane
+
+If you do not make this decision explicitly, production will make it for you during the first cache outage.
+
+## Ownership and Key Design Matter More Than People Expect
+
+Most distributed limiters struggle not because the math is hard, but because the keys are wrong.
+
+Bad key choices create:
+
+- hot partitions for large tenants
+- unfair sharing between unrelated workloads
+- poor debuggability because the rejection reason is opaque
+
+A strong key usually includes the real ownership boundary:
+
+- tenant or account identifier
+- API key or client identity
+- operation type or endpoint class
+- sometimes region or shard when local protection matters
+
+If the key mixes workloads with very different cost profiles, the limiter will look random to users and operators.
+
+## Common Failure Modes
+
+### Hot counter meltdown
+
+One large tenant drives almost all writes to a single shared counter key. The limiter store becomes the new bottleneck and you have effectively moved overload instead of preventing it.
+
+### Clock-skew unfairness
+
+Time-based refill or sliding window logic depends on local clocks that drift enough to create inconsistent allowance across instances.
+
+### Global limit, local bypass
+
+Most requests honor the distributed limiter, but one batch path or internal worker uses a direct code path and bypasses it entirely. The policy becomes incomplete exactly where load is highest.
+
+### Retry amplification after `429`
+
+Clients treat rate-limit rejection as a signal to retry immediately. The limiter works, but the system remains noisy because callers do not honor backoff semantics.
+
+## Metrics and Operator Visibility
+
+A limiter is only production-ready when operators can answer three questions quickly:
+
+- who is being limited
+- why they are being limited
+- whether the limiter is protecting capacity or just causing noise
+
+Track:
+
+- allowed versus rejected requests by tenant and endpoint
+- limiter store latency and error rate
+- fallback-mode activation count
+- hot-key distribution
+- estimated versus actual fairness across tenants
+- client retry behavior after rejection
+
+It is also worth logging the policy key and reason code for rejections. Otherwise every `429` incident turns into guesswork.
+
+## Failure Drill Worth Running
+
+Pick one hot tenant and one normal tenant. Then simulate a spike while degrading the shared counter store.
+
+Verify that:
+
+- the hot tenant cannot starve the normal tenant
+- rejection semantics remain consistent
+- fallback mode behaves as designed, not accidentally
+- limiter latency does not become worse than the traffic it is protecting
+- operator dashboards show where the pressure is concentrated
+
+That drill reveals whether you built a usable limiter or just a distributed counter with optimistic branding.
+
+## Practical Decision Rule
+
+Choose the limiter algorithm based on the user-facing semantics first, then design the distributed ownership model around that choice.
+
+If you need cheap coarse quotas, fixed windows are often enough. If you need smooth fairness, sliding approaches justify their cost. If you need controlled bursts, token bucket is usually the most practical default. Across all of them, the hardest questions are the same: where counters live, how strict enforcement must be, and what happens during partial failure.
+
+The best distributed limiter is not the most clever one. It is the one whose semantics remain understandable when the counter store is slow, one tenant goes hot, and on-call has to explain every rejection at 2 a.m.

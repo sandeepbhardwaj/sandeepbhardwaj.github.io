@@ -23,95 +23,230 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-Immutability and concurrency-safe object modeling (Part 2) matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Part 1 established the baseline idea:
+immutability is often the cleanest way to make object behavior easier to reason about under concurrency.
 
----
+Part 2 is where teams usually get into trouble.
+They accept the idea in principle, then quietly reintroduce races through mutable collections, unsafe publication, cache-backed fields, or "just this one setter during bootstrap."
 
-## Problem 1: Immutability and concurrency-safe object modeling (Part 2)
+The real design question is not "should we like immutable objects?"
+It is "where does mutation live, and how do we stop it from leaking across thread boundaries?"
 
-Problem description:
-We want immutability and concurrency-safe object modeling (part 2) to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+## Quick Summary
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+| Pressure | Good direction | Common mistake |
+| --- | --- | --- |
+| read-heavy shared state | immutable snapshots | synchronized mutable maps everywhere |
+| configuration refresh | rebuild a new object graph, then swap atomically | mutate fields in place |
+| collections in domain objects | defensive copy on input and output | exposing live lists or maps |
+| lazy derived values | compute once safely or precompute | unsafely memoizing without publication discipline |
 
-What we are doing actually:
+The most useful mental model is:
+keep a small mutable shell around an immutable core, not a big mutable object that hopes callers behave.
 
-1. make the domain model explicit: stress the baseline with the most likely failure or contention mode
-2. make the domain model explicit: introduce one hardening mechanism at a time
-3. make the domain model explicit: measure the operational trade-off instead of trusting intuition
-4. make the domain model explicit: document where the pattern should stop and another pattern should begin
+## Where Immutability Starts Paying Rent
 
----
+Immutability matters most when an object crosses one of these boundaries:
 
-## Why This Topic Matters
+- between threads
+- between asynchronous stages
+- into a cache
+- into long-lived shared application state
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+Inside one short-lived request path, mutable objects can be fine.
+The trouble begins when the same object instance becomes shared state.
 
----
+That is why immutable models are so effective for:
 
-## Architecture Model
+- pricing rules
+- feature configuration
+- policy objects
+- read models
+- command objects
+
+They give readers one stable picture instead of a moving target.
+
+## The Boundary That Matters: Mutable Shell, Immutable Core
+
+A practical architecture often looks like this:
 
 ```mermaid
-flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Immutability and concurrency-safe object modeling (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+flowchart LR
+    A[Inputs / updates] --> B[Mutable assembly or coordination layer]
+    B --> C[Immutable domain snapshot]
+    C --> D[Readers, caches, async work]
 ```
 
-The model is deliberately centered on boundary, invariant, and change pressure so immutability and concurrency-safe object modeling (part 2) reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
+The mutable shell does the work that genuinely requires mutation:
 
----
+- input gathering
+- validation sequencing
+- coordination with storage
+- controlled replacement of the current snapshot
 
-## Practical Design Pattern
+The immutable core does the work that benefits from stability:
+
+- shared reads
+- policy evaluation
+- downstream publication
+- cross-thread visibility
+
+That split is often much cheaper than putting locks inside every domain object.
+
+## Safe Publication Is the Real Concurrency Rule
+
+Immutability alone is not enough if the object is published unsafely.
+
+You still need one clear publication mechanism:
+
+- constructor-complete object assigned to a `final` field
+- replacement through a `volatile` reference
+- publication through thread-safe initialization
+- handoff through a concurrent queue or executor boundary
+
+Example:
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: Immutability and concurrency-safe object modeling (Part 2)
+public final class PricingRules {
+    private final Map<String, Integer> markupByRegion;
+
+    public PricingRules(Map<String, Integer> markupByRegion) {
+        this.markupByRegion = Map.copyOf(markupByRegion);
+    }
+
+    public int markupFor(String region) {
+        return markupByRegion.getOrDefault(region, 0);
+    }
+}
+
+public final class PricingRulesRegistry {
+    private volatile PricingRules current = new PricingRules(Map.of());
+
+    public PricingRules current() {
+        return current;
+    }
+
+    public void replace(Map<String, Integer> freshRules) {
+        current = new PricingRules(freshRules);
     }
 }
 ```
 
-The code stays compact so the design boundary for immutability and concurrency-safe object modeling (part 2) is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+The registry is mutable.
+The rules object is not.
+That is usually the better design boundary.
 
----
+## The Most Common Leaks
 
-## Failure Drill
+### Mutable collections hidden inside "immutable" objects
 
-Hardening drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for immutability and concurrency-safe object modeling (part 2).
+This is the classic fake-immutability bug.
 
-That drill matters while the design is being stressed by mixed versions, retries, or recovery edge cases because object designs for immutability and concurrency-safe object modeling (part 2) often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+```java
+public final class ReportConfig {
+    private final List<String> regions;
 
----
+    public ReportConfig(List<String> regions) {
+        this.regions = regions; // bad
+    }
+}
+```
 
-## Debug Steps
+If the caller still owns the list, the object is not truly immutable.
 
-Debug steps:
+Use a defensive copy:
 
-- write one failing invariant test before changing the design while validating immutability and concurrency-safe object modeling (part 2)
-- inspect whether responsibilities are gathering in one object for convenience while validating immutability and concurrency-safe object modeling (part 2)
-- prefer boundaries that stay understandable during refactor pressure while validating immutability and concurrency-safe object modeling (part 2)
-- use tests to expose temporal coupling or hidden dependencies while validating immutability and concurrency-safe object modeling (part 2)
+```java
+this.regions = List.copyOf(regions);
+```
 
----
+### Partially initialized publication
 
-## Production Checklist
+If an object escapes during construction, the fact that fields are "meant to be immutable" does not save the design.
 
-- edge-case rule encoded as a failing test before refactor
-- coupling increase measured against the promised design benefit
-- debug path still shorter after the extra abstraction
-- design notes updated with the new invariant pressure
+### Lazy caches with no synchronization story
 
----
+Teams often add:
+
+```java
+private ExpensiveValue cached;
+```
+
+and then quietly introduce visibility races.
+If lazy derivation matters, either:
+
+- precompute it
+- compute it once behind a clear concurrency primitive
+- or accept recomputation if it is cheap enough
+
+### Builders that outlive their purpose
+
+Builders are fine as mutation zones.
+They should not become shared runtime objects.
+
+## When Immutability Is the Wrong Default
+
+Not every object needs to be immutable.
+
+Be cautious when:
+
+- the object is a short-lived internal accumulator
+- mutation is local and not shared
+- copying costs are significant and the object graph is huge
+- the real problem is coordination or ownership, not field mutation
+
+For example, a workflow engine runtime object that accumulates transition state inside one thread may be fine as mutable.
+What matters is that the mutable state does not become casually shared.
+
+## A Better Design Rule for Refreshable State
+
+For refreshable configuration, model the problem as snapshot replacement, not in-place mutation.
+
+Bad mental model:
+"Update the live object carefully."
+
+Better mental model:
+"Build the next valid snapshot, then swap the reference."
+
+That approach usually improves:
+
+- correctness
+- rollback behavior
+- testability
+- observability during reloads
+
+## Testing Strategy
+
+Useful tests are not only "field has no setter."
+
+Test for:
+
+1. defensive-copy behavior
+2. safe replacement under concurrent reads
+3. no visible partial state during refresh
+4. unchanged readers after publication
+
+Example questions:
+
+- can a caller mutate input collections after construction?
+- do concurrent readers ever observe a half-updated configuration?
+- can a refresh be rolled back by swapping to the previous snapshot?
+
+## Practical Rule of Thumb
+
+Use immutability aggressively for values that are shared, cached, or published across threads.
+
+Keep mutation at the edges:
+
+- assembly
+- persistence coordination
+- explicit reference replacement
+
+If the design needs locks inside every object just to remain trustworthy, it is often a sign that mutation lives too deep in the model.
 
 ## Key Takeaways
 
-- Immutability and concurrency-safe object modeling (Part 2) should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- harden one failure mode at a time instead of stacking speculative complexity
+- Immutability helps most when paired with safe publication, not treated as a style preference.
+- A mutable shell around an immutable core is often the most practical concurrency-safe shape.
+- Defensive copies and snapshot replacement matter more than slogans about pure objects.
+- If shared state must change, prefer atomic replacement of immutable state over in-place mutation.

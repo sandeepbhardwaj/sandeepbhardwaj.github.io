@@ -25,96 +25,186 @@ header:
   show_overlay_excerpt: false
   caption: Microservices Architecture and Reliability Patterns
 ---
-SAGA orchestration vs choreography with compensation logic (Part 3) is not just a diagramming exercise. The hard part is deciding where ownership, failure handling, and change coordination should live once the system is split across services.
+Part 1 is usually about the baseline choice.
+Part 2 is about hardening the failure semantics.
+Part 3 is where teams either turn the saga into an operable production system or into a permanent incident generator.
 
----
+At this stage, the technical question is no longer just orchestration vs choreography.
+It is governance:
+who owns compensation logic, what rollout is safe, and how does the system prove it is still correct when new steps, services, and versions arrive?
 
-## Problem 1: SAGA orchestration vs choreography with compensation logic (Part 3)
+## Quick Summary
 
-Problem description:
-We want to use saga orchestration vs choreography with compensation logic (part 3) without creating hidden coupling, rollout friction, or a distributed monolith. This part focuses on rollout, governance, and how to keep the design healthy after day one.
+| Question | Safer default |
+| --- | --- |
+| who may add a new saga step | one clearly owned change path with compatibility rules |
+| when is compensation allowed to change | only with explicit replay and rollback review |
+| how should rollout happen | staged release with stuck-saga and compensation metrics |
+| what kills operability fastest | unclear ownership of side effects and compensation authority |
 
-What we are solving actually:
-We are solving for long-term operability: rollout safety, ownership rules, and the playbook that keeps the design from decaying in production. For service architectures, the hidden risk is usually coupling that migrates from code into network boundaries and release processes.
+Part 3 is about keeping the saga healthy after day one, not just making the diagram look elegant.
 
-What we are doing actually:
+## What Usually Breaks After the First Release
 
-1. make the service landscape explicit: define a staged rollout or migration plan
-2. make the service landscape explicit: attach clear ownership and rollback rules
-3. make the service landscape explicit: codify verification gates around latency, errors, or correctness
-4. make the service landscape explicit: write the operator playbook before the first real incident forces it
+A saga design may look fine in staging and still fail in production because:
 
----
+- a new service adds a side effect that is not truly compensatable
+- compensation logic changes in one service but not in another
+- orchestration and local service policies drift over time
+- event choreography grows implicit dependencies no one now owns
+- operators cannot tell whether a workflow is delayed, stuck, compensating, or waiting legitimately
 
-## Why This Topic Matters
+The hard part is not invoking the next step.
+It is preserving ownership and reversibility as the workflow evolves.
 
-- service boundaries become release and incident boundaries too
-- latency and ownership trade-offs often dominate abstract purity
-- one unclear contract can multiply operational friction across many teams
+## The Real Part 3 Question
 
----
+Ask this directly:
 
-## Architecture Model
+who is allowed to change the business sequence, and who is allowed to change the undo sequence?
+
+Those are not always the same team.
+
+If that answer is fuzzy, the system eventually accumulates:
+
+- partial compensation
+- replay ambiguity
+- version drift
+- broken audit trails
+
+Sagas fail less often because the idea is wrong and more often because nobody owned the long-term contract.
+
+## Orchestration vs Choreography in the Long Run
+
+By Part 3, the architectural difference becomes more operational than stylistic.
+
+### Orchestration tends to centralize
+
+- workflow visibility
+- timeout ownership
+- retry policy
+- compensation sequencing
+
+That helps when the business flow needs strong auditability and coordinated rollback.
+
+### Choreography tends to distribute
+
+- local autonomy
+- event ownership
+- coupling through emitted facts instead of direct control
+
+That helps when the flow is naturally decentralized and services should not all depend on one workflow brain.
+
+The danger is not choosing one or the other.
+The danger is pretending you have choreography while a hidden orchestrator still exists in one team’s head.
+
+## Governance Rules Worth Writing Down
+
+Before scaling the saga, define:
+
+1. which steps are required for success
+2. which failures trigger compensation versus manual handling
+3. which compensations are guaranteed and which are best effort
+4. how version skew is handled during rollout
+5. who owns workflow timeouts and replay approval
+
+Those rules are more important than another architecture diagram.
+
+## A Practical Rollout Model
 
 ```mermaid
 flowchart TD
-    A[Approved design] --> B[Canary rollout]
-    B --> C{SLO and correctness gates pass?}
-    C -->|Yes| D[Promote SAGA orchestration vs choreography with compensation logic (Part 3)]
-    C -->|No| E[Rollback / revise]
+    A[New saga step or compensation change] --> B[Compatibility review]
+    B --> C[Canary rollout]
+    C --> D{Stuck saga, timeout, and compensation metrics healthy?}
+    D -->|Yes| E[Promote rollout]
+    D -->|No| F[Rollback or freeze step]
 ```
 
-The picture focuses on ownership, contracts, and failure flow because those are the expensive parts to undo once saga orchestration vs choreography with compensation logic (part 3) is live.
-If a diagram cannot make those boundaries obvious, the implementation usually hides coupling rather than removing it.
+The key is that rollout is not just deployment success.
+It is proof that the workflow still compensates and converges under mixed-version conditions.
 
----
+## Metrics That Actually Matter
 
-## Practical Design Pattern
+Do not stop at request success rate.
+Watch:
 
-```java
-public final class ServiceBoundary {
-    public Decision evaluate(Command command) {
-        // Keep ownership and failure policy explicit for: SAGA orchestration vs choreography with compensation logic (Part 3)
-        return Decision.accept();
-    }
-}
-```
+- saga completion time by version
+- compensation rate by step
+- stuck-in-progress count
+- retry amplification count
+- manual intervention rate
+- timeout-to-compensation lag
+- replay outcomes after partial failure
 
-The example is small on purpose: it shows where the decision enters and who owns the consequence when saga orchestration vs choreography with compensation logic (part 3) is applied.
-That is usually more valuable in review than a larger demo that hides contracts behind extra scaffolding.
+If the only dashboard says "messages are flowing," the system is not observable enough.
 
----
+## Where Compensation Logic Goes Wrong
 
-## Failure Drill
+### Compensation is not a true inverse
 
-Rollout drill: degrade one dependency and observe whether the boundary still contains failure instead of amplifying it for saga orchestration vs choreography with compensation logic (part 3).
+Refunding money, releasing inventory, or canceling a shipment may not restore the world to its exact previous state.
 
-That drill matters before the operator playbook is treated as trustworthy because service boundaries around saga orchestration vs choreography with compensation logic (part 3) usually break through coordination delay and unclear ownership long before they break through code syntax.
+That is why compensation must be treated as business policy, not mathematical undo.
 
----
+### Teams add non-compensatable side effects casually
 
-## Debug Steps
+Email, third-party notifications, and irreversible partner calls often sneak into a flow that was designed as if everything could be rolled back.
 
-Debug steps:
+That is usually where the clean saga story ends.
 
-- map the exact ownership boundary before discussing implementation mechanics while validating saga orchestration vs choreography with compensation logic (part 3)
-- measure network and retry impact separately from business logic correctness while validating saga orchestration vs choreography with compensation logic (part 3)
-- look for hidden coupling in shared databases, release order, or schemas while validating saga orchestration vs choreography with compensation logic (part 3)
-- validate canary behavior under one realistic dependency failure while validating saga orchestration vs choreography with compensation logic (part 3)
+### Version drift breaks old workflows
 
----
+Long-running sagas can span deploys.
+If a new version cannot understand old events or compensation contracts, the rollout itself becomes a failure mode.
 
-## Production Checklist
+### Manual recovery is undocumented
 
-- service ownership and rollback responsibilities finalized
-- SLO and contract checks attached to promotion gates
-- operator playbook covers degradation and reversal clearly
-- post-migration cleanup rule prevents old coupling from lingering
+Some failures will require human intervention.
+If that path is not explicit, operators improvise during incidents and create more damage.
 
----
+## A Useful Failure Drill
+
+Simulate this sequence:
+
+1. one step succeeds
+2. the next step times out
+3. compensation starts
+4. a new version deploys mid-compensation
+5. one service is temporarily unavailable
+
+Then verify:
+
+- which component owns retry and timeout decisions
+- whether compensation still runs correctly across versions
+- whether operators can tell the workflow state without reading source code
+- whether rollback is safe or whether manual recovery is required
+
+If the answers are unclear, the saga is not production-ready yet.
+
+## Practical Decision Rule
+
+By Part 3, prefer orchestration when:
+
+- compensation order matters strongly
+- auditability is central
+- cross-step timeout ownership must be explicit
+
+Prefer choreography when:
+
+- services truly own their local reactions
+- the flow is fact-driven rather than centrally sequenced
+- the team can tolerate looser global visibility
+
+Prefer neither blindly if:
+
+- compensation is mostly fake
+- rollout compatibility rules do not exist
+- manual recovery is still tribal knowledge
 
 ## Key Takeaways
 
-- SAGA orchestration vs choreography with compensation logic (Part 3) should be designed as a production decision, not just an implementation detail
-- boundaries are only good when ownership and failure semantics remain clear
-- the runbook and rollout policy are part of the design itself
+- Part 3 is about governance, rollout, and operability, not just pattern vocabulary.
+- A saga remains healthy only if ownership of forward steps and compensation logic stays explicit.
+- Compensation is business policy, not magical undo.
+- Mixed-version rollout and stuck-workflow visibility are first-class design concerns.

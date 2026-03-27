@@ -20,15 +20,42 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This post explains how a latch works internally using a simplified custom implementation.
+Building a custom `CountDownLatch` is a good learning exercise because it forces you to reason about waiting, signaling, ownership of shared state, and why "simple" coordination code fails so easily.
 
-## Real-World Use Cases
+It is usually a bad production default.
 
-- wait until all startup checks complete
-- block request processing until warm-up jobs finish
-- coordinate integration test phases
+That tension is the point of the article:
+learn the mechanics deeply, then prefer the JDK primitive unless you truly need a specialized variation.
 
-## Simplified Implementation
+## Quick Decision Guide
+
+| Goal | Build your own latch? |
+| --- | --- |
+| understand how one-shot coordination works | yes, for learning |
+| ship production startup or worker coordination | no, use `CountDownLatch` |
+| support timeouts, diagnostics, or interruption policy reliably | no, use JDK utilities |
+| experiment with custom semantics in a controlled sandbox | maybe |
+
+The main lesson is not "I can outbuild `java.util.concurrent`."
+It is "coordination primitives are easy to get almost right and surprisingly hard to get fully right."
+
+## What a Latch Actually Solves
+
+A latch solves one-shot coordination:
+
+- one or more threads wait
+- some other threads finish work
+- once the count reaches zero, the waiting side proceeds
+
+That is different from:
+
+- a lock, which protects a critical section
+- a semaphore, which limits concurrency
+- a barrier, which coordinates repeated phases
+
+If the problem repeats in cycles, latch is usually the wrong primitive.
+
+## Minimal Educational Implementation
 
 ```java
 public class CustomCountDownLatch {
@@ -55,30 +82,49 @@ public class CustomCountDownLatch {
 }
 ```
 
-## Missing Features in Simplified Version
+This is a good teaching example because it shows the essential rule:
+waiters sleep until a shared count reaches zero, and releasers publish progress by decrementing that count.
 
-The custom latch above demonstrates core mechanics, but it omits production needs:
+## Why `while` Around `wait()` Matters
 
-- timed wait (`await(timeout, unit)`)
-- state visibility/introspection (`getCount()`)
-- interruption policy and cancellation orchestration
-- robust diagnostics for stalled countdowns
+This line is one of the most important in the whole article:
 
-That is why `java.util.concurrent.CountDownLatch` should be the default in real code.
+```java
+while (counter > 0) {
+    wait();
+}
+```
 
-## Java 8/11/17/21/25 Guidance
+Use `while`, not `if`, because waiting threads must re-check the condition after waking.
+That protects against:
 
-- Java 8+: Prefer built-in `java.util.concurrent.CountDownLatch` in production.
-- JDK 11 / Java 17: Same API and usage model; no migration changes for latch semantics.
-- Java 21+: Same API remains best choice even with virtual threads.
-- Java 25: No migration pressure expected for latch semantics.
+- spurious wakeups
+- missed assumptions about who changed the state
+- future modifications that wake multiple threads
 
-## Production API Equivalent (`CountDownLatch`)
+If you teach only one thing from custom concurrency primitives, teach that rule.
+
+## What This Simplified Version Leaves Out
+
+The example is useful, but it is intentionally incomplete.
+
+Missing production-grade concerns include:
+
+- timeout support
+- interruption policy choices
+- count inspection
+- stronger diagnostics for stuck waits
+- safe composition with cancellation and shutdown
+
+That is exactly why the built-in primitive exists.
+
+## The Production Equivalent
 
 ```java
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class StartupChecks {
     public static void main(String[] args) throws InterruptedException {
@@ -89,12 +135,16 @@ public class StartupChecks {
         pool.submit(() -> runCheck("cache", latch));
         pool.submit(() -> runCheck("queue", latch));
 
-        latch.await(); // wait for all checks
+        boolean ok = latch.await(10, TimeUnit.SECONDS);
+        if (!ok) {
+            throw new IllegalStateException("startup checks did not finish in time");
+        }
+
         System.out.println("All checks complete. Start application.");
         pool.shutdown();
     }
 
-static void runCheck(String name, CountDownLatch latch) {
+    static void runCheck(String name, CountDownLatch latch) {
         try {
             // perform check
         } finally {
@@ -104,78 +154,69 @@ static void runCheck(String name, CountDownLatch latch) {
 }
 ```
 
-## Timeout + Fail-Fast Startup Pattern
+This shows two production habits that matter:
 
-In services, waiting forever is risky. Prefer bounded await and explicit failure action.
+- `countDown()` in `finally`
+- bounded `await()` instead of waiting forever
 
-```java
-boolean ok = latch.await(10, TimeUnit.SECONDS);
-if (!ok) {
-    throw new IllegalStateException("startup checks did not finish in time");
-}
-```
+## Where Custom Latches Usually Go Wrong
 
-If one check fails hard, record failure cause and still `countDown()` in `finally` to avoid deadlock.
+### Missing timeout support
 
-## Happens-Before Guarantee (Why It Matters)
+Waiting forever is acceptable in toy code and dangerous in startup or request paths.
 
-`CountDownLatch` provides a visibility guarantee:
+### No clear interruption policy
 
-- actions before `countDown()` in worker thread
-- become visible after successful `await()` return in waiting thread
+Real systems need to decide whether interruption:
 
-This makes it safe to publish warm-up results before releasing startup flow.
+- aborts the wait
+- propagates outward
+- triggers cleanup
 
-## Common Pitfalls
+The custom example leaves that policy mostly untouched.
 
-1. Forgetting `countDown()` on exception path.
-2. Using latch for cyclic phases (it is one-shot).
-3. Blocking on `await()` with no timeout in critical startup path.
-4. Sharing one latch across unrelated workflows.
+### Reuse confusion
+
+A latch is one-shot.
+If the design needs repeated phases, use `CyclicBarrier` or `Phaser`.
+
+### Hidden missed `countDown()`
+
+This is the classic production bug.
+One exception path forgets to decrement, and the waiting thread appears "randomly stuck."
+
+## Memory Visibility Matters Too
+
+`CountDownLatch` is useful not only because it blocks.
+It also provides a happens-before relationship:
+
+- work performed before `countDown()`
+- becomes visible after another thread successfully returns from `await()`
+
+That visibility guarantee is part of the value.
+It means the primitive is coordinating both timing and memory effects.
 
 ## Testing Strategy
 
-- unit test normal completion path
-- test exception path still decrements latch
-- test timeout behavior deterministically
-- test concurrent runs to catch missed `countDown()` branches
+If you build a simplified latch for learning, test:
+
+1. normal release after the count reaches zero
+2. no early release while count is still positive
+3. multiple waiting threads
+4. exception paths that still decrement correctly
+
+If those tests are painful to write, that pain is useful feedback:
+you are looking at exactly why hand-rolled concurrency primitives are risky.
+
+## Practical Rule
+
+Use a custom latch only as an educational tool or for a deliberately specialized experiment.
+
+For normal production coordination, prefer `java.util.concurrent.CountDownLatch` and spend your design energy on timeout policy, cancellation, and observability instead of reimplementing the primitive.
 
 ## Key Takeaways
 
-- Always use `while` around `wait()`.
-- Custom implementation is educational; built-in class is production-ready.
-- Latch is one-time use; use `CyclicBarrier`/`Phaser` for repeated phases.
-- Prefer timeout-based awaits for production safety.
-
----
-
-            ## Problem 1: Use Create a Custom CountDownLatch in Java Without Hiding Concurrency Risk
-
-            Problem description:
-            Concurrency primitives become dangerous when ownership, visibility, and cancellation rules live only in the author's head. That is why bugs in this area often feel random even though the underlying rule was always missing.
-
-            What we are solving actually:
-            We are making the shared-state rule explicit so a reviewer can answer who owns the state, how threads coordinate, and what signal proves contention or visibility is under control.
-
-            What we are doing actually:
-
-            1. define the shared state or work queue involved
-            2. name the exact synchronization or visibility rule protecting it
-            3. observe contention, blocking, or lifecycle behavior under stress
-            4. simplify the design if a snapshot or immutable handoff removes the race entirely
-
-            ```mermaid
-flowchart LR
-    A[Shared state] --> B[Concurrency boundary]
-    B --> C[Visibility or lock rule]
-    C --> D[Observed contention / correctness]
-```
-
-            ## Debug Steps
-
-            Debug steps:
-
-            - take thread dumps while the system is slow, not after it recovers
-            - verify every wait, lock, or signal path has a clear owner
-            - test cancellation and shutdown behavior, not only happy-path throughput
-            - reduce shared mutable state first before adding more synchronization
+- A latch is for one-shot coordination, not repeated phases.
+- `while (condition) wait()` is a non-negotiable rule in wait/notify code.
+- The built-in `CountDownLatch` is the right production default because it solves more than just blocking.
+- The educational value of a custom latch is real, but so is the risk of getting concurrency semantics subtly wrong.

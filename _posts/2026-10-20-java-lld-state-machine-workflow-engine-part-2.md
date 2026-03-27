@@ -23,95 +23,195 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-State-machine-driven workflow engines in Java (Part 2) matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Part 1 covered the baseline workflow-engine shape:
+states, transitions, guards, and a durable understanding of what is legal next.
 
----
+Part 2 is where workflow engines become real systems instead of elegant diagrams.
+The hard problems are no longer "how do I model a transition?"
+They are:
 
-## Problem 1: State-machine-driven workflow engines in Java (Part 2)
+- what happens during retries?
+- how do I persist progress?
+- how do I stop duplicate commands from replaying work?
+- what do operators need to diagnose a stuck instance?
 
-Problem description:
-We want state-machine-driven workflow engines in java (part 2) to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+That is where most naive state-machine designs start to bend.
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+## Quick Summary
 
-What we are doing actually:
+| Pressure | Good design move | Common mistake |
+| --- | --- | --- |
+| retries and duplicate delivery | transition idempotency | assume commands arrive once |
+| persistence | store state plus transition metadata | only store current status string |
+| long-running workflows | explicit timeout/retry model | hide waiting inside ad hoc logic |
+| operator debugging | transition history and failure reason | make status readable only in code |
 
-1. make the domain model explicit: stress the baseline with the most likely failure or contention mode
-2. make the domain model explicit: introduce one hardening mechanism at a time
-3. make the domain model explicit: measure the operational trade-off instead of trusting intuition
-4. make the domain model explicit: document where the pattern should stop and another pattern should begin
+The practical rule is:
+the state machine should decide legality, but the engine must also make progress observable and repeatable.
 
----
+## The First Hardening Step: Separate State Rules From Engine Concerns
 
-## Why This Topic Matters
+A workflow engine usually has two layers:
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+1. domain rules:
+   what transitions are legal?
+2. runtime concerns:
+   persistence, retries, deduplication, timeout handling, scheduling
 
----
+The design gets messy when those layers blur.
 
-## Architecture Model
+If state classes start owning database writes, retry loops, and remote calls, the engine becomes harder to test and harder to operate.
 
-```mermaid
-flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for State-machine-driven workflow engines in Java (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
-```
+A better split is:
 
-The model is deliberately centered on boundary, invariant, and change pressure so state-machine-driven workflow engines in java (part 2) reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
+- state machine decides the next legal state
+- engine coordinates side effects and durable progress
 
----
+## Idempotency Is Not Optional
 
-## Practical Design Pattern
+The moment a workflow is triggered by messages, retries, or operator replay, duplicate commands become normal.
+
+If the engine cannot safely answer "have I already applied this transition request?", it is not production-ready.
+
+Example shape:
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: State-machine-driven workflow engines in Java (Part 2)
+public record TransitionCommand(
+        String workflowId,
+        String commandId,
+        String transitionName
+) {}
+
+public final class WorkflowEngine {
+    public void apply(TransitionCommand command) {
+        if (transitionLog.alreadyApplied(command.workflowId(), command.commandId())) {
+            return;
+        }
+
+        WorkflowInstance instance = repository.load(command.workflowId());
+        WorkflowState next = stateMachine.transition(instance.state(), command.transitionName());
+
+        repository.save(instance.withState(next));
+        transitionLog.record(command.workflowId(), command.commandId(), command.transitionName());
     }
 }
 ```
 
-The code stays compact so the design boundary for state-machine-driven workflow engines in java (part 2) is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+The exact storage can vary.
+The design point is stable:
+transition application must tolerate replay.
 
----
+## Persist More Than the Current State
 
-## Failure Drill
+Teams often store only:
 
-Hardening drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for state-machine-driven workflow engines in java (part 2).
+- workflow ID
+- current state
 
-That drill matters while the design is being stressed by mixed versions, retries, or recovery edge cases because object designs for state-machine-driven workflow engines in java (part 2) often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+That is rarely enough.
 
----
+Useful persisted fields often include:
 
-## Debug Steps
+- current state
+- last successful transition
+- failure reason
+- retry count
+- deadlines or timeout timestamps
+- correlation or command IDs
 
-Debug steps:
+Operators do not need only "where is it now?"
+They also need "why did it get stuck there?"
 
-- write one failing invariant test before changing the design while validating state-machine-driven workflow engines in java (part 2)
-- inspect whether responsibilities are gathering in one object for convenience while validating state-machine-driven workflow engines in java (part 2)
-- prefer boundaries that stay understandable during refactor pressure while validating state-machine-driven workflow engines in java (part 2)
-- use tests to expose temporal coupling or hidden dependencies while validating state-machine-driven workflow engines in java (part 2)
+## Timeouts and Waiting States Must Be Explicit
 
----
+Long-running workflows often need states like:
 
-## Production Checklist
+- `WAITING_FOR_PAYMENT`
+- `WAITING_FOR_APPROVAL`
+- `RETRY_SCHEDULED`
+- `FAILED_TERMINAL`
 
-- edge-case rule encoded as a failing test before refactor
-- coupling increase measured against the promised design benefit
-- debug path still shorter after the extra abstraction
-- design notes updated with the new invariant pressure
+That is healthier than hiding timing behavior in background code that mutates state later.
 
----
+If waiting behavior is real, model it explicitly.
+The engine should know:
+
+- when the workflow entered the waiting state
+- what event can unblock it
+- when to escalate or time out
+
+## A Better Operational Shape
+
+```mermaid
+flowchart LR
+    A[Command or event] --> B[Load workflow instance]
+    B --> C[Validate legal transition]
+    C --> D[Apply transition]
+    D --> E[Persist state + metadata]
+    E --> F[Trigger side effects]
+```
+
+This sequence matters because it makes the engine answerable under incident pressure.
+If the team cannot explain whether side effects happen before or after durable state change, the design is not ready.
+
+## Where Workflow Engines Usually Fail
+
+### Side effects inside transition logic
+
+If a state transition directly calls remote systems and then mutates in-memory state, retries become ambiguous.
+
+### No replay discipline
+
+Without idempotent command handling, operators become afraid to retry anything.
+
+### Status values without semantics
+
+A status enum is not enough if no one can explain:
+
+- what is allowed next
+- who owns recovery
+- whether the state is terminal or waiting
+
+### One giant engine class
+
+If every new workflow special case lands in one service, the "engine" is really just a new monolith.
+
+## Testing Strategy
+
+Useful tests are not only "transition A goes to B."
+
+Test:
+
+1. illegal transitions fail clearly
+2. duplicate commands are harmless
+3. timeout transitions behave deterministically
+4. persistence and replay restore the same next-state decision
+5. one failed side effect does not silently corrupt workflow progress
+
+That test mix usually reveals whether the design is a toy state machine or a real workflow runtime.
+
+## When a Full Workflow Engine Is Overkill
+
+Do not build one just because the domain has statuses.
+
+Plain application logic is often enough when:
+
+- transitions are few
+- no long waits exist
+- retries are local and simple
+- operator tooling is not required
+
+The engine becomes worth it when lifecycle rules, replay, and observability are real operating concerns.
+
+## Practical Rule of Thumb
+
+Model the workflow state machine explicitly, but keep runtime concerns explicit too.
+
+If the design hides retry semantics, timeout policy, or persistence ordering inside "clean" abstractions, it is usually optimizing the wrong thing.
 
 ## Key Takeaways
 
-- State-machine-driven workflow engines in Java (Part 2) should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- harden one failure mode at a time instead of stacking speculative complexity
+- Workflow engines need idempotency and persistence discipline, not just pretty transition diagrams.
+- Persist enough metadata for replay, recovery, and operator diagnosis.
+- Waiting, timeout, and retry states should be modeled explicitly when they are real.
+- Keep transition legality separate from side-effect orchestration whenever possible.

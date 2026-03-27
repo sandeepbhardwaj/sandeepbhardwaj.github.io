@@ -23,25 +23,44 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This is a clean array-compaction problem.
-The important requirement is not just "put zeroes at the end" but "keep the non-zero elements in the same order."
+This problem is not about sorting.
+It is about stable compaction.
 
----
+We want all useful values packed at the front in their original order, and everything else pushed to the back.
+Once you see it that way, the solution becomes a clean write-boundary problem.
 
-## Problem 1: Move Zeroes
+## Quick Summary
 
-Problem description:
-Given an integer array `nums`, move all `0` values to the end while preserving the relative order of the non-zero values. Do this in place.
+| Signal | What it means |
+| --- | --- |
+| keep relative order of non-zero values | the compaction must be stable |
+| in-place update required | no extra array should be necessary |
+| zeros are just filler | treat non-zero values as the real payload |
 
-What we are solving actually:
-Sorting would push zeroes around, but it would destroy the original order of the non-zero values. The real job is stable compaction: pack all useful values toward the front, then fill the rest with zeroes.
+The invariant is:
+`nums[0..insertPos-1]` always contains the non-zero values seen so far, in their original order.
 
-What we are doing actually:
+## Problem Statement
 
-1. Keep a write pointer `insertPos` for the next non-zero slot.
-2. Scan the array from left to right.
-3. Write each non-zero value at `insertPos` and advance it.
-4. After all non-zero values are compacted, fill the remaining suffix with zeroes.
+Given an integer array `nums`, move all zeroes to the end while preserving the relative order of the non-zero values.
+Do the work in place.
+
+## The Real Pattern
+
+Think of the array as two logical regions:
+
+- a finalized prefix containing the compacted non-zero values
+- an unread suffix we are still scanning
+
+`insertPos` marks the first slot where the next non-zero value should go.
+
+That makes this a fast/slow compaction pattern:
+
+- read from one side
+- write compacted results to the front
+- zero-fill whatever remains afterward
+
+## Java Solution
 
 ```java
 class Solution {
@@ -50,113 +69,119 @@ class Solution {
 
         for (int n : nums) {
             if (n != 0) {
-                nums[insertPos++] = n; // Compact non-zero values toward the front in original order.
+                nums[insertPos++] = n;
             }
         }
 
         while (insertPos < nums.length) {
-            nums[insertPos++] = 0; // Everything after the compacted prefix must become zero.
+            nums[insertPos++] = 0;
         }
     }
 }
 ```
 
-Debug steps:
+## Why This Works
 
-- print the array and `insertPos` after each non-zero write
-- test `[0,1,0,3,12]`, `[0,0,0]`, and `[1,2,3]`
-- verify the invariant that `nums[0..insertPos-1]` always contains the non-zero values seen so far in correct order
+Every non-zero value is copied forward exactly once, in encounter order.
+So stability is preserved automatically.
 
----
+After that first pass:
 
-## Why This Is a Two-Pointer Problem
+- the prefix `[0..insertPos-1]` is correct
+- nothing to the right matters anymore
 
-There are really two logical regions in the array:
+The second pass simply turns the leftover suffix into zeroes.
 
-- the cleaned prefix where non-zero values should end up
-- the unread region we are still scanning
-
-`insertPos` marks the boundary between those two regions.
-Every time we see a non-zero element, we extend the cleaned prefix by one.
-
-That is why this belongs to the two-pointers family, even though there is only one explicit index variable in the final code.
-
----
+That separation is what makes the solution easy to reason about.
 
 ## Dry Run
 
-Input: `[0,1,0,3,12]`
+Input:
 
-Pass 1: compact non-zero values
+```text
+[0, 1, 0, 3, 12]
+```
 
-1. read `0` -> skip, `insertPos=0`
-2. read `1` -> write at index `0`, array becomes `[1,1,0,3,12]`, `insertPos=1`
-3. read `0` -> skip
-4. read `3` -> write at index `1`, array becomes `[1,3,0,3,12]`, `insertPos=2`
-5. read `12` -> write at index `2`, array becomes `[1,3,12,3,12]`, `insertPos=3`
+Start:
 
-Pass 2: fill remaining positions with zeroes
+- `insertPos = 0`
 
-1. set index `3` to `0`
-2. set index `4` to `0`
+Scan:
 
-Final answer: `[1,3,12,0,0]`
+1. see `0` -> ignore it
+2. see `1` -> write at `nums[0]`, now `insertPos = 1`
+3. see `0` -> ignore it
+4. see `3` -> write at `nums[1]`, now `insertPos = 2`
+5. see `12` -> write at `nums[2]`, now `insertPos = 3`
 
-Notice that `1`, `3`, and `12` stay in the same relative order.
+Array after compaction phase:
 
----
+```text
+[1, 3, 12, 3, 12]
+```
 
-## Why This Is Stable
+Now fill the remaining suffix with zeroes:
 
-We write non-zero values in exactly the order we encounter them.
-So if `a` appeared before `b` in the original array and both are non-zero, `a` is written before `b` in the compacted prefix.
+```text
+[1, 3, 12, 0, 0]
+```
 
-That is the key property the problem is testing.
+That is the answer.
 
----
+## Why It Is Stable
 
-## Swap-Based Alternative
+Suppose non-zero value `a` appears before non-zero value `b`.
+The loop encounters `a` first and writes it first.
+Then it encounters `b` and writes it later.
 
-Another common solution swaps `nums[i]` with `nums[insertPos]` when a non-zero value appears.
-That version is also valid and often written like this:
+So their relative order is preserved.
 
-- scan with `i`
-- when `nums[i] != 0`, swap with `insertPos`
+That is the entire difference between this and a careless swap-heavy approach that might accidentally disturb order.
 
-The two-pass compaction version is often easier to reason about because the phases are explicit:
+## A Valid Alternative
 
-- first collect non-zero values
-- then zero-fill the rest
+You can also solve this with explicit read and write pointers:
 
----
+- `fast` scans every position
+- `slow` marks the next non-zero destination
+
+The current implementation compresses that idea into one write pointer because the element value itself is enough to drive the decision.
 
 ## Common Mistakes
 
-1. sorting the array, which breaks stable order
-2. using an extra array when in-place work is possible
-3. forgetting the final zero-fill step after compaction
-4. assuming the problem only asks for "all zeroes at the end" and ignoring relative order
-
----
+1. Sorting the array.
+   That moves zeroes, but it also destroys stable order.
+2. Forgetting the zero-fill phase.
+   Then stale values remain in the suffix.
+3. Using an extra array when the problem explicitly allows in-place compaction.
+4. Thinking this is about "move zeroes" instead of "keep non-zero values stable."
 
 ## Boundary Cases
 
-- all zeroes -> array stays all zeroes
-- no zeroes -> array stays unchanged
+- `[0, 0, 0]` -> unchanged
+- `[1, 2, 3]` -> unchanged
+- `[0]` -> unchanged
+- `[4]` -> unchanged
 - zeroes only at the front or only at the back -> still handled correctly
-- single element -> either unchanged zero or unchanged non-zero
-
----
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
----
+## Pattern Generalization
+
+This same compaction mindset appears in:
+
+- Remove Element
+- Remove Duplicates from Sorted Array
+- partition-style in-place rewrites
+
+The general question is:
+what should the finalized prefix represent after scanning the first `k` elements?
 
 ## Key Takeaways
 
-- this problem is stable compaction, not sorting
-- the write pointer tracks where the next non-zero value belongs
-- once you understand the cleaned-prefix invariant, the implementation becomes very simple
+- Move Zeroes is a stable in-place compaction problem.
+- The write pointer marks the boundary of the correct non-zero prefix.
+- Once the prefix is right, the rest of the array can simply be zero-filled.

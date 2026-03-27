@@ -24,101 +24,165 @@ header:
   show_overlay_excerpt: false
   caption: Kubernetes Engineering for Backend Platforms
 ---
-HPA/VPA interactions and autoscaling anti-patterns (Part 2) matters because Kubernetes usually amplifies both good and bad operational decisions. The YAML is not the whole story; the real question is how workloads behave during rollout, recovery, and saturation.
+Part 2 is where autoscaling stops looking like a metric problem and starts looking like a control-systems problem.
 
----
+Part 1 usually covers what HPA and VPA do.
+The next level is understanding why perfectly valid settings still behave badly together once traffic shifts, probe timing, CPU throttling, JVM memory behavior, and rollout churn all start interacting.
 
-## Problem 1: HPA/VPA interactions and autoscaling anti-patterns (Part 2)
+## Quick Summary
 
-Problem description:
-We want hpa/vpa interactions and autoscaling anti-patterns (part 2) to work under real pod churn, load, and operational failure instead of only on a quiet cluster. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+| Decision area | Safer default | Why |
+| --- | --- | --- |
+| HPA signal choice | scale on demand-correlated metrics | visible metrics are not always useful metrics |
+| VPA posture | start in recommendation mode | it is easier to learn workload shape than to undo controller churn |
+| CPU-based HPA | keep requests realistic | bad requests create distorted utilization signals |
+| Memory-sensitive services | use extra caution | memory pressure is slower, stickier, and often more destructive |
+| Policy changes | change one lever at a time | otherwise operators cannot explain the outcome |
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Kubernetes, the hidden risk is that platform defaults look fine until the first load spike, probe flap, or rolling update under pressure.
+The central question is simple:
+are you scaling on real demand, or on artifacts created by your own configuration?
 
-What we are doing actually:
+## What Part 2 Is Really About
 
-1. make the cluster behavior explicit: stress the baseline with the most likely failure or contention mode
-2. make the cluster behavior explicit: introduce one hardening mechanism at a time
-3. make the cluster behavior explicit: measure the operational trade-off instead of trusting intuition
-4. make the cluster behavior explicit: document where the pattern should stop and another pattern should begin
+Autoscaling issues usually come from one of these mismatches:
 
----
+- the metric does not represent real work
+- the workload requests make the metric misleading
+- the application startup or warmup time makes scaling late
+- HPA and VPA are both reacting to the same instability in different ways
 
-## Why This Topic Matters
+None of those problems are visible in a happy-path demo.
+All of them show up quickly under real pressure.
 
-- probe and lifecycle settings directly affect availability under rollout and failure
-- platform defaults are rarely enough for latency-sensitive backends
-- bad operational signals in Kubernetes tend to spread quickly across replicas
+## HPA Needs a Demand Signal, Not Just a Visible Signal
 
----
+CPU is easy to graph.
+That does not make it the best scaling trigger.
 
-## Architecture Model
+For many backends, demand is better represented by:
+
+- inflight requests
+- queue depth
+- concurrency saturation
+- request latency combined with utilization
+
+CPU-based HPA becomes especially misleading when:
+
+- CPU requests are too low
+- the runtime is throttled
+- background work distorts application demand
+- garbage collection spikes look like user traffic
+
+If the metric cannot distinguish real demand from resource misconfiguration, HPA will scale symptoms rather than load.
+
+## VPA Recommendation Mode Is a Safety Feature
+
+VPA is most valuable when it teaches you how the workload actually behaves.
+Recommendation mode gives you that learning without immediately changing the production shape of the deployment.
+
+That matters because VPA recommendations can be skewed by:
+
+- startup spikes
+- brief incident traffic
+- deployments with mixed code paths
+- workloads that have not reached steady state yet
+
+Treat VPA recommendations as operational evidence first.
+Automation comes later, if it comes at all.
+
+## JVM Workloads Need Extra Skepticism
+
+JVM services often mislead naive autoscaling policies because:
+
+- heap growth does not map neatly to immediate demand
+- off-heap memory, metaspace, and thread stacks matter too
+- GC pauses can distort CPU signals
+- warmup time can delay readiness after scale-out
+
+A JVM service with low CPU requests and a tight memory limit can look "autoscaled" while actually living in a permanent state of throttling, long GC pauses, or near-OOM instability.
+
+That is not successful elasticity.
+It is managed turbulence.
+
+## Where HPA and VPA Start Fighting
+
+The classic failure pattern looks like this:
+
+1. low requests make CPU utilization appear high
+2. HPA scales out aggressively
+3. VPA observes stressed pods and recommends larger requests
+4. larger requests change scheduling and replica behavior
+5. probe timing, startup cost, or node pressure make the service less stable
+
+Each controller is behaving logically.
+Together they make the system harder to reason about.
+
+This is why "just enable both" is not a production policy.
+
+## A Better Hardening Pattern
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for HPA/VPA interactions and autoscaling anti-patterns (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Stable deployment baseline] --> B[Choose one demand-linked HPA signal]
+    B --> C[Enable VPA in recommendation mode]
+    C --> D[Review throttle, latency, memory, and restart behavior]
+    D --> E{Signals stable under real load?}
+    E -->|Yes| F[Apply one resource or scaling change at a time]
+    E -->|No| G[Fix requests, probes, or metric choice first]
 ```
 
-The diagram centers on workload behavior, control-plane signals, and recovery paths because hpa/vpa interactions and autoscaling anti-patterns (part 2) is judged during rollout and saturation, not in a quiet namespace.
-That framing makes it easier to connect YAML choices to real availability outcomes.
+The key is sequencing.
+Do not let the cluster "learn" from a workload whose baseline is already misleading.
 
----
+## Failure Modes That Keep Showing Up
 
-## Practical Design Pattern
+### CPU throttling mistaken for demand
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: topic-workload
-spec:
-  template:
-    spec:
-      terminationGracePeriodSeconds: 30
-      containers:
-        - name: app
-          # Tune this workload for: HPA/VPA interactions and autoscaling anti-patterns (Part 2)
-```
+Pods scale out because the limit is too tight or requests are too low, not because users suddenly need more throughput.
 
-This snippet is only a foothold for discussion, not a full manifest set, because hpa/vpa interactions and autoscaling anti-patterns (part 2) succeeds or fails through runtime behavior more than YAML size.
-The important part is making the lifecycle rule obvious enough that the team can observe and roll it back.
+### Memory pressure hidden behind healthy replica counts
 
----
+The deployment looks fine because HPA maintained replicas, but pods are quietly churning through OOM kills or evictions.
 
-## Failure Drill
+### Probe flapping after scale-out
 
-Hardening drill: simulate rolling restart under live traffic and verify readiness, drain, and rollback behavior for hpa/vpa interactions and autoscaling anti-patterns (part 2).
+New pods arrive, but startup and readiness settings are too optimistic.
+Traffic lands before the JVM or cache warmup is complete, and the scale event amplifies latency.
 
-That drill matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Kubernetes amplifies small mistakes in hpa/vpa interactions and autoscaling anti-patterns (part 2) quickly once probes, autoscaling, and rollout timing start interacting.
+### Mixed controller causality
 
----
+Operators cannot tell whether the incident came from HPA thresholds, VPA recommendations, bad requests, or rollout timing.
+That is usually a sign too many things changed at once.
 
-## Debug Steps
+## Failure Drill Worth Running
 
-Debug steps:
+Before trusting the policy, simulate:
 
-- compare probe behavior against real application readiness, not process liveness alone while validating hpa/vpa interactions and autoscaling anti-patterns (part 2)
-- measure rollout and drain timing under representative load while validating hpa/vpa interactions and autoscaling anti-patterns (part 2)
-- treat autoscaling, disruption budgets, and termination settings as one system while validating hpa/vpa interactions and autoscaling anti-patterns (part 2)
-- test rollback before assuming the cluster will recover cleanly by default while validating hpa/vpa interactions and autoscaling anti-patterns (part 2)
+1. a sharp burst in demand
+2. a noisy GC or CPU throttling period
+3. one rollout where new pods warm up more slowly than usual
 
----
+Then verify:
 
-## Production Checklist
+- which metric triggered scale-out
+- whether new replicas became ready before user-facing latency degraded
+- whether VPA recommendations became more extreme after the event
+- whether operators can freeze changes and recover manually
 
-- probe and rollout tuning checked under pressure, not idle load
-- node, pod, or network failure signal mapped to one response
-- autoscaling and disruption settings reviewed as one system
-- recovery timing measured instead of assumed
+If the answer to "why did the autoscaler do that?" is still fuzzy, the setup is not mature enough.
 
----
+## Operator Checklist
+
+- HPA metric is tied to demand, not convenience
+- CPU requests are realistic enough to make utilization meaningful
+- VPA starts in recommendation mode for uncertain workloads
+- probe timing matches actual startup and warmup behavior
+- memory pressure, throttle rate, and restart count are on the same dashboard
+- scaling changes are rolled out one lever at a time
 
 ## Key Takeaways
 
-- HPA/VPA interactions and autoscaling anti-patterns (Part 2) should be designed as a production decision, not just an implementation detail
-- platform configuration is part of application reliability, not separate from it
-- harden one failure mode at a time instead of stacking speculative complexity
+- HPA and VPA are interacting controllers, not independent knobs.
+- The wrong metric can make autoscaling look busy while solving nothing.
+- JVM services need autoscaling policies that account for warmup, GC, and broader memory behavior.
+- Part 2 is about building a stable baseline before deeper automation.
