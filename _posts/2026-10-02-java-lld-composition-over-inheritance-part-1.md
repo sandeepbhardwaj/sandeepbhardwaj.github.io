@@ -23,95 +23,247 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-Composition over inheritance in extensible Java systems matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Inheritance is attractive because it looks like reuse.
+The problem is that it also reuses assumptions: constructor rules, override hooks, lifecycle expectations, and sometimes the wrong invariants.
 
----
+That is why "composition over inheritance" is not a slogan about elegance.
+It is a boundary choice about where behavior is allowed to vary and where the core model must stay boringly stable.
 
-## Problem 1: Composition over inheritance in extensible Java systems
+## Quick Summary
 
-Problem description:
-We want composition over inheritance in extensible java systems to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on the baseline model and the safe default shape.
+| Design question | Composition is usually better | Inheritance is usually better |
+| --- | --- | --- |
+| Behavior changes by policy, region, tenant, or feature set | Yes | No |
+| Multiple behaviors may be combined independently | Yes | No |
+| Base type has one strong invariant and a true subtype relationship | Maybe | Yes |
+| Teams keep adding boolean flags and protected hooks | Yes | No |
+| The real goal is to share implementation for one closed hierarchy | Maybe | Yes |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+Part 1 is about the baseline decision:
+how do we keep variation flexible without turning the domain model into a fragile inheritance tree?
 
-What we are doing actually:
+## The Core Smell
 
-1. make the domain model explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the domain model explicit: choose the simplest baseline design that preserves correctness
-3. make the domain model explicit: make observability visible from the first implementation
-4. make the domain model explicit: validate the baseline with one concrete failure drill
+Inheritance starts causing damage when the team is no longer modeling "is-a."
+It is modeling "works-like-this-for-now."
 
----
+Typical warning signs:
 
-## Why This Topic Matters
+- subclasses override half the parent behavior
+- the parent exposes `protected` state just so children can survive
+- adding one new variation changes the base class constructor
+- tests for one subclass fail because another subclass changed a shared assumption
+- the hierarchy grows around workflow differences, not true type differences
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+That last one matters most.
+If the behavior changes because of pricing policy, delivery mode, compliance rule, or tenant contract, you usually want composition, not a class tree.
 
----
+## Where Inheritance Still Makes Sense
 
-## Architecture Model
+This post is not anti-inheritance.
+It is anti-accidental inheritance.
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Composition over inheritance in extensible Java systems]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+Use inheritance when all three are true:
 
-The model is deliberately centered on boundary, invariant, and change pressure so composition over inheritance in extensible java systems reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
+1. the subtype relationship is real and stable
+2. the parent owns an invariant every child must preserve
+3. variation is mostly additive, not a rewrite of the parent lifecycle
 
----
+Examples that can fit:
 
-## Practical Design Pattern
+- a sealed hierarchy of domain outcomes
+- UI component extension inside a framework that is explicitly designed for it
+- a small internal hierarchy where the parent contract is tight and the child behavior is predictable
+
+If the hierarchy is open-ended and business-driven, be much more careful.
+
+## A Common Bad Design
+
+Suppose an order pipeline starts simple:
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: Composition over inheritance in extensible Java systems
+abstract class OrderProcessor {
+    public final Receipt process(Order order) {
+        validate(order);
+        Money total = calculateTotal(order);
+        persist(order, total);
+        publish(order);
+        return new Receipt(order.id(), total);
+    }
+
+    protected abstract void validate(Order order);
+    protected abstract Money calculateTotal(Order order);
+
+    protected void persist(Order order, Money total) { /* default */ }
+    protected void publish(Order order) { /* default */ }
+}
+```
+
+Then product asks for:
+
+- B2B pricing
+- region-specific tax rules
+- delayed publishing for some channels
+- tenant-specific validation
+
+Now subclasses start overriding pieces of the lifecycle:
+
+- `B2BOrderProcessor`
+- `MarketplaceOrderProcessor`
+- `EuOrderProcessor`
+- `VipTenantOrderProcessor`
+
+At this point, the hierarchy is encoding policy combinations.
+That is exactly what inheritance is bad at.
+
+## A Better Baseline: Stable Core Plus Composed Policies
+
+Instead of subclassing the whole workflow, keep one processor with explicit collaborators.
+
+```java
+public interface ValidationPolicy {
+    void validate(Order order);
+}
+
+public interface PricingPolicy {
+    Money calculate(Order order);
+}
+
+public interface PublicationPolicy {
+    void publish(Order order, Money total);
+}
+
+public final class OrderService {
+    private final ValidationPolicy validationPolicy;
+    private final PricingPolicy pricingPolicy;
+    private final PublicationPolicy publicationPolicy;
+    private final OrderRepository orderRepository;
+
+    public OrderService(
+            ValidationPolicy validationPolicy,
+            PricingPolicy pricingPolicy,
+            PublicationPolicy publicationPolicy,
+            OrderRepository orderRepository) {
+        this.validationPolicy = validationPolicy;
+        this.pricingPolicy = pricingPolicy;
+        this.publicationPolicy = publicationPolicy;
+        this.orderRepository = orderRepository;
+    }
+
+    public Receipt process(Order order) {
+        validationPolicy.validate(order);
+        Money total = pricingPolicy.calculate(order);
+        order.confirm(total);
+        orderRepository.save(order);
+        publicationPolicy.publish(order, total);
+        return new Receipt(order.id(), total);
     }
 }
 ```
 
-The code stays compact so the design boundary for composition over inheritance in extensible java systems is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+This design does something important:
+the workflow stays explicit, while the variation points become ordinary dependencies.
 
----
+That makes change cheaper because:
 
-## Failure Drill
+- policies can evolve independently
+- tests can focus on one variation at a time
+- composition can happen at wiring time instead of inside subclass logic
+- the aggregate can still own its invariants
 
-Baseline drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for composition over inheritance in extensible java systems.
+## The Real Benefit: Change Moves to the Edges
 
-That drill matters early, before rollout assumptions harden into defaults because object designs for composition over inheritance in extensible java systems often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+Composition is not automatically cleaner because "interfaces are good."
+It is cleaner when it moves unstable choices away from the core model.
 
----
+For most business systems, unstable choices include:
 
-## Debug Steps
+- tax calculation
+- discounting
+- feature gates
+- fraud checks
+- delivery channel behavior
+- tenant-specific rules
 
-Debug steps:
+Those are rarely good candidates for a permanent class hierarchy.
+They are policies.
 
-- write one failing invariant test before changing the design while validating composition over inheritance in extensible java systems
-- inspect whether responsibilities are gathering in one object for convenience while validating composition over inheritance in extensible java systems
-- prefer boundaries that stay understandable during refactor pressure while validating composition over inheritance in extensible java systems
-- use tests to expose temporal coupling or hidden dependencies while validating composition over inheritance in extensible java systems
+Once you name them as policies, the model becomes easier to reason about.
+The `Order` stays an `Order`.
+The pricing rule stops pretending to be a subtype.
 
----
+## Guardrails for Composition
+
+Composition can also be overdone.
+Not every two-line variation deserves three interfaces and a factory.
+
+Use composition well by following a few rules:
+
+### Keep the invariant owner obvious
+
+If five collaborator objects can all mutate order state freely, you did not gain clarity.
+You just hid coupling behind interfaces.
+
+One object should still own the key state transition.
+
+### Compose behavior, not everything
+
+You do not need a `NameFormatter`, `SkuFormatter`, and `DisplayFormatter` hierarchy just because composition exists.
+Extract what changes meaningfully, not what happens to be a method.
+
+### Prefer constructor-visible dependencies
+
+If behavior is injected through hidden service locators or mutable registries, the design becomes harder to test than the inheritance version.
+
+### Keep policy boundaries domain-shaped
+
+`PricingPolicy` is a better collaborator than `PricingHelper`.
+The first describes a business role.
+The second describes a code convenience.
+
+## When Simpler Is Better
+
+Sometimes the best answer is neither a hierarchy nor a policy graph.
+
+A plain class with a few private methods is enough when:
+
+- there is one behavior today
+- variation is speculative
+- the invariants are still being discovered
+- the code is not yet under change pressure
+
+Premature composition is just premature abstraction in a friendlier outfit.
+If the domain has not earned the boundary yet, keep it simple and let tests show where variation really appears.
+
+## A Practical Decision Rule
+
+Before choosing inheritance, ask:
+
+1. am I modeling a true subtype or just a behavioral option?
+2. will these variations need to be combined independently later?
+3. would a new variant force me to edit the parent lifecycle?
+
+If the answers are "behavioral option," "yes," and "yes," composition is usually the safer default.
+
+Before choosing composition, ask:
+
+1. what invariant still has one clear owner?
+2. which dependencies actually vary?
+3. can a teammate understand the assembly without reading a DI container maze?
+
+If not, the design may be abstract but still not good.
 
 ## Production Checklist
 
-- one invariant stated in code and in tests
-- boundary between aggregate or collaborators kept explicit
-- change-cost signal identified before adding extra abstractions
-- refactor path that does not weaken the model during rollout
-
----
+- the core invariant owner is explicit
+- policies or strategies match real business variation
+- adding a variant does not require parent-class surgery
+- tests can isolate one behavior without mocking the world
+- constructors reveal the important moving parts
+- a plain class was rejected for a concrete reason, not fashion
 
 ## Key Takeaways
 
-- Composition over inheritance in extensible Java systems should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- start from a measurable baseline before optimizing
+- Inheritance fails most often when it is used to model policy combinations instead of true subtype relationships.
+- Composition works best when the core workflow stays stable and variation is pushed into explicit collaborators.
+- The goal is not fewer classes or more classes. The goal is a model whose invariants survive change.

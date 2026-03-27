@@ -23,101 +23,176 @@ header:
   show_overlay_excerpt: false
   caption: Kubernetes Engineering for Backend Platforms
 ---
-'Progressive delivery: canary and blue-green in production' matters because Kubernetes usually amplifies both good and bad operational decisions. The YAML is not the whole story; the real question is how workloads behave during rollout, recovery, and saturation.
+Progressive delivery is not a fancy name for "slow deployment."
+It is the practice of reducing rollout risk by making exposure, measurement, and rollback explicit.
 
----
+That matters because most production incidents caused by deploys are not caused by the container image alone.
+They come from bad assumptions about traffic shape, dependency behavior, database compatibility, or rollback safety.
 
-## Problem 1: 'Progressive delivery: canary and blue-green in production'
+## Quick Comparison
 
-Problem description:
-We want 'progressive delivery: canary and blue-green in production' to work under real pod churn, load, and operational failure instead of only on a quiet cluster. This part focuses on the baseline model and the safe default shape.
+| Strategy | Best fit | Main strength | Main risk |
+| --- | --- | --- | --- |
+| Rolling update | low-risk changes, simple fleets | operational simplicity | weak isolation from bad version behavior |
+| Canary | uncertain risk, strong observability, traffic control available | small blast radius with real production traffic | teams promote too fast or gate on weak metrics |
+| Blue-green | instant cutover and fast rollback needed | clean environment switch | double-capacity cost and state compatibility issues |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Kubernetes, the hidden risk is that platform defaults look fine until the first load spike, probe flap, or rolling update under pressure.
+The right question is not "which one is modern?"
+It is "what failure do we most need to contain?"
 
-What we are doing actually:
+## Start With the Failure You Are Defending Against
 
-1. make the cluster behavior explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the cluster behavior explicit: choose the simplest baseline design that preserves correctness
-3. make the cluster behavior explicit: make observability visible from the first implementation
-4. make the cluster behavior explicit: validate the baseline with one concrete failure drill
+Different rollout strategies protect against different risks.
 
----
+Examples:
 
-## Why This Topic Matters
+- canary protects against behavior that only appears under real production traffic
+- blue-green protects against needing a very fast switch back to the old environment
+- rolling update is often enough when the app is stateless and the change is operationally boring
 
-- probe and lifecycle settings directly affect availability under rollout and failure
-- platform defaults are rarely enough for latency-sensitive backends
-- bad operational signals in Kubernetes tend to spread quickly across replicas
+If the team cannot describe the feared failure mode, progressive delivery often becomes ceremony without safety.
 
----
+## Canary vs Blue-Green in Practice
 
-## Architecture Model
+### Choose canary when:
+
+- the new version needs real production traffic to validate safely
+- you can observe latency, errors, saturation, and business KPIs per version
+- rollback speed matters, but instant full cutover is not required
+
+### Choose blue-green when:
+
+- switching all traffic at once is acceptable after verification
+- you need very fast rollback to a fully separate environment
+- the application is operationally expensive to migrate gradually
+
+### Be careful with either when:
+
+- schema changes are not backward compatible
+- background consumers or scheduled jobs are not version-aware
+- session affinity or caches hide version-specific failures
+
+The deployment method does not fix compatibility mistakes.
+It only changes how they fail.
+
+## A Safe Baseline Rollout Model
+
+At minimum, make these things explicit:
+
+1. traffic exposure policy
+2. success metrics and error budget gates
+3. promotion timing
+4. rollback trigger
+5. ownership for the decision to continue
 
 ```mermaid
-flowchart LR
-    A[Production pressure] --> B['Progressive delivery: canary and blue-green in production']
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
+flowchart TD
+    A[New version deployed] --> B[Small traffic exposure]
+    B --> C[Measure latency, errors, saturation, business KPIs]
+    C --> D{Gate passes?}
+    D -->|Yes| E[Increase exposure or promote]
+    D -->|No| F[Rollback and investigate]
 ```
 
-The diagram centers on workload behavior, control-plane signals, and recovery paths because 'progressive delivery: canary and blue-green in production' is judged during rollout and saturation, not in a quiet namespace.
-That framing makes it easier to connect YAML choices to real availability outcomes.
+If step C is missing real gates, the rest is just staged optimism.
 
----
+## Metrics That Actually Matter
 
-## Practical Design Pattern
+Too many teams gate rollout on only one or two technical metrics.
+That misses the real failure surface.
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: topic-workload
-spec:
-  template:
-    spec:
-      terminationGracePeriodSeconds: 30
-      containers:
-        - name: app
-          # Tune this workload for: 'Progressive delivery: canary and blue-green in production'
-```
+A better gate includes:
 
-This snippet is only a foothold for discussion, not a full manifest set, because 'progressive delivery: canary and blue-green in production' succeeds or fails through runtime behavior more than YAML size.
-The important part is making the lifecycle rule obvious enough that the team can observe and roll it back.
+- HTTP or RPC error rate by version
+- p95/p99 latency by version
+- resource saturation such as CPU throttling or memory pressure
+- downstream error amplification
+- one business-level correctness metric when possible
 
----
+Examples:
 
-## Failure Drill
+- payment authorization success rate
+- order placement completion
+- search result empty-rate spike
+- message processing lag
 
-Baseline drill: simulate rolling restart under live traffic and verify readiness, drain, and rollback behavior for 'progressive delivery: canary and blue-green in production'.
+Canary without per-version observability is just partial traffic exposure with delayed surprise.
 
-That drill matters early, before rollout assumptions harden into defaults because Kubernetes amplifies small mistakes in 'progressive delivery: canary and blue-green in production' quickly once probes, autoscaling, and rollout timing start interacting.
+## Blue-Green Needs Stronger Compatibility Discipline
 
----
+Blue-green sounds safer because rollback is fast.
+That is true only when old and new environments can coexist safely.
 
-## Debug Steps
+Watch for:
 
-Debug steps:
+- schema changes the old version cannot read
+- background jobs running twice
+- external side effects from both environments
+- caches or queues shared in incompatible ways
 
-- compare probe behavior against real application readiness, not process liveness alone while validating 'progressive delivery: canary and blue-green in production'
-- measure rollout and drain timing under representative load while validating 'progressive delivery: canary and blue-green in production'
-- treat autoscaling, disruption budgets, and termination settings as one system while validating 'progressive delivery: canary and blue-green in production'
-- test rollback before assuming the cluster will recover cleanly by default while validating 'progressive delivery: canary and blue-green in production'
+The fastest rollback in the world does not help if the old version cannot safely resume work.
 
----
+## Kubernetes-Specific Failure Modes
+
+### Probes lie during promotion
+
+A pod can be technically ready but still unhealthy under real traffic shape.
+
+### Autoscaling distorts the canary signal
+
+If the canary gets different scaling behavior than the baseline, comparison becomes noisy.
+
+### Retries hide real failure
+
+Aggressive retries can make the new version appear healthier than it is while burning downstream capacity.
+
+### Promotion is time-based instead of evidence-based
+
+"Wait 10 minutes and continue" is not a safe rule unless the gates are clear and traffic is representative.
+
+## A Better Operator Workflow
+
+Before starting the rollout, the operator should know:
+
+- initial traffic percentage
+- expected duration at each stage
+- stop conditions
+- rollback command or procedure
+- version-specific dashboards
+- whether background consumers or migrations are included in the same release
+
+If promotion requires five people improvising in Slack, the rollout process is under-designed.
+
+## First Drill to Run
+
+Run a staged rollout where the new version has a deliberately injected small regression, such as:
+
+- slightly higher latency
+- dependency timeout increase
+- increased error rate on one endpoint
+
+Then verify:
+
+1. the canary or blue-green gate catches it
+2. rollback happens quickly
+3. dashboards make the failure obvious
+4. operators do not need tribal knowledge to respond
+
+This is how you learn whether the rollout system is real or merely comforting.
 
 ## Production Checklist
 
-- probe, drain, or scheduling rule tied to one availability goal
-- rollout metric that would tell operators to stop quickly
-- resource or disruption assumptions written next to the change
-- rollback path proven under live-ish load
-
----
+- rollout strategy is chosen for a specific failure mode
+- version-specific metrics exist before the deploy
+- promotion gates are explicit and measurable
+- rollback path is fast and rehearsed
+- schema and background job compatibility are reviewed
+- retry and autoscaling behavior are considered part of rollout design
+- ownership for promotion and rollback decisions is clear
 
 ## Key Takeaways
 
-- 'Progressive delivery: canary and blue-green in production' should be designed as a production decision, not just an implementation detail
-- platform configuration is part of application reliability, not separate from it
-- start from a measurable baseline before optimizing
+- Progressive delivery is a risk-control system, not just a deployment style.
+- Canary and blue-green solve different operational problems.
+- Metrics must prove safety before promotion, not simply decorate the release dashboard.
+- The real test of the strategy is whether rollback remains safe under version, data, and traffic pressure.

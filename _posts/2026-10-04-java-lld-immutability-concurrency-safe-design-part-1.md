@@ -23,101 +23,204 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-Immutability and concurrency-safe object modeling matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Immutability helps concurrency not because it is elegant, but because it removes arguments about ownership.
+If nobody can change a value after publication, then most race conditions around that value disappear before they start.
 
----
+That does not mean an entire system should be immutable.
+It means mutable state should be rare, explicit, and owned by a small boundary instead of leaking through the whole model.
 
-## Problem 1: Immutability and concurrency-safe object modeling
+## Quick Summary
 
-Problem description:
-We want immutability and concurrency-safe object modeling to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on the baseline model and the safe default shape.
+| Design choice | Usually safer under concurrency | Usually riskier under concurrency |
+| --- | --- | --- |
+| value objects | immutable | mutable with shared references |
+| collections | defensive copies or unmodifiable views | exposing internal mutable lists or maps |
+| aggregate mutation | one owner, explicit transition methods | setters from many call sites |
+| shared configuration | immutable snapshot | mutable global object |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+Part 1 is about the baseline rule:
+default to immutable values, then make mutable ownership explicit where the business actually needs it.
 
-What we are doing actually:
+## Where Immutability Pays Off
 
-1. make the domain model explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the domain model explicit: choose the simplest baseline design that preserves correctness
-3. make the domain model explicit: make observability visible from the first implementation
-4. make the domain model explicit: validate the baseline with one concrete failure drill
+Immutability is strongest when the object represents:
 
----
+- money
+- IDs
+- addresses
+- policy snapshots
+- command parameters
+- computed read models
 
-## Why This Topic Matters
+These values tend to be:
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+- passed between threads
+- reused across components
+- cached
+- logged
+- compared in tests
 
----
+If they are mutable, the cost of reasoning goes up quickly.
 
-## Architecture Model
+## What Concurrency-Safe Object Modeling Really Means
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Immutability and concurrency-safe object modeling]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+Many teams hear "thread-safe" and immediately think `synchronized`, `volatile`, or `Lock`.
+Those tools matter, but the first design question is simpler:
 
-The model is deliberately centered on boundary, invariant, and change pressure so immutability and concurrency-safe object modeling reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
+"Who is allowed to mutate this state at all?"
 
----
+Good concurrency-safe modeling usually looks like:
 
-## Practical Design Pattern
+1. immutable value objects for shared data
+2. one clear owner for mutable state
+3. explicit transitions instead of open-ended mutation
+4. no leaked references to mutable internals
+
+That design often prevents more bugs than clever locking.
+
+## A Useful Split: Immutable Values, Mutable Aggregate
+
+Suppose we are modeling inventory reservations.
+The policy and request data can be immutable.
+The stock level itself still changes, so one object should own that mutation.
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: Immutability and concurrency-safe object modeling
+public record ReservationRequest(String sku, int quantity, String requestId) {
+    public ReservationRequest {
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("sku is required");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("quantity must be positive");
+        }
+    }
+}
+
+public final class InventoryItem {
+    private final String sku;
+    private int availableUnits;
+
+    public InventoryItem(String sku, int availableUnits) {
+        this.sku = sku;
+        this.availableUnits = availableUnits;
+    }
+
+    public synchronized void reserve(ReservationRequest request) {
+        if (!sku.equals(request.sku())) {
+            throw new IllegalArgumentException("request does not match item");
+        }
+        if (request.quantity() > availableUnits) {
+            throw new IllegalStateException("insufficient inventory");
+        }
+        availableUnits -= request.quantity();
+    }
+
+    public synchronized int availableUnits() {
+        return availableUnits;
     }
 }
 ```
 
-The code stays compact so the design boundary for immutability and concurrency-safe object modeling is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+The important idea is not the `synchronized` keyword alone.
+It is that the mutable stock count has one owner and the request data is immutable.
 
----
+## Why This Design Is Easier to Trust
 
-## Failure Drill
+The reservation request can move across threads, queues, and logs safely because it never changes.
+The inventory item still mutates, but only through a method that protects the stock invariant.
 
-Baseline drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for immutability and concurrency-safe object modeling.
+This separation is what keeps the model readable:
 
-That drill matters early, before rollout assumptions harden into defaults because object designs for immutability and concurrency-safe object modeling often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+- immutable data is cheap to share
+- mutable state is expensive and therefore narrow
+- rules live where mutation happens
 
----
+## Common Ways Teams Accidentally Break This
 
-## Debug Steps
+### Exposing mutable collections
 
-Debug steps:
+This is a classic leak:
 
-- write one failing invariant test before changing the design while validating immutability and concurrency-safe object modeling
-- inspect whether responsibilities are gathering in one object for convenience while validating immutability and concurrency-safe object modeling
-- prefer boundaries that stay understandable during refactor pressure while validating immutability and concurrency-safe object modeling
-- use tests to expose temporal coupling or hidden dependencies while validating immutability and concurrency-safe object modeling
+```java
+public List<OrderLine> lines() {
+    return lines;
+}
+```
 
----
+Now outside code can mutate state without going through the owning invariant.
 
-## Production Checklist
+### Using partially mutable value objects
 
-- one invariant stated in code and in tests
-- boundary between aggregate or collaborators kept explicit
-- change-cost signal identified before adding extra abstractions
-- refactor path that does not weaken the model during rollout
+If `Money`, `Address`, or `PolicyConfig` can be edited after creation, they stop being safe to share.
 
----
+### Treating `final` as enough
+
+`final` helps reference stability.
+It does not make a referenced object immutable.
+A `final List<String>` can still contain mutable state.
+
+### Adding locks after mutation is already everywhere
+
+Once ten different services and helpers can mutate the same object, concurrency control becomes much harder.
+The ownership problem should be fixed first.
+
+## When Full Immutability Is Not the Right Goal
+
+Some state is inherently mutable:
+
+- workflow status
+- stock count
+- balance snapshot inside one transactional owner
+- retry budget counters
+
+For those cases, do not force fake immutability.
+Instead:
+
+- keep the mutable boundary small
+- use named transition methods
+- prevent aliasing of internal mutable structures
+- make ownership obvious in the API
+
+The real win is not "everything is immutable."
+It is "shared mutable state is no longer accidental."
+
+## A Better Review Checklist
+
+When reviewing concurrent object design, ask:
+
+1. which objects are shared across threads?
+2. are those objects immutable?
+3. if not, who owns mutation?
+4. can any mutable collection or child object escape?
+5. can the invariant be violated without going through one method?
+
+If the answers are unclear, the model is not concurrency-safe enough yet.
+
+## Testing Strategy
+
+The best tests are not only race tests.
+They are design tests that make mutation boundaries obvious.
+
+Useful tests:
+
+- invalid reservation requests fail during object creation
+- inventory cannot go negative
+- outside code cannot mutate internal collections
+- repeated reads of immutable value objects always return the same state
+
+After that, add focused concurrent tests where true shared mutation exists.
+
+## When Simpler Design Wins
+
+If the data is request-scoped and never shared, a plain mutable local object may be perfectly fine.
+If a stateful object has strict thread confinement, you may not need extra concurrency machinery.
+
+Immutability is powerful, but it is not cargo cult.
+Use it where sharing, caching, async handoff, or reuse make reasoning hard.
 
 ## Key Takeaways
 
-- Immutability and concurrency-safe object modeling should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- start from a measurable baseline before optimizing
-
----
-
-## Design Review Prompt
-
-A useful final check for immutability and concurrency-safe object modeling is whether the ownership boundary, rollback path, and main SLO signal can all be explained in three sentences. If not, the design is probably still too implicit.
+- Immutability is one of the cheapest ways to reduce concurrency bugs because it makes ownership obvious.
+- Shared data should usually be immutable; mutable state should have one clear owner.
+- `final` references are not a substitute for immutable object design.
+- Good concurrency-safe modeling starts with boundaries and invariants, not with locks alone.

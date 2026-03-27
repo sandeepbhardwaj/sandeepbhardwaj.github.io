@@ -27,7 +27,7 @@ This article covers all JDK 25 release features, and the major developer-facing 
 
 ---
 
-# 1) Module Import Declarations (JEP 511)
+## 1) Module Import Declarations (JEP 511)
 
 Module import declarations let you import everything exported by a module.
 This is especially helpful in small scripts, compact source files, and learning-oriented examples where you want less ceremony.
@@ -63,7 +63,7 @@ Why this matters:
 
 ---
 
-# 2) Compact Source Files and Instance Main Methods (JEP 512)
+## 2) Compact Source Files and Instance Main Methods (JEP 512)
 
 Java 25 finalizes the simplified entry-point style.
 This is a real quality-of-life improvement for utilities, demos, data-fix scripts, and onboarding examples.
@@ -105,7 +105,7 @@ This is not a replacement for normal project structure in larger services, but i
 
 ---
 
-# 3) Flexible Constructor Bodies (JEP 513)
+## 3) Flexible Constructor Bodies (JEP 513)
 
 Flexible constructor bodies allow constructor prologue logic before `super(...)`, as long as language safety rules are preserved.
 
@@ -154,7 +154,7 @@ Why this matters:
 
 ---
 
-# 4) Scoped Values (Final, JEP 506)
+## 4) Scoped Values (Final, JEP 506)
 
 Scoped values are final in Java 25.
 They are a cleaner alternative to many `ThreadLocal` use cases and fit especially well with modern concurrency patterns.
@@ -218,7 +218,7 @@ Why this matters:
 
 ---
 
-# 5) Structured Concurrency (Fifth Preview, JEP 505)
+## 5) Structured Concurrency (Fifth Preview, JEP 505)
 
 Structured concurrency is still preview in Java 25, but it continues to improve.
 The core idea remains the same: a group of child tasks should have a bounded lifetime and belong to one parent operation.
@@ -278,7 +278,7 @@ Why teams care:
 
 ---
 
-# 6) Primitive Types in Patterns, `instanceof`, and `switch` (Third Preview, JEP 507)
+## 6) Primitive Types in Patterns, `instanceof`, and `switch` (Third Preview, JEP 507)
 
 Java 25 preview expands pattern matching to primitive types.
 That sounds subtle, but it removes a common mismatch where object patterns were expressive while primitive-heavy code stayed comparatively rigid.
@@ -318,7 +318,7 @@ Real use case:
 
 ---
 
-# 7) Stable Values (Preview, JEP 502)
+## 7) Stable Values (Preview, JEP 502)
 
 Stable values are a preview feature for safe, lazy, one-time initialization.
 This is useful when you want shared read-mostly data without custom locking or double-checked initialization patterns.
@@ -364,7 +364,7 @@ Real use case:
 
 ---
 
-# 8) Key Derivation Function API (JEP 510)
+## 8) Key Derivation Function API (JEP 510)
 
 Java 25 adds a standard Key Derivation Function API via `javax.crypto.KDF`.
 This is important when one master secret must deterministically produce many scoped child secrets.
@@ -410,7 +410,7 @@ Why this matters:
 
 ---
 
-# 9) PEM Encodings of Cryptographic Objects (Preview, JEP 470)
+## 9) PEM Encodings of Cryptographic Objects (Preview, JEP 470)
 
 Java 25 preview adds public PEM encoding and decoding support.
 This is practical because PEM is everywhere in real systems: TLS keys, certificates, signing keys, and infrastructure automation.
@@ -454,7 +454,7 @@ Real use case:
 
 ---
 
-# 10) Vector API (Tenth Incubator, JEP 508)
+## 10) Vector API (Tenth Incubator, JEP 508)
 
 The Vector API continues incubation.
 It remains a specialized feature, but for numeric-heavy code it can be extremely valuable.
@@ -511,7 +511,7 @@ Real use case:
 
 ---
 
-# 11) Stream Gatherers (JEP 485)
+## 11) Stream Gatherers (JEP 485)
 
 Stream Gatherers let you express custom intermediate stream operations without dropping out into hand-written loops everywhere.
 
@@ -557,7 +557,7 @@ Why this matters:
 
 ---
 
-# 12) Class-File API (JEP 484)
+## 12) Class-File API (JEP 484)
 
 Java 25 provides a standard Class-File API in `java.lang.classfile`.
 This matters for build tools, bytecode analyzers, instrumentation, and framework infrastructure.
@@ -594,7 +594,7 @@ Why this matters:
 
 ---
 
-# 13) JFR CPU-Time Profiling (Experimental, JEP 509)
+## 13) JFR CPU-Time Profiling (Experimental, JEP 509)
 
 JFR can now collect CPU-time-based profiling data.
 This is useful when wall-clock sampling alone does not explain where CPU is actually going.
@@ -614,7 +614,7 @@ Real use case:
 
 ---
 
-# 14) JFR Cooperative Sampling (JEP 518)
+## 14) JFR Cooperative Sampling (JEP 518)
 
 JFR sampling internals are improved for better scalability and safer stack walking.
 
@@ -628,7 +628,7 @@ This is the kind of feature many teams benefit from without touching any applica
 
 ---
 
-# 15) JFR Method Timing & Tracing (JEP 520)
+## 15) JFR Method Timing & Tracing (JEP 520)
 
 JFR adds method timing and tracing capabilities for deeper diagnostics.
 
@@ -641,7 +641,7 @@ This continues the broader Java 25 theme of making observability more built-in a
 
 ---
 
-# 16) Ahead-of-Time Command-Line Ergonomics (JEP 514)
+## 16) Ahead-of-Time Command-Line Ergonomics (JEP 514)
 
 Java 25 improves command-line ergonomics around AOT-related workflows.
 For most teams this matters operationally rather than in day-to-day business code.
@@ -654,7 +654,7 @@ Practical impact:
 
 ---
 
-# 17) Ahead-of-Time Method Profiling (JEP 515)
+## 17) Ahead-of-Time Method Profiling (JEP 515)
 
 The JVM can leverage ahead-of-time method profiling information.
 
@@ -668,7 +668,7 @@ This is especially relevant for serverless, autoscaling, and fast-restart deploy
 
 ---
 
-# 18) Late Barrier Expansion for G1 (JEP 475)
+## 18) Late Barrier Expansion for G1 (JEP 475)
 
 HotSpot improves G1 barrier expansion timing for better optimization opportunities.
 
@@ -680,7 +680,7 @@ Practical impact:
 
 ---
 
-# 19) Compact Object Headers (JEP 519)
+## 19) Compact Object Headers (JEP 519)
 
 Java 25 introduces compact object headers as an implementation/runtime feature.
 
@@ -700,7 +700,7 @@ Measure memory footprint before and after enabling runtime features like this in
 
 ---
 
-# 20) Generational Shenandoah (JEP 521)
+## 20) Generational Shenandoah (JEP 521)
 
 Java 25 brings generational support to Shenandoah.
 
@@ -716,7 +716,7 @@ Practical note:
 
 ---
 
-# 21) Remove the Non-Generational Mode of ZGC (JEP 490)
+## 21) Remove the Non-Generational Mode of ZGC (JEP 490)
 
 Java 25 removes the non-generational mode of ZGC.
 Operationally, this simplifies the mental model: `-XX:+UseZGC` now means generational ZGC behavior.
@@ -729,7 +729,7 @@ Why this matters:
 
 ---
 
-# 22) Removal: 32-bit x86 Port (JEP 503)
+## 22) Removal: 32-bit x86 Port (JEP 503)
 
 The 32-bit x86 port is removed in Java 25.
 
@@ -740,7 +740,7 @@ Migration note:
 
 ---
 
-# Migration Checklist (Java 21 -> 25)
+## Migration Checklist (Java 21 -> 25)
 
 - verify preview and incubator usage and the required `--enable-preview` paths
 - rebaseline GC behavior, especially if you rely on ZGC assumptions
@@ -752,7 +752,7 @@ Run staged performance tests before changing GC, AOT, or JFR tuning knobs.
 
 ---
 
-# Practical Adoption Order
+## Practical Adoption Order
 
 1. adopt stable source and library features first (`module import`, compact source files, flexible constructors, `ScopedValue`)
 2. apply observability improvements to your profiling playbooks
@@ -763,7 +763,7 @@ This keeps production risk low while still extracting value from the new LTS.
 
 ---
 
-# Preview/Incubator Governance for Teams
+## Preview/Incubator Governance for Teams
 
 For features like Structured Concurrency preview, primitive patterns preview, Stable Values preview, PEM preview, and Vector incubator:
 
@@ -776,7 +776,7 @@ Treat previews as controlled experiments, not core platform dependencies.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - Java 25 LTS delivers meaningful source-level ergonomics with module imports, compact source files, and flexible constructor bodies.
 - It strengthens modern concurrency with `ScopedValue` finalization and ongoing structured concurrency improvements.

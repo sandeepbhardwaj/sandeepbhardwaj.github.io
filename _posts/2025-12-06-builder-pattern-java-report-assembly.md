@@ -21,59 +21,64 @@ header:
   caption: Java Design Patterns Series
   show_overlay_excerpt: false
 ---
-Builder is valuable when object construction is complex, optional fields are common, and you want the result to be immutable and readable.
-It is not useful for every three-field DTO.
+Builder is most useful when object creation has real shape:
+required data, optional fields, defaults, validation, and a strong reason to keep the final object immutable.
 
----
+It is much less useful when teams add it to every class just because fluent APIs look modern.
 
-## Problem 1: Assemble an Immutable Report with Optional Parts
+## Quick Decision Guide
 
-Problem description:
-We need to construct an analytics report response with:
+| Situation | Builder fit | Better alternative when simpler |
+| --- | --- | --- |
+| many optional fields with readable named steps | strong | builder shines here |
+| immutable object with construction-time validation | strong | builder or factory can work |
+| 2-3 obvious required arguments | weak | constructor or static factory is usually enough |
+| multiple mutually exclusive configuration modes | mixed | builder helps only if validation is clear |
+| object graph assembly spread across layers | strong | builder can centralize construction rules |
 
-- mandatory report identity
+The best builders do two jobs:
+
+- make the call site readable
+- enforce invariants before the object exists
+
+If they only do the first job, they are often just ceremony.
+
+## The Problem Builder Actually Solves
+
+Suppose we need to assemble an analytics report with:
+
+- required report identity
+- required title
 - optional filters
-- optional metadata
 - optional warnings
+- generated timestamp
 - immutable final representation
 
-What we are solving actually:
-We are solving readability and invariant enforcement at construction time.
-Without a builder, optional parts either create constructor bloat or force the object into partially initialized states that the rest of the system has to defend against.
+The challenge is not "how do we avoid typing constructors."
+The challenge is "how do we keep partially valid objects from escaping into the rest of the system."
 
-What we are doing actually:
+That is where builder becomes useful:
+it creates a clear construction boundary.
 
-1. Keep required fields explicit at builder creation time.
-2. Add optional fields fluently.
-3. Validate invariants in one `build()` method.
-4. Return an immutable object so downstream code never sees half-built state.
+## Why Constructor-Only Design Gets Awkward
 
----
+Without a builder, the call site often looks like this:
 
-## UML
-
-```mermaid
-classDiagram
-    class AnalyticsReport {
-      -String reportId
-      -String title
-      -Map~String,String~ filters
-      -List~String~ warnings
-      -Instant generatedAt
-    }
-    class Builder {
-      +reportId(String) Builder
-      +title(String) Builder
-      +filter(String,String) Builder
-      +warning(String) Builder
-      +build() AnalyticsReport
-    }
-    AnalyticsReport --> Builder
+```java
+new AnalyticsReport("REP-42", "Revenue by Region", filters, warnings, Instant.now());
 ```
 
----
+That is fine while the object is small.
+It gets harder to read once optional fields multiply or validation becomes non-trivial.
 
-## Implementation Walkthrough
+Problems appear quickly:
+
+- argument ordering is easy to mix up
+- optional values create constructor overload growth
+- validation logic gets duplicated or scattered
+- callers can drift into half-assembled state before the final object is ready
+
+## A Practical Builder Example
 
 ```java
 import java.time.Instant;
@@ -115,7 +120,7 @@ public final class AnalyticsReport {
         }
 
         public Builder filter(String key, String value) {
-            filters.put(key, value); // Optional fields are accumulated fluently before final validation.
+            filters.put(key, value);
             return this;
         }
 
@@ -130,10 +135,10 @@ public final class AnalyticsReport {
         }
 
         public AnalyticsReport build() {
-            if (reportId == null || reportId.isEmpty()) {
+            if (reportId == null || reportId.isBlank()) {
                 throw new IllegalStateException("reportId is required");
             }
-            if (title == null || title.isEmpty()) {
+            if (title == null || title.isBlank()) {
                 throw new IllegalStateException("title is required");
             }
             return new AnalyticsReport(this);
@@ -152,43 +157,123 @@ AnalyticsReport report = AnalyticsReport.builder("REP-42", "Revenue by Region")
         .build();
 ```
 
-The fluent calls make the object shape visible at the call site.
-That readability is useful, but the bigger win is that all invariant checks stay close to object creation. The rest of the application can work with a fully valid immutable report instead of partially assembled state.
+This is one of the Java patterns where a small UML class diagram genuinely helps:
+it makes the construction boundary and the immutable result visible at a glance.
 
----
+```mermaid
+classDiagram
+    class AnalyticsReport {
+      -String reportId
+      -String title
+      -Map~String,String~ filters
+      -List~String~ warnings
+      -Instant generatedAt
+    }
+    class Builder {
+      -String reportId
+      -String title
+      -Map~String,String~ filters
+      -List~String~ warnings
+      -Instant generatedAt
+      +filter(key, value) Builder
+      +warning(message) Builder
+      +generatedAt(timestamp) Builder
+      +build() AnalyticsReport
+    }
 
-## Why Builder Helps
-
-Without Builder, constructor signatures become hard to read:
-
-```java
-new AnalyticsReport("REP-42", "Revenue by Region", filters, warnings, Instant.now());
+    AnalyticsReport ..> Builder : built from
 ```
 
-The problem gets worse as optional fields grow.
-Builder makes intent readable at the call site and centralizes validation in one place.
+The call site reads like assembly steps instead of a dense argument list.
 
-That second part is what often gets missed. A builder without validation is mostly syntax. A builder with validation becomes a reliable construction boundary.
+## The Real Win: Validation at the Boundary
 
----
+A builder without validation is mostly syntax.
+A builder with validation becomes a design boundary.
 
-## Debug Steps
+That matters because the rest of the application can assume:
 
-Debug steps:
+- required fields exist
+- defaults were applied consistently
+- immutable collections are already wrapped
+- invalid combinations were rejected before publication
 
-- test missing required fields to confirm `build()` fails fast
-- verify the built object cannot be mutated through returned collections
-- inspect whether the builder is solving real optional complexity or just adding ceremony
-- check whether defaults like `generatedAt` are explicit enough for tests and reproducibility
+This is why builder works well for immutable domain responses, reports, commands, and configuration objects.
 
----
+## Immutability Matters Here
 
-## Practical Rule
+Builder and immutability pair well because they solve opposite halves of the same problem:
 
-Use Builder when:
+- builder helps create a valid object
+- immutability helps keep it valid afterward
 
-- construction has many optional parts
+That is why defensive copies matter in the example:
+
+```java
+this.filters = Collections.unmodifiableMap(new LinkedHashMap<>(builder.filters));
+this.warnings = Collections.unmodifiableList(new ArrayList<>(builder.warnings));
+```
+
+If we reused mutable collections directly, callers could mutate the final object through aliases and break the whole point of the pattern.
+
+## Common Mistakes
+
+### Using builder for trivial objects
+
+If a class has two required fields and no real construction logic, a constructor or static factory is usually cleaner.
+
+### Skipping validation in `build()`
+
+Then the builder mostly becomes fluent syntax instead of an invariant gate.
+
+### Exposing mutable internals
+
+If the built object returns live mutable collections, the design is only pretending to be immutable.
+
+### Letting the builder become a second domain model
+
+Builders should assemble the object, not absorb unrelated business workflows and branching logic.
+
+## When Builder Is a Strong Fit
+
+Use it when:
+
+- optional fields are common
+- readability at the call site matters
+- defaults must be applied consistently
 - the final object should be immutable
-- you want readable named steps
+- construction rules are important enough to centralize
 
-Do not use Builder for every trivial entity just because it looks fluent.
+Examples:
+
+- report definitions
+- API response assemblers
+- configuration objects
+- command objects with optional metadata
+
+## When Builder Is the Wrong Tool
+
+Do not use it automatically for:
+
+- tiny DTOs
+- simple entities with obvious constructors
+- objects where a named static factory already communicates intent
+- classes whose complexity comes from behavior, not construction
+
+Sometimes a factory method like `Report.monthlyRevenue(id, title)` says more than a generic builder ever will.
+
+## A Practical Rule
+
+Ask this before adding builder:
+
+"Am I solving real construction complexity, or am I just trying to make object creation look fancy?"
+
+If the answer is only style, skip it.
+If the answer is invariants, readability, defaults, and immutability, builder is usually a good fit.
+
+## Key Takeaways
+
+- Builder is strongest when object construction has genuine complexity.
+- The biggest win is invariant enforcement at `build()` time, not just fluent syntax.
+- Builder pairs naturally with immutable objects and defensive copies.
+- For simple classes, constructors or static factories are often clearer and cheaper.

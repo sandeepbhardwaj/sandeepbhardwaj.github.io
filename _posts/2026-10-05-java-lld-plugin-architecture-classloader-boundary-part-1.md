@@ -23,101 +23,181 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-Plugin-oriented LLD with classloader boundaries matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Plugin systems look flexible right up until one plugin crashes the host, leaks a class, or quietly depends on a transitive library version the platform never promised.
 
----
+That is why plugin architecture is mostly a boundary problem.
+The hard part is not loading bytecode.
+The hard part is deciding what the host guarantees, what the plugin may assume, and what must stay isolated.
 
-## Problem 1: Plugin-oriented LLD with classloader boundaries
+## Quick Summary
 
-Problem description:
-We want plugin-oriented lld with classloader boundaries to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on the baseline model and the safe default shape.
+| Design question | Better default |
+| --- | --- |
+| What should plugins depend on? | a tiny stable host API |
+| What should cross the boundary? | DTOs, commands, results, and explicit extension points |
+| What should stay out? | JPA entities, internal services, mutable host state, random classpath assumptions |
+| What does the classloader protect? | dependency isolation and lifecycle control, not business correctness by itself |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+Part 1 is about the baseline shape:
+make the plugin contract narrow enough that the host can evolve without letting plugins become a second application core.
 
-What we are doing actually:
+## The Boundary That Actually Matters
 
-1. make the domain model explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the domain model explicit: choose the simplest baseline design that preserves correctness
-3. make the domain model explicit: make observability visible from the first implementation
-4. make the domain model explicit: validate the baseline with one concrete failure drill
+A plugin architecture has at least three layers:
 
----
+1. host application
+2. shared plugin API
+3. plugin implementation plus plugin-private dependencies
 
-## Why This Topic Matters
+The mistake is letting the host and plugin talk through rich internal domain types.
+That feels convenient early.
+It usually destroys versioning safety later.
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+The healthier baseline is:
 
----
+- shared API module is small and intentional
+- plugin receives stable request objects
+- plugin returns stable result objects
+- plugin does not reach into host internals directly
 
-## Architecture Model
-
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Plugin-oriented LLD with classloader boundaries]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
-
-The model is deliberately centered on boundary, invariant, and change pressure so plugin-oriented lld with classloader boundaries reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
-
----
-
-## Practical Design Pattern
+## A Clean Java Shape
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: Plugin-oriented LLD with classloader boundaries
+public interface ReportPlugin {
+    String id();
+    PluginResult execute(PluginCommand command);
+}
+
+public record PluginCommand(String tenantId, Map<String, String> parameters) {}
+
+public record PluginResult(boolean success, String message) {}
+
+public final class PluginHost {
+    private final Map<String, ReportPlugin> plugins;
+
+    public PluginHost(Map<String, ReportPlugin> plugins) {
+        this.plugins = Map.copyOf(plugins);
+    }
+
+    public PluginResult run(String pluginId, PluginCommand command) {
+        ReportPlugin plugin = plugins.get(pluginId);
+        if (plugin == null) {
+            throw new IllegalArgumentException("unknown plugin: " + pluginId);
+        }
+        return plugin.execute(command);
     }
 }
 ```
 
-The code stays compact so the design boundary for plugin-oriented lld with classloader boundaries is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+This does something important:
+the host owns plugin discovery and lifecycle, while the shared contract stays small and explicit.
 
----
+## Where Classloader Boundaries Help
 
-## Failure Drill
+Separate classloaders are useful when plugins bring:
 
-Baseline drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for plugin-oriented lld with classloader boundaries.
+- different dependency versions
+- optional libraries the host should not carry globally
+- unload or reload requirements
+- security and isolation concerns around extension code
 
-That drill matters early, before rollout assumptions harden into defaults because object designs for plugin-oriented lld with classloader boundaries often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+That isolation is operationally valuable.
+It can prevent:
 
----
+- library conflicts
+- static singleton collisions
+- accidental classpath coupling
+- plugin code from linking against host implementation details
 
-## Debug Steps
+But a classloader boundary is not a substitute for a clean API.
+If the shared contract is muddy, the design stays muddy.
 
-Debug steps:
+## What Should Never Cross the Plugin Boundary
 
-- write one failing invariant test before changing the design while validating plugin-oriented lld with classloader boundaries
-- inspect whether responsibilities are gathering in one object for convenience while validating plugin-oriented lld with classloader boundaries
-- prefer boundaries that stay understandable during refactor pressure while validating plugin-oriented lld with classloader boundaries
-- use tests to expose temporal coupling or hidden dependencies while validating plugin-oriented lld with classloader boundaries
+Avoid passing these directly into plugins:
 
----
+- ORM-managed entities
+- repository implementations
+- transaction objects
+- mutable host collections
+- framework contexts unless the platform explicitly supports them
 
-## Production Checklist
+Why?
+Because every leaked internal type becomes a hidden compatibility promise.
+Soon the platform cannot change without breaking plugins.
 
-- one invariant stated in code and in tests
-- boundary between aggregate or collaborators kept explicit
-- change-cost signal identified before adding extra abstractions
-- refactor path that does not weaken the model during rollout
+That is how "extensible" systems become frozen systems.
 
----
+## A Better Rule for Shared Types
+
+The shared API should contain only things you are willing to version carefully.
+
+Good shared types:
+
+- command DTOs
+- result DTOs
+- extension interfaces
+- narrow error contracts
+
+Bad shared types:
+
+- half the domain model
+- utility grab-bags
+- framework abstractions that make testing harder
+- host service locators
+
+If a plugin needs half your application package tree to compile, the boundary is already too wide.
+
+## Failure Modes That Hurt in Production
+
+### Plugin-private dependencies leak into the host
+
+Now one plugin upgrade can break the platform classpath.
+
+### Host internals become de facto extension API
+
+The team never meant to support them, but plugins started using them anyway.
+
+### Unload is impossible because references escape
+
+One cached class, thread, or static registry can keep a plugin classloader alive indefinitely.
+
+### Plugins own too much workflow
+
+If plugins decide security, persistence rules, and host lifecycle behavior, the platform loses control of its invariants.
+
+## Testing Strategy
+
+Test plugin systems at three levels:
+
+1. shared API contract tests
+2. plugin implementation tests against fake host inputs
+3. host integration tests that verify loading, discovery, error isolation, and version mismatch behavior
+
+That split matters because the host and the plugin are separate design problems.
+
+Useful questions:
+
+- does a bad plugin fail without taking down other plugins?
+- can the host reject incompatible plugin metadata cleanly?
+- can the plugin be tested without booting the whole application?
+
+## When Simpler Design Is Better
+
+Do not build a plugin system if the real need is:
+
+- one internal strategy choice
+- a few optional policies known at compile time
+- environment-specific wiring
+
+In those cases, composition or Strategy is usually better.
+
+Plugin architecture is worth it when independent extension, isolation, or external distribution is a real requirement.
+Otherwise it is often expensive ceremony.
 
 ## Key Takeaways
 
-- Plugin-oriented LLD with classloader boundaries should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- start from a measurable baseline before optimizing
-
----
-
-## Design Review Prompt
-
-A useful final check for plugin-oriented lld with classloader boundaries is whether the ownership boundary, rollback path, and main SLO signal can all be explained in three sentences. If not, the design is probably still too implicit.
+- Plugin architecture is mostly about keeping the host boundary narrow and explicit.
+- Classloaders help isolate dependencies, but they do not fix a bad contract.
+- Shared API types should be small, stable, and intentional.
+- If plugins depend on host internals, the platform has already leaked too much.

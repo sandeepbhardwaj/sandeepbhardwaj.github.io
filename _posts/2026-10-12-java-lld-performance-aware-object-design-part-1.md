@@ -25,95 +25,231 @@ header:
   show_overlay_excerpt: false
   caption: Advanced LLD and OOP Design in Java
 ---
-'Performance-aware object design: memory and allocation patterns' matters when object design has to hold up under real change, not just compile in a small example. The important design pressure is usually invariants, testability, and where coupling is allowed to exist.
+Performance-aware design is easy to get wrong from both directions.
+Some teams ignore performance until the object model is already too expensive for the hot path.
+Other teams optimize everything too early and end up with code that is fast in theory, brittle in practice, and impossible to extend safely.
 
----
+Good low-level design sits between those extremes.
+It protects invariants first, then shapes the hot path based on measurement instead of folklore.
 
-## Problem 1: 'Performance-aware object design: memory and allocation patterns'
+## Quick Summary
 
-Problem description:
-We want 'performance-aware object design: memory and allocation patterns' to hold up as the domain model evolves, the codebase grows, and multiple teams touch the same design. This part focuses on the baseline model and the safe default shape.
+| Pressure | Useful design move | Common mistake |
+| --- | --- | --- |
+| high allocation rate | reduce temporary objects on hot paths | remove every value object everywhere |
+| large object graphs | flatten where traversal cost matters | flatten domain boundaries blindly |
+| boxing and copies | use primitives or specialized representations selectively | micro-optimize cold code |
+| GC pause pressure | reduce churn and cache stable data | introduce unsafe pooling everywhere |
+| throughput-sensitive loop | design for predictable memory behavior | hide cost behind "clean" helper chains |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For low-level design, the hidden risk is accidental coupling, weak invariants, and objects that look clean until behavior gets more complex.
+Part 1 is about the baseline question:
+how do we make object design performance-aware without letting performance panic destroy clarity?
 
-What we are doing actually:
+## Start With the Right Mental Model
 
-1. make the domain model explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the domain model explicit: choose the simplest baseline design that preserves correctness
-3. make the domain model explicit: make observability visible from the first implementation
-4. make the domain model explicit: validate the baseline with one concrete failure drill
+Performance problems in object-oriented systems usually come from one of these:
 
----
+- too many short-lived allocations
+- large, pointer-heavy object graphs
+- repeated copying or boxing
+- hidden work inside "nice" abstractions
+- expensive parsing or formatting in the hot path
 
-## Why This Topic Matters
+That does not mean objects are the enemy.
+It means cost should be visible where the system is actually hot.
 
-- object design has to preserve invariants under change, not just look elegant initially
-- good boundaries reduce rewrite cost when behavior expands later
-- testability often reveals whether the model is actually cohesive
+The worst outcome is a design that hides heavy allocation behind small helper methods and streams, because it looks clean in code review while burning time and memory in production.
 
----
+## Performance-Aware Does Not Mean Primitive-Only
 
-## Architecture Model
+A strong design still values:
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B['Performance-aware object design: memory and allocation patterns']
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
+- invariants
+- readability
+- testability
+- maintainable boundaries
 
-The model is deliberately centered on boundary, invariant, and change pressure so 'performance-aware object design: memory and allocation patterns' reads like a design decision instead of an object diagram.
-That helps keep future refactors anchored to one rule the team actually cares about preserving.
+The question is where those qualities can be preserved without paying unnecessary runtime cost.
 
----
+For example, a `Money` value object may still be the right choice for business correctness.
+But creating three temporary `Money` wrappers per line item inside a million-event pricing pipeline may deserve a closer look.
 
-## Practical Design Pattern
+That is not a philosophical contradiction.
+It is design under constraints.
+
+## A Common Hot-Path Smell
+
+Suppose an ingestion path computes totals like this:
 
 ```java
-public final class DesignBoundary {
-    public void apply(Command command) {
-        // Preserve invariants for: 'Performance-aware object design: memory and allocation patterns'
+public Money total(List<OrderLine> lines) {
+    return lines.stream()
+            .map(line -> new Money(line.priceInCents()).multiply(line.quantity()))
+            .reduce(Money.zero(), Money::add);
+}
+```
+
+This is readable.
+It may also allocate heavily:
+
+- stream machinery
+- temporary `Money` instances
+- intermediate reduction values
+
+In a low-volume admin path, that is fine.
+In a service processing tens of thousands of requests per second, it may not be.
+
+A more allocation-aware version can still preserve the domain boundary:
+
+```java
+public final class OrderPricing {
+    public Money total(List<OrderLine> lines) {
+        long totalInCents = 0L;
+
+        for (OrderLine line : lines) {
+            totalInCents += line.unitPriceInCents() * line.quantity();
+        }
+
+        return Money.ofCents(totalInCents);
     }
 }
 ```
 
-The code stays compact so the design boundary for 'performance-aware object design: memory and allocation patterns' is visible without framework noise.
-A richer implementation is fine later, but only if it keeps the invariant easier to test instead of easier to forget.
+The important point is not "loops beat streams."
+The important point is that the design makes the hot-path cost visible and bounded.
 
----
+## Where Object Design Usually Pays a Performance Tax
 
-## Failure Drill
+### Temporary objects in tight loops
 
-Baseline drill: change one domain rule and verify the design adapts without leaking invariants across unrelated classes for 'performance-aware object design: memory and allocation patterns'.
+These are common in:
 
-That drill matters early, before rollout assumptions harden into defaults because object designs for 'performance-aware object design: memory and allocation patterns' often look tidy until one rule changes and the invariant starts leaking across unrelated classes.
+- pricing engines
+- parsing pipelines
+- event transformation steps
+- serialization preparation
 
----
+### Deep object graphs
 
-## Debug Steps
+If producing one response requires walking ten layers of wrappers, the CPU and cache cost can become noticeable before anyone realizes the model is the issue.
 
-Debug steps:
+### Boxing and wrapper churn
 
-- write one failing invariant test before changing the design while validating 'performance-aware object design: memory and allocation patterns'
-- inspect whether responsibilities are gathering in one object for convenience while validating 'performance-aware object design: memory and allocation patterns'
-- prefer boundaries that stay understandable during refactor pressure while validating 'performance-aware object design: memory and allocation patterns'
-- use tests to expose temporal coupling or hidden dependencies while validating 'performance-aware object design: memory and allocation patterns'
+Collections of boxed primitives, repeated conversions, and convenience APIs can add up quickly in throughput-heavy code.
 
----
+### Defensive copies in the wrong place
+
+Copies are often correct.
+They are just expensive when repeated on hot paths without a measured reason.
+
+## A Better Baseline
+
+Keep the object model honest:
+
+1. preserve the domain invariant in the type system where it matters
+2. identify the hot path through profiling or production metrics
+3. remove cost surgically at the hot boundary
+
+That often leads to designs like:
+
+- immutable value objects at API and domain boundaries
+- simpler internal representations in tight loops
+- precomputed derived values when they are stable
+- flatter data structures in throughput-critical code
+
+The key is selective optimization, not ideology.
+
+## Example: Keep the Aggregate Clean, Make the Calculation Cheap
+
+```java
+public record OrderLine(String sku, long unitPriceInCents, int quantity) {
+    public long lineTotalInCents() {
+        return unitPriceInCents * quantity;
+    }
+}
+
+public final class Order {
+    private final List<OrderLine> lines;
+
+    public Order(List<OrderLine> lines) {
+        this.lines = List.copyOf(lines);
+        if (this.lines.isEmpty()) {
+            throw new IllegalArgumentException("order must contain at least one line");
+        }
+    }
+
+    public Money total() {
+        long totalInCents = 0L;
+        for (OrderLine line : lines) {
+            totalInCents += line.lineTotalInCents();
+        }
+        return Money.ofCents(totalInCents);
+    }
+}
+```
+
+This still enforces a business invariant.
+It just avoids extra churn in the calculation path.
+
+That is the pattern to aim for:
+business correctness stays explicit, while hot-path representation stays disciplined.
+
+## When Caching Helps and When It Hurts
+
+Teams often respond to performance issues by caching everything.
+That can be worse than the original problem.
+
+Cache or precompute only when:
+
+- the value is stable relative to object lifetime
+- recomputation is measurable and expensive
+- invalidation rules are obvious
+
+Do not cache derived fields casually if:
+
+- the object mutates frequently
+- stale values would violate correctness
+- synchronization cost exceeds the original computation
+
+Bad caching turns simple objects into hidden consistency problems.
+
+## When Simpler Design Is Better
+
+Sometimes the right answer is to keep the clean model and buy more hardware, or optimize a different layer.
+
+Do not contort the domain model for hypothetical performance wins.
+The design should become more performance-aware only when one of these is true:
+
+- profiling points to object churn or traversal as a real bottleneck
+- p99 latency is sensitive to allocation behavior
+- GC or memory pressure is already visible in production
+- throughput goals clearly exceed what the current design can sustain
+
+Without that signal, "performance-aware" easily becomes cargo cult.
+
+## A Practical Decision Rule
+
+Ask these questions in order:
+
+1. what exact hot path is under pressure?
+2. is the pressure allocation, graph traversal, copying, boxing, or synchronization?
+3. can we reduce that cost without weakening the domain invariant?
+4. is the optimization local, testable, and measurable?
+
+If the answer to question 3 is no, stop and reconsider.
+A fast but semantically weak model usually creates more expensive bugs later.
 
 ## Production Checklist
 
-- one invariant stated in code and in tests
-- boundary between aggregate or collaborators kept explicit
-- change-cost signal identified before adding extra abstractions
-- refactor path that does not weaken the model during rollout
-
----
+- a real hot path was identified before optimization
+- the invariant owner stayed explicit
+- temporary allocation and copying are controlled where they matter
+- caches or precomputed fields have clear validity rules
+- benchmark or profiling evidence exists for the chosen tradeoff
+- cold paths were not made harder to maintain for negligible gain
 
 ## Key Takeaways
 
-- 'Performance-aware object design: memory and allocation patterns' should be designed as a production decision, not just an implementation detail
-- object design should preserve invariants and reduce long-term change cost
-- start from a measurable baseline before optimizing
+- Performance-aware object design is about making hot-path cost visible without giving up domain clarity.
+- Optimize where measurement says the object model is expensive, not where intuition merely feels suspicious.
+- The best design keeps invariants strong and removes runtime cost surgically, not theatrically.

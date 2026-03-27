@@ -24,95 +24,182 @@ header:
   show_overlay_excerpt: false
   caption: Distributed System Design Patterns and Tradeoffs
 ---
-'Reliability playbook: SLOs, error budgets, and recovery drills' is a systems trade-off, not a binary rule. Latency, ownership, failure recovery, and operator visibility all matter more than whether the pattern sounds theoretically elegant.
+Reliability work becomes wasteful when it is all aspiration and no operating rule.
 
----
+Teams say they care about uptime, but they have no agreed service level objective.
+They talk about quality, but nobody knows when feature work should stop and reliability work should start.
+They run incidents, but they do not practice recovery before the incident happens.
 
-## Problem 1: 'Reliability playbook: SLOs, error budgets, and recovery drills'
+That is why the real reliability playbook is not a dashboard.
+It is a set of decisions the organization agrees to honor under pressure.
 
-Problem description:
-We want 'reliability playbook: slos, error budgets, and recovery drills' to improve reliability and coordination without creating operational complexity we cannot observe or recover from. This part focuses on the baseline model and the safe default shape.
+## Quick Summary
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For distributed systems, the hidden risk is that a locally correct mechanism can still fail badly once latency, partial failure, and recovery are involved.
+| Component | Real purpose |
+| --- | --- |
+| SLO | defines what good service means for users |
+| error budget | defines how much unreliability is still acceptable |
+| recovery drill | proves the team can restore service, not just discuss it |
+| policy response | connects reliability signals to engineering action |
 
-What we are doing actually:
+The important invariant is:
+if the system is consuming too much reliability budget, the team must change behavior, not just update slides.
 
-1. make the distributed workflow explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the distributed workflow explicit: choose the simplest baseline design that preserves correctness
-3. make the distributed workflow explicit: make observability visible from the first implementation
-4. make the distributed workflow explicit: validate the baseline with one concrete failure drill
+## Start With One User-Facing SLI
 
----
+The fastest way to make an SLO useless is to measure something convenient but indirect.
 
-## Why This Topic Matters
+Good starting signals are usually user-visible:
 
-- correctness depends on time, retries, and partial failure, not only code structure
-- operators need clear recovery rules when coordination breaks down
-- latency and ownership trade-offs matter as much as algorithmic elegance
+- successful request ratio
+- p95 latency for a critical endpoint
+- job completion success for a batch workflow
+- event processing delay for a customer-visible pipeline
 
----
+Weak starting signals are usually internal-only:
 
-## Architecture Model
+- CPU usage
+- queue depth by itself
+- pod count
+- number of alerts fired
+
+Those internal signals matter for diagnosis.
+They usually do not define service quality on their own.
+
+## A Good SLO Is Specific Enough to Drive Action
+
+Example:
+
+| Service | SLI | SLO |
+| --- | --- | --- |
+| Checkout API | successful checkout completion | 99.9% over 30 days |
+| Payment authorization | successful authorization within 2 seconds | 99.5% over 30 days |
+| Event ingestion | events visible to consumers within 60 seconds | 99% over 7 days |
+
+The value of an SLO is not that it sounds mature.
+The value is that when the number degrades, everyone knows whether the system is still inside the acceptable boundary.
+
+## Error Budget Is the Policy Lever
+
+If a 99.9% availability target exists over 30 days, the system has a finite amount of permitted failure.
+That allowance is the error budget.
+
+The budget matters because it turns reliability from an emotional debate into a controlled trade.
+
+For example:
+
+- healthy budget remaining -> normal release pace
+- budget burning faster than expected -> tighten release and change management
+- budget exhausted -> stop risky changes and prioritize stabilization
+
+Without that policy response, SLOs become reporting theater.
+
+## Recovery Drills Are Where the Playbook Becomes Real
+
+A dashboard can tell you the service is red.
+A drill tells you whether the team can actually recover it.
+
+Run drills for events like:
+
+- one dependency timing out hard
+- one zone becoming unavailable
+- queue backlog growth during partial consumer failure
+- bad release rollback under peak traffic
 
 ```mermaid
-flowchart LR
-    A[Production pressure] --> B['Reliability playbook: SLOs, error budgets, and recovery drills']
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
+flowchart TD
+    A[User-facing SLI] --> B[SLO target]
+    B --> C[Error budget consumption]
+    C --> D{Within policy?}
+    D -->|Yes| E[Normal release cadence]
+    D -->|No| F[Slow releases or stabilize]
+    F --> G[Recovery drill or corrective action]
 ```
 
-The model keeps ownership, latency, and recovery visible because 'reliability playbook: slos, error budgets, and recovery drills' is only useful when operators can still reason about it during partial failure.
-A simpler picture here is a feature: it exposes the trade-off the rest of the design must honor.
+The drill is not a bonus activity.
+It is how the team proves the policy survives contact with reality.
 
----
+## The Playbook Should Answer Four Questions
 
-## Practical Design Pattern
+Every serious service should have explicit answers to these:
 
-```text
-Control loop for 'Reliability playbook: SLOs, error budgets, and recovery drills':
-- choose one ownership rule
-- measure one correctness signal
-- define one rollback gate
-- avoid unbounded coordination
-```
+1. What user promise are we measuring?
+2. What budget remains, and over what window?
+3. What engineering behavior changes when the budget is burning?
+4. What recovery steps have we actually practiced?
 
-The sketch is not trying to simulate the whole system. It is there to pin down the most important control point behind 'reliability playbook: slos, error budgets, and recovery drills'.
-Once that point is explicit, the team can add retries, leases, or replication details without losing the recovery story.
+If one of those answers is vague, reliability work is probably still personality-driven rather than system-driven.
 
----
+## Common Failure Modes
 
-## Failure Drill
+### Too many SLOs
 
-Baseline drill: introduce a partial failure or delay and verify the coordination rule fails safely instead of ambiguously for 'reliability playbook: slos, error budgets, and recovery drills'.
+Teams create dozens of objectives and then ignore the ones that matter most.
+Start with a small number tied to critical user journeys.
 
-That drill matters early, before rollout assumptions harden into defaults because 'reliability playbook: slos, error budgets, and recovery drills' only earns its complexity when recovery behavior stays understandable under delay, replay, or partial failure.
+### SLOs that track internals, not outcomes
 
----
+The service looks green while users are failing.
 
-## Debug Steps
+### Error budget with no consequence
 
-Debug steps:
+The team blows the budget and keeps releasing at the same pace.
+That means the budget is informational, not operational.
 
-- measure the failure mode that matters before tuning the mechanism while validating 'reliability playbook: slos, error budgets, and recovery drills'
-- check whether ownership, timeout, and replay rules are explicit while validating 'reliability playbook: slos, error budgets, and recovery drills'
-- separate control-plane signals from data-plane success assumptions while validating 'reliability playbook: slos, error budgets, and recovery drills'
-- test operator playbooks with synthetic drills before trusting them in production while validating 'reliability playbook: slos, error budgets, and recovery drills'
+### Drills that are too artificial
 
----
+If the exercise avoids the real dependency graph, real dashboards, and real on-call path, it is closer to training theater than operational proof.
 
-## Production Checklist
+## A Better Review Rhythm
 
-- ownership rule defined for the coordination point
-- latency or correctness budget attached to the mechanism
-- partial-failure recovery signal exposed to operators
-- rollback move documented before the pattern spreads
+Use a monthly or biweekly loop:
 
----
+- review SLO attainment
+- inspect error budget burn rate
+- identify one top reliability risk
+- decide whether feature pace or operational posture should change
+- schedule one drill or one hardening task
+
+This is more effective than collecting dozens of disconnected action items after every incident.
+
+## What Good Reliability Maturity Looks Like
+
+You know the system is improving when:
+
+- product and engineering understand the same reliability numbers
+- on-call can explain current budget state quickly
+- recovery steps are practiced, not just documented
+- rollback and mitigation decisions are connected to budget policy
+- incident reviews change either architecture or operational rules
+
+Reliability maturity is not "we have better charts."
+It is "we make better decisions under failure."
+
+## When Teams Over-Engineer This
+
+Do not start with a giant reliability governance program for a small service with one critical endpoint.
+
+Start with:
+
+- one SLI
+- one SLO
+- one error budget policy
+- one realistic drill
+
+That small loop is already much better than a complicated framework nobody can operate.
+
+## Part 1 Checklist
+
+- at least one user-visible SLI is defined
+- SLO target and evaluation window are explicit
+- error budget burn changes engineering behavior
+- one realistic recovery drill is scheduled and documented
+- dashboards separate user outcome from infrastructure detail
+- incident review feeds the playbook, not only a wiki page
 
 ## Key Takeaways
 
-- 'Reliability playbook: SLOs, error budgets, and recovery drills' should be designed as a production decision, not just an implementation detail
-- distributed mechanisms need recovery rules as much as steady-state logic
-- start from a measurable baseline before optimizing
+- SLOs define the promise.
+- Error budgets define the response when reliability degrades.
+- Recovery drills prove the response is real.
+- A reliability playbook is only useful when it changes decisions under pressure.

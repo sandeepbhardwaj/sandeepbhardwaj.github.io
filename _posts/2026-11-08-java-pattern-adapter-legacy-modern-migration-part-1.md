@@ -23,100 +23,184 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Design Patterns with Java
 ---
-Adapter pattern for legacy-modern system migration is most useful when the pattern clarifies a real design pressure instead of decorating the codebase with abstractions. The production value comes from making extension, composition, and debugging easier.
+The Adapter pattern matters most during migration, not during diagramming.
+It is what lets a modern boundary move forward while an old dependency remains stubbornly unchanged.
 
----
+That is why the pattern is useful.
+It localizes incompatibility instead of letting legacy contracts leak everywhere.
 
-## Problem 1: Adapter pattern for legacy-modern system migration
+## Quick Summary
 
-Problem description:
-We want adapter pattern for legacy-modern system migration to solve a specific design problem without turning the code into ceremonial abstraction. This part focuses on the baseline model and the safe default shape.
+| Question | Strong fit | Weak fit |
+| --- | --- | --- |
+| Do two interfaces model the same capability differently? | yes | no, they represent different business concepts |
+| Is one side legacy or third-party and hard to change? | yes | no, both sides are under your control |
+| Do you want the rest of the codebase to speak one clean contract? | yes | no, direct integration is acceptable |
+| Are you hiding semantic mismatch rather than interface mismatch? | no | yes |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For design patterns, the hidden risk is choosing abstraction because it sounds elegant instead of because it absorbs a real source of change.
+Adapter solves interface mismatch well.
+It does not magically erase domain mismatch.
 
-What we are doing actually:
+## Migration Pressure: Old Payments, New Service Boundary
 
-1. make the pattern assembly explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the pattern assembly explicit: choose the simplest baseline design that preserves correctness
-3. make the pattern assembly explicit: make observability visible from the first implementation
-4. make the pattern assembly explicit: validate the baseline with one concrete failure drill
-
----
-
-## Why This Topic Matters
-
-- patterns should absorb a real source of change or composition pressure
-- the cost of abstraction is justified only when it simplifies evolution or debugging
-- clear pattern boundaries reduce accidental responsibility overlap
-
----
-
-## Architecture Model
-
-```mermaid
-flowchart LR
-    A[Production pressure] --> B[Adapter pattern for legacy-modern system migration]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
-
-The diagram highlights composition points and responsibility flow because adapter pattern for legacy-modern system migration only pays off when abstraction reduces debugging and change cost.
-Keeping that flow visible prevents the pattern from turning into decorative indirection.
-
----
-
-## Practical Design Pattern
+Imagine the application wants this clean interface:
 
 ```java
-public interface TopicBehavior {
-    Result execute(Command command);
+public interface PaymentGateway {
+    PaymentResult authorize(AuthorizationRequest request);
 }
+```
 
-public final class TopicResolver {
-    TopicBehavior resolve(Context context) {
-        // Compose the right behavior for: Adapter pattern for legacy-modern system migration
-        return command -> Result.success();
+But the old provider still exposes:
+
+```java
+public final class LegacyPaymentsClient {
+    public LegacyResponse makePayment(String customerId, long amountInCents, String currency) {
+        // legacy SDK call
+        return new LegacyResponse("OK");
     }
 }
 ```
 
-This pattern example is intentionally modest because adapter pattern for legacy-modern system migration should clarify one source of change before it introduces any new layers.
-When the abstraction does not make responsibilities easier to follow, adding more pattern machinery rarely helps.
+Without an adapter, that old shape starts leaking into controllers, services, metrics, and tests.
+Soon the migration boundary is everywhere.
 
----
+With an adapter:
 
-## Failure Drill
+```java
+public final class LegacyPaymentsAdapter implements PaymentGateway {
+    private final LegacyPaymentsClient legacyClient;
 
-Baseline drill: add one new behavior variant and verify the pattern extension path stays clearer than editing one giant class for adapter pattern for legacy-modern system migration.
+    public LegacyPaymentsAdapter(LegacyPaymentsClient legacyClient) {
+        this.legacyClient = legacyClient;
+    }
 
-That drill matters early, before rollout assumptions harden into defaults because adapter pattern for legacy-modern system migration should prove it reduces change friction under pressure, not just that the abstraction reads nicely in isolation.
+    @Override
+    public PaymentResult authorize(AuthorizationRequest request) {
+        LegacyResponse response = legacyClient.makePayment(
+                request.customerId(),
+                request.amountInCents(),
+                request.currency());
 
----
+        return switch (response.status()) {
+            case "OK" -> PaymentResult.approved();
+            case "DECLINED" -> PaymentResult.declined("legacy decline");
+            default -> PaymentResult.failed("legacy unknown status");
+        };
+    }
+}
+```
 
-## Debug Steps
+Now the rest of the application depends on `PaymentGateway`, not on the awkward historical API.
 
-Debug steps:
+Structurally, this is the UML picture that matters:
+the modern code talks to one clean target interface, and the adapter owns the translation to the legacy client.
 
-- name the exact design pressure before choosing the pattern vocabulary while validating adapter pattern for legacy-modern system migration
-- keep one place where the composition order is visible while validating adapter pattern for legacy-modern system migration
-- check whether the pattern reduces change cost or merely moves it around while validating adapter pattern for legacy-modern system migration
-- remove abstraction if the extension path is still harder than plain code while validating adapter pattern for legacy-modern system migration
+```mermaid
+classDiagram
+    class PaymentGateway {
+      <<interface>>
+      +authorize(request) PaymentResult
+    }
+    class LegacyPaymentsAdapter {
+      -LegacyPaymentsClient legacyClient
+      +authorize(request) PaymentResult
+    }
+    class LegacyPaymentsClient {
+      +makePayment(customerId, amountInCents, currency) LegacyResponse
+    }
+    class AuthorizationRequest
+    class PaymentResult
+    class LegacyResponse
 
----
+    PaymentGateway <|.. LegacyPaymentsAdapter
+    LegacyPaymentsAdapter --> LegacyPaymentsClient : delegates to
+    LegacyPaymentsAdapter ..> AuthorizationRequest : translates from
+    LegacyPaymentsAdapter ..> PaymentResult : returns
+    LegacyPaymentsClient --> LegacyResponse : produces
+```
 
-## Production Checklist
+## What a Good Adapter Owns
 
-- source of change that justifies the abstraction written down
-- composition boundary visible in code review
-- debugging path clearer after the pattern than before
-- fallback simpler implementation still understood by the team
+The adapter should own:
 
----
+- data shape conversion
+- status or error translation
+- naming normalization
+- legacy-specific quirks that should not leak outward
+
+It should not become a junk drawer for unrelated orchestration logic.
+
+If retries, metrics, fallback routing, and business decisions all pile into the adapter, the boundary becomes muddy again.
+
+## Where Teams Misuse Adapter
+
+### They adapt a conceptual mismatch, not an interface mismatch
+
+If one system models "authorization" and another models "invoicing," no adapter can make those truly equivalent.
+That needs a larger boundary rethink, not a clever wrapper.
+
+### They let legacy types escape
+
+If the adapter returns `LegacyResponse` or exposes legacy enums "just for now," the leak has already happened.
+
+### They put migration logic everywhere
+
+The adapter should be the compatibility choke point.
+If every caller still does extra translation, the boundary failed.
+
+### They never remove the adapter after migration
+
+Some adapters are permanent.
+Some should disappear once the old dependency is retired.
+Know which kind you are building.
+
+## Adapter vs Facade vs Anti-Corruption Layer
+
+These patterns get confused often.
+
+### Adapter
+
+Use when one interface must look like another interface.
+
+### Facade
+
+Use when you want a simpler entry point over a subsystem.
+
+### Anti-corruption layer
+
+Use when two domains have meaningful conceptual differences and translation must protect one model from the other.
+
+Adapter is narrower than an anti-corruption layer.
+If the legacy system has a deeply different domain vocabulary, an adapter alone may be too small a boundary.
+
+## Testing the Boundary
+
+The most important adapter tests are not "method was called."
+They are translation tests.
+
+Examples:
+
+- legacy success becomes domain success
+- legacy decline maps to a stable domain result
+- legacy unknown status becomes explicit failure
+- legacy null or malformed fields do not leak directly outward
+
+That test suite protects the modern interface from accidental regression whenever the legacy SDK changes.
+
+## A Practical Decision Rule
+
+Use Adapter when:
+
+1. the rest of your code deserves a cleaner contract
+2. the dependency being wrapped cannot be changed easily
+3. the mismatch is mainly structural, naming, or protocol-oriented
+
+Do not use it as camouflage for a deeper domain conflict.
 
 ## Key Takeaways
 
-- Adapter pattern for legacy-modern system migration should be designed as a production decision, not just an implementation detail
-- patterns should clarify the source of change, not decorate the code
-- start from a measurable baseline before optimizing
+- Adapter is a migration boundary, not just a wrapper class.
+- Its job is to stop legacy contracts from infecting the rest of the codebase.
+- It works best when the mismatch is interface-level and translation is explicit.
+- If the underlying concepts differ sharply, you likely need a larger integration boundary than a simple adapter.

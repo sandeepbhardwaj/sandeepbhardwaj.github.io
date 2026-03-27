@@ -20,56 +20,72 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-This deep dive explains the problem model, concurrency contract, Java implementation, and real-world caveats you should know before using this pattern in production.
+Building a custom lock is a good learning exercise because it forces you to think about ownership, waiting, wake-up policy, and failure cases.
 
-## Problem description:
+It is usually a bad production default.
 
-We want to understand how a simple mutual-exclusion lock can be built using `wait()` and `notify`.
+That tension is the right way to approach this topic:
+understand the mechanics deeply, then use the JDK's proven lock implementations for real systems unless you truly need something specialized.
 
-What we are solving actually:
+## Quick Decision Guide
 
-We are solving thread ownership of a critical section.
-The purpose is educational: to understand the mechanics behind locking before relying on the JDK implementations.
+| Goal | Build a custom lock? |
+| --- | --- |
+| learn how wait/notify-based mutual exclusion works | yes |
+| ship a normal production mutex | no, use `ReentrantLock` or synchronized |
+| need reentrancy, timeout, conditions, interruption policy | no, use JDK utilities |
+| debugging lock ownership and usage patterns | maybe for experiments, not as a default runtime primitive |
 
-What we are doing actually:
+The main lesson is not "I can outbuild the JDK."
+It is "locking is trickier than it looks."
 
-1. Block a thread while the lock is owned.
-2. Wake waiting threads when the owner releases the lock.
-3. Add owner tracking to prevent invalid unlocks.
+## Start With the Actual Contract
 
-```mermaid
-flowchart LR
-    A[Thread calls lock] --> B{Lock free?}
-    B -->|Yes| C[Acquire lock]
-    B -->|No| D[wait()]
-    C --> E[Critical section]
-    E --> F[unlock()]
-    F --> G[notify / notifyAll]
-    G --> A
-```
+A lock needs more than "one thread goes in at a time."
 
-## Lock implementation
+At minimum, a usable mutex contract must answer:
+
+- who owns the lock right now
+- what a waiting thread does
+- how wake-up works
+- what happens if a non-owner unlocks
+- whether interruption is respected
+
+Even a tiny teaching lock has concurrency semantics, not just code.
+
+## A Small Teaching Implementation
+
+This version is intentionally simple, but it still does two important things:
+
+- uses a `while` loop when waiting
+- tracks the owning thread
 
 ```java
-public class Lock {
-
-    private boolean isLocked = false;
+public final class SimpleLock {
+    private boolean locked;
+    private Thread owner;
 
     public synchronized void lock() throws InterruptedException {
-        while (isLocked) {
+        while (locked) {
             wait();
         }
-        isLocked = true;
+        locked = true;
+        owner = Thread.currentThread();
     }
 
     public synchronized void unlock() {
-        isLocked = false;
-        notify();
+        if (Thread.currentThread() != owner) {
+            throw new IllegalMonitorStateException("Current thread does not own the lock");
+        }
+
+        locked = false;
+        owner = null;
+        notifyAll();
     }
 }
 ```
 
-## Usage
+Usage:
 
 ```java
 lock.lock();
@@ -80,80 +96,122 @@ try {
 }
 ```
 
-## Improvement for production
+## Why `while` Matters More Than It Looks
 
-The simple version does not track ownership. A safer version checks owner thread:
+Waiting threads must re-check the condition after waking.
+
+That is why this is correct:
 
 ```java
-private Thread owner;
-
-public synchronized void lock() throws InterruptedException {
-    while (isLocked) {
-        wait();
-    }
-    isLocked = true;
-    owner = Thread.currentThread();
-}
-
-public synchronized void unlock() {
-    if (Thread.currentThread() != owner) {
-        throw new IllegalMonitorStateException("Current thread does not own lock");
-    }
-    isLocked = false;
-    owner = null;
-    notify();
+while (locked) {
+    wait();
 }
 ```
 
-In real code, prefer `ReentrantLock` unless this is for learning.
-
-## Why This Lock Is Still Incomplete
-
-Even with owner tracking, this custom lock is still missing features expected in production:
-
-- reentrancy (same thread acquiring lock multiple times)
-- timed acquisition (`tryLock(timeout)`)
-- interruptible acquisition policy
-- condition queues (`Condition`) for coordinated waiting
-
-Implementing these correctly is non-trivial, which is why JDK locks are preferred.
-
-## Reentrant Behavior Sketch (Learning Only)
+and this is fragile:
 
 ```java
-private Thread owner;
-private int holdCount;
-
-public synchronized void lock() throws InterruptedException {
-    Thread current = Thread.currentThread();
-    while (owner != null && owner != current) {
-        wait();
-    }
-    owner = current;
-    holdCount++;
+if (locked) {
+    wait();
 }
+```
 
-public synchronized void unlock() {
-    if (Thread.currentThread() != owner) throw new IllegalMonitorStateException();
-    holdCount--;
-    if (holdCount == 0) {
-        owner = null;
-        notifyAll();
+A thread can wake up and still not be allowed to proceed.
+The guard condition has to be checked again.
+
+That pattern is fundamental to Java monitor-based coordination, not just custom locks.
+
+## Why Owner Tracking Matters
+
+Without owner tracking, any thread can call `unlock()`.
+That turns a programming mistake into corrupted concurrency semantics.
+
+Owner checks give you two important properties:
+
+- incorrect usage fails fast
+- debugging becomes much less mysterious
+
+Concurrency bugs are already expensive.
+Silent misuse makes them worse.
+
+## `notify()` vs `notifyAll()`
+
+For a toy lock, `notify()` sometimes appears to work.
+In teaching code, `notifyAll()` is often the safer choice because it avoids depending on subtle wake-up assumptions.
+
+Why:
+
+- more than one waiter may exist
+- future evolution of the lock may add more waiting states
+- accidental missed progress is harder to debug than extra wake-ups
+
+`notifyAll()` is not always the most efficient primitive.
+It is often the clearer one for correctness-first code.
+
+## What This Lock Still Does Not Handle
+
+Even this improved version is not close to a full production replacement for `ReentrantLock`.
+
+It still lacks:
+
+- reentrancy
+- timed acquisition
+- non-blocking `tryLock`
+- condition variables
+- rich diagnostics
+- carefully tuned fairness behavior
+
+Those are not decorative features.
+They are the reason production lock implementations are difficult to reproduce correctly.
+
+## Reentrancy Sketch
+
+If the same thread should be able to acquire the lock multiple times, you need hold-count tracking:
+
+```java
+public final class ReentrantTeachingLock {
+    private Thread owner;
+    private int holdCount;
+
+    public synchronized void lock() throws InterruptedException {
+        Thread current = Thread.currentThread();
+
+        while (owner != null && owner != current) {
+            wait();
+        }
+
+        owner = current;
+        holdCount++;
+    }
+
+    public synchronized void unlock() {
+        if (Thread.currentThread() != owner) {
+            throw new IllegalMonitorStateException();
+        }
+
+        holdCount--;
+        if (holdCount == 0) {
+            owner = null;
+            notifyAll();
+        }
     }
 }
 ```
 
-This demonstrates reentrancy mechanics, but still lacks timeout/condition support.
+This is a useful teaching extension.
+It is still nowhere near the full ergonomics and reliability of JDK locks.
 
-## Production API Equivalent (`ReentrantLock`)
+## Production Default: Prefer `ReentrantLock`
+
+If the real goal is "I need a lock in production," use the JDK implementation:
 
 ```java
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class AccountService {
-    private final Lock lock = new ReentrantLock(true); // fair lock
-    private int balance = 0;
+public final class AccountService {
+    private final Lock lock = new ReentrantLock();
+    private int balance;
 
     public void deposit(int amount) {
         lock.lock();
@@ -166,34 +224,50 @@ public class AccountService {
 }
 ```
 
-If you need separate read/write access, use `ReadWriteLock`. For optimistic reads on highly contended state, evaluate `StampedLock`.
+Use `ReentrantLock` when you need features like:
 
-## Common Pitfalls
+- reentrancy
+- `tryLock`
+- interruptible lock acquisition
+- optional fairness
 
-1. Calling `unlock()` from non-owner thread.
-2. Using `notify()` where multiple waiters need wake-up progression.
-3. Holding lock during slow I/O.
-4. Forgetting `finally` around unlock paths.
+Use `ReadWriteLock` or `StampedLock` only when the access pattern truly justifies the extra complexity.
 
-A lock implementation should optimize for correctness and debuggability first.
+## Common Misuse Patterns
 
-## Testing Strategy
+### Holding the lock across slow I/O
 
-- concurrent stress test for race conditions
-- interruption tests while waiting on lock
-- reentrancy tests if supported
-- ownership violation tests (`unlock` by wrong thread)
+Even a correct lock becomes harmful if the critical section includes network calls, file I/O, or long external work.
 
-## Debug steps:
+### Forgetting `finally`
 
-- test unlock by a non-owner thread and confirm it fails
-- inspect whether `notify()` should really be `notifyAll()` for the chosen design
-- keep lock usage wrapped in `try/finally` so failures do not strand waiters
-- prefer `ReentrantLock` in real code once the learning goal is satisfied
+Lock acquisition without guaranteed release is an incident waiting to happen.
+
+### Treating custom lock code as harmless infrastructure
+
+A broken lock corrupts everything built on top of it.
+This is not a good place for casual experimentation in production.
+
+### Rebuilding standard concurrency tools for normal use cases
+
+Most teams do not need a novel mutex.
+They need a correctly used standard one.
+
+## Testing a Teaching Lock
+
+If you do build one for learning, test more than the happy path:
+
+- two threads contending for the same lock
+- unlock by non-owner thread
+- interruption while waiting
+- reentrant acquisition if supported
+- stress loop to catch missed wake-ups
+
+Concurrency code can look fine in a tiny demo and still fail badly under repetition.
 
 ## Key Takeaways
 
-- Correctness comes before throughput in concurrent code.
-- Prefer proven JDK concurrency utilities in production over custom implementations.
-- Always account for interruption, waiting conditions, and race windows.
-- Build custom locks only for learning or highly specialized runtime behavior.
+- Building a custom lock is valuable for learning, not as a default production strategy.
+- `while` loops, owner tracking, and reliable unlock discipline are essential.
+- Even a "simple" lock quickly grows into a real concurrency design problem.
+- For real systems, prefer the JDK's lock implementations unless you have a specialized requirement you can justify and test thoroughly.
