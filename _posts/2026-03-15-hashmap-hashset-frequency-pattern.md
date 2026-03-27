@@ -23,13 +23,22 @@ header:
   caption: Constant-Time Lookups for Linear-Time Solutions
   show_overlay_excerpt: false
 ---
-The HashMap/HashSet frequency pattern is one of the most important interview patterns because it converts repeated searching into constant-time lookup. It appears whenever a problem asks you to count occurrences, detect duplicates, find complements, or group items by a derived key.
+The HashMap/HashSet frequency pattern is one of the highest-value interview patterns because it turns repeated searching into constant-time lookup.
+It shows up whenever the problem asks you to count occurrences, detect duplicates, find complements, group by identity, or reason about membership across an unsorted input.
 
-In interviews, this pattern often turns an obvious `O(n²)` solution into an `O(n)` or `O(n log n)` solution. More importantly, it helps you explain *why* your solution is efficient: we avoid re-scanning previously seen data by storing the right information as we iterate.
+Strong candidates do not just say "use a map."
+They explain what information needs to be stored, when it must be read versus updated, and why that remembered state collapses nested-loop work into one linear pass.
+
+> [!NOTE] Interview lens
+> A strong hash-based explanation usually has four parts:
+> 1. what repeated question the brute-force solution keeps asking,
+> 2. what exact state should be stored,
+> 3. whether the current element should be checked before or after insertion,
+> 4. why the chosen key represents identity, frequency, complement, or group membership correctly.
 
 ---
 
-## 🚀 Pattern Summary Table
+## Pattern Summary Table
 
 | Pattern Name | When to Use | Key Idea | Example |
 |---|---|---|---|
@@ -41,7 +50,7 @@ In interviews, this pattern often turns an obvious `O(n²)` solution into an `O(
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Hash-based patterns solve a family of problems where we need to efficiently answer one of these questions while iterating through data:
 
@@ -74,7 +83,7 @@ Typical tasks include:
 
 ---
 
-## 🔍 How to Recognize This Pattern
+## Pattern Recognition Signals
 
 You should strongly consider `HashMap` or `HashSet` when the problem includes one or more of the following signals.
 
@@ -113,7 +122,7 @@ You should strongly consider `HashMap` or `HashSet` when the problem includes on
 
 ---
 
-## 🧪 Example
+## Example
 
 Consider the classic **Two Sum** problem.
 
@@ -138,7 +147,7 @@ We only ask whether the complement has already been seen.
 
 ---
 
-## 🐢 Brute Force Approach
+## Brute Force Approach
 
 ### Idea
 
@@ -172,13 +181,13 @@ The optimization idea is simple: **store useful information once, then reuse it 
 
 ---
 
-## ⚡ Optimized Approach
+## Optimized Approach
 
-### 💡 Key Insight
+### Key Insight
 
 Instead of recomputing or re-scanning, we maintain a hash-based structure that gives near `O(1)` lookup for the exact information we need: frequency, existence, prior index, or grouping bucket.
 
-### 🧠 Mental Model
+### Mental Model
 
 We maintain an invariant: **after processing the first `i` elements, our map/set contains exactly the information needed to answer questions about everything seen so far.**
 
@@ -186,7 +195,7 @@ Or more simply:
 
 > We optimize by turning “search again” into “look it up.”
 
-### 🛠️ General Steps
+### General Steps
 
 1. Decide what information should be stored
    - seen values
@@ -198,7 +207,7 @@ Or more simply:
 4. Update the structure so future elements can benefit from current work
 5. Return the accumulated answer
 
-### 💻 Core Java Templates
+### Core Java Templates
 
 #### Template 1: Frequency Counter
 
@@ -241,7 +250,7 @@ public boolean containsDuplicate(int[] nums) {
 `HashSet.add(x)` returns `false` if `x` already exists.  
 That lets us detect duplicates in a single pass without separate membership and insertion code.
 
-### ⏱️ Complexity
+### Complexity
 
 For most of these hash-based solutions:
 
@@ -253,7 +262,7 @@ For most of these hash-based solutions:
 
 ---
 
-## Problem 1: Two Sum
+## Pattern 1: Complement Lookup
 
 ### Problem Statement
 
@@ -307,16 +316,16 @@ public int[] twoSumBruteForce(int[] nums, int target) {
 
 ### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 For each number `x`, compute `target - x`. If that complement has already been seen, we are done.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 We maintain a map from value to index for everything left of the current position.  
 That means the current element only needs a constant-time lookup to know whether its partner already exists.
 
-#### 🛠️ Steps
+#### Steps
 
 1. Create a map from value to index
 2. Iterate from left to right
@@ -324,7 +333,7 @@ That means the current element only needs a constant-time lookup to know whether
 4. If `need` exists in the map, return the stored index and current index
 5. Otherwise, store the current value and index
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public int[] twoSum(int[] nums, int target) {
@@ -340,7 +349,7 @@ public int[] twoSum(int[] nums, int target) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 - Time: `O(n)` average
 - Space: `O(n)`
@@ -348,7 +357,7 @@ public int[] twoSum(int[] nums, int target) {
 > [!TIP]
 > This is optimal because each element is processed once and each lookup/update is near constant time.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 nums   = [2, 7, 11, 15]
@@ -361,7 +370,7 @@ i = 1, nums[i] = 7, need = 2
 map contains 2 -> answer = [0, 1]
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Inserting before checking, which can break cases where the same value is reused incorrectly
 - Mishandling duplicates
@@ -389,7 +398,7 @@ map contains 2 -> answer = [0, 1]
 
 ---
 
-## Problem 2: Valid Anagram
+## Pattern 2: Frequency Counting
 
 ### Problem Statement
 
@@ -445,17 +454,17 @@ public boolean isAnagramBySorting(String s, String t) {
 
 ### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 Increase counts for characters in `s` and decrease counts for characters in `t`.  
 If both strings are anagrams, every final count must be zero.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 We maintain a balance sheet of character frequencies.  
 The first string deposits counts; the second string withdraws them.
 
-#### 🛠️ Steps
+#### Steps
 
 1. If lengths differ, return `false`
 2. Create a count structure
@@ -463,7 +472,7 @@ The first string deposits counts; the second string withdraws them.
 4. Increment for `s[i]`, decrement for `t[i]`
 5. Verify all counts end at zero
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public boolean isAnagram(String s, String t) {
@@ -481,7 +490,7 @@ public boolean isAnagram(String s, String t) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 - Time: `O(n)`
 - Space: `O(1)` because the array size is fixed at 26
@@ -489,7 +498,7 @@ public boolean isAnagram(String s, String t) {
 > [!TIP]
 > When the alphabet is fixed and small, a counting array is often better than a `HashMap` because it is simpler and more memory efficient.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 s = "abca"
@@ -502,7 +511,7 @@ count after processing t in same loop:
 a: 0, b: 0, c: 0
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Forgetting to check equal length first
 - Using this exact version for Unicode or mixed-case strings without adjusting the logic
@@ -529,7 +538,7 @@ a: 0, b: 0, c: 0
 
 ---
 
-## Problem 3: Longest Consecutive Sequence
+## Pattern 3: Set Membership Expansion
 
 ### Problem Statement
 
@@ -596,16 +605,16 @@ private boolean contains(int[] nums, int target) {
 
 ### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 Put all values in a set. Then only start building a sequence from numbers that do **not** have a predecessor.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 A number is a true sequence start only if `x - 1` is missing.  
 That prevents us from re-growing the same sequence from the middle.
 
-#### 🛠️ Steps
+#### Steps
 
 1. Add all numbers to a set
 2. Iterate through the set
@@ -613,7 +622,7 @@ That prevents us from re-growing the same sequence from the middle.
 4. If so, start extending from `x`
 5. Update the best length seen
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public int longestConsecutive(int[] nums) {
@@ -636,7 +645,7 @@ public int longestConsecutive(int[] nums) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 - Time: `O(n)` average
 - Space: `O(n)`
@@ -644,7 +653,7 @@ public int longestConsecutive(int[] nums) {
 > [!TIP]
 > The “start only when no predecessor exists” trick is what keeps the solution linear. Without it, you may repeatedly expand the same sequence.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 set = {100, 4, 200, 1, 3, 2}
@@ -655,7 +664,7 @@ set = {100, 4, 200, 1, 3, 2}
 1   -> no 0, start -> 1 -> 2 -> 3 -> 4, length 4
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Growing sequences from every number
 - Forgetting that duplicates are naturally removed by the set
@@ -682,7 +691,7 @@ set = {100, 4, 200, 1, 3, 2}
 
 ---
 
-## Problem 4: Group Anagrams
+## Pattern 4: Canonical Grouping
 
 ### Problem Statement
 
@@ -725,17 +734,17 @@ A brute-force approach would compare each word to many others to decide whether 
 
 ### Optimized Approach
 
-#### 💡 Key Insight
+#### Key Insight
 
 Convert each string into a canonical form.  
 All anagrams share the same canonical key.
 
-#### 🧠 Mental Model
+#### Mental Model
 
 We do not group by the original word.  
 We group by its **identity under reordering**.
 
-#### 🛠️ Steps
+#### Steps
 
 1. Create a map from canonical key to list of strings
 2. For each string:
@@ -743,7 +752,7 @@ We group by its **identity under reordering**.
    - append it to the correct group
 3. Return all grouped lists
 
-#### 💻 Code (Java)
+#### Code (Java)
 
 ```java
 public List<List<String>> groupAnagrams(String[] strs) {
@@ -760,7 +769,7 @@ public List<List<String>> groupAnagrams(String[] strs) {
 }
 ```
 
-#### ⏱️ Complexity
+#### Complexity
 
 Let `n` be the number of strings and `k` be the average string length.
 
@@ -770,7 +779,7 @@ Let `n` be the number of strings and `k` be the average string length.
 > [!TIP]
 > The important optimization is not making grouping free; it is making grouping *direct*. Each word computes its bucket exactly once.
 
-### 🎨 Visual Intuition
+### Visual Intuition
 
 ```text
 "eat" -> sort -> "aet" -> groups["aet"] = ["eat"]
@@ -779,7 +788,7 @@ Let `n` be the number of strings and `k` be the average string length.
 "ate" -> sort -> "aet" -> groups["aet"] = ["eat", "tea", "ate"]
 ```
 
-### ⚠️ Common Mistakes
+### Common Mistakes
 
 - Using an unstable or incorrect key
 - Forgetting that `HashMap` output order is not guaranteed
@@ -806,7 +815,7 @@ Let `n` be the number of strings and `k` be the average string length.
 
 ---
 
-## API Tips: `merge` and `computeIfAbsent`
+## Java API Tips: `merge` and `computeIfAbsent`
 
 These APIs reduce boilerplate and edge bugs:
 
@@ -827,7 +836,7 @@ Prefer them over repeated `containsKey` checks when possible.
 
 ---
 
-## 🎨 Visual Intuition
+## Visual Intuition
 
 Below is a quick mental map of how the main variants differ.
 
@@ -854,7 +863,7 @@ Below is a quick mental map of how the main variants differ.
 
 ---
 
-## ⚠️ Common Mistakes
+## Common Mistakes
 
 1. Using mutable objects as map keys without stable `equals/hashCode`
 2. Forgetting collision-safe key design for grouping problems
@@ -868,7 +877,7 @@ Below is a quick mental map of how the main variants differ.
 
 ---
 
-## 🔁 Pattern Variations
+## Pattern Variations
 
 This pattern appears in many related forms:
 
@@ -886,7 +895,7 @@ The core question remains the same:
 
 ---
 
-## 🔗 Pattern Composition (Advanced)
+## Pattern Composition (Advanced)
 
 Hash-based patterns become even more powerful when combined with other interview patterns.
 
@@ -942,7 +951,7 @@ Example:
 
 ---
 
-## 🧠 Key Takeaways
+## Key Takeaways
 
 - Hash patterns are the first choice for lookup-heavy problems.
 - Frequency maps and seen sets remove repeated scanning.
@@ -952,7 +961,7 @@ Example:
 
 ---
 
-## 📌 Practice Problems
+## Practice Problems
 
 ### Core Practice
 

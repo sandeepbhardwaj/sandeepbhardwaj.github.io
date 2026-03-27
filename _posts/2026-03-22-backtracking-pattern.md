@@ -22,7 +22,8 @@ header:
   caption: Search Trees with Pruning
   show_overlay_excerpt: false
 ---
-Master backtracking as DFS over a decision tree with pruning. Focus on state management, rollback discipline, and constraint-driven search.
+Master backtracking as DFS over a decision tree with pruning.
+This pattern matters in interviews when the problem asks us to generate, explore, or validate many candidate states while keeping the current partial state correct.
 
 ---
 
@@ -30,44 +31,156 @@ Master backtracking as DFS over a decision tree with pruning. Focus on state man
 
 | Pattern | When to Use | Key Idea | Example |
 |--------|------------|----------|--------|
-| Backtracking | Generate all possibilities | Explore + undo decisions | Subsets |
-| DFS + Pruning | Constraint-based search | Cut invalid branches early | Combination Sum |
+| Backtracking | Generate all valid possibilities | Explore a state, recurse, then undo | Subsets |
+| DFS + Pruning | Constraint-based search | Cut branches as soon as they cannot lead to a valid answer | Combination Sum |
+| Used-State Search | Ordering matters | Track which choices are already taken in the current branch | Permutations |
 
 ---
 
 ## 🎯 Problem Statement
 
-Explore all valid combinations/permutations under constraints using recursive decision trees.
+Use recursion to explore all valid combinations, permutations, or constraint-satisfying states while avoiding invalid or useless branches early.
+
+Typical constraints to clarify before coding:
+
+- are duplicates present in the input?
+- can we reuse an element?
+- are we generating all answers or just checking if one exists?
+- what makes a branch impossible so we can prune it?
 
 > [!NOTE]
-Understand constraints: duplicates, pruning opportunities, and search space size.
+> Before writing code, identify the state, the decision at each level, the stopping condition, and the rollback step.
 
 ---
 
 ## 🔍 Pattern Recognition Signals
 
+Common signals:
+
 - "generate all"
-- "combinations / permutations"
+- "all combinations"
+- "all permutations"
 - "all possible ways"
+- "choose k items"
 - "constraint satisfaction"
+- "place items without conflicts"
+
+Observations that strongly suggest backtracking:
+
+- the answer is built incrementally
+- a partial choice may still become valid later
+- invalid branches can be rejected early
+- we need to try one option, then try a different sibling option
 
 > [!IMPORTANT]
-If you see **explore all possibilities with constraints → think Backtracking**
+> If you see "explore all possibilities under constraints" -> think backtracking.
 
 ---
 
-Backtracking is DFS over a decision tree with undo steps.
-It is the default strategy for exhaustive search with constraints.
+## 🧪 Example
+
+Consider the classic subsets problem.
+
+Input:
+
+```text
+nums = [1, 2]
+```
+
+Output:
+
+```text
+[[], [1], [1,2], [2]]
+```
+
+Step-by-step:
+
+1. Start with an empty path `[]`. This is already one valid subset.
+2. Choose `1`, so the path becomes `[1]`.
+3. From `[1]`, choose `2`, so the path becomes `[1,2]`.
+4. Roll back by removing `2`, so we return to `[1]`.
+5. Roll back again by removing `1`, so we return to `[]`.
+6. Now choose `2` directly from the root, giving `[2]`.
+
+The important idea is that the same `path` object is reused, so every branch must leave the state exactly as it found it before returning.
 
 ---
 
-## Core Idea
+## 🐢 Brute Force Approach
 
-At each step:
+### Idea
 
-1. choose
-2. recurse
-3. unchoose (rollback)
+Treat the problem as "generate everything first, then filter what is valid."
+
+Examples:
+
+- for subsets, try every include/exclude pattern
+- for permutations, generate all orderings even if a branch is already impossible
+- for combination problems, keep exploring even after the sum has already become invalid
+
+### Complexity
+
+Exponential in the number of choices:
+
+- subsets: `O(2^n)`
+- permutations: `O(n!)`
+- constraint search: often exponential in branching factor and depth
+
+> [!WARNING]
+> Brute force becomes unusable when we fail to prune. The difference between accepted and timed-out solutions is often not the recursion itself, but whether we stop bad branches early.
+
+---
+
+## ⚡ Optimized Approach
+
+### 💡 Key Insight
+
+We do not need to materialize all possibilities blindly. We only need to explore states that are still capable of producing a valid answer.
+
+### 🧠 Mental Model
+
+Think of backtracking as walking a decision tree:
+
+- each level asks, "What choice do we make next?"
+- `path` stores the current partial answer
+- recursion explores one child branch
+- rollback restores the invariant before moving to the next child
+
+Invariant:
+
+- `path` always represents a valid partial state for the current recursion frame
+
+### 🛠️ Steps
+
+1. Define the current state: index, remaining target, used array, path, etc.
+2. Define the base case: when do we record an answer or stop?
+3. Try one choice.
+4. Recurse deeper.
+5. Undo the choice.
+6. Move to the next sibling branch.
+
+### 💻 Code (Java)
+
+This subset-style template is the canonical pattern:
+
+```java
+public void dfs(int start, int[] nums, List<Integer> path, List<List<Integer>> ans) {
+    ans.add(new ArrayList<>(path)); // Snapshot current path before branching further.
+
+    for (int i = start; i < nums.length; i++) {
+        path.add(nums[i]); // Choose.
+        dfs(i + 1, nums, path, ans); // Explore.
+        path.remove(path.size() - 1); // Unchoose.
+    }
+}
+```
+
+### ⏱️ Complexity
+
+Still exponential in the worst case, but usually much better in practice once pruning removes useless branches.
+
+> [!TIP]
+> Interviewers care less about memorizing one template and more about whether you can explain the state, the invariant, and why rollback is necessary.
 
 ---
 
@@ -136,24 +249,6 @@ Debug steps:
 - print `idx` and `path` at each recursive entry
 - verify rollback happens before the exclude branch
 - compare the recursion tree against the dry run for `[1,2]`
-
----
-
-## Dry Run (Subsets of `[1,2]`)
-
-Decision tree:
-
-- start `[]`
-  - include `1` -> `[1]`
-    - include `2` -> `[1,2]`
-    - exclude `2` -> `[1]`
-  - exclude `1` -> `[]`
-    - include `2` -> `[2]`
-    - exclude `2` -> `[]`
-
-Collected subsets: `[]`, `[1]`, `[1,2]`, `[2]`
-
-This shows why every level must rollback before exploring sibling branches.
 
 ---
 
@@ -242,30 +337,105 @@ Debug steps:
 
 ---
 
-## Common Mistakes
+## 🎨 Visual Intuition
 
-1. Forgetting rollback step
-2. Reusing mutable path without copying
-3. Missing duplicate-skip logic in duplicate-input problems
-4. No pruning where obvious bounds exist
+Decision tree for subsets of `[1,2]`:
+
+```text
+        []
+      /    \
+    [1]    []
+   /   \   /  \
+[1,2] [1] [2]  []
+```
+
+Dry run:
+
+- start `[]`
+  - include `1` -> `[1]`
+    - include `2` -> `[1,2]`
+    - exclude `2` -> `[1]`
+  - exclude `1` -> `[]`
+    - include `2` -> `[2]`
+    - exclude `2` -> `[]`
+
+Collected subsets: `[]`, `[1]`, `[1,2]`, `[2]`
+
+This is why rollback is not optional. Sibling branches must see clean state.
+
+---
+
+## ⚠️ Common Mistakes
+
+> [!CAUTION]
+> The most common backtracking bugs are state bugs, not recursion bugs.
+
+- forgetting the rollback step
+- storing the live `path` instead of a copy
+- using the wrong index movement for combinations vs permutations
+- missing duplicate-skip logic when the input contains repeated values
+- not pruning obviously impossible branches
 
 ---
 
 ## Pruning Heuristic
 
-Before recursing, ask: “Can this branch still reach a valid solution?”
+Before recursing, ask:
+
+- can this branch still reach a valid answer?
+- can the remaining choices still fill the required slots?
+- has the constraint already been violated?
 
 Examples:
 
 - combination sum: stop when `remain < 0`
 - fixed-length combinations: stop when remaining elements are insufficient
-- N-Queens: stop when row/diag constraints fail immediately
+- N-Queens: stop when row/column/diagonal constraints fail immediately
 
-Effective pruning reduces exponential search significantly in practice.
+Effective pruning does not change correctness. It changes how much useless work we avoid.
 
 ---
 
-## Practice Set (Recommended Order)
+## 🔁 Pattern Variations
+
+- subset-style: include/exclude decisions
+- permutation-style: `used[]` decides whether a value is available
+- combination-style: index controls reuse and ordering
+- constraint-placement style: place queens, letters, digits, or partitions while maintaining validity
+
+---
+
+## 🔗 Pattern Composition (Advanced)
+
+> [!IMPORTANT]
+> Backtracking often appears as the search layer, while another idea decides how aggressively we can prune.
+
+- backtracking + sorting -> duplicate handling becomes cleaner
+- backtracking + pruning -> search stays feasible
+- backtracking + hash set -> fast conflict checks
+- backtracking + memoization -> useful when subproblems overlap
+
+Examples:
+
+- palindrome partitioning combines backtracking with substring validity checks
+- word search combines backtracking with grid traversal state
+- N-Queens combines backtracking with column and diagonal constraints
+
+---
+
+## 🧠 Key Takeaways
+
+- backtracking is controlled brute-force with structure
+- the real invariant is that the current state must always be valid for the current frame
+- choose -> recurse -> unchoose is the pattern you must be able to explain out loud
+- pruning is often the difference between a correct slow solution and an accepted interview solution
+
+---
+
+## 📌 Practice Problems
+
+> [!TIP]
+> Repeat these until you can identify the state, the branch choice, and the rollback step without hesitation.
 
 1. Subsets (LC 78)  
    [LeetCode](https://leetcode.com/problems/subsets/)
@@ -279,115 +449,3 @@ Effective pruning reduces exponential search significantly in practice.
    [LeetCode](https://leetcode.com/problems/n-queens/)
 6. Word Search (LC 79)  
    [LeetCode](https://leetcode.com/problems/word-search/)
-
----
-
-## Key Takeaways
-
-- Backtracking is controlled brute-force with pruning.
-- Correct choose-recurse-unchoose discipline is mandatory.
-- Performance depends heavily on pruning and duplicate handling.
-
----
-
-## 🐢 Brute Force Approach
-
-### Idea  
-Generate all possible combinations without pruning  
-
-### Complexity  
-Exponential: O(2^N, N!, etc.)
-
-> [!WARNING]
-Huge search space → TLE without pruning
-
----
-
-## ⚡ Optimized Approach
-
-### 💡 Key Insight  
-Prune invalid branches early  
-
-### 🧠 Mental Model  
-Invariant:
-- `path` always represents a valid partial solution  
-
-### 🛠️ Steps  
-1. Choose  
-2. Recurse  
-3. Undo (rollback)  
-
-### ⏱️ Complexity  
-Still exponential but significantly reduced with pruning  
-
-> [!TIP]
-Efficiency depends on pruning strength
-
----
-
-## 🎨 Visual Intuition
-
-Decision tree (Subsets):
-```text
-        []
-      /    \
-    [1]    []
-   /   \   /  \
-[1,2] [1] [2]  []
-
-Each branch = decision (include/exclude)
-```
----
-
-## ⚠️ Common Mistakes
-
-> [!CAUTION]
-- Forgetting rollback  
-- Not copying path  
-- Missing pruning  
-- Incorrect duplicate handling  
-
----
-
-## 🔁 Pattern Variations
-
-- Subset-style (include/exclude)  
-- Permutation-style (used array)  
-- Combination-style (index control)  
-
----
-
-## 🔗 Pattern Composition (Advanced)
-
-> [!IMPORTANT]
-- Backtracking + sorting → duplicate handling  
-- Backtracking + pruning → optimization  
-- Backtracking + memoization → hybrid DP  
-
----
-
-## 🧠 Key Takeaways
-
-- Backtracking = DFS + rollback  
-- Always maintain valid state  
-- Pruning is the difference between TLE and AC  
-
----
-
-## 📌 Practice Problems
-
-> [!TIP]
-Repeat until pattern becomes intuitive
-
-1. Subsets (LC 78)  
-   https://leetcode.com/problems/subsets/
-2. Permutations (LC 46)  
-   https://leetcode.com/problems/permutations/
-3. Combination Sum (LC 39)  
-   https://leetcode.com/problems/combination-sum/
-4. Palindrome Partitioning (LC 131)  
-   https://leetcode.com/problems/palindrome-partitioning/
-5. N-Queens (LC 51)  
-   https://leetcode.com/problems/n-queens/
-6. Word Search (LC 79)  
-   https://leetcode.com/problems/word-search/
