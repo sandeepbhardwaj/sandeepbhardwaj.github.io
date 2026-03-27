@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Prefix Match Array Techniques
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+The Z algorithm is the string-matching pattern for reusing previously known match intervals against the full string prefix.
+Strong candidates explain the `[L, R]` box invariant clearly, because that is what turns repeated character comparisons into a linear scan.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Z-array stores longest prefix match at each index and enables linear pattern checks.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 15 Z Algorithm String Matching | prefix matches at every position are useful for search or string analysis | reuse the current prefix-match window before extending comparisons | Pattern Search with Z Array |
 
----
+## Problem Statement
+
+Given a string or a pattern-plus-text combination, compute how much each suffix-prefix alignment matches without rescanning everything from scratch.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: Z array, prefix matches, [L,R] window, linear string matching.
+- Structural signal: positions inside the current match box can borrow information from the mirrored prefix region.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If prefix-match lengths at every position are the useful state, think Z algorithm.
 
 ## Java Template
 

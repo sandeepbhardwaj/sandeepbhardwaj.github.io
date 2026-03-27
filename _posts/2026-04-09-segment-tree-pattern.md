@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Fast Mutable Range Queries
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Segment tree is the range-query pattern for maintaining fast interval answers under updates.
+Strong candidates explain what each tree node summarizes, because the whole structure is just a hierarchical cache of interval aggregates.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Store aggregated values in a tree for fast range query + point update in O(log n).
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 09 Segment Tree Pattern | you need fast range queries and point or range updates on mutable data | store interval aggregates in a binary tree so queries and updates touch only relevant segments | Range Sum Query with Updates |
 
----
+## Problem Statement
+
+Given an array with many queries and updates, answer range aggregates without rebuilding the whole prefix or scanning linearly each time.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: range query, point update, interval aggregate, mutable array.
+- Structural signal: every node stores the aggregate for one segment, built from its two children.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the array is mutable and you need many range queries, think segment tree.
 
 ## Java Template
 

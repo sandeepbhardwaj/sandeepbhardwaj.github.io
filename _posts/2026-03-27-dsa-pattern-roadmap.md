@@ -45,6 +45,7 @@ The series is organized to move in a practical order:
 4. structural graph algorithms and shortest-path techniques
 5. dynamic programming and advanced optimization patterns
 6. string algorithms and advanced data structures
+7. data-structure design patterns and event-driven simulation
 
 That order matters.
 It is much easier to learn dynamic programming, shortest paths, or advanced range-query structures after the core scanning, traversal, and state-maintenance patterns are already automatic.
@@ -93,49 +94,62 @@ If you are revising, jump directly to the pattern family you keep missing in pra
 - [Shortest Path Pattern in Java]({% post_url 2026-03-26-shortest-path-pattern %})
 - [Union-Find (Disjoint Set) Pattern in Java]({% post_url 2026-03-27-union-find-pattern %})
 
-### Module 4: Immediate Next Patterns
+### Module 4: Core Expansion Patterns
 
-These are the next posts in the series and extend the same progression:
+This is the bridge from traversal-heavy questions into state design and graph structure.
 
-- Dynamic Programming Pattern
-- Trie Pattern
-- Bit Manipulation Pattern
-- Greedy Algorithms Pattern
-- Topological Sort Pattern
-- Minimum Spanning Tree Pattern
+- **Dynamic Programming Pattern**: how to define state, transition, and base cases before writing any recurrence.
+- **Trie Pattern**: prefix-aware string indexing for search, autocomplete, and dictionary-style problems.
+- **Bit Manipulation Pattern**: state compression, XOR reasoning, power-of-two checks, and subset modeling.
+- **Greedy Algorithms Pattern**: local-choice reasoning and how to justify that a greedy step is actually safe.
+- **Topological Sort Pattern**: dependency ordering on DAGs and the interview signals that distinguish it from general graph traversal.
+- **Minimum Spanning Tree Pattern**: when the real goal is cheapest full connectivity rather than shortest path from one source.
 
-### Module 5: Advanced Graph and Range-Query Topics
+### Module 5: Advanced Graph and Range Query Topics
 
-- Strongly Connected Components Pattern
-- A* Search Pattern
-- Floyd-Warshall Algorithm
-- Bellman-Ford Algorithm
-- Segment Tree Pattern
-- Fenwick Tree Pattern
-- Sparse Table Range Query
+This module deepens graph reasoning and introduces the first heavy preprocessing structures.
+
+- **Strongly Connected Components Pattern**: compress cyclic graph structure into components you can reason about cleanly.
+- **A* Search Pattern**: shortest-path search with heuristics when the target is known and a good estimate exists.
+- **Floyd-Warshall Algorithm**: all-pairs shortest paths when the graph is small enough for cubic DP.
+- **Bellman-Ford Algorithm**: negative edges, repeated relaxation, and when Dijkstra is no longer safe.
+- **Segment Tree Pattern**: range query plus point or range updates with explicit tree structure.
+- **Fenwick Tree Pattern**: prefix-oriented updates and queries with lighter implementation overhead than a segment tree.
+- **Sparse Table Range Query**: immutable range queries where preprocessing pays off and updates do not matter.
 
 ### Module 6: Advanced String and Optimization Patterns
 
-- Suffix Array and LCP Basics
-- KMP String Matching
-- Rabin-Karp String Matching
-- Z Algorithm String Matching
-- Manacher Algorithm
-- Rolling Hash Pattern
-- Meet in the Middle Pattern
-- Divide and Conquer Pattern
-- Sweep Line Pattern
-- Coordinate Compression Pattern
-- Difference Array Range Update Pattern
-- Binary Search on Answer Advanced
+This module is about preprocessing structure so repeated matching or range reasoning becomes cheap.
+
+- **Suffix Array and LCP Basics**: lexicographic ordering of suffixes and the overlap information that follows from it.
+- **KMP String Matching**: exact pattern matching with prefix reuse instead of text backtracking.
+- **Rabin-Karp String Matching**: rolling hash based matching with verification and collision awareness.
+- **Z Algorithm String Matching**: prefix-match lengths from every index and the problems that collapse once you have them.
+- **Manacher Algorithm**: linear-time palindrome expansion by reusing mirrored information.
+- **Rolling Hash Pattern**: substring identity and comparison using stable hash windows.
+- **Meet in the Middle Pattern**: split exponential search into two manageable halves.
+- **Divide and Conquer Pattern**: recursive decomposition when combining subresults is cheaper than flat enumeration.
+- **Sweep Line Pattern**: event-based geometric or interval reasoning with ordered activation.
+- **Coordinate Compression Pattern**: preserve ordering while shrinking huge numeric domains.
+- **Difference Array Range Update Pattern**: batch updates first, materialize final values later.
+- **Binary Search on Answer Advanced**: search over the solution space when feasibility is monotonic.
 
 ### Module 7: Advanced Dynamic Programming
 
-- Memoization vs Tabulation
-- Digit DP Pattern
-- Bitmask DP Pattern
-- Tree DP Pattern
-- Game Theory DP / Minimax
+This is the part of the roadmap where DP stops being one pattern and becomes a family of state-design techniques.
+
+- **Memoization vs Tabulation**: choosing the right execution model before optimizing the recurrence.
+- **Digit DP Pattern**: counting or optimizing over huge numeric ranges using digit-wise state.
+- **Bitmask DP Pattern**: subset-based state compression for assignment, travel, and pairing problems.
+- **Tree DP Pattern**: bottom-up state transitions where each node summarizes its subtree.
+- **Game Theory DP / Minimax**: alternating-choice problems where the state must model both optimal players.
+
+### Module 8: Design and Simulation Follow-Ups
+
+These are useful late-stage interview patterns because they test whether you can combine algorithms with system-style state modeling.
+
+- **LRU and LFU Cache Design**: constant-time access plus policy-driven eviction using synchronized structures.
+- **Discrete Event Simulation Pattern**: event-ordered processing where the clock jumps only when meaningful work happens.
 
 ---
 
@@ -146,9 +160,20 @@ If you want the cleanest learning path:
 1. finish Module 1 before jumping into trees or graphs
 2. use Modules 2 and 3 to lock in traversal and connectivity
 3. move into Module 4 only after shortest paths and Union-Find feel natural
-4. treat Modules 5 through 7 as advanced follow-ups, not day-one material
+4. treat Modules 5 through 8 as advanced follow-ups, not day-one material
 
 That sequence gives you a stronger base than practicing advanced problems too early.
+
+---
+
+## Module Outcomes
+
+If you follow the roadmap in order, each stage should unlock a different interview skill:
+
+- **Modules 1 to 3**: fast recognition of array, string, tree, and graph traversal patterns.
+- **Module 4**: confidence with state design, greedy reasoning, and structured graph problems.
+- **Modules 5 and 6**: stronger preprocessing intuition for graphs, strings, and range queries.
+- **Modules 7 and 8**: comfort with harder state spaces, design-heavy questions, and interview problems that mix algorithms with modeling.
 
 ---
 

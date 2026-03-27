@@ -21,17 +21,34 @@ header:
   show_overlay_excerpt: false
   caption: Local Choices with Global Guarantees
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Greedy algorithms are the interview pattern for problems where one local choice can be proven safe enough to lead to a global optimum.
+Strong candidates do not just say “sort and scan.” They explain the local rule, the invariant it preserves, and the exchange argument or proof idea that makes the greedy choice correct.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Build locally optimal choices while preserving a global invariant. Sorting + proof of exchange argument is key.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 02 Greedy Algorithms Pattern | a local choice can be justified by ordering or exchange reasoning | take the safest local improvement while preserving the future search space | Jump Game |
 
----
+## Problem Statement
+
+Given many possible choices, build an optimal or feasible answer by repeatedly taking the best next move without backtracking through all combinations.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: earliest finish, farthest reach, minimum removals, choose best next.
+- Structural signal: the remaining subproblem keeps the same shape after a locally optimal choice.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you can sort, make one local choice, and argue that any optimal answer can be transformed to include it, think greedy.
 
 ## Java Template
 

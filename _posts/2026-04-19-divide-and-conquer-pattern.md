@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Split Solve Merge Strategy
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Divide and conquer is the recursion pattern for solving a problem by splitting it into smaller self-similar subproblems and combining their answers.
+Strong candidates explain what the combine step adds, because if the merge logic is weak, the algorithm is just recursion without real leverage.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Split into independent subproblems, solve recursively, then merge.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 19 Divide And Conquer Pattern | subproblems are structurally identical and combining them is cheaper than solving the whole thing at once | solve smaller independent pieces recursively, then merge their results | Merge Sort Style Splitting |
 
----
+## Problem Statement
+
+Given a problem that naturally decomposes into smaller instances of the same shape, solve the parts recursively and combine them into the final answer.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: split in half, recursive combine, merge step, conquer after divide.
+- Structural signal: the problem size shrinks recursively while the combine step preserves correctness.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the problem breaks into self-similar parts with a meaningful merge step, think divide and conquer.
 
 ## Java Template
 

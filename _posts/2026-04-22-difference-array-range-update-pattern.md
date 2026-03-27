@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Batch Range Updates in Linear Time
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Difference arrays are the range-update pattern for turning many interval additions into O(1) boundary operations.
+Strong candidates explain the inversion clearly: prefix sums answer many queries fast, while difference arrays apply many updates fast and reconstruct later.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Mark range boundaries and reconstruct final values with a prefix pass.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 22 Difference Array Range Update Pattern | many range increments or decrements happen before the final array is needed | mark only where each update starts and stops, then rebuild with a prefix pass | Range Addition |
 
----
+## Problem Statement
+
+Given many interval updates, apply them faster than touching every element inside every updated range.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: range add, offline updates, boundary marking, prefix rebuild.
+- Structural signal: an update affects only its left boundary and the point just after its right boundary in the difference array.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If many range updates happen before final reconstruction, think difference array.
 
 ## Java Template
 

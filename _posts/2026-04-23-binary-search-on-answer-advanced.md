@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Monotonic Feasibility Optimization
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Advanced binary search on answer is the optimization pattern for numeric decision spaces where feasibility is monotonic but the helper is non-trivial.
+Strong candidates separate the two responsibilities cleanly: prove monotonicity first, then make the helper efficient enough for the outer binary search to be worthwhile.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Binary search over feasible answer space when predicate is monotonic.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 23 Binary Search On Answer Advanced | the answer is numeric and can be tested by a monotonic feasibility function | search the first valid answer instead of scanning every candidate | Split Array Largest Sum |
 
----
+## Problem Statement
+
+Given a numeric answer space with a yes/no feasibility test, find the smallest or largest valid answer faster than trying every candidate.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: minimum feasible, maximum possible, can(mid), monotonic helper.
+- Structural signal: once an answer works, all larger or smaller answers on one side also work.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you can write a monotonic feasibility helper over an ordered answer space, think binary search on answer.
 
 ## Java Template
 

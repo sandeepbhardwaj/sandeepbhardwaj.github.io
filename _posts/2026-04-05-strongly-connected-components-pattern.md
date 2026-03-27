@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Directed Graph Component Decomposition
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Strongly connected components are the directed-graph pattern for collapsing mutual reachability into maximal components.
+Strong candidates explain why one DFS is not enough for directed graphs, what finish order is buying, and how SCC decomposition turns a cyclic graph into a DAG of components.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Collapse directed graph into SCC components using two-pass DFS (Kosaraju) or low-link logic (Tarjan).
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 05 Strongly Connected Components Pattern | mutual reachability in a directed graph matters more than simple reachability | group nodes that can all reach one another and treat each group as one component | Count Strongly Connected Components |
 
----
+## Problem Statement
+
+Given a directed graph, identify or count the maximal groups of vertices where every node is reachable from every other node in the same group.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: directed graph, mutual reachability, SCC, condensation graph.
+- Structural signal: nodes inside one SCC behave like a single cycle-friendly unit once grouped together.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you need to collapse cycles or reason about mutual reachability in a directed graph, think SCC decomposition.
 
 ## Java Template
 

@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Compact String Fingerprinting
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Rolling hash is the string and sequence pattern for updating a window fingerprint in O(1) as the window slides.
+Strong candidates explain exactly what leaves the hash, what enters, and why collision risk means hashes are usually verification tools, not absolute truth.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Map strings to numeric fingerprints to compare substrings quickly in O(1) after preprocessing.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 17 Rolling Hash Pattern | sliding-window substring identity must be checked repeatedly | remove the outgoing contribution and add the incoming contribution under modular arithmetic | Repeated DNA Sequences |
 
----
+## Problem Statement
+
+Given many overlapping substrings or windows, compare them efficiently without rebuilding each candidate string from scratch.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: rolling hash, window fingerprint, modular arithmetic, collision.
+- Structural signal: adjacent windows share almost all characters, so the hash should reuse that overlap.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If overlapping substrings must be compared quickly, think rolling hash.
 
 ## Java Template
 

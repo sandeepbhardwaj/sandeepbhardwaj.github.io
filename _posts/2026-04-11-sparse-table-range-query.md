@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Immutable Range Query Acceleration
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Sparse table is the immutable range-query pattern for answering idempotent interval queries after one preprocessing phase.
+Strong candidates know when it applies and when it does not: it shines on static data, but it is not an update-friendly structure.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Precompute overlapping powers of two for immutable range queries in O(1).
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 11 Sparse Table Range Query | the data is immutable and the query operation is idempotent or composable | precompute interval answers for power-of-two lengths and combine them quickly | Range Minimum Query |
 
----
+## Problem Statement
+
+Given a static array and many range queries, preprocess enough interval information to answer each query faster than scanning the range.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: static range query, RMQ, immutable array, power of two intervals.
+- Structural signal: queries are answered by stitching together precomputed segments of length 2^k.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the array never changes and queries dominate runtime, think sparse table.
 
 ## Java Template
 

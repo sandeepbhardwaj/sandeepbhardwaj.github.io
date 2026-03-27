@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Choosing the Right DP Execution Model
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Memoization vs tabulation is the DP design pattern for choosing how to execute the same recurrence most clearly and efficiently.
+Strong candidates do not treat them as rival algorithms. They explain that both solve the same state graph, but traverse it in different directions with different debugging and performance trade-offs.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Choose top-down for clarity and sparse states; bottom-up for iterative control and memory optimization.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 24 Memoization Vs Tabulation Dp | a DP recurrence is known and you must choose recursive or iterative execution | memoization solves states on demand, tabulation fills them in dependency order | Climbing Stairs |
 
----
+## Problem Statement
+
+Given a valid DP recurrence, decide whether top-down caching or bottom-up table filling is the better implementation strategy.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: memoization, tabulation, top-down, bottom-up, state graph.
+- Structural signal: the recurrence stays the same; only the order of solving and storing states changes.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the recurrence is clear but implementation strategy matters, think memoization versus tabulation.
 
 ## Java Template
 

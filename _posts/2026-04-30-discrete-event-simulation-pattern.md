@@ -22,15 +22,33 @@ header:
   show_overlay_excerpt: false
   caption: Time-Ordered Event Processing
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
+Discrete event simulation is the scheduling pattern for systems where state changes happen only at specific timestamps rather than every unit of time.
+Strong candidates explain the simulation clock, event ordering, and tie-breaking rules clearly, because correctness depends on processing the next valid event and nothing else.
 
----
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-## Why This Pattern Matters
+## Pattern Summary Table
 
-Use time-ordered event queue to simulate systems deterministically.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 30 Discrete Event Simulation Pattern | system behavior changes at sparse timestamps and per-time-unit simulation would waste work | process the next scheduled event in chronological order and update the simulation clock accordingly | Single-Server Queue |
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+## Problem Statement
+
+Model a system with arrivals, completions, or state transitions over time without iterating through every intermediate timestamp.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: event queue, simulation clock, arrivals, departures, scheduler.
+- Structural signal: the system only changes at discrete timestamps, so jumping directly to the next event is safe.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If time advances only when something meaningful happens, think discrete event simulation with a priority queue.
 
 ---
 

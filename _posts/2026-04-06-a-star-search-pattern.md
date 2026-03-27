@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Heuristic Guided Shortest Path Search
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+A* search is the shortest-path pattern for using a heuristic to guide exploration toward the goal while still preserving optimality.
+Strong candidates explain the relationship between `g`, `h`, and `f`, and they know that the heuristic must be admissible, and ideally consistent, for the search to stay correct.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Use priority by f(n)=g(n)+h(n) to guide shortest path search with an admissible heuristic.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 06 A Star Search Pattern | you need shortest path but a good heuristic can prioritize likely-good states | combine known path cost with estimated remaining cost to guide expansion | Shortest Path in a Grid |
 
----
+## Problem Statement
+
+Given a graph or grid and a goal state, find an optimal path while exploring fewer states than an uninformed shortest-path search would visit.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: heuristic, f = g + h, goal-directed search, pathfinding.
+- Structural signal: the priority queue favors states that are both cheap so far and plausibly close to the target.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you have a shortest-path problem and a domain-specific heuristic that does not overestimate, think A*.
 
 ## Java Template
 

@@ -21,17 +21,34 @@ header:
   show_overlay_excerpt: false
   caption: Bitwise State Compression and Fast Checks
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Bit manipulation is the interview pattern for compressing boolean state, exploiting binary structure, and replacing extra memory with constant-time bitwise operations.
+Strong candidates do not treat it as a bag of tricks. They explain what each bit represents, why the bitwise operation preserves the invariant, and where signed-integer edge cases matter in Java.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Represent state with bits and use AND/OR/XOR/shift operations to solve in constant memory.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 01 Bit Manipulation Pattern | state fits naturally into bits or bitwise algebra removes repeated work | encode information in bit positions and update it with AND, OR, XOR, and shifts | Single Number |
 
----
+## Problem Statement
+
+Given integers, masks, or subset-style state, use binary representation to answer queries, compress flags, or derive values faster than counting or hashing would allow.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: mask, XOR, parity, power of two, subset state, bit count.
+- Structural signal: the problem becomes easier when each boolean decision or repeated pair-cancellation can be modeled directly in binary.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If you see compact subset state, XOR cancellation, parity tracking, or fixed-width flags, think bit manipulation.
 
 ## Java Template
 

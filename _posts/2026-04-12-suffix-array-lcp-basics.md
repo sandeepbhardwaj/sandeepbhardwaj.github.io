@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Suffix Ordering and Prefix Overlap
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Suffix arrays and LCP are the string-indexing pattern for ordering all suffixes and then reusing that order for fast substring reasoning.
+Strong candidates explain the two-layer model clearly: suffix array gives sorted suffix order, and LCP captures shared-prefix overlap between adjacent suffixes.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Sort suffixes and derive LCP array to answer substring and repeated-pattern problems.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 12 Suffix Array Lcp Basics | substring order, repeated substring search, or common-prefix structure matters | sort all suffixes once, then use adjacent common-prefix information for string queries | Longest Repeated Substring |
 
----
+## Problem Statement
+
+Given one long string, preprocess its suffixes so lexicographic substring relationships become easier to search and analyze.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: suffix array, LCP, lexicographic suffix order, repeated substring.
+- Structural signal: nearby suffixes in sorted order expose the strongest shared-prefix relationships.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the problem revolves around sorted suffixes or repeated substring structure, think suffix array plus LCP.
 
 ## Java Template
 

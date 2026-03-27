@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Optimal Adversarial Decision Modeling
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Minimax-style game DP is the pattern for turn-based optimal-play problems where both players act rationally.
+Strong candidates state whose turn a DP value represents, because alternating turns are the core state dimension that makes these problems tricky.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Model turns as max/min transitions with memoization over game state.
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 28 Game Theory Dp Minimax | two players alternate choices and both play optimally | model each state as the best achievable outcome under optimal opposing play | Stone Game / Predict the Winner |
 
----
+## Problem Statement
+
+Given a turn-based game with deterministic choices, compute whether the current player can force a win or maximize score difference under optimal play.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: minimax, optimal play, turn state, winning strategy, score difference.
+- Structural signal: every move transitions control to the opponent, so the state must encode adversarial choice.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If two players alternate and both are optimal, think minimax or game-theory DP.
 
 ## Java Template
 

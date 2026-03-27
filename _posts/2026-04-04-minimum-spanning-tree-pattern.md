@@ -22,17 +22,34 @@ header:
   show_overlay_excerpt: false
   caption: Minimum Cost Graph Connectivity
 ---
-This article goes deeper into intuition, constraints, implementation templates, and tradeoffs for production-grade Java solutions.
 
----
+Minimum spanning tree is the graph pattern for connecting all vertices with the least total edge cost while avoiding cycles.
+Strong candidates distinguish edge-centric and node-centric thinking, explain why each chosen edge safely expands the tree, and validate connectivity instead of assuming an MST always exists.
 
-## Why This Pattern Matters
+> [!NOTE] Interview lens
+> A strong explanation should name the invariant, the safe transition, and the condition that makes this pattern preferable to brute force.
 
-Connect all vertices with minimum total cost using Kruskal (DSU) or Prim (PQ).
+## Pattern Summary Table
 
-Use this pattern when brute-force introduces repeated work, unstable latency, or unnecessary memory pressure.
+| Pattern | When to Use | Key Idea | Example |
+| --- | --- | --- | --- |
+| 04 04 Minimum Spanning Tree Pattern | you need the cheapest way to connect every node in an undirected weighted graph | grow connectivity only through edges that safely expand the current forest or tree | Minimum Cost to Connect All Nodes |
 
----
+## Problem Statement
+
+Given an undirected weighted graph, compute the minimum total cost needed to connect all nodes, or detect that the graph is disconnected.
+
+> [!NOTE]
+> Emphasize the constraints before coding. The real signal is often whether the brute-force search space, update volume, or graph model makes the naive solution impossible.
+
+## Pattern Recognition Signals
+
+- Keywords in the problem: connect all nodes, minimum total cost, spanning tree, no cycles.
+- Structural signal: each chosen edge must connect two previously separate regions of the graph.
+- Complexity signal: the optimized version avoids repeated rescans, recomputation, or state explosion that brute force would suffer.
+
+> [!IMPORTANT]
+> If the task is “connect everything as cheaply as possible” in an undirected weighted graph, think MST.
 
 ## Java Template
 
