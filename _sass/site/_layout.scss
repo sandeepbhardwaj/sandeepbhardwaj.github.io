@@ -707,9 +707,9 @@
 .author-card {
   background: var(--toc-bg);
   backdrop-filter: blur(16px);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--toc-border, var(--border-soft));
   border-radius: calc(var(--radius-md) + 0.05rem);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--toc-shadow, var(--shadow-sm));
   padding: 1.2rem;
 }
 
@@ -1240,12 +1240,16 @@
 .home-hero__guide-item,
 .archive__item--home-featured,
 .page-shell__article,
-.page__toc,
 .author-card,
 .search-panel__dialog,
 .search-result {
   background: var(--bg-surface);
   box-shadow: none;
+}
+
+.page__toc,
+.author-card {
+  background: var(--toc-bg);
 }
 
 .home-hero {
