@@ -3,6 +3,11 @@ layout: single
 ---
 {% assign locale = page.locale | default: site.locale %}
 <section class="taxonomy-page taxonomy-page--index">
-  {{ content }}
-  {% include posts-taxonomy.html taxonomies=site.categories locale=locale %}
+  <div class="topics-hub">
+    {{ content }}
+
+    <section id="topics-directory" class="topics-directory full-width">
+      {% include posts-taxonomy.html taxonomies=site.categories locale=locale %}
+    </section>
+  </div>
 </section>
