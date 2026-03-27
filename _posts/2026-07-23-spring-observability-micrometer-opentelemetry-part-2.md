@@ -25,98 +25,137 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Micrometer/OpenTelemetry with high-cardinality metric governance (Part 2) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 established the core boundary: metrics should stay bounded while traces and logs carry richer request detail.
+Part 2 is about the harder organizational problem: once instrumentation spreads across teams, how do you keep observability useful and affordable instead of letting every release add accidental telemetry debt.
 
 ---
 
-## Problem 1: Micrometer/OpenTelemetry with high-cardinality metric governance (Part 2)
+## The Harder Problem Is Instrumentation Drift
 
-Problem description:
-We want to apply micrometer/opentelemetry with high-cardinality metric governance (part 2) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+Telemetry design often starts clean and becomes expensive gradually:
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- one team adds a "temporary" tag for debugging
+- another exports a new family of timers with slightly different names
+- a third duplicates the same business dimension across metrics, traces, and logs
+- six months later the platform pays for the sum of those decisions
 
-What we are doing actually:
-
-1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
-2. make Spring Boot explicit: introduce one hardening mechanism at a time
-3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
-4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
+That is why part 2 should focus on governance workflow, not just cardinality rules.
 
 ---
 
-## Why This Topic Matters
+## Good Telemetry Needs Ownership, Not Only Libraries
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+The key follow-up question is:
+"Who decides whether a new tag, span attribute, or meter name is worth its long-term cost?"
+
+If the answer is "whoever touched the code," the observability estate will drift quickly.
+At scale, telemetry behaves more like schema design than like logging convenience.
 
 ---
 
-## Architecture Model
+## A Better Governance Loop
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Micrometer/OpenTelemetry with high-cardinality metric governance (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Instrumentation change] --> B[Cardinality and purpose review]
+    B --> C[Metric, trace, or log placement]
+    C --> D[Cost and usefulness observed in production]
+    D --> E[Keep, refine, or remove]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so micrometer/opentelemetry with high-cardinality metric governance (part 2) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+Without the last step, telemetry only accumulates.
+Teams rarely remove noisy instrumentation unless the process makes that cleanup explicit.
 
 ---
 
-## Practical Design Pattern
+## Meter Filters Are a Good Safety Net, Not the Whole Strategy
+
+Micrometer gives you one useful backstop: refuse or rewrite tags before they explode.
 
 ```java
-@Configuration
-class TopicConfiguration {
-
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Micrometer/OpenTelemetry with high-cardinality metric governance (Part 2)", 2);
-    }
+@Bean
+MeterFilter denyUnboundedTenantTag() {
+    return MeterFilter.deny(id ->
+            "tenant.id".equals(id.getTag("dimension")) || id.getTag("tenantId") != null);
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in micrometer/opentelemetry with high-cardinality metric governance (part 2) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+That kind of filter can save the platform from a bad instrumentation release.
+But it should not replace design review.
+The ideal state is still that the team knows ahead of time whether a value belongs in:
+
+- a metric tag
+- a trace attribute
+- a structured log field
+
+---
+
+## Dashboards Need Stable Semantics
+
+One subtle failure mode is dashboard drift:
+
+- metric names change for style reasons
+- teams add slightly different labels for the same concept
+- alerting starts depending on dimensions that are not guaranteed to remain bounded
+
+Then the telemetry is technically rich but operationally brittle.
+
+> [!IMPORTANT]
+> The most valuable observability dimensions are the ones operators can depend on staying stable across releases.
+
+---
+
+## Sampling and Detail Belong in the Right Layer
+
+Part 1 said rich detail often belongs in traces or logs.
+Part 2 is where that becomes operational:
+
+- metrics carry bounded, always-on signals
+- traces carry richer context on selected requests
+- logs carry event details when the team truly needs them
+
+If all three layers try to carry the same detail, cost rises without adding much clarity.
 
 ---
 
 ## Failure Drill
 
-Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for micrometer/opentelemetry with high-cardinality metric governance (part 2).
+A strong drill for this topic is telemetry-review under pressure:
 
-That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around micrometer/opentelemetry with high-cardinality metric governance (part 2) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. simulate a release that adds one hot metric with an unbounded tag
+2. verify whether meter filters or review gates catch it
+3. move the same detail to a span attribute instead
+4. compare query cost and debugging usefulness
+5. decide whether the signal belongs in metrics at all
+
+This teaches the team to govern telemetry as a product of trade-offs, not as a one-way stream of emitted data.
+
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating micrometer/opentelemetry with high-cardinality metric governance (part 2)
-- keep customization close to the intended extension point instead of scattered overrides while validating micrometer/opentelemetry with high-cardinality metric governance (part 2)
-- observe startup, request, and shutdown phases separately while validating micrometer/opentelemetry with high-cardinality metric governance (part 2)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating micrometer/opentelemetry with high-cardinality metric governance (part 2)
+- review new telemetry like a schema change, not a log statement
+- inspect top-cardinality metrics and top-cost exporters regularly
+- use meter filters as a platform guardrail, not as the only line of defense
+- keep dashboards and alerts bound to stable, low-cardinality dimensions
+- remove duplicate telemetry when traces or logs already carry the needed detail
 
 ---
 
 ## Production Checklist
 
-- mixed-config or mixed-version behavior exercised once
-- error or timeout path measured under real startup/runtime timing
-- override and rollback rules still simple after hardening
-- incident notes updated with the real failure signature
+- instrumentation changes have an ownership and review path
+- high-cardinality values are routed to traces or logs by default
+- meter filters or similar guardrails protect the platform from obvious mistakes
+- key dashboards rely on stable metric names and dimensions
+- telemetry that is expensive and unused is removed, not merely tolerated
 
 ---
 
 ## Key Takeaways
 
-- Micrometer/OpenTelemetry with high-cardinality metric governance (Part 2) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- harden one failure mode at a time instead of stacking speculative complexity
+- Part 2 of observability work is governance, not more raw emission.
+- Telemetry needs ownership because cost and usefulness both compound over time.
+- Meter filters are valuable safety rails, but they are not a substitute for instrumentation design.
+- The best observability systems keep stable metrics lean and move richer detail to the layers designed to hold it.

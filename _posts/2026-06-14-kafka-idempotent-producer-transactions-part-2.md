@@ -23,41 +23,104 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Use Kafka transactions for consume-transform-produce atomically**.
+Part 1 established the narrow guarantee of idempotent producers. Part 2 is where the picture becomes more useful: consume input, produce derived output, and advance offsets as one Kafka transaction so downstream readers do not see partial progress.
 
----
+This is the part of the model that often justifies the phrase "exactly once" in Kafka conversations, but only if we stay precise about where the atomic boundary begins and ends.
 
-## Problem 1: Avoid Partial Visibility When Reading, Writing, and Committing Offsets
+## What Part 2 Adds Beyond Idempotence
 
-Problem description:
-A processor that consumes input, writes transformed output, and commits offsets can leave the system inconsistent if it crashes between those steps.
+Idempotence protected a producer retry path. Transactions go further by tying together:
 
-What we are solving actually:
-We are solving atomicity across output publication and offset progress.
-Without transactions, downstream topics can contain partial work or consumers can advance offsets without corresponding output.
+- produced output records
+- the offsets of the consumed input
 
-What we are doing actually:
-
-1. Begin a Kafka transaction.
-2. Produce output records.
-3. Send consumer offsets to the same transaction.
-4. Commit or abort the whole unit together.
+That matters for stream processors because a crash between "output sent" and "offset committed" can otherwise create duplicate visible work or partial visibility.
 
 ```mermaid
 flowchart LR
-    A[Consume input] --> B[beginTransaction]
+    A[Consume input records] --> B[beginTransaction]
     B --> C[Produce transformed output]
     C --> D[sendOffsetsToTransaction]
-    D --> E[commitTransaction or abort]
+    D --> E[Commit or abort]
 ```
 
-## Real-World Scenario
+If the transaction aborts, neither the output nor the offset progression should become visible to `read_committed` readers.
 
-Network retries during peak load can duplicate records unless producer semantics are configured correctly.
+## The Failure Mode We Are Actually Fixing
 
----
+Imagine a processor that reads `orders.in` and writes `orders.out`.
 
-## Run It Locally
+Without transactions:
+
+1. output may be published
+2. process crashes
+3. offsets never commit
+4. restart reprocesses the same input
+5. downstream may now see duplicate derived output
+
+With transactions, output publication and offset advancement become one broker-side decision.
+
+## A Minimal Transactional Skeleton
+
+~~~java
+producer.initTransactions();
+
+producer.beginTransaction();
+producer.send(new ProducerRecord<>("orders.out", key, transformed));
+producer.sendOffsetsToTransaction(offsets, groupMeta);
+producer.commitTransaction();
+~~~
+
+This code is not the whole application, but it shows the important shape clearly:
+
+- open a transaction
+- write derived output
+- attach consumer progress
+- commit or abort together
+
+## Verification Needs the Right Reader
+
+This part is easy to mis-test. If your verification consumer reads with default isolation, you can draw the wrong conclusion about what was visible when.
+
+Use committed reads:
+
+~~~bash
+kafka-console-consumer \
+  --bootstrap-server localhost:9092 \
+  --topic orders.out \
+  --from-beginning \
+  --isolation-level read_committed
+~~~
+
+That way, you are actually verifying the property you care about.
+
+> [!important]
+> Transactions are only meaningful if the consumers observing the result respect transactional visibility.
+
+## The Right Failure Drill
+
+Crash the processor at three points:
+
+1. before output send
+2. after output send but before commit
+3. after commit
+
+The second case is the one that proves the value of Part 2. It shows whether partially completed work leaks to readers or stays hidden until the transaction is complete.
+
+## Where the Boundary Still Stops
+
+Part 2 improves Kafka-to-Kafka workflows. It does not automatically solve:
+
+- database side effects
+- HTTP calls
+- external caches
+- email or notification sends
+
+If the processor touches outside systems, that outer boundary still needs its own correctness design.
+
+That is why this part is strongest for consume-transform-produce pipelines that remain mostly inside Kafka.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -90,85 +153,26 @@ services:
 docker compose up -d
 ~~~
 
----
+## Operational Guidance
 
-## Lab Steps
+### Keep transactional IDs stable
 
-1. Consume input topic.
-2. Start transaction.
-3. Produce output + offsets atomically.
-4. Commit transaction.
+Transactional identity has to map to a meaningful processor identity. If it changes carelessly across restarts, you invite fencing confusion and harder incident analysis.
 
----
+### Test rolling deploy behavior
 
-## Runnable Code Block
+Transactions are not only a code-path feature. They interact with process identity and rollout behavior too.
 
-~~~java
-producer.initTransactions();
-producer.beginTransaction();
-producer.send(new ProducerRecord<>("orders.out", key, transformed));
-producer.sendOffsetsToTransaction(offsets, groupMeta);
-producer.commitTransaction();
-~~~
+### Explain the guarantee boundary in team docs
 
----
+Otherwise "Kafka transactions" gets casually translated into "the whole workflow is safe now," which is rarely true.
 
-## Verify
+## What This Part Should Leave You With
 
-~~~bash
-# read committed only
-kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.out --from-beginning --isolation-level read_committed
-~~~
+After Part 2, the team should understand:
 
----
+1. how transactions make output and input progress one atomic Kafka decision
+2. why `read_committed` matters for verification
+3. why this still is not a universal end-to-end exactly-once guarantee
 
-## Failure Drill
-
-Kill app before commitTransaction and verify no partial output visibility.
-
----
-
-## Debug Steps
-
-Debug steps:
-
-- use `read_committed` consumers when verifying transaction behavior
-- test crash timing before commit, after output send, and around offset commit
-- confirm the consumer group metadata used for `sendOffsetsToTransaction` is correct
-- remember that transaction success still depends on consumer idempotency around external side effects
-
-## Operational Note
-
-This pattern is strongest when the processor owns only Kafka-side state transitions.
-As soon as external databases or side effects are mixed in, transactional guarantees need another layer of design and compensating controls.
-
-That boundary should be explained explicitly in team docs.
-It prevents “exactly once” from becoming a misleading label for a wider workflow.
-
-## What You Should Learn
-
-- transactions make output and offset progression one atomic decision
-- verification requires committed-read semantics, not default consumption behavior
-- partial visibility bugs only disappear when the full consume-transform-produce unit is transactional
-
----
-
-        ## Production Checklist
-
-        Verify both broker configuration and consumer isolation level. Transactional semantics are easy to misread when downstream readers still use default isolation.
-
-        ## Incident Drill
-
-        Restart the processor with the wrong transactional identity and inspect the resulting fencing or duplicate risk. That is the boundary operators have to understand before incident day.
-
-        ## Extra Debug Cues
-
-        - keep the transactional ID stable for one processor identity
-- check fencing events during rolling deploys
-- verify all downstream validation reads use `read_committed`
-
----
-
-## Operator Prompt
-
-For idempotent producers and kafka transactions in practice (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is the right mental model before moving into broader correctness claims.

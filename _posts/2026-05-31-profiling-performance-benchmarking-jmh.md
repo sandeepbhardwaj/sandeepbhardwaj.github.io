@@ -22,21 +22,40 @@ header:
   show_overlay_excerpt: false
   caption: Reliable JVM Microbenchmarking and Profiling
 ---
-JMH is the correct tool for JVM microbenchmarks.
-Without it, results are usually distorted by JIT warmup, dead-code elimination, and measurement noise.
+Performance work goes wrong most often when profiling, benchmarking, and production telemetry are treated as if they answer the same question.
+
+They do not.
+
+- profiling tells you where the time or allocation is going
+- benchmarking tells you whether one isolated implementation is better than another
+- production telemetry tells you whether the user-visible system actually improved
+
+Good optimization work uses all three in that order.
 
 ---
 
-## Benchmarking and Profiling Are Different
+## Start With a Real Question
 
-- benchmarking answers: "which implementation is faster for this isolated operation?"
-- profiling answers: "where does production time/CPU/allocation go?"
+The best performance investigations begin with something concrete:
 
-Use both. One without the other creates bad optimization decisions.
+- p95 latency regressed
+- CPU per request increased
+- allocation rate spiked
+
+That gives you a reason to profile and a standard for whether the optimization was worth shipping.
+
+Without that, teams often end up chasing microbenchmarks that never mattered to users.
 
 ---
 
-## Minimal but Correct JMH Setup
+## JMH Is the Right Tool for Microbenchmarks
+
+JMH matters because ordinary timing code is too easy to fool with:
+
+- JIT warmup effects
+- dead-code elimination
+- constant folding
+- setup accidentally included in the timed section
 
 ```java
 @BenchmarkMode(Mode.Throughput)
@@ -53,11 +72,13 @@ public class HashBench {
 }
 ```
 
-Use warmup, measurement, and multiple forks for stable results.
+The harness is not ceremony. It is what makes the result credible.
 
 ---
 
-## Parameterized Inputs Matter
+## Use Inputs That Resemble Reality
+
+Benchmarks built around one tiny input size or one idealized object usually tell the wrong story.
 
 ```java
 @State(Scope.Thread)
@@ -74,117 +95,93 @@ public static class Input {
 }
 ```
 
-Benchmarks with only one tiny input size often produce misleading conclusions.
+Input shape matters because many optimizations behave differently depending on:
+
+- payload size
+- branch distribution
+- allocation volume
+- cache locality
+
+The more realistic the model, the more useful the result.
 
 ---
 
-## Common Benchmark Pitfalls
+## Profiling Comes Before Benchmarking
 
-- benchmarking code that JIT optimizes away
-- measuring setup cost accidentally inside benchmark method
-- comparing implementations with different input distributions
-- running on unstable CPU frequency/governor settings
-- reporting only average, ignoring p95/p99 variation
+The normal sequence should be:
 
-Methodology quality matters more than headline numbers.
+1. profile a production-like workload
+2. identify a credible hotspot
+3. isolate that hotspot in JMH
+4. compare candidate implementations
+5. validate the winner in a real service path
 
----
+This avoids the classic failure mode of proving one method is faster in isolation while the endpoint itself remains unchanged.
 
-## Dry Run: Optimization Validation Workflow
-
-1. profiler (JFR) shows JSON encoding hotspot at 18% CPU.
-2. create JMH benchmark for current vs candidate encoder.
-3. verify candidate wins on throughput and allocation rate.
-4. deploy canary with feature flag.
-5. compare endpoint p95 latency and service CPU in production.
-6. keep change only if user-visible SLO improves.
-
-Micro win without endpoint win is not a successful optimization.
+```mermaid
+flowchart LR
+    A[User-visible regression] --> B[Profile]
+    B --> C[Hot path candidate]
+    C --> D[JMH benchmark]
+    D --> E[Canary / production validation]
+```
 
 ---
 
-## Profiling Stack for Production Correlation
+## A Better Optimization Workflow
 
-- JFR for low-overhead continuous profiling
-- async-profiler/flame graphs for deep CPU/allocation hotspots
-- metrics for p95 latency, GC pauses, CPU saturation
+Suppose JFR shows JSON encoding consuming 18% of CPU in a hot service.
 
-Always confirm benchmark improvement appears at real call sites.
+A disciplined loop is:
+
+1. build a JMH benchmark for current versus candidate encoder
+2. check throughput and allocation behavior
+3. deploy the winner behind a feature flag
+4. compare endpoint latency and service CPU in canary traffic
+5. keep the change only if service-level behavior improves
+
+This keeps the benchmark attached to an actual operational outcome.
 
 ---
 
-## CI Strategy for Performance Regressions
+## Benchmarking and Profiling Fail in Different Ways
 
-- run stable benchmark suite on dedicated runners
-- compare against baseline with statistical thresholds
-- alert on significant regressions, not random noise
-- store historical benchmark trends per commit/release
+### Benchmark pitfalls
 
-Performance tests should be repeatable and versioned like functional tests.
+- unrealistic inputs
+- unstable CPU scaling
+- measuring setup or logging accidentally
+- reading only the average
+
+### Profiling pitfalls
+
+- sampling the wrong workload
+- taking one short capture and overgeneralizing
+- chasing cold-path noise
+
+Knowing which tool can mislead you in which way is part of doing performance work well.
+
+> [!TIP]
+> A microbenchmark win is not a production win until latency, CPU, or throughput improves where users actually pay the cost.
+
+---
+
+## CI Can Help, but Only if the Benchmarks Are Stable
+
+Performance CI is useful when:
+
+- the benchmark suite is narrow and intentional
+- runners are stable enough to reduce noise
+- regression thresholds are statistical, not emotional
+- historical trends are stored
+
+JMH can support this, but only if the benchmarks are maintained like real tests and not treated as one-off experiments.
 
 ---
 
 ## Key Takeaways
 
-- JMH is required for credible JVM microbenchmarking.
-- profile first, benchmark targeted hotspots, then validate in production.
-- optimization is complete only when service-level SLOs improve.
-
----
-
-        ## Problem 1: Make Performance Claims Reproducible
-
-        Problem description:
-        Teams often mix profiling, benchmarking, and production telemetry together, which leads to optimizations based on noise, warmup artifacts, or unrealistic toy tests.
-
-        What we are solving actually:
-        We are solving trustworthy performance decisions. JMH matters because it gives micro benchmarks a disciplined harness, while profiling tells us which code deserves that effort in the first place.
-
-        What we are doing actually:
-
-        1. start with a user-visible latency or throughput question
-2. profile production-like load to find a candidate hot path
-3. write a JMH benchmark that isolates that path with realistic inputs
-4. compare the micro result with workload-level telemetry before deciding to ship
-
-        ```mermaid
-flowchart LR
-    A[User-visible regression] --> B[Profile]
-    B --> C[Hot path]
-    C --> D[JMH benchmark]
-    D --> E[Optimization decision]
-```
-
-        This section is worth making concrete because architecture advice around profiling performance benchmarking jmh often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        @Benchmark
-public OrderSummary baseline() {
-    return mapper.map(orderFixture);
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Run the benchmark without warmup discipline or with tiny unrealistic inputs and compare it to production telemetry. The mismatch is the reminder that benchmarks are only as good as their model.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - separate benchmarking from profiling and from business-level telemetry
-- control warmup, forks, and input size deliberately
-- watch allocation rate alongside execution time
-- validate that the benchmarked path is still hot in the real application
-
-        ## Review Checklist
-
-        - Profile first, benchmark second.
-- Use realistic inputs and warmup.
-- Tie micro wins back to production outcomes.
+- Profiling, benchmarking, and production validation answer different questions.
+- JMH is the right microbenchmark tool because it controls common JVM measurement traps.
+- Always profile first, then benchmark the hotspot, then validate in a real service path.
+- The optimization is complete only when the production system gets measurably better.

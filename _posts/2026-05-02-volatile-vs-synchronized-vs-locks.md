@@ -22,86 +22,142 @@ header:
   show_overlay_excerpt: false
   caption: Choosing the Right Synchronization Primitive
 ---
-Choosing the wrong synchronization primitive creates either hidden race bugs or unnecessary latency.
-This guide gives a decision framework you can apply quickly in production code.
+Most Java concurrency bugs do not come from forgetting a keyword. They come from choosing a synchronization primitive that does not match the shape of the shared state.
+
+`volatile`, `synchronized`, and explicit locks solve different problems. If you treat them as interchangeable, the code may look disciplined while still leaking races, lost updates, or unnecessary contention.
 
 ---
 
-## Decision Matrix
+## Start With the Correctness Question
 
-- Use `volatile` when:
-  - single variable state
-  - no compound invariants
-  - no read-modify-write logic
-- Use `synchronized` when:
-  - you need mutual exclusion + visibility
-  - lock scope is small and simple
-  - intrinsic monitor semantics are enough
-- Use `ReentrantLock` / advanced locks when:
-  - tryLock, timed lock, fairness, interruptible lock needed
-  - explicit lock orchestration required
+Before comparing APIs, ask what must be true after every update:
+
+- Is this only a visibility flag?
+- Is there a read-modify-write step?
+- Must multiple fields change together?
+- Do callers need timeouts, interruptibility, or fairness?
+
+Those questions usually tell you the answer faster than micro-benchmarking ever will.
 
 ---
 
-## Correctness Rule of Thumb
+## A Practical Decision Matrix
 
-If multiple variables must change together atomically, `volatile` alone is insufficient.
-Use a lock or redesign state ownership.
+### Use `volatile` when:
+
+- one variable represents the whole truth
+- readers only need the latest published value
+- writes do not depend on the old value
+
+Typical examples:
+
+- shutdown flags
+- feature toggles
+- latest immutable snapshot reference
+
+### Use `synchronized` when:
+
+- more than one field participates in an invariant
+- an operation performs read-modify-write
+- the critical section is simple and easy to reason about
+
+Typical examples:
+
+- counters with derived state
+- inventory transitions
+- balance transfers inside one object
+
+### Use explicit locks when:
+
+- you need `tryLock()` or timed acquisition
+- interruption should cancel lock acquisition
+- you need multiple conditions or lock orchestration
+- you are intentionally trading simplicity for more control
+
+That usually means `ReentrantLock`, and only sometimes a more specialized lock.
 
 ---
 
-## Example: Why volatile Is Not Enough
+## `volatile` Gives Visibility, Not Compound Atomicity
+
+This is the mistake teams make most often. `volatile` guarantees that threads see the latest write. It does not make `count++` atomic.
 
 ```java
-class UnsafeCounter {
-    volatile int count = 0;
+final class UnsafeCounter {
+    private volatile int count;
 
-    void inc() {
-        count++; // read + add + write is not atomic
-    }
-}
-```
-
-Correct lock-based variant:
-
-```java
-class SafeCounter {
-    private int count;
-
-    synchronized void inc() {
-        count++;
+    void increment() {
+        count++; // read, add, write
     }
 
-    synchronized int get() {
+    int current() {
         return count;
     }
 }
 ```
 
-Dry interleaving:
+The bug is not subtle:
 
-- `count=0`
-- Thread A reads `0`
-- Thread B reads `0`
-- A writes `1`
-- B writes `1`
+1. Thread A reads `0`
+2. Thread B reads `0`
+3. Thread A writes `1`
+4. Thread B writes `1`
 
-Expected `2`, actual `1` (lost update).
+One increment disappears.
+
+If the operation depends on the previous value, `volatile` alone is not the right primitive.
 
 ---
 
-## Advanced Lock Example
+## `synchronized` Is the Best Default for Small Critical Sections
+
+For many code paths, intrinsic locking is still the clearest answer.
 
 ```java
-class Inventory {
-    private final ReentrantLock lock = new ReentrantLock();
-    private int units;
+final class SafeCounter {
+    private int count;
 
-    boolean reserve(int n) {
-        lock.lock();
+    synchronized void increment() {
+        count++;
+    }
+
+    synchronized int current() {
+        return count;
+    }
+}
+```
+
+This gives you both:
+
+- mutual exclusion
+- happens-before visibility between unlock and the next lock acquisition
+
+That combination is often exactly what application code needs.
+
+> [!TIP]
+> If the protected code is short, local, and easy to explain, `synchronized` is usually the right starting point. Do not reach for more advanced locking just because it feels more "production-grade."
+
+---
+
+## When `ReentrantLock` Actually Helps
+
+Explicit locks earn their complexity only when the API surface matters to the design.
+
+```java
+final class InventoryService {
+    private final ReentrantLock lock = new ReentrantLock();
+    private int availableUnits;
+
+    boolean reserve(int units) throws InterruptedException {
+        if (!lock.tryLock(50, TimeUnit.MILLISECONDS)) {
+            return false;
+        }
+
         try {
-            if (units < n) return false;
-            units -= n;
+            if (availableUnits < units) {
+                return false;
+            }
+            availableUnits -= units;
             return true;
         } finally {
             lock.unlock();
@@ -110,95 +166,106 @@ class Inventory {
 }
 ```
 
----
+Here the value is not raw speed. The value is that the service can:
 
-## Performance and Operational Notes
+- fail fast under contention
+- avoid waiting forever
+- participate in cancellation-aware flows
 
-- lock contention shows up as increased p95/p99 latency.
-- lock hold time matters more than lock type in many systems.
-- avoid synchronizing on broad shared objects.
-- profile before replacing synchronized with complex lock APIs.
-
----
-
-## Key Takeaways
-
-- `volatile` is visibility/order, not compound atomicity.
-- `synchronized` is the safest default for simple critical sections.
-- explicit locks are for advanced coordination, not premature optimization.
+Those are architectural behaviors, not stylistic preferences.
 
 ---
 
-## Practical Decision Checklist
+## A Real Example: Inventory State Needs One Atomic Boundary
 
-Use this quick checklist during design reviews:
+Imagine an inventory object with:
 
-- if writes are independent and single-variable, start with `volatile`
-- if operations update multiple fields together, use `synchronized`
-- if you need timeout, interruptible waits, or multiple conditions, use `ReentrantLock`
-- if contention is high, optimize critical section length before changing primitives
+- `available`
+- `reserved`
+- `sold`
+
+If those numbers move together, the correctness rule is simple: all transitions must happen under one atomic boundary.
+
+`volatile` fields cannot preserve that invariant. You may see the latest values, but you cannot guarantee they were updated as one coherent state transition.
 
 ```java
-if (!lock.tryLock(50, TimeUnit.MILLISECONDS)) {
-    throw new ServiceUnavailableException("inventory subsystem busy");
+final class InventoryState {
+    private int available;
+    private int reserved;
+    private int sold;
+
+    synchronized boolean reserve(int units) {
+        if (available < units) {
+            return false;
+        }
+
+        available -= units;
+        reserved += units;
+        return true;
+    }
+
+    synchronized void markSold(int units) {
+        reserved -= units;
+        sold += units;
+    }
 }
 ```
 
+This is the right mental model:
+
+- state transitions are protected together
+- reads outside the lock should use a snapshot or accessor
+- expensive work happens after the state transition, not while the lock is held
+
 ---
 
-## Case Study: Inventory Reservation Consistency
+## Contention Problems Usually Come From Lock Scope, Not Lock Type
 
-If `available`, `reserved`, and `sold` move together, you need one atomic update boundary.
-`volatile` fields cannot preserve this invariant.
+Teams often blame `synchronized` when the real issue is broader:
 
-A practical approach:
+- doing I/O while holding the lock
+- calling downstream services inside the critical section
+- protecting too much unrelated state with one lock
 
-1. guard all state transitions under one lock
-2. expose read-only snapshots outside lock
-3. track lock hold time and contention metrics
-4. move expensive I/O outside critical section
+If p95 or p99 latency is climbing, look at lock hold time first.
 
-Correctness first, then contention optimization.
+That usually means:
+
+1. reduce work inside the critical section
+2. isolate the state that truly needs the same lock
+3. move logging, network calls, and serialization outside the lock
+
+Changing primitives without changing lock scope rarely fixes the real bottleneck.
 
 ---
 
 ## Fast Selection Heuristic
 
-- Need only visibility flag? `volatile`
-- Need atomic read-modify-write? `synchronized` or lock
-- Need timed/interruptible acquisition or multiple conditions? `ReentrantLock`
+Use this in design reviews:
 
-Use the simplest primitive that preserves correctness; complexity should be justified by coordination requirements.
+- Need a visibility flag or an immutable snapshot reference? `volatile`
+- Need an atomic state transition? `synchronized`
+- Need timed acquisition, interruptibility, or explicit lock orchestration? `ReentrantLock`
+
+The simplest primitive that preserves correctness is usually the best one.
 
 ---
 
-            ## Problem 1: Make volatile vs synchronized vs Locks in Java — Practical Guide Operationally Explainable
+## Production Review Checklist
 
-            Problem description:
-            Backend topics sound straightforward until the runtime boundary becomes fuzzy. Teams usually know the API surface, but they often skip the part where ownership, rollback, and the main production signal are written down explicitly.
+- Can you name the exact state protected by this primitive?
+- Does any operation depend on the previous value?
+- Do multiple fields have to change together?
+- Is the critical section free of remote calls and blocking I/O?
+- If using explicit locks, is there a clear reason beyond preference?
 
-            What we are solving actually:
-            We are turning volatile vs synchronized vs locks in java — practical guide into an engineering choice with a clear boundary, one measurable success signal, and one failure mode the team is ready to debug.
+If the answer to the last question is "not really," simplify.
 
-            What we are doing actually:
+---
 
-            1. define where this technique starts and where another subsystem takes over
-            2. attach one metric or invariant that proves the design is helping
-            3. rehearse one failure or rollout scenario before scaling the pattern
-            4. keep the implementation small enough that operators can still explain it during an incident
+## Key Takeaways
 
-            ```mermaid
-flowchart TD
-    A[Request or event] --> B[Core boundary]
-    B --> C[Resource or dependency]
-    C --> D[Observability and rollback]
-```
-
-            ## Debug Steps
-
-            Debug steps:
-
-            - identify the first metric that should move when the design works
-            - record the rollback trigger before production rollout
-            - keep dependency boundaries and timeouts explicit in code and docs
-            - prefer one clear safety rule over several implicit assumptions
+- `volatile` is for visibility and publication, not compound updates.
+- `synchronized` remains the safest default for simple shared-state protection.
+- `ReentrantLock` is valuable when the coordination semantics justify the extra complexity.
+- Most performance problems come from lock scope and contention, not from choosing the "wrong" keyword.

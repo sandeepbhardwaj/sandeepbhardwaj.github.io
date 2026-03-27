@@ -23,40 +23,55 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Operate outbox plus CDC with backlog governance and replay discipline**.
+Part 1 made outbox reliable. Part 2 made the emitted event contract more usable. Part 3 is about living with the pattern after launch: backlog growth, connector lag, replay discipline, and the retention decisions that quietly determine whether the pattern stays healthy or becomes a source of operational drag.
 
----
+An outbox design is not finished when the first event reaches Kafka. It is finished when the team knows how to observe it, replay it, and clean it up safely.
 
-## Problem 1: Keep Outbox Publishing Healthy After Day One
+## The Core Operating Signals
 
-Problem description:
-Even a correct outbox design can fail operationally if backlog ages grow, connectors stall silently, or replay procedures are improvised during incidents.
+For day-two operations, a few metrics matter much more than people expect:
 
-What we are solving actually:
-We are solving operational governance of the pattern.
-The pattern is only production-ready when teams can observe backlog health, replay safely, and retire old outbox rows without losing traceability.
-
-What we are doing actually:
-
-1. Monitor outbox backlog and connector lag continuously.
-2. Define replay workflows by event id or time range.
-3. Archive or purge outbox rows with a deliberate retention policy.
+- oldest outbox-row age
+- connector lag or stall behavior
+- replay volume and replay outcome
+- outbox table growth relative to retention policy
 
 ```mermaid
 flowchart LR
-    A[Outbox rows] --> B[CDC connector]
+    A[Outbox table] --> B[CDC connector]
     B --> C[Kafka topic]
-    A --> D[Backlog age metric]
+    A --> D[Oldest-row age]
     C --> E[Replay tooling]
 ```
 
-## Real-World Scenario
+Oldest-row age is especially useful because a row count alone can be misleading. A large table may still be healthy if rows are moving quickly. A small table with very old rows is often a more urgent sign of trouble.
 
-An order write succeeds, but app crashes before publish; outbox+CDC is needed to close this dual-write gap.
+## Why Replay Needs Restraint
 
----
+The ability to replay everything is not the same as having a good replay model.
 
-## Run It Locally
+Safer replay usually means:
+
+- replay by event id, time window, or explicit filter
+- verify consumer idempotency before replay
+- observe downstream impact during the replay itself
+
+That is how replay stays a repair tool instead of becoming a second incident.
+
+## Retention Is Part of the Design
+
+The outbox cannot grow forever. At some point, rows need to be archived or purged.
+
+That decision has to balance:
+
+- audit needs
+- replay needs
+- operational storage cost
+- the time window in which delayed publication or recovery is still plausible
+
+If retention is ignored until the table is huge, the cleanup becomes riskier and more political than it needed to be.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -89,69 +104,47 @@ services:
 docker compose up -d
 ~~~
 
----
-
-## Lab Steps
-
-1. Monitor outbox oldest-row age.
-2. Alert on connector lag/restarts.
-3. Build replay script by event_id range.
-4. Archive sent outbox rows by retention policy.
-
----
-
-## Runnable Code Block
+## A Useful Health Query
 
 ~~~bash
-# backlog health query
 psql -c "select count(*) pending, max(now()-created_at) oldest_age from outbox_event;"
 ~~~
 
----
+That query is not the whole observability story, but it is a good operational baseline because it shows both backlog size and backlog age.
 
-## Verify
+## The Right Failure Drill
 
-~~~bash
-# replay filtered events (example)
-kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.event.OrderCreated --from-beginning | grep evt- | head
-~~~
+Pause the connector for a fixed period, let backlog accumulate, then resume and measure:
 
----
+- how quickly the backlog drains
+- whether downstream consumers remain correct during catch-up
+- whether replay and retention rules still make sense under stress
 
-## Failure Drill
+This is the kind of drill that turns "we use outbox" into "we know how it behaves when the connector stops working."
 
-Pause connector for 10 minutes, build backlog, resume, and measure drain time + consumer correctness.
+> [!important]
+> Outbox health is not only about publish success. It is about how long committed truth can remain unpublished before the system's promises start to weaken.
 
----
+## Common Mistakes
 
-## Debug Steps
+### Alerting on row count but not row age
 
-Debug steps:
+That misses the difference between healthy throughput and silent stalling.
 
-- alert on oldest outbox-row age, not just total row count
-- test connector pause and recovery so drain-time behavior is known in advance
-- keep replay targeted by event id or safe filters instead of replaying everything blindly
-- tie retention policy to audit and recovery requirements before purging rows
+### Treating replay as an emergency-only improvised step
 
-## Operational Note
+If replay has never been rehearsed, the first real incident will be slower and riskier than it should be.
 
-Replay safety depends on restraint as much as tooling.
-The ability to replay everything is powerful, but the ability to replay only the right slice is what protects downstream systems during real incidents.
+### Purging rows before recovery needs are understood
 
-## What You Should Learn
+That saves storage right up until the day a replay is actually needed.
 
-- outbox success depends on backlog observability and replay procedures, not just design purity
-- connector lag and oldest-row age are core operating metrics
-- retention and replay policy should be defined before the first real incident
+## What This Part Should Leave You With
 
----
+After Part 3, the team should understand:
 
-## Operator Prompt
+1. which signals prove the outbox path is healthy after launch
+2. why replay needs filtering and discipline
+3. how retention policy affects the pattern's long-term operability
 
-For outbox plus cdc with debezium for reliable event publishing (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
-
----
-
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That is what turns outbox plus CDC from a clever implementation into a durable operating model.

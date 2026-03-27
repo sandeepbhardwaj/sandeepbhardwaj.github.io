@@ -25,98 +25,165 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Spring Boot auto-configuration internals and safe customization (Part 2) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 established the core model: auto-configuration is conditional configuration, not startup magic.
+Part 2 is where teams usually get into trouble, because now the question is not only "why did Boot create this bean" but "how do we extend or replace Boot behavior without making future upgrades dangerous."
 
 ---
 
-## Problem 1: Spring Boot auto-configuration internals and safe customization (Part 2)
+## The Harder Problem in Real Systems
 
-Problem description:
-We want to apply spring boot auto-configuration internals and safe customization (part 2) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+Auto-configuration is easy to like when one starter contributes one default bean.
+It becomes much harder when:
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- several starters contribute related infrastructure
+- an application wants to replace only one layer of the stack
+- a library upgrade changes condition ordering or bean presence
+- the final context depends on which customization wins first
 
-What we are doing actually:
-
-1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
-2. make Spring Boot explicit: introduce one hardening mechanism at a time
-3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
-4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
+The production question is no longer "can Boot configure this."
+The production question is "can the team still predict the context after the next dependency upgrade."
 
 ---
 
-## Why This Topic Matters
+## Safe Customization Starts with Contracts
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+The healthiest auto-configuration customizations have explicit contracts:
+
+- the starter owns the default bean
+- the application owns the replacement
+- the back-off rule is obvious
+- downstream configuration does not depend on accidental bean names or side effects
+
+If your customization requires three exclusions, one `@Primary`, one bean name override, and a property that only exists for historical reasons, the design is already fragile.
 
 ---
 
-## Architecture Model
+## The Real Collision Point
+
+The most common collision is not "Boot created the wrong bean."
+It is "two valid customizations interact in a way nobody reviewed as a whole."
+
+Typical examples:
+
+- a security starter contributes a default filter chain
+- an application adds a custom chain
+- a management endpoint starter adds another conditionally ordered bean
+- a later library release changes the order in which those pieces are considered
+
+That is why part 2 should focus on extension strategy, not annotation trivia.
+
+---
+
+## A Better Mental Model
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Spring Boot auto-configuration internals and safe customization (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Starter default] --> B[Application override or customizer]
+    B --> C[Condition evaluation and ordering]
+    C --> D[Final bean graph]
+    D --> E[Operational behavior at startup and runtime]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so spring boot auto-configuration internals and safe customization (part 2) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+This is the sequence to reason about during reviews.
+If the final bean graph cannot be predicted from those four steps, the configuration is too implicit.
 
 ---
 
-## Practical Design Pattern
+## Prefer Customizers Over Full Replacement When Possible
+
+Full bean replacement is sometimes necessary, but it is often a blunt instrument.
+A safer pattern is to keep the default infrastructure bean and expose a narrow customizer contract.
 
 ```java
-@Configuration
-class TopicConfiguration {
+@AutoConfiguration
+class HttpClientAutoConfiguration {
 
     @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Spring Boot auto-configuration internals and safe customization (Part 2)", 2);
+    @ConditionalOnMissingBean
+    ClientHttpConnector clientHttpConnector(List<ClientHttpConnectorCustomizer> customizers) {
+        ClientHttpConnector connector = new ReactorClientHttpConnector();
+        for (ClientHttpConnectorCustomizer customizer : customizers) {
+            connector = customizer.customize(connector);
+        }
+        return connector;
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in spring boot auto-configuration internals and safe customization (part 2) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+That structure gives applications a safe intervention point without forcing them to replace the whole auto-configuration surface.
+
+Applications then contribute only the delta:
+
+```java
+@Component
+class TimeoutCustomizer implements ClientHttpConnectorCustomizer {
+
+    @Override
+    public ClientHttpConnector customize(ClientHttpConnector connector) {
+        HttpClient client = HttpClient.create()
+                .responseTimeout(Duration.ofSeconds(2));
+        return new ReactorClientHttpConnector(client);
+    }
+}
+```
+
+This is easier to review, easier to test, and usually safer across upgrades than replacing the entire connector stack.
+
+---
+
+## Ordering Is Where Fragility Hides
+
+Most "Spring Boot changed behavior after upgrade" incidents are really ordering incidents:
+
+- one configuration matched earlier than expected
+- a replacement bean appeared before a condition checked for absence
+- multiple customizers executed in a different order than the code assumed
+
+If ordering matters, make it explicit and document why.
+If ordering does not matter, design the extension point so that it remains safe regardless of order.
+
+> [!IMPORTANT]
+> Any customization that depends on undocumented bean creation order is carrying upgrade risk, even if it works today.
 
 ---
 
 ## Failure Drill
 
-Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for spring boot auto-configuration internals and safe customization (part 2).
+A strong drill for this topic is controlled override failure:
 
-That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around spring boot auto-configuration internals and safe customization (part 2) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. start the application with only the starter defaults
+2. add one application-level replacement or customizer
+3. inspect `/actuator/conditions` and `/actuator/beans`
+4. then add a second customization that should coexist
+5. verify the final bean graph still matches the intended contract
+
+That test catches the difference between "Boot backed off cleanly" and "Boot happened to tolerate this combination."
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating spring boot auto-configuration internals and safe customization (part 2)
-- keep customization close to the intended extension point instead of scattered overrides while validating spring boot auto-configuration internals and safe customization (part 2)
-- observe startup, request, and shutdown phases separately while validating spring boot auto-configuration internals and safe customization (part 2)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating spring boot auto-configuration internals and safe customization (part 2)
+- inspect the condition report before changing annotations
+- trace which bean is meant to be replaced versus customized
+- check ordering annotations and customizer order only when the behavior truly depends on sequence
+- test the same profile and dependency set used in production, not a stripped-down local context
+- treat any bean-name-based override as a design smell until proven necessary
 
 ---
 
 ## Production Checklist
 
-- mixed-config or mixed-version behavior exercised once
-- error or timeout path measured under real startup/runtime timing
-- override and rollback rules still simple after hardening
-- incident notes updated with the real failure signature
+- starter defaults back off through clear type-based rules
+- extension points are narrow and documented
+- conditions and final beans are observable through logs or Actuator
+- customization does not rely on accidental bean names or hidden ordering
+- rollback means removing one override, not untangling several intertwined ones
 
 ---
 
 ## Key Takeaways
 
-- Spring Boot auto-configuration internals and safe customization (Part 2) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- harden one failure mode at a time instead of stacking speculative complexity
+- Safe auto-configuration in mature services is mostly about contract design.
+- Prefer narrow customizer hooks over full replacement when the starter can support them.
+- Ordering assumptions are one of the fastest ways to turn Boot customization into upgrade risk.
+- If the final bean graph cannot be explained clearly, the extension model is too implicit.

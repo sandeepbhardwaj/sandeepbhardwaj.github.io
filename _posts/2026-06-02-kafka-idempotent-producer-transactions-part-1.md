@@ -23,40 +23,85 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Enable idempotent producer semantics safely and understand what they do not solve**.
+Part 1 is about drawing the first boundary correctly. Idempotent producers are extremely valuable, but they solve a narrower problem than many teams assume. They suppress duplicate appends caused by producer retries. They do not magically make a distributed workflow exactly-once.
 
----
+That difference matters in production because the config is easy to enable, the guarantee is easy to overstate, and the resulting confusion usually shows up during incident review.
 
-## Problem 1: Prevent Duplicate Records Caused by Producer Retries
+## What Idempotence Actually Protects
 
-Problem description:
-Producers retry under transient failures, but naive retries can duplicate records when acknowledgements are delayed or lost.
+The classic failure looks like this:
 
-What we are solving actually:
-We are solving duplicate writes caused by producer-side retry behavior.
-This is narrower than full exactly-once processing, but it is still a critical first layer of correctness.
+1. the producer sends a record
+2. the broker writes it
+3. the acknowledgement is delayed, dropped, or times out
+4. the producer retries
+5. without idempotence, the same logical record can be appended twice
 
-What we are doing actually:
-
-1. Enable Kafka’s idempotent producer mode.
-2. Pair it with the required producer settings.
-3. Test retries under failure instead of trusting the config blindly.
+With idempotence enabled, Kafka tracks producer sequence information so the retry does not create a duplicate append on the broker.
 
 ```mermaid
 sequenceDiagram
     participant P as Producer
-    participant B as Broker
-    P->>B: send record
-    B-->>P: ack delayed / lost
-    P->>B: retry send
-    Note over B: Idempotent producer suppresses duplicate append
+    participant B as Broker leader
+
+    P->>B: Record seq=41
+    B-->>P: Ack delayed
+    P->>B: Retry seq=41
+    Note over B: Duplicate sequence is rejected for append
+    B-->>P: Success
 ```
 
-## Real-World Scenario
+That is a meaningful guarantee, but it lives at the producer-to-broker write path. It does not say anything yet about consumer retries, external side effects, or end-to-end deduplication.
 
-Network retries during peak load can duplicate records unless producer semantics are configured correctly.
+## What It Does Not Protect
 
----
+Idempotence does not fix:
+
+- a consumer writing the same database row twice
+- an HTTP side effect being retried downstream
+- a producer sending a semantically duplicate business event with a new key
+- application bugs that publish the same event twice before Kafka sees it
+
+> [!warning]
+> "We turned on `enable.idempotence=true`" should never be rewritten in team language as "duplicates are impossible now."
+
+That sentence causes a surprising number of bad architectural assumptions.
+
+## The Producer Settings That Belong Together
+
+Idempotence works best when the producer settings are treated as one safety bundle instead of one isolated flag.
+
+~~~java
+Properties props = new Properties();
+props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
+props.put(ProducerConfig.ACKS_CONFIG, "all");
+props.put(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
+props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
+~~~
+
+The key idea is operational, not ceremonial:
+
+- `acks=all` keeps the producer from treating weak durability as success
+- high retries let transient failures be retried instead of surfaced as immediate loss
+- `max.in.flight.requests.per.connection` stays within the safe bound for ordering under retry
+
+If different services set these inconsistently, you end up with a fleet where some producers are actually idempotent and some are only "close enough."
+
+## A Better Real-World Example
+
+Suppose an order service publishes `OrderCreated` after persisting an order. During a short broker hiccup:
+
+- the broker leader accepts the record
+- the ack times out
+- the producer retries
+
+Without idempotence, the topic may contain two identical logical order-created events. Downstream consumers now have to absorb duplicate work they did not ask for.
+
+With idempotence, the broker suppresses the duplicate append. That immediately lowers pressure on downstream deduplication logic and reduces confusion during recovery.
 
 ## Run It Locally
 
@@ -89,74 +134,75 @@ services:
 
 ~~~bash
 docker compose up -d
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic orders.out \
+  --partitions 3 \
+  --replication-factor 1
 ~~~
 
----
+## Minimal Producer Loop
 
-## Lab Steps
-
-1. Configure idempotent producer.
-2. Publish with simulated retries.
-3. Verify no duplicate committed records.
-
----
-
-## Runnable Code Block
+Use one stable key so the output stays easy to inspect:
 
 ~~~java
-props.put("enable.idempotence", "true");
-props.put("acks", "all");
-props.put("retries", Integer.toString(Integer.MAX_VALUE));
-props.put("max.in.flight.requests.per.connection", "5");
+try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+    ProducerRecord<String, String> record =
+        new ProducerRecord<>("orders.out", "order-1001", "{\"event\":\"OrderCreated\"}");
+
+    producer.send(record).get();
+}
 ~~~
 
----
+That is enough for the baseline. Part 1 is about verifying producer behavior, not yet introducing transactions or full consume-transform-produce flows.
 
-## Verify
+## How to Test It Instead of Trusting It
+
+The mistake here is to stop at configuration review. A better test is:
+
+1. enable idempotence
+2. produce under a condition that forces retries
+3. inspect the committed records for duplicate appends
+
+Even a crude local test is valuable because it proves the team understands where the guarantee lives.
 
 ~~~bash
-kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.out --from-beginning --property print.key=true
+kafka-console-consumer \
+  --bootstrap-server localhost:9092 \
+  --topic orders.out \
+  --from-beginning \
+  --property print.key=true
 ~~~
 
----
+If you replay the same failure with idempotence disabled, the difference becomes very easy to explain to others.
 
-## Failure Drill
+## Operational Guidance
 
-Introduce broker delay and force producer retries. Confirm single committed record per key.
+### Treat this as a platform default
 
----
+If your organization has a shared producer library, idempotence should usually be the baseline rather than an opt-in per service.
 
-## Debug Steps
+### Document the guarantee boundary
 
-Debug steps:
+Write down exactly what the team gets:
 
-- verify all required producer properties are set together, not piecemeal
-- test with forced retries so deduplication behavior actually occurs
-- remember that producer idempotence alone does not make consumer-side processing exactly-once
-- inspect duplicates by logical event key, not only raw message count
+- duplicate append suppression caused by producer retries
+- not consumer deduplication
+- not business-level exactly-once
+- not automatic external side-effect safety
 
-## Operational Note
+That one paragraph prevents a lot of future misuse.
 
-Idempotent producer configuration should be treated as a guarded default in shared producer libraries.
-That keeps individual services from “almost” enabling the feature while missing a supporting property that actually matters.
+### Watch for false confidence during incidents
 
-It is also worth documenting where the guarantee stops.
-This avoids teams assuming duplicates are impossible everywhere just because the producer is configured correctly.
+When a duplicate shows up downstream, the right question is not "why did Kafka idempotence fail?" It is "where in the pipeline does the guarantee stop?"
 
-## What You Should Learn
+## What This Part Should Leave You With
 
-- idempotent producers solve retry-induced duplicate writes at the producer layer
-- correctness depends on the full property set, not only `enable.idempotence=true`
-- this is a foundation, not the whole exactly-once story
+After Part 1, the team should understand:
 
----
+1. why producer retries create duplicates without idempotence
+2. which settings make idempotence safe in practice
+3. where this protection ends
 
-## Operator Prompt
-
-For idempotent producers and kafka transactions in practice (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
-
----
-
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That gives you the right foundation for transactions later, without pretending you already solved the full exactly-once problem.

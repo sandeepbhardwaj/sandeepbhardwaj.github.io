@@ -21,32 +21,38 @@ header:
   show_overlay_excerpt: false
   caption: Retry-Safe Write Semantics and Deduplication
 ---
-In distributed systems, retries are unavoidable.
-Correctness comes from making operations idempotent and designing deduplication boundaries carefully.
+Retries are normal in distributed systems. The network times out, clients retry, load balancers replay, and users press submit again.
 
----
+That is why "exactly once" is usually not a transport property you can simply switch on. In practice, the safer and more useful goal is an effectively-once business outcome built from:
 
-## Exactly-Once: Practical Meaning
-
-True global exactly-once delivery across networks is usually not achievable end-to-end.
-What we implement in production is:
-
-- at-least-once delivery
+- at-least-once delivery or retries
 - idempotent processing
-- deterministic deduplication at state boundaries
-
-This yields effectively-once business outcomes.
+- durable deduplication at the right boundary
 
 ---
 
-## HTTP Idempotency Pattern
+## What Exactly-Once Usually Means in Practice
 
-For create/payment-like endpoints:
+End-to-end global exactly-once behavior is rarely the real thing systems achieve.
 
-- client sends `Idempotency-Key`
-- server stores `(key, request_hash, final_response)`
-- repeated request with same key and same payload returns original response
-- same key with different payload is rejected
+What they usually achieve is:
+
+- duplicates may arrive
+- replays may happen
+- the system recognizes them and produces the same final business result
+
+That distinction matters because it shifts the design away from wishful messaging semantics and toward explicit deduplication.
+
+---
+
+## The API Boundary Is the Best Place to Start
+
+For create-like endpoints such as payments, orders, or bookings, the normal pattern is:
+
+- client sends an `Idempotency-Key`
+- server stores the key, payload identity, and final response
+- a retry with the same key and same payload replays the original result
+- a retry with the same key but different payload is rejected
 
 ```java
 public Response createPayment(String idemKey, PaymentCommand cmd) {
@@ -66,9 +72,19 @@ public Response createPayment(String idemKey, PaymentCommand cmd) {
 }
 ```
 
+The important design choice here is that the stored result is not just "seen." It is the prior decision that should be replayed.
+
 ---
 
-## Persistence Model
+## Store Enough to Replay Deterministically
+
+An idempotency table should usually capture:
+
+- the key
+- a canonical payload hash
+- the response status
+- the response body or equivalent outcome
+- the creation timestamp
 
 ```sql
 create table idempotency_record (
@@ -80,117 +96,90 @@ create table idempotency_record (
 );
 ```
 
-Add TTL/archival policy based on realistic client retry window.
+This lets retries get the same result instead of re-running the business logic and hoping everything lines up the same way.
 
 ---
 
-## Message Consumer Idempotency Pattern
+## Scope the Key Correctly
 
-For Kafka/queue consumers:
+One of the easiest design mistakes is making the key too global or too vague.
 
-- include stable event ID
-- keep processed-event table keyed by event ID
-- process in one transaction with business write when possible
+Usually the scope should reflect something like:
 
-If duplicate event arrives, no-op safely.
+- endpoint
+- tenant
+- client
+- key
 
----
-
-## Dry Run: Duplicate Payment Submission
-
-Scenario: client times out after submitting payment and retries twice.
-
-1. first request reaches server, payment is created, response lost in network.
-2. retry #1 arrives with same key and same payload.
-3. server finds stored idempotency record and returns original response.
-4. retry #2 behaves same; no second charge is created.
-
-This is the core business guarantee users care about.
+That prevents collisions and makes the business meaning of replay much clearer.
 
 ---
 
-## Design Rules
+## Payload Equality Must Be Canonical
 
-- define idempotency scope (`endpoint + tenant + key`).
-- hash canonicalized request payload, not raw JSON string formatting.
-- store final response, not only "seen" marker.
-- guard side effects (email, webhook, ledger writes) under same dedupe boundary.
-- use unique constraints as final safety net.
+If the same key appears with different payload meaning, that should be rejected.
+
+This only works well if the payload hash is based on canonicalized content rather than formatting differences such as:
+
+- JSON field order
+- whitespace
+- equivalent but differently ordered lists where order is not semantic
+
+The point is to compare business intent, not wire-format trivia.
 
 ---
 
-## Common Mistakes
+## The Same Thinking Applies to Consumers
 
-- accepting idempotency key but not validating payload consistency
-- deduping in memory only (fails on restart/multi-instance)
-- using very short retention window causing replay duplicates later
-- calling downstream side effects before idempotency record is committed
+For Kafka or queue consumers, the equivalent pattern is:
+
+- stable event ID
+- processed-event store
+- idempotent application of the side effect
+
+If the same message is replayed, the consumer should no-op safely instead of assuming the broker somehow prevented all duplication.
+
+---
+
+## Side Effects Must Be Part of the Same Conversation
+
+An endpoint is not truly idempotent if the database write is deduplicated but the webhook, email, or ledger write is not.
+
+That is why idempotency design should include:
+
+- external side effects
+- downstream calls
+- observable response replay behavior
+
+If a retry can still send a second email or trigger a second external call, the user-visible outcome is not actually repeat-safe.
+
+```mermaid
+flowchart LR
+    A[Client request + key] --> B[Idempotency store]
+    B -->|miss| C[Process command]
+    C --> D[Persist final outcome]
+    D --> B
+    B -->|hit| E[Replay stored outcome]
+```
+
+---
+
+## Retention Should Match Business Reality
+
+Very short retention windows often create false confidence.
+
+If clients can retry for hours or external workflows can replay later, the deduplication record should live long enough to protect the business operation through that window.
+
+This is why key expiry should be based on retry behavior and business risk, not on arbitrary cleanup convenience.
+
+> [!TIP]
+> If the cost of a duplicate action is high, the idempotency retention window should be conservative rather than minimal.
 
 ---
 
 ## Key Takeaways
 
-- idempotency is the practical path to effectively-once outcomes.
-- correctness depends on key scope, payload validation, and durable dedupe storage.
-- design retries and deduplication together, not as separate concerns.
-
----
-
-        ## Problem 1: Design for Repeatability Even When the Network Lies
-
-        Problem description:
-        Service clients retry naturally during timeouts and disconnects, which means a write path without idempotency can create duplicates even when everything looks correct locally.
-
-        What we are solving actually:
-        We are solving externally visible repeatability. Exactly-once semantics usually depend on scoped guarantees, but idempotency keys let a service behave predictably even when requests are replayed.
-
-        What we are doing actually:
-
-        1. accept an idempotency key at the request boundary
-2. persist the processing outcome against that key before returning success
-3. treat replays as lookup and replay of the prior decision, not a second execution
-4. expire keys with business-aware retention rather than an arbitrary short TTL
-
-        ```mermaid
-flowchart LR
-    A[Client request + key] --> B[Idempotency store]
-    B -->|miss| C[Process command]
-    C --> D[Persist result]
-    D --> B
-    B -->|hit| E[Replay previous result]
-```
-
-        This section is worth making concrete because architecture advice around idempotency exactly once semantics java services often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        public PaymentResponse create(PaymentRequest request, String key) {
-    return repository.findByKey(key)
-        .map(IdempotencyRecord::response)
-        .orElseGet(() -> executeOnce(request, key));
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Replay the same request after a client timeout and verify the response is stable without duplicating side effects. If the second call re-runs business logic, the endpoint is not idempotent yet.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - store enough response metadata to replay deterministic results
-- define the exact scope of uniqueness for the key
-- treat external side effects and DB writes as one design conversation
-- monitor duplicate-hit rate so clients abusing retries become visible
-
-        ## Review Checklist
-
-        - Own the idempotency key at the API boundary.
-- Persist the outcome before success is reported.
-- Make replay behavior deterministic.
+- "Exactly once" in practice usually means effectively-once business behavior through idempotency.
+- The API or state boundary should own deduplication explicitly.
+- Store enough information to replay the original decision, not just to mark a key as seen.
+- Include side effects and retention policy in the idempotency design, not just the request row.

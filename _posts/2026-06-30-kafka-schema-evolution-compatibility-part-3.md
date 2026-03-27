@@ -23,37 +23,65 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Turn compatibility rules into a safe production rollout and deprecation policy**.
+Part 1 defined compatibility rules. Part 2 moved them into CI. Part 3 is the production discipline that keeps a technically compatible change from still becoming a runtime incident: rollout order, deprecation timing, and the patience required to remove old fields only when the system is truly ready.
 
----
+This is the part where contract evolution becomes an operating policy.
 
-## Problem 1: How Do We Roll Out Schema Changes Safely in Production?
+## Why Passing CI Is Not the End of the Story
 
-Problem description:
-Passing registry checks and CI gates is necessary, but not sufficient.
-Production rollout still fails when producers move too early, deprecated fields are removed too soon, or rollback paths are unclear.
+A change can pass compatibility checks and still fail operationally if:
 
-What we are solving actually:
-We are solving operational sequencing for contract changes.
-The hard part is not adding a new field; it is coordinating consumers, producers, retention windows, and deprecation timing without service interruption.
+- producers move before consumers are ready
+- deprecated fields are removed before historical traffic has aged out
+- rollback expectations were never defined
 
-What we are doing actually:
-
-1. Deploy consumers that can read both old and new forms first.
-2. Move producers to the new schema only after that compatibility is live.
-3. Remove deprecated fields only after the retention and migration window is truly over.
+Compatibility tools protect the shape of the contract. Rollout policy protects the lived transition.
 
 ```mermaid
 flowchart LR
-    A[Consumer supports old + new] --> B[Producer emits new schema]
-    B --> C[Observe deserialization and lag]
+    A[Consumers read old and new] --> B[Producers emit new schema]
+    B --> C[Observe errors and lag]
     C --> D[Retention window passes]
-    D --> E[Remove deprecated field]
+    D --> E[Deprecated field can be removed]
 ```
 
----
+That sequence matters more than many teams expect.
 
-## Run It Locally
+## The Safest Default Order
+
+The safest rollout pattern is usually:
+
+1. deploy consumers that can read both old and new forms
+2. move producers to the new schema
+3. observe the system under live traffic
+4. remove deprecated fields only after the retention and rollback window has truly passed
+
+This is the consumer-first rule in practice. It is boring, but it prevents a surprising number of incidents.
+
+## Why Deprecation Needs Real Policy
+
+Deprecated fields often linger because nobody knows when it is actually safe to remove them.
+
+The answer should depend on:
+
+- how long old events remain in retention
+- whether replay is still possible or expected
+- whether any lagging consumers or side systems still depend on the field
+
+Without explicit dates and conditions, "temporary compatibility" turns into a permanent burden.
+
+## What to Observe During Rollout
+
+Do not rely only on the registry and CI result. Also watch:
+
+- deserialization error rate
+- consumer lag during the rollout window
+- DLQ or fallback traffic if decode failures are routed there
+- any rollback path that depends on older readers and writers coexisting
+
+Those are the signals that tell you whether the rollout is healthy in practice.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -86,74 +114,39 @@ services:
 docker compose up -d
 ~~~
 
----
+## A Better Rollout Checklist
 
-## Lab Steps
+1. Confirm consumers can read both old and new forms.
+2. Roll producers to the new schema.
+3. Watch deserialization failures and lag directly.
+4. Keep rollback to the old producer path available during the observation window.
+5. Remove deprecated fields only after retention and dependency checks are complete.
 
-1. Deploy consumers supporting old+new first.
-2. Deploy producers with new schema.
-3. Remove deprecated fields after retention window.
+That checklist is intentionally simple because schema changes fail operationally through sequencing mistakes more often than through missing theory.
 
----
+> [!important]
+> A deprecated field is not removable just because the new producer no longer writes it. It is removable when the full system no longer needs it for live reads, lagged reads, or replay.
 
-## Runnable Code Block
+## Common Mistakes
 
-~~~text
-Rollout order is non-negotiable for safety.
-Consumer-first prevents runtime decode failures.
-~~~
+### Producer-first rollout
 
-This is the most important operational rule in the series.
-If the producer moves first, compatibility may still look “fine” in theory while live consumers fail in practice.
+This is often where theoretical compatibility meets practical decode failures.
 
----
+### No defined deprecation horizon
 
-## Verify
+Fields stay forever, and nobody can tell which ones are actually still needed.
 
-~~~bash
-# monitor deserialization error rate during rollout
-~~~
+### Forgetting rollback compatibility
 
-Also watch consumer lag, dead-letter queues if present, and any fallback or replay paths that depend on event decoding.
+If rollback to the previous producer version is part of the safety plan, the contract has to support that path too.
 
----
+## What This Part Should Leave You With
 
-## Failure Drill
+After Part 3, the team should understand:
 
-Rollback the producer to the old schema during rollout and verify consumers remain backward-compatible.
-Then simulate a premature removal of a deprecated field and confirm your guardrails catch it before full rollout.
+1. why rollout order is as important as compatibility mode
+2. how deprecation should be tied to retention and replay reality
+3. what a safe schema-change runbook looks like in production
 
----
-
-## Rollout Checklist
-
-1. Confirm consumers are deployed with dual-read compatibility.
-2. Shift producers to the new schema.
-3. Monitor deserialization errors and lag during the change window.
-4. Keep deprecated fields until the retention and rollback window is complete.
-5. Remove old fields only after consumers no longer depend on them.
-
----
-
-## Debug Steps
-
-Debug steps:
-
-- validate rollout order in staging with old and new consumer versions running together
-- monitor deserialization failures directly, not only aggregate application errors
-- document field deprecation dates so “temporary compatibility” does not become indefinite clutter
-- rehearse rollback paths before a production contract change, not during one
-
----
-
-## What You Should Learn
-
-- compatibility checks prevent many failures, but rollout order prevents the rest
-- consumer-first rollout is the safest default for evolving event contracts
-- deprecation needs a real operational policy, not just good intentions
-
----
-
-## Operator Prompt
-
-For schema evolution with avro and protobuf compatibility contracts (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is what closes the loop on schema evolution: not only safe shapes and safe CI, but safe live rollout and removal policy.

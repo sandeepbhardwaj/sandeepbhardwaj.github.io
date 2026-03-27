@@ -23,17 +23,64 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Topology baseline and failover trigger**.
+Multi-region Kafka is easy to over-simplify. A diagram with arrows between regions can make the plan feel done, but the real work starts when one region is degraded and the system has to decide who owns writes, which copy is authoritative, and how consumers should behave during the transition.
 
----
+Part 1 is about naming that operating model before any failover drill. Replication alone is not a failover strategy.
 
-## Real-World Scenario
+## The Question Behind the Topology
 
-Region outage handling requires tested failover and failback workflows, not just replication enabled by default.
+The first decision is not tooling. It is ownership.
 
----
+Are you building:
 
-## Run It Locally
+- active-passive, where one region normally owns writes
+- active-active, where write ownership is split or coordinated
+
+The answer changes everything about failover complexity, duplicate risk, and recovery.
+
+```mermaid
+flowchart LR
+    A[Primary region writes] --> B[Replication]
+    B --> C[Secondary region copy]
+    C --> D[Failover consumers]
+    E[Failover decision] --> F[Shift write authority]
+```
+
+If the team cannot say which region is authoritative during normal operation, failover is already underspecified.
+
+## What Failover Actually Has to Solve
+
+A realistic failover plan is not just "send traffic somewhere else." It has to answer:
+
+- when producers stop writing to the primary
+- when the secondary is considered current enough to trust
+- how consumers translate or re-establish progress
+- how failback will avoid duplicate or missing work
+
+That is why multi-region Kafka is as much a data-ownership problem as a routing problem.
+
+## A Safer Baseline: Active-Passive
+
+For Part 1, an active-passive model is the clearest baseline:
+
+- primary region owns writes
+- secondary region receives replicated data
+- failover occurs only after an explicit trigger
+
+This keeps the initial discussion honest. Active-active can be valid, but it is a worse teaching baseline because it hides more failure cases behind higher complexity.
+
+## Local Representation
+
+Even in a simple local drill, make the ownership model visible:
+
+~~~text
+Primary topic:   orders.events.primary
+Secondary topic: orders.events.secondary
+~~~
+
+That naming is not the important part. The important part is that readers can see there are two copies and only one current writer.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,104 +113,44 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Most Important Drill in Part 1
 
-## Lab Steps
+Do one controlled failover exercise and write down:
 
-1. Define active-passive or active-active policy.
-2. Configure replication topics.
-3. Simulate primary endpoint loss.
-
----
-
-## Runnable Code Block
-
-~~~text
-Primary topic: orders.events.primary
-Secondary mirror: orders.events.secondary
-~~~
-
----
-
-## Verify
+- replication lag just before failover
+- the trigger that declared primary unavailable
+- whether producers switched cleanly
+- whether consumers observed missing or duplicate work
 
 ~~~bash
-# list mirrored topics and consume secondary copy
 kafka-topics --bootstrap-server localhost:9092 --list
 ~~~
 
----
+The goal is not to prove the topology is perfect. The goal is to expose the gap between "secondary has data" and "secondary can safely take over."
 
-## Failure Drill
+> [!warning]
+> Replication lag is not merely a throughput metric in multi-region designs. It is a correctness signal because it defines how much history the failover copy may be missing.
 
-Cut producer path to primary and verify secondary path continuity.
+## Common Mistakes
 
----
+### Treating failover as automatic before authority is defined
 
-## What You Should Learn
+Automatic failover without an explicit ownership model can move the system into split-brain or duplicate-write territory very quickly.
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+### Ignoring consumer progress
 
----
+Even if data is present in the secondary, consumer recovery may still be painful if offset translation or restart semantics were never tested.
 
-        ## Problem 1: Failover Is a Data Ownership Problem, Not Just a Routing Problem
+### Forgetting failback
 
-        Problem description:
-        Multi-region Kafka plans look easy in diagrams, but failover breaks down around offset translation, producer ownership, and how consumers know which region is authoritative. Build the baseline and make the risky default behavior visible.
+Many plans explain how to leave the primary and almost none explain how to return safely.
 
-        What we are solving actually:
-        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
+## What This Part Should Leave You With
 
-        What we are doing actually:
+After Part 1, the team should be able to state:
 
-        1. build the smallest working topology that demonstrates the problem clearly
-2. capture one concrete correctness or latency metric before tuning
-3. exercise the happy path and one controlled failure path
-4. write down what a clean operator signal looks like before the system grows
+1. which region owns writes in the normal case
+2. what signal justifies failover
+3. what data-consistency risk exists during the switch
 
-        ```mermaid
-flowchart LR
-    A[Primary region] --> B[Replication]
-    B --> C[Secondary region]
-    C --> D[Failover consumers]
-```
-
-        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        if (primaryRegionHealthy()) {
-    producer.send(primaryRecord);
-} else {
-    producer.send(secondaryRecord);
-}
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Run a controlled failover drill and record message continuity, duplicate risk, and recovery time. A document that has never seen a drill is only an optimistic plan.
-
-        ## Failure Drill
-
-        Pause replication and then fail over reads. The inconsistency window you observe is the real cost of the topology, and it must be explicit in your operating model.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - define whether the design is active-passive or active-active before building tools around it
-- document which region owns writes during failover and recovery
-- test consumer offset behavior across region transitions
-- track replication lag as a correctness signal, not just a throughput metric
-
----
-
-## Operator Prompt
-
-For multi region kafka replication and failover patterns (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is the minimum operating clarity required before replication and failover tooling can be trusted.

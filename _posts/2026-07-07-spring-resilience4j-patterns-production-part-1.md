@@ -25,98 +25,144 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-'Resilience4j patterns in Spring: timeout, bulkhead, circuit breaker' becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Timeouts, bulkheads, and circuit breakers are useful only when they work together.
+Used well, they protect the service and its dependencies under stress.
+Used badly, they create layered failure modes that are harder to debug than the original outage.
 
 ---
 
-## Problem 1: 'Resilience4j patterns in Spring: timeout, bulkhead, circuit breaker'
+## Start With the Correct Mental Model
 
-Problem description:
-We want to apply 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker' in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on the baseline model and the safe default shape.
+These controls solve different problems:
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- **timeout**: how long we are willing to wait
+- **bulkhead**: how much concurrency we are willing to spend
+- **circuit breaker**: when we should stop sending traffic to a failing dependency
 
-What we are doing actually:
-
-1. make Spring Boot explicit: identify the ownership boundary and the non-negotiable invariant
-2. make Spring Boot explicit: choose the simplest baseline design that preserves correctness
-3. make Spring Boot explicit: make observability visible from the first implementation
-4. make Spring Boot explicit: validate the baseline with one concrete failure drill
+The mistake is treating them as independent feature toggles.
+In production, they behave like one policy.
 
 ---
 
-## Why This Topic Matters
+## What Each Control Is Really For
 
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+A timeout prevents work from waiting forever.
+A bulkhead prevents one slow dependency from consuming all request capacity.
+A circuit breaker prevents repeated calls into a dependency that is already failing badly enough to be predictable.
 
----
+None of them can rescue a service alone.
+For example:
 
-## Architecture Model
+- a timeout without a bulkhead still allows too many requests to pile up
+- a bulkhead without a timeout can still hold slots too long
+- a circuit breaker without sane timeout and concurrency limits may trip too late to matter
 
-```mermaid
-flowchart LR
-    A[Production pressure] --> B['Resilience4j patterns in Spring: timeout, bulkhead, circuit breaker']
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
-```
-
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker' stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+> [!IMPORTANT]
+> Resilience controls are not decorations around a call. They are admission-control rules for how much failure the system is willing to absorb.
 
 ---
 
-## Practical Design Pattern
+## A Concrete Spring Example
+
+Suppose the service calls a slow downstream pricing API.
 
 ```java
-@Configuration
-class TopicConfiguration {
+@Service
+class PricingGateway {
 
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("'Resilience4j patterns in Spring: timeout, bulkhead, circuit breaker'", 1);
+    @CircuitBreaker(name = "pricingApi", fallbackMethod = "fallbackPrice")
+    @TimeLimiter(name = "pricingApi")
+    @Bulkhead(name = "pricingApi", type = Bulkhead.Type.THREADPOOL)
+    public CompletableFuture<PriceResponse> fetchPrice(String sku) {
+        return CompletableFuture.supplyAsync(() -> remoteClient.fetchPrice(sku));
+    }
+
+    private CompletableFuture<PriceResponse> fallbackPrice(String sku, Throwable error) {
+        return CompletableFuture.completedFuture(PriceResponse.unavailable(sku));
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker' is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+This looks simple, but the real design questions are:
+
+- how long should the timeout be
+- how many concurrent calls can the dependency consume safely
+- what failure rate should open the breaker
+- what fallback is genuinely safe versus merely convenient
+
+Those answers should come from dependency behavior, not copied defaults.
+
+---
+
+## Coordination Matters More Than Annotation Choice
+
+If the timeout is 3 seconds but the thread-pool bulkhead is tiny and fills in 200 ms, the service will fail in one way.
+If the timeout is short but the fallback still triggers a second slow dependency, it will fail in another way.
+
+That is why resilience design should be reviewed as one coordinated system:
+
+- request budget
+- concurrency budget
+- failure threshold
+- fallback behavior
+
+If those four do not align, the annotations create noise instead of protection.
+
+---
+
+## Where Teams Usually Get Hurt
+
+The most common production mistakes are:
+
+- using fallback for paths that should fail loudly
+- reusing one resilience profile for dependencies with very different latency shapes
+- tripping the breaker from client-side timeout noise instead of real dependency health
+- stacking retries on top of timeouts and breakers without thinking about amplification
+
+The worst version is retry plus high concurrency plus slow fallback.
+That combination turns partial slowness into self-inflicted overload.
+
+> [!NOTE]
+> A fallback is part of the contract. If it returns misleading "success" data, it can do more damage than a visible failure.
 
 ---
 
 ## Failure Drill
 
-Baseline drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker'.
+A useful drill is dependency brownout rather than hard failure:
 
-That check matters early, before rollout assumptions harden into defaults because Spring issues around 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker' often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. make the downstream service slow but not fully dead
+2. watch timeout rate, bulkhead rejection rate, and breaker state together
+3. verify the fallback response is acceptable to the business
+4. confirm the caller service stays within its own latency and resource budget
+
+This is more realistic than testing only total outage, because many production failures begin as slowness, not immediate death.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker'
-- keep customization close to the intended extension point instead of scattered overrides while validating 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker'
-- observe startup, request, and shutdown phases separately while validating 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker'
-- verify rollback by disabling the new behavior, not by rewriting it live while validating 'resilience4j patterns in spring: timeout, bulkhead, circuit breaker'
+- plot timeout, bulkhead rejection, and circuit-breaker-open metrics together
+- verify fallbacks do not trigger hidden downstream work
+- inspect thread-pool and queue saturation when using thread-pool bulkheads
+- test whether the breaker opens on meaningful dependency failure or on mis-tuned client behavior
+- review retries and resilience rules as one combined policy
 
 ---
 
 ## Production Checklist
 
-- named extension point and explicit fallback path
-- startup or runtime metric that proves the first rollout is safe
-- configuration precedence documented for the changed path
-- rollback tested without emergency code surgery
+- timeout values match the real request budget
+- bulkhead size matches dependency capacity and caller concurrency goals
+- breaker thresholds are tuned to meaningful failure patterns
+- fallback behavior is business-safe and observable
+- metrics and alerts distinguish timeout, rejection, and open-breaker paths
 
 ---
 
 ## Key Takeaways
 
-- 'Resilience4j patterns in Spring: timeout, bulkhead, circuit breaker' should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- start from a measurable baseline before optimizing
+- Timeouts, bulkheads, and circuit breakers should be designed together, not independently.
+- Resilience4j helps only when the service has explicit latency and concurrency budgets.
+- Fallbacks are part of business behavior and need the same scrutiny as the happy path.
+- The best resilience setup is not the most layered one. It is the one whose failure behavior the team can still explain under stress.

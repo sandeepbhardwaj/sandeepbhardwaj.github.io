@@ -23,17 +23,63 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Upcaster chain implementation**.
+Part 1 made the case for version boundaries and a current in-memory model. Part 2 is about building the upcaster chain so that historical data can keep flowing without contaminating the whole application with version branches.
 
----
+The important shift here is architectural. We are not just adding one conversion method. We are choosing where history gets normalized.
 
-## Real-World Scenario
+## What an Upcaster Chain Buys You
 
-Historical events retained for replay require upcasters to transform old payloads into current domain shape.
+As versions accumulate, you usually want the business handler to see one current model, not six historical shapes.
 
----
+That means older versions should be converted step by step until they reach the latest form.
 
-## Run It Locally
+```mermaid
+flowchart LR
+    A[OrderCreated v1] --> B[Upcast to v2]
+    B --> C[Upcast to v3]
+    C --> D[Current handler]
+```
+
+This chain keeps evolution explicit and testable.
+
+## Why One-Step Jumps Are Often Harder to Trust
+
+It is tempting to transform `v1` directly into `v3` and skip the intermediate shape. Sometimes that is fine. Often it makes reasoning harder because:
+
+- version transitions become less explicit
+- test coverage is less granular
+- it becomes harder to retire or reorder one evolution step cleanly
+
+A chain is not automatically better in every codebase, but for long-lived domains it often makes version history much easier to audit.
+
+## A Simple Upcaster Example
+
+~~~java
+OrderCreatedV2 upcastV1(OrderCreatedV1 old) {
+    return new OrderCreatedV2(old.orderId(), "STANDARD");
+}
+~~~
+
+That snippet is deliberately small. The more important design rule is this:
+
+- upcasters should translate structure and explicit defaults
+- they should not quietly absorb domain-policy decisions that deserve their own review
+
+## Replay Is the Real Test
+
+The strongest reason to build the chain well is replay.
+
+If you can:
+
+- read the topic from the earliest offset
+- keep only the latest handlers active
+- still process historical events successfully
+
+then the compatibility layer is doing its job.
+
+If replay fails because one old version was never normalized properly, the whole strategy was only partially implemented.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,102 +112,37 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Right Failure Drill
 
-## Lab Steps
+Disable one upcaster in the chain and replay historical data from the beginning.
 
-1. Add v1->v2 upcaster.
-2. Keep handlers accepting latest version only.
-3. Replay from beginning.
+That test is valuable because it reveals exactly how dependent the system is on explicit historical normalization.
 
----
+A clean failure here is not embarrassing. It is informative. It proves the replay path is real enough to catch missing compatibility logic early.
 
-## Runnable Code Block
+> [!important]
+> If replay is part of the recovery or migration story, upcaster tests are not optional. They are part of the production safety net.
 
-~~~java
-OrderCreatedV2 upcastV1(OrderCreatedV1 old) {
-    return new OrderCreatedV2(old.orderId(), "STANDARD");
-}
-~~~
+## Common Mistakes
 
----
+### Letting handlers understand every version directly
 
-## Verify
+That spreads historical complexity across the whole codebase and makes future cleanup harder.
 
-~~~bash
-# replay stream from earliest offset
-~~~
+### Hiding semantic changes inside the upcaster
 
----
+Defaulting a missing field is one thing. Reinterpreting business meaning without review is another.
 
-## Failure Drill
+### Forgetting retention implications
 
-Disable upcaster and confirm replay fails on legacy event.
+The longer the event history lives, the longer the compatibility burden lasts.
 
----
+## What This Part Should Leave You With
 
-## What You Should Learn
+After Part 2, the team should understand:
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+1. how an upcaster chain centralizes historical compatibility
+2. why replay is the real proof of the design
+3. where the chain should stop and the current handler should begin
 
----
-
-        ## Problem 1: Keep Historical Events Reusable as the Domain Evolves
-
-        Problem description:
-        Long-lived event streams rarely stay on one schema forever, and naive versioning makes replay painful because old facts can no longer be read by current code. Harden the baseline against the edge cases that appear under load and replay.
-
-        What we are solving actually:
-        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
-
-        What we are doing actually:
-
-        1. introduce the hardening mechanism one layer at a time
-2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
-3. measure what becomes safer and what becomes more complex
-4. leave behind a rule the team can apply during future changes
-
-        ```mermaid
-flowchart LR
-    A[Historical event v1] --> B[Upcaster chain]
-    B --> C[Latest in-memory model]
-    C --> D[Current handlers]
-```
-
-        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        OrderCreatedV3 upcast(OrderCreatedV1 old) {
-    return new OrderCreatedV3(old.orderId(), old.customerId(), "STANDARD", Map.of());
-}
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Replay a mixed stream from the earliest offset with only the latest business handlers enabled. That verifies whether the upcaster chain really shields the domain code from history.
-
-        ## Failure Drill
-
-        Disable one upcaster in the chain and replay historical data. The resulting failure is the most honest way to see how brittle version governance becomes without explicit compatibility rules.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - keep version transitions one-way and testable
-- store enough metadata to detect which version each event belongs to
-- avoid turning upcasters into business-rule engines
-- review retention strategy because very old events extend the support burden
-
----
-
-## Operator Prompt
-
-For event versioning and upcasting strategy in long lived domains (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is what makes long-lived streams survivable as the domain changes around them.

@@ -21,25 +21,38 @@ header:
   show_overlay_excerpt: false
   caption: Cross-Node Mutual Exclusion with Lease Safety
 ---
-Distributed locks coordinate critical sections across service instances.
-They are lease-based coordination primitives, not equivalent to in-process `synchronized`.
+Distributed locks are easy to overtrust because they resemble local mutexes in API shape while behaving very differently under failure.
+
+The important mental model is not "global synchronized." It is "lease-based coordination under uncertain clocks, pauses, and network conditions."
+
+That changes what a safe design looks like.
 
 ---
 
-## Use Cases That Justify Locking
+## When a Distributed Lock Is Actually Worth It
 
-- singleton scheduled job across nodes
-- serialized operation on shared external resource
-- short critical section where duplicate execution is harmful
+Reasonable use cases include:
 
-If you can design idempotent or partitioned processing, prefer that over global locks.
+- one scheduler job should run on only one node at a time
+- a short critical section protects a shared external resource
+- duplicate execution is costly enough that coordination is worth the complexity
+
+Weak use cases include:
+
+- using a global lock instead of partitioning work
+- compensating for non-idempotent design where duplication could have been tolerated
+- protecting long, uncertain workflows with one coarse lock
+
+If partitioning or idempotency can remove the need for the lock, that is usually a better design.
 
 ---
 
-## Redis Lease Lock Pattern
+## Redis Locks Are Lease Patterns, Not Ownership Proof
 
-Acquire with unique owner token and TTL.
-Release only if token still matches owner.
+A common Redis shape is:
+
+- store a unique token with `SET NX PX`
+- release only if the same token still owns the key
 
 ```java
 String token = UUID.randomUUID().toString();
@@ -52,133 +65,103 @@ if (!acquired) {
 try {
     doCriticalWork();
 } finally {
-    // Lua script: delete only if value == token
     redis.eval(RELEASE_SCRIPT, List.of(lockKey), List.of(token));
 }
 ```
 
-Never `DEL` lock key blindly.
+The critical detail is compare-and-delete on release. Blind `DEL` is unsafe because ownership may have changed after lease expiry.
 
 ---
 
-## TTL and Lease Renewal
+## Lease Expiry Is Normal, Not Exceptional
 
-TTL must exceed expected critical section duration plus jitter buffer.
-If work can run long:
+A safe design assumes:
 
-- renew lease periodically while owner is healthy
-- stop work immediately if renewal fails
+- the holder may pause
+- renewal may fail
+- another node may acquire the lock after expiry
 
-Lock-loss handling is part of correctness, not optional enhancement.
+That means the application must define what happens when ownership is lost mid-work.
 
----
-
-## ZooKeeper/Curator Alternative
-
-ZooKeeper-style ephemeral nodes give stronger session semantics for coordination and leader election.
-Use when you need:
-
-- stronger coordination guarantees
-- watch-based failover signaling
-- richer election patterns than simple key lease
-
-Cost: more operational complexity than single Redis lock key.
+If the code simply continues because it "was the owner a moment ago," the lock is not doing enough for a correctness-sensitive workflow.
 
 ---
 
-## Dry Run: Scheduler Lock Loss Scenario
+## Fencing Tokens Matter When Stale Owners Are Dangerous
 
-1. node A acquires lock and starts job.
-2. GC pause/network issue prevents lease renewal.
-3. lease expires; node B acquires same lock.
-4. node A resumes and tries to continue work.
-5. lock-check detects ownership loss; node A aborts.
+For stronger correctness, a protected resource should be able to reject stale owners.
 
-Without step 5, duplicate execution happens.
+That is the role of a fencing token:
 
----
+- each successful lease acquisition gets a monotonic token
+- downstream writes accept only the newest valid token
 
-## Safety Checklist
+```java
+record Lease(String ownerId, long fencingToken, Instant expiresAt) {}
 
-- unique token per lock owner
-- compare-and-delete release
-- bounded critical section duration
-- lock renewal with health checks
-- idempotent job actions in case of split execution window
-- metrics for acquire latency, contention, renewal failure, lock loss
+void write(Lease lease, Command command) {
+    repository.applyIfTokenAtLeast(lease.fencingToken(), command);
+}
+```
+
+This is often more important than the lock primitive itself. Without downstream fencing, a paused old owner may still perform stale work after a new owner has legitimately taken over.
 
 ---
 
-## Common Mistakes
+## ZooKeeper and Curator Fit Different Problems
 
-- assuming distributed lock gives exactly-once side effects
-- using long unbounded lock TTLs
-- forgetting owner check on unlock
-- running large business workflows under one coarse global lock
+Redis is attractive for simpler lease-based coordination.
+ZooKeeper-style coordination is a better fit when you need:
+
+- stronger session semantics
+- richer leader election behavior
+- watch-based coordination patterns
+
+The trade-off is more operational complexity.
+
+So the question is not "which one is better?" It is "how much ownership accuracy and coordination depth does this problem need?"
+
+---
+
+## Keep the Critical Section Small
+
+Distributed locks are weakest when asked to guard:
+
+- long-running workflows
+- uncertain I/O
+- many sequential external calls
+
+The longer the section, the more likely lease expiry, renewal trouble, or stale-owner behavior becomes relevant.
+
+That is why the safe default is:
+
+- keep lock scope tiny
+- renew only when necessary
+- abort quickly on lost ownership
+
+> [!WARNING]
+> If the protected action cannot tolerate a stale owner continuing after lease loss, downstream fencing is usually required. The lock alone is not enough.
+
+---
+
+## A Better Failure Drill
+
+Pause the lock holder long enough for the lease to expire:
+
+1. node A acquires the lease
+2. node A pauses
+3. node B acquires the new lease
+4. node A resumes and attempts to continue work
+
+If the resource cannot reject node A’s stale action, the coordination design is not strong enough for the use case.
+
+That drill is much more revealing than simply proving two nodes do not usually enter at the same time.
 
 ---
 
 ## Key Takeaways
 
-- distributed locking is a failure-sensitive coordination mechanism.
-- lease ownership checks and lock-loss handling are mandatory.
-- use partitioned/idempotent designs first; lock only where truly required.
-
----
-
-        ## Problem 1: Use Distributed Locks Only With Ownership Proof
-
-        Problem description:
-        Distributed locks are often used as if they were perfect mutexes, but network partitions, lease expiry, and slow clients make naive locking unsafe.
-
-        What we are solving actually:
-        We are solving coordinated access to a scarce external resource. The correct design usually depends on leases, fencing tokens, and a clear understanding of what happens when lock holders become slow or disconnected.
-
-        What we are doing actually:
-
-        1. define the protected resource and the exact critical section first
-2. treat lease expiry as normal and require downstream fencing where correctness matters
-3. keep the lock scope small and never hold it across long uncertain I/O
-4. prefer consensus-backed coordination when ownership accuracy matters more than simplicity
-
-        ```mermaid
-flowchart LR
-    A[Client acquires lease] --> B[Fencing token]
-    B --> C[Protected resource]
-    C --> D[Reject stale token]
-```
-
-        This section is worth making concrete because architecture advice around distributed locking patterns java redis zookeeper often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        record Lease(String ownerId, long fencingToken, Instant expiresAt) {}
-
-void write(Lease lease, Command command) {
-    repository.applyIfTokenAtLeast(lease.fencingToken(), command);
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Pause a lock holder so its lease expires, then let it wake up and attempt a write. If the resource cannot reject the stale owner, the lock is not strong enough for the use case.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - track lease duration, renewal latency, and lock handoff failures
-- never trust client clocks for correctness decisions
-- separate liveness from ownership in design discussions
-- challenge whether a queue or partitioned ownership model would remove the lock entirely
-
-        ## Review Checklist
-
-        - Prefer fencing when correctness matters.
-- Keep lock scope tiny.
-- Design explicitly for stale owners.
+- Distributed locks are lease-based coordination tools, not perfect remote mutexes.
+- Lease expiry and stale owners should be treated as normal design conditions.
+- Redis is fine for simple lease patterns, but stronger correctness often needs fencing.
+- Keep lock scope small and prefer idempotency or partitioning when they can remove the lock entirely.

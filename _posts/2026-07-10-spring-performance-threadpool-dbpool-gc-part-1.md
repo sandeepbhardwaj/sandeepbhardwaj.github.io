@@ -23,98 +23,161 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-'Spring performance tuning: thread pools, DB pools, GC fit' becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Spring performance tuning usually goes wrong when teams tune one queue at a time.
+They change the web thread pool, then the JDBC pool, then the GC, and each change looks locally reasonable.
+The problem is that throughput and latency are controlled by the whole capacity chain, not by any single knob.
 
 ---
 
-## Problem 1: 'Spring performance tuning: thread pools, DB pools, GC fit'
+## Start With the Capacity Path
 
-Problem description:
-We want to apply 'spring performance tuning: thread pools, db pools, gc fit' in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on the baseline model and the safe default shape.
-
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
-
-What we are doing actually:
-
-1. make Spring Boot explicit: identify the ownership boundary and the non-negotiable invariant
-2. make Spring Boot explicit: choose the simplest baseline design that preserves correctness
-3. make Spring Boot explicit: make observability visible from the first implementation
-4. make Spring Boot explicit: validate the baseline with one concrete failure drill
-
----
-
-## Why This Topic Matters
-
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
-
----
-
-## Architecture Model
+For a typical Spring service, a request often competes through this path:
 
 ```mermaid
 flowchart LR
-    A[Production pressure] --> B['Spring performance tuning: thread pools, DB pools, GC fit']
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
+    A[Incoming requests] --> B[Web thread pool]
+    B --> C[Application work]
+    C --> D[DB connection pool]
+    D --> E[Database]
+    C --> F[Heap allocation rate]
+    F --> G[Garbage collection pressure]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so 'spring performance tuning: thread pools, db pools, gc fit' stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+If any stage becomes the real bottleneck, the others start to look broken even when they are only waiting behind it.
+
+That is why tuning has to begin with measurement, not folklore.
 
 ---
 
-## Practical Design Pattern
+## The Three Things People Confuse
+
+These are different problems:
+
+- **thread pool sizing**: how much concurrent work the service can schedule
+- **DB pool sizing**: how many requests can actively use the database at once
+- **GC fit**: how much allocation pressure the JVM can absorb before latency becomes unstable
+
+If a service is DB-bound, increasing the request thread pool often makes the system worse by letting more work queue up against the same limited database capacity.
+
+> [!IMPORTANT]
+> A larger thread pool is not more throughput by default. It is often just more waiting.
+
+---
+
+## A Concrete Spring Example
+
+A common starting point is an executor plus HikariCP configuration that is explicit instead of inherited from defaults nobody reviews.
 
 ```java
-@Configuration
-class TopicConfiguration {
-
-    @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("'Spring performance tuning: thread pools, DB pools, GC fit'", 1);
-    }
+@Bean
+ThreadPoolTaskExecutor applicationExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(32);
+    executor.setMaxPoolSize(64);
+    executor.setQueueCapacity(200);
+    executor.setThreadNamePrefix("app-worker-");
+    executor.initialize();
+    return executor;
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in 'spring performance tuning: thread pools, db pools, gc fit' is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 24
+      minimum-idle: 8
+      connection-timeout: 1000
+```
+
+This does not mean `64` and `24` are correct values.
+It means the service has declared its concurrency assumptions instead of hiding behind defaults.
+
+---
+
+## How the Pools Interact
+
+If the request executor can run `64` active tasks but only `24` of them can hold DB connections, then the remaining tasks may simply pile up waiting for the database.
+
+That can show up as:
+
+- higher p95 latency
+- longer executor queues
+- more time spent blocked on JDBC acquisition
+- more retained objects and therefore more GC pressure
+
+The result is that a database bottleneck starts to masquerade as an application-thread or garbage-collector problem.
+
+---
+
+## GC Is Not a Separate Story
+
+GC tuning should follow allocation behavior, not superstition.
+
+If request concurrency is too high, the service often allocates more:
+
+- request objects live longer in queues
+- response buffers stay around longer
+- retry and timeout machinery creates additional churn
+- blocked work retains state that otherwise would die quickly
+
+That means some "GC problems" are really concurrency-shape problems.
+
+Before changing collectors or flags, check whether the service is simply holding too much in-flight work.
+
+---
+
+## A Better Tuning Order
+
+In practice, the safer sequence is:
+
+1. identify where the request spends time
+2. confirm whether the service is CPU-bound, DB-bound, or allocation-bound
+3. tune thread and DB pool interaction first
+4. then inspect heap pressure and GC pause behavior
+5. only after that consider collector or flag changes
+
+This order prevents the team from treating GC as the first suspect when the real issue is often saturation upstream.
 
 ---
 
 ## Failure Drill
 
-Baseline drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for 'spring performance tuning: thread pools, db pools, gc fit'.
+A strong drill for this topic is controlled overload:
 
-That check matters early, before rollout assumptions harden into defaults because Spring issues around 'spring performance tuning: thread pools, db pools, gc fit' often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. drive concurrency up with realistic request mix
+2. watch executor active threads and queue depth
+3. watch HikariCP active, idle, and pending connections
+4. watch heap occupancy and GC pause behavior at the same time
+
+The point is to learn which graph moves first.
+That tells you where the real bottleneck lives.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating 'spring performance tuning: thread pools, db pools, gc fit'
-- keep customization close to the intended extension point instead of scattered overrides while validating 'spring performance tuning: thread pools, db pools, gc fit'
-- observe startup, request, and shutdown phases separately while validating 'spring performance tuning: thread pools, db pools, gc fit'
-- verify rollback by disabling the new behavior, not by rewriting it live while validating 'spring performance tuning: thread pools, db pools, gc fit'
+- correlate request latency with executor queue depth and DB pool wait time
+- inspect whether CPU saturation or DB waits dominate before touching GC settings
+- treat long GC pauses as a symptom until proven otherwise
+- review retry, timeout, and fallback behavior because they change in-flight work volume
+- prefer fewer, well-measured changes over multi-knob tuning bursts
 
 ---
 
 ## Production Checklist
 
-- named extension point and explicit fallback path
-- startup or runtime metric that proves the first rollout is safe
-- configuration precedence documented for the changed path
-- rollback tested without emergency code surgery
+- thread-pool size matches the actual workload shape
+- DB pool size reflects safe database concurrency, not wishful application concurrency
+- executor and Hikari metrics are visible in the same dashboard
+- allocation rate and GC pause metrics are tracked with latency
+- the team can explain which stage is the bottleneck under load
 
 ---
 
 ## Key Takeaways
 
-- 'Spring performance tuning: thread pools, DB pools, GC fit' should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- start from a measurable baseline before optimizing
+- Thread pools, DB pools, and GC belong to the same performance system.
+- Tuning one layer in isolation often shifts pressure instead of removing it.
+- Most performance work improves when concurrency limits are made explicit first.
+- The best tuning change is the one supported by end-to-end evidence, not by generic rules of thumb.

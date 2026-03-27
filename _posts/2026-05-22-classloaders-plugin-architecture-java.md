@@ -21,24 +21,53 @@ header:
   show_overlay_excerpt: false
   caption: Isolated Runtime Extension Architecture
 ---
-A Java plugin system succeeds or fails based on classloader boundaries and lifecycle discipline.
-Dynamic loading is easy; safe isolation and unload are hard.
+A Java plugin system is rarely limited by how quickly it can load a JAR. The real challenge is whether the host can isolate plugin dependencies, control lifecycle cleanly, and unload plugins without leaving half the runtime behind.
+
+That is why plugin architecture is mainly a classloader problem and a resource-ownership problem.
 
 ---
 
-## Architecture Baseline
+## Start With the Boundary Model
 
-Use three layers:
+A practical plugin design usually has three layers:
 
-- host application classloader
-- stable plugin API module/classpath (shared types)
+- the host application classloader
+- a small shared SPI loaded by the host
 - one dedicated classloader per plugin implementation
 
-Only API interfaces should cross classloader boundaries.
+Only the SPI should cross that boundary.
+
+If implementation classes, plugin-private dependencies, or host internals start leaking across layers, the system stops being meaningfully isolated even if the word "plugin" still appears in the code.
+
+```mermaid
+flowchart TD
+    A[Host application classloader] --> B[Shared plugin SPI]
+    A --> C[Plugin classloader A]
+    A --> D[Plugin classloader B]
+    C --> E[Plugin A implementation]
+    D --> F[Plugin B implementation]
+```
 
 ---
 
-## Basic Loading Flow
+## The Shared API Must Be Small and Stable
+
+This is the most important design choice.
+
+If the shared plugin API grows too broad, plugins become tightly coupled to host internals and classloader isolation becomes harder to maintain.
+
+A good SPI is:
+
+- narrow
+- versioned intentionally
+- stable across plugin upgrades
+- free of implementation-specific host types
+
+That makes it possible for the host to load, start, stop, and replace plugins without turning every release into a coordination event.
+
+---
+
+## Loading Is Easy; Correct Loading Is Harder
 
 ```java
 URL jarUrl = pluginJar.toUri().toURL();
@@ -49,22 +78,40 @@ try (URLClassLoader loader = new URLClassLoader(new URL[]{jarUrl}, hostApiClassL
 }
 ```
 
-`Plugin` interface must be loaded by shared parent (host API classloader), not plugin-private copy.
+The critical rule here is that `Plugin` must come from the shared parent API loader, not from a plugin-private copy.
+
+If that boundary is wrong, you can get `ClassCastException` even when the class names appear identical.
 
 ---
 
-## Parent-First vs Child-First
+## Parent-First or Child-First Is a Policy Choice
 
-- parent-first: safer for shared libraries and JDK classes, fewer surprises
-- child-first: stronger isolation for plugin dependencies but higher conflict risk
+There is no universal answer, but the trade-off should be deliberate.
 
-For most enterprise plugin systems, parent-first with shaded plugin dependencies is more predictable.
+### Parent-first
+
+Usually simpler and safer when:
+
+- JDK types and shared platform libraries should be consistent
+- the host owns more of the runtime surface
+- plugin dependency conflicts are controlled with shading
+
+### Child-first
+
+Useful when:
+
+- plugins need stronger library isolation
+- the host should not accidentally dominate plugin dependencies
+
+But it increases surprise and conflict risk.
+
+For many enterprise plugin systems, parent-first plus carefully shaded plugin dependencies is the more predictable option.
 
 ---
 
-## Lifecycle Contract Is Mandatory
+## Lifecycle Is Not Optional
 
-Define explicit lifecycle and ownership:
+A plugin should not just be loadable. It should be governable.
 
 ```java
 public interface Plugin {
@@ -73,111 +120,67 @@ public interface Plugin {
 }
 ```
 
-Host must track plugin-owned resources:
+The host also needs to own plugin-associated resources:
 
 - executors
 - scheduler tasks
 - network clients
 - file watchers
+- caches
 
-No unload is safe until all are stopped.
-
----
-
-## Dry Run: Safe Plugin Reload
-
-1. host marks plugin as `DRAINING`.
-2. host stops new task submissions to plugin.
-3. host calls `plugin.stop()` with timeout.
-4. host verifies no plugin-owned threads remain.
-5. host closes plugin classloader.
-6. host loads new plugin version in fresh classloader.
-
-If step 4 fails, abort reload and keep plugin disabled.
+If a plugin can create long-lived resources without the host being able to track and stop them, unload safety is already compromised.
 
 ---
 
-## Common Failure Modes
+## Safe Reload Is Mostly About Draining
 
-- `ClassCastException` because API type is loaded by different classloaders
-- classloader leak due to static caches holding plugin classes
-- non-daemon plugin threads preventing unload/GC
-- dependency conflicts between host and plugin transitive libs
+A realistic reload sequence looks like this:
 
-Mitigate with strict API boundary, shading, and unload diagnostics.
+1. mark the plugin as draining
+2. stop routing new work to it
+3. call `stop()` with a timeout
+4. verify plugin-owned threads and resources are gone
+5. close the plugin classloader
+6. load the new version in a fresh classloader
+
+If step 4 fails, the correct response is often to leave the plugin disabled rather than pretending unload succeeded.
 
 ---
 
-## Operational Checks
+## The Real Failure Modes
 
-- track plugin state transitions (`LOADED`, `STARTED`, `DRAINING`, `STOPPED`, `FAILED`).
-- expose per-plugin health and error metrics.
-- run chaos tests that reload plugins repeatedly in staging.
-- monitor classloader count and metaspace growth.
+The nastiest plugin incidents are usually:
+
+- `ClassCastException` due to duplicated shared types
+- metaspace growth from classloader leaks
+- static caches holding plugin classes or classloaders
+- non-daemon or forgotten threads preventing clean unload
+- library conflicts between plugins and host
+
+These are not edge cases. They are what plugin systems tend to fail on when the architecture is only load-path deep.
+
+> [!WARNING]
+> If you cannot repeatedly reload a plugin in staging without metaspace growth or lingering threads, the system is not yet safe to call dynamically extensible.
+
+---
+
+## What to Observe in Production
+
+Useful operational signals include:
+
+- plugin state transitions such as `LOADED`, `STARTED`, `DRAINING`, `STOPPED`, `FAILED`
+- per-plugin health and error counts
+- number of live plugin classloaders
+- metaspace trend over repeated reloads
+- plugin-owned thread count
+
+A plugin platform should be observable as a platform, not just as a bag of loaded code.
 
 ---
 
 ## Key Takeaways
 
-- plugin architecture is primarily a classloader and lifecycle problem.
-- shared API boundary and per-plugin isolation are non-negotiable.
-- unload safety requires explicit resource ownership and stop guarantees.
-
----
-
-        ## Problem 1: Let ClassLoaders Express Isolation Boundaries
-
-        Problem description:
-        Plugin systems fail when shared APIs, third-party dependencies, and reload behavior are all loaded into one classpath without an ownership model.
-
-        What we are solving actually:
-        We are solving extensibility with isolation. The classloader design is where dependency conflicts, unloading behavior, and plugin blast radius are determined long before runtime incidents appear.
-
-        What we are doing actually:
-
-        1. keep the shared SPI small and owned by the host application
-2. load plugin implementation code with a child classloader per plugin or version
-3. design explicit lifecycle hooks for startup, health, and shutdown
-4. separate plugin state from host state so unload and restart are realistic operations
-
-        ```mermaid
-flowchart TD
-    A[App ClassLoader] --> B[Shared SPI]
-    A --> C[Plugin ClassLoader A]
-    A --> D[Plugin ClassLoader B]
-    C --> E[Plugin implementation]
-    D --> F[Plugin implementation]
-```
-
-        This section is worth making concrete because architecture advice around classloaders plugin architecture java often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        URLClassLoader pluginLoader = new URLClassLoader(pluginJars, spiClassLoader);
-ServiceLoader<Plugin> loader = ServiceLoader.load(Plugin.class, pluginLoader);
-Plugin plugin = loader.findFirst().orElseThrow();
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Deploy two plugins that depend on different versions of the same library. If one plugin breaks the other, the classloader boundary is still decorative rather than real.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - check parent-first versus child-first resolution deliberately
-- avoid leaking plugin implementation types into shared host APIs
-- release references on shutdown so plugin loaders can actually be garbage collected
-- test upgrade and unload behavior, not only startup discovery
-
-        ## Review Checklist
-
-        - Keep the SPI narrow and stable.
-- Own plugin lifecycle explicitly.
-- Test dependency conflicts before calling the design extensible.
+- Plugin architecture is fundamentally about classloader boundaries and lifecycle ownership.
+- The shared SPI should stay narrow and stable.
+- Safe unload requires explicit control over plugin-created resources.
+- A design is only truly extensible if reload, conflict isolation, and failure containment work in practice.

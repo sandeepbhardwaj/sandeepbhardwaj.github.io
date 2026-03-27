@@ -23,44 +23,67 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Operate transactional producers safely with fencing and timeout discipline**.
+Part 1 covered producer idempotence. Part 2 made Kafka-to-Kafka processing atomic. Part 3 is where teams usually get surprised in production: transactional identity, fencing, and timeout behavior during deploys and failure recovery.
 
----
+At this stage, the issue is not "did we enable transactions." It is "can we operate them without split-brain producers, zombie instances, or transactions that outlive their safe window."
 
-## Problem 1: Prevent Split-Brain Producers and Stuck Transactions
+## Why Fencing Is Not an Error to Silence
 
-Problem description:
-Transactional producers rely on stable identity.
-If two live instances share the same `transactional.id`, Kafka must fence the old one to preserve correctness.
-
-What we are solving actually:
-We are solving operational safety of transactional producers.
-The hard part is not enabling transactions; it is handling fencing, timeouts, and instance identity correctly during deployment and recovery.
-
-What we are doing actually:
-
-1. Assign stable `transactional.id` values intentionally.
-2. Treat fencing as fatal for the losing producer.
-3. Tune transaction timeouts to match the real SLA and failure model.
+Kafka fences producers for a reason. If two live instances try to use the same `transactional.id`, only one of them can remain authoritative.
 
 ```mermaid
 sequenceDiagram
     participant P1 as Producer A
     participant P2 as Producer B
     participant K as Kafka
-    P1->>K: use transactional.id X
-    P2->>K: use transactional.id X
-    K-->>P1: fenced
-    K-->>P2: active producer for X
+
+    P1->>K: Begin with transactional.id X
+    P2->>K: Begin with transactional.id X
+    K-->>P1: Fenced
+    K-->>P2: Active owner of X
 ```
 
-## Real-World Scenario
+That is a correctness feature, not operational noise. If the losing producer keeps limping forward after fencing, the application design is wrong.
 
-Network retries during peak load can duplicate records unless producer semantics are configured correctly.
+## The Identity Rule That Matters Most
 
----
+`transactional.id` should be:
 
-## Run It Locally
+- stable enough to map to a real processor identity
+- unique enough to avoid accidental collisions
+
+If it is generated randomly on every restart, transactions lose continuity. If it is shared carelessly across multiple live instances, fencing will happen exactly as it should.
+
+This is why transactional identity usually belongs in deployment design, not only in code.
+
+## Timeout Tuning Is Also a Correctness Decision
+
+A transaction timeout that is too short can abort legitimate work under load.
+A timeout that is too long can keep broken or stalled transactions hanging around longer than you want during recovery.
+
+~~~properties
+transactional.id=orders-tx-producer-1
+transaction.timeout.ms=60000
+~~~
+
+The right number should reflect:
+
+- the longest valid transactional work you expect
+- how quickly the system should recover from stuck producers
+- the rollout and failure behavior of the surrounding platform
+
+## What a Safe Runbook Should Say
+
+By Part 3, the team should be able to answer:
+
+- what happens if a producer is fenced
+- whether that condition is fatal or retryable
+- how transactional identity is assigned during rollout
+- what timeout means operationally in the current system
+
+If those answers are not documented, transactions are still only half-adopted.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -93,79 +116,35 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Right Failure Drill
 
-## Lab Steps
+Start two instances with the same `transactional.id` and verify the older or losing instance is fenced and exits the transaction path decisively.
 
-1. Configure stable `transactional.id`.
-2. Handle fenced producer as fatal.
-3. Tune transaction timeout by SLA.
+That test is useful because it makes the ownership model concrete. It is also a good rehearsal for rollout mistakes, which are where many real fencing incidents begin.
 
----
+> [!important]
+> A fenced producer should be treated as no longer authoritative. Retrying blindly under the same assumption usually makes the recovery story worse, not better.
 
-## Runnable Code Block
+## Common Mistakes
 
-~~~properties
-transactional.id=orders-tx-producer-1
-transaction.timeout.ms=60000
-~~~
+### Treating fencing as transient warning noise
 
----
+If the producer was fenced, something about ownership is wrong. That deserves operational attention.
 
-## Verify
+### Setting timeouts with no reference to real workloads
 
-~~~bash
-# observe abort/commit metrics from producer app logs and monitoring
-~~~
+Timeouts copied from examples are not a reliability strategy.
 
----
+### Ignoring deployment overlap
 
-## Failure Drill
+Slow shutdown plus fast startup can create exactly the sort of overlapping ownership that transactional fencing is designed to catch.
 
-Start two instances with same transactional.id; verify older producer gets fenced.
+## What This Part Should Leave You With
 
----
+After Part 3, the team should understand:
 
-## Debug Steps
+1. why fencing is a correctness mechanism
+2. how transactional identity should map to real instance ownership
+3. why transaction timeout tuning belongs in the operational model, not only the producer config
 
-Debug steps:
-
-- monitor fenced-producer exceptions as correctness signals, not transient warnings
-- make transactional ids stable enough to identify ownership but unique enough to avoid accidental collisions
-- align `transaction.timeout.ms` with the longest legitimate transaction path
-- rehearse restart scenarios where one instance is slow to shut down and another starts early
-
-## Operational Note
-
-Most fencing incidents trace back to deployment or identity-management mistakes rather than Kafka itself.
-That is why runbook quality matters almost as much as the producer code.
-
-A small amount of deployment discipline usually removes a surprising amount of transactional instability.
-
-## What You Should Learn
-
-- fencing is a correctness feature, not a nuisance
-- transactional producer identity must be designed, not improvised
-- timeout tuning should reflect real processing behavior and rollout practices
-
----
-
-        ## Production Checklist
-
-        Verify both broker configuration and consumer isolation level. Transactional semantics are easy to misread when downstream readers still use default isolation.
-
-        ## Incident Drill
-
-        Restart the processor with the wrong transactional identity and inspect the resulting fencing or duplicate risk. That is the boundary operators have to understand before incident day.
-
-        ## Extra Debug Cues
-
-        - keep the transactional ID stable for one processor identity
-- check fencing events during rolling deploys
-- verify all downstream validation reads use `read_committed`
-
----
-
-## Operator Prompt
-
-For idempotent producers and kafka transactions in practice (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is what turns transactional Kafka from a feature flag into something a production team can actually run safely.

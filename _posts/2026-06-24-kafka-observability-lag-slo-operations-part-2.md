@@ -23,17 +23,65 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Burn-rate alerting and runbook**.
+Part 1 defined the SLO and the baseline dashboard. Part 2 is about making that observability actionable under stress. The goal now is not just seeing lag. It is alerting early enough, at the right severity, with a runbook that tells operators what kind of response the signal is asking for.
 
----
+That is where burn-rate thinking becomes useful.
 
-## Real-World Scenario
+## Why Burn Rate Fits Better Than Static Thresholds
 
-Average metrics hide partition-level pain; operations must be SLO-driven and per-partition aware.
+A single threshold on lag often fails in both directions:
 
----
+- it pages too late when a fast-moving incident is about to violate the SLO
+- it pages too often for harmless backlog that is still draining within the allowed window
 
-## Run It Locally
+Burn-rate style alerting asks a better question:
+
+"At the current rate, how quickly are we consuming the error budget for this Kafka processing SLO?"
+
+That makes the alert more closely tied to service risk instead of raw metric magnitude.
+
+## A More Useful Alert Shape
+
+For example:
+
+~~~text
+Alert tiers:
+P1: breach imminent
+P2: sustained lag growth
+P3: localized anomaly
+~~~
+
+This is much more useful than one undifferentiated "consumer lag high" page.
+
+The goal is to distinguish:
+
+- imminent customer-facing breach
+- sustained degradation that needs action soon
+- local anomalies that deserve inspection before they escalate
+
+## Why the Runbook Has to Sit Beside the Alert
+
+An alert without a next step is still incomplete observability.
+
+For each tier, operators should know the first move:
+
+- inspect partition skew
+- check rebalance churn
+- compare produce rate with consume rate
+- decide whether to scale, pause, or investigate one misbehaving consumer
+
+If the page only says "lag high," the team still has to invent a response under pressure.
+
+```mermaid
+flowchart LR
+    A[SLO at risk] --> B[Burn-rate alert]
+    B --> C[Severity tier]
+    C --> D[Runbook action]
+```
+
+That last step is the whole point.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,105 +114,41 @@ services:
 docker compose up -d
 ~~~
 
----
+## The Right Drill for Part 2
 
-## Lab Steps
+Inject a synthetic slowdown and see whether the alert arrives early enough to avoid the SLO breach, not just whether an alert arrives at all.
 
-1. Configure burn-rate alerts for SLO breach risk.
-2. Attach runbook steps to alert.
-3. Validate response time.
+Then review the runbook with the alert in hand and ask:
 
----
+- is the severity right
+- is the first action obvious
+- can the operator tell whether this is a hot partition, a fleet-wide slowdown, or a rebalance event
 
-## Runnable Code Block
+That is how you test whether the observability system is decision-oriented.
 
-~~~text
-Alert tiers:
-P1: breach imminent
-P2: sustained lag growth
-P3: localized anomaly
-~~~
+> [!important]
+> A good Kafka alert tells the operator not only that the service is degrading, but also what kind of degradation is most likely happening.
 
----
+## Common Mistakes
 
-## Verify
+### Reusing one alert for every lag problem
 
-~~~bash
-# trigger synthetic lag and verify alert path
-~~~
+That collapses very different incidents into the same page and makes triage slower.
 
----
+### Alerting without action tiers
 
-## Failure Drill
+If every lag event looks like a top-severity outage, the signal will burn trust quickly.
 
-Inject slow handler and confirm burn-rate alert fires before user-visible breach.
+### Forgetting localized failures
 
----
+A single hot partition or one poisoned consumer can hide under healthy fleet averages until it becomes much harder to recover.
 
-## What You Should Learn
+## What This Part Should Leave You With
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+After Part 2, the team should understand:
 
----
+1. why burn-rate style thinking is better than static lag thresholds alone
+2. how alert severity should map to likely operator actions
+3. why dashboards and runbooks need to function as one operating surface
 
-        ## Problem 1: Operate Kafka With Decision-Oriented Signals
-
-        Problem description:
-        Teams gather lots of Kafka metrics but still cannot answer whether consumer lag is healthy, urgent, or simply a temporary backlog within SLO. Harden the baseline against the edge cases that appear under load and replay.
-
-        What we are solving actually:
-        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
-
-        What we are doing actually:
-
-        1. introduce the hardening mechanism one layer at a time
-2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
-3. measure what becomes safer and what becomes more complex
-4. leave behind a rule the team can apply during future changes
-
-        ```mermaid
-flowchart LR
-    A[Producer rate] --> B[Lag]
-    C[Consumer rate] --> B
-    B --> D[Time-to-drain]
-    D --> E[SLO decision]
-```
-
-        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        lag_seconds = records_lag_max / max(consume_rate_per_second, 1)
-if (lag_seconds > 120) {
-    alert();
-}
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Translate lag into time-to-drain and compare it with an explicit SLO. Operators need a decision signal, not just an ever-growing integer on a dashboard.
-
-        ## Failure Drill
-
-        Throttle consumers for five minutes and practice triage using only your dashboards and alerts. If the team still cannot tell whether to scale, pause producers, or do nothing, the observability model needs work.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - watch partition skew as well as aggregate lag
-- pair lag with throughput and rebalance events to avoid false narratives
-- define alert thresholds in business time rather than raw record counts
-- keep runbooks next to dashboards so operators know the next move
-
----
-
-## Operator Prompt
-
-For kafka observability lag saturation and slo driven operations (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is how Kafka observability becomes useful during incidents instead of merely descriptive after them.

@@ -21,25 +21,30 @@ header:
   show_overlay_excerpt: false
   caption: Type-Safe Branching with Exhaustive Matching
 ---
-Pattern matching for `switch` in Java 21 removes casting-heavy branch logic and makes transformation code safer.
-It is most valuable in mappers, routers, and decision layers.
+Pattern matching for `switch` is most valuable when branching logic has become hard to review, not when you simply want newer syntax.
+
+The production benefit is that type-driven decisions become easier to read, harder to get wrong, and safer to evolve, especially when paired with sealed hierarchies.
 
 ---
 
-## Best-Fit Use Cases
+## Where It Actually Helps
 
-- mapping domain outcomes to HTTP responses
-- routing polymorphic commands/events to handler categories
-- extracting typed values without `instanceof` + manual casts
+Pattern matching for `switch` shines in code that:
 
-Avoid putting heavy side effects directly inside switch branches.
+- maps domain results to API responses
+- routes commands or events by subtype
+- transforms polymorphic inputs into stable outputs
+- replaces long `instanceof` chains with something exhaustive
+
+It is less impressive when used just to make tiny switches look modern.
 
 ---
 
-## Example: Domain Result to API Response
+## A Strong Example: Mapping Domain Outcomes to API Responses
 
 ```java
 sealed interface Result permits Success, ValidationError, NotFound, Conflict {}
+
 record Success(String payload) implements Result {}
 record ValidationError(String field, String message) implements Result {}
 record NotFound(String resourceId) implements Result {}
@@ -48,7 +53,8 @@ record Conflict(String reason) implements Result {}
 static ApiResponse toResponse(Result result) {
     return switch (result) {
         case Success s -> ApiResponse.ok(s.payload());
-        case ValidationError e when e.field() != null -> ApiResponse.badRequest(e.field() + ": " + e.message());
+        case ValidationError e when e.field() != null ->
+                ApiResponse.badRequest(e.field() + ": " + e.message());
         case ValidationError e -> ApiResponse.badRequest(e.message());
         case NotFound nf -> ApiResponse.notFound(nf.resourceId());
         case Conflict c -> ApiResponse.conflict(c.reason());
@@ -56,13 +62,29 @@ static ApiResponse toResponse(Result result) {
 }
 ```
 
-Because `Result` is sealed, the switch is exhaustive with no `default` required.
+This reads well because the switch is doing one job: classification and mapping.
+
+The value here is not shorter code. The value is that every meaningful case is visible in one place.
 
 ---
 
-## Guarded Patterns for Business Nuance
+## Pair It With Sealed Types When You Can
 
-Guards (`when`) keep rules close to type checks.
+Pattern matching becomes much more compelling when the input space is closed.
+
+With a sealed hierarchy:
+
+- no `default` branch is needed
+- new variants trigger compiler guidance
+- review gets easier because the outcome space is explicit
+
+Without that, the switch can still be useful, but it loses some of its strongest safety properties.
+
+---
+
+## Guards Are Best for Local Nuance
+
+Guards are useful when one subtype needs a small refinement:
 
 ```java
 String classify(Command command) {
@@ -75,14 +97,33 @@ String classify(Command command) {
 }
 ```
 
-Prefer this over nested `if` trees when auditability matters.
+This is a good use of guards because the refinement remains local to the branch.
+
+It becomes a bad use when guards start hiding workflow, side effects, or multi-step business processes that deserve named methods.
 
 ---
 
-## Null Handling Guidance
+## Keep Side Effects Out of the Switch
+
+One of the easiest ways to make a pattern-matching switch worse than the old code is to let each branch become a mini-program.
+
+Prefer switches that:
+
+- classify
+- map
+- choose the next operation
+
+Then let dedicated methods do the heavier work.
+
+That keeps the switch readable enough that someone reviewing a production fix can still understand the decision table without scrolling through unrelated logic.
+
+---
+
+## Be Deliberate About `null`
 
 By default, switching on `null` throws `NullPointerException`.
-Handle null explicitly if required by integration boundary.
+
+If your integration boundary genuinely needs null tolerance, handle it explicitly:
 
 ```java
 String stateLabel(Object state) {
@@ -95,108 +136,40 @@ String stateLabel(Object state) {
 }
 ```
 
-For internal code, prefer non-null contracts and avoid null branch unless needed.
+For internal domain code, non-null contracts are usually the better choice.
 
 ---
 
-## Dry Run: Refactoring instanceof Chain
+## A Good Refactoring Trigger
 
-Before:
+If you see a method with:
 
-- 70-line method with repeated `instanceof`, casts, and fallback return paths
+- repeated `instanceof`
+- repeated casts
+- scattered early returns
+- one missed branch bug every few months
 
-After:
+then that method is a strong candidate for pattern matching.
 
-1. create a sealed base type for outcomes.
-2. replace chain with `switch` expression.
-3. move side effects out to dedicated methods.
-4. add one test per switch branch.
-
-Result:
-
-- fewer branch bugs
-- easier code review (all cases visible in one block)
-- compiler prompts updates when new subtype is introduced
+The best result is usually not just prettier code. It is a clearer, more reviewable decision surface.
 
 ---
 
-## Common Mistakes
+## The Main Mistakes to Avoid
 
-- adding a broad `default` branch with sealed hierarchies (hides missing handling)
-- performing blocking I/O directly in each branch
-- mixing mutation logic with mapping logic in one large switch
-- using guards for unrelated side effects instead of pure classification
+- adding a broad `default` branch to a sealed hierarchy
+- mixing side effects and branching logic in the same switch
+- overusing guards until the switch becomes harder to scan than the original `if` tree
+- using pattern matching where a simple method call or enum dispatch would be clearer
+
+> [!TIP]
+> The switch should read like a decision table. If it starts feeling like a workflow engine, it probably wants refactoring.
 
 ---
 
 ## Key Takeaways
 
-- pattern matching switch improves type safety and readability for branching-heavy code.
-- pairing with sealed hierarchies gives compile-time exhaustiveness.
-- keep switch branches focused on classification/transformation and delegate side effects.
-
----
-
-        ## Problem 1: Make Branching Rules Explicit Enough for Code Review
-
-        Problem description:
-        Large `if/else` trees mix type checks, casts, and business conditions so thoroughly that reviewers miss unsupported cases and accidental fall-through behavior.
-
-        What we are solving actually:
-        We are solving maintainable branching logic. Pattern matching helps when it turns a vague decision tree into an exhaustive map of business outcomes with compiler help.
-
-        What we are doing actually:
-
-        1. model the result space with a sealed interface or a small stable hierarchy
-2. keep each switch branch focused on classification or mapping, not side effects
-3. use guards only for local nuance, not hidden workflow orchestration
-4. treat new subtypes as a forcing function for compiler-guided review
-
-        ```mermaid
-flowchart LR
-    A[Sealed result hierarchy] --> B[switch expression]
-    B --> C[Typed branch]
-    C --> D[API / command outcome]
-```
-
-        This section is worth making concrete because architecture advice around pattern matching switch java 21 production often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        sealed interface PaymentOutcome permits Approved, Rejected, RetryLater {}
-record Approved(String id) implements PaymentOutcome {}
-record Rejected(String reason) implements PaymentOutcome {}
-record RetryLater(String code) implements PaymentOutcome {}
-
-String status(PaymentOutcome outcome) {
-    return switch (outcome) {
-        case Approved approved -> "APPROVED:" + approved.id();
-        case Rejected rejected -> "REJECTED:" + rejected.reason();
-        case RetryLater retry -> "RETRY:" + retry.code();
-    };
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Add a new subtype such as `ManualReview` and verify the compiler forces the switch to change. That pressure is exactly what prevents silent production drift.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - avoid a broad `default` branch when the hierarchy is sealed
-- lift blocking calls and mutations out of the switch expression
-- check that guarded patterns still preserve readability under new rules
-- write one focused test per branch so reviewers can reason about intent quickly
-
-        ## Review Checklist
-
-        - Prefer exhaustiveness over defensive default branches.
-- Keep branches small enough to scan in one screen.
-- Pair pattern matching with sealed hierarchies whenever possible.
+- Pattern matching for `switch` is best for type-driven mapping and classification code.
+- Its strongest production value appears when paired with sealed hierarchies.
+- Guards help with local business nuance, but should not hide workflow complexity.
+- Keep branches small and side-effect light so the switch stays reviewable.

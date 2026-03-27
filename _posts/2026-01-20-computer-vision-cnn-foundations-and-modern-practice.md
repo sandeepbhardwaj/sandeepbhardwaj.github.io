@@ -25,23 +25,8 @@ header:
 Computer vision systems convert pixels into structured outputs such as labels, boxes, masks, or embeddings.
 CNNs remain foundational in many practical vision pipelines due to efficiency and strong transfer learning ecosystems.
 
----
-
-## Problem 1: Learn Visual Patterns That Hold Up Outside the Lab
-
-Problem description:
-We want image models that do more than score well on curated datasets; they should remain useful under real-world lighting, device, and deployment constraints.
-
-What we are solving actually:
-We are solving dataset realism and deployment robustness, not just architecture choice.
-In practice, transfer learning, augmentation strategy, and evaluation slices usually matter more than inventing a novel CNN block.
-
-What we are doing actually:
-
-1. Define the vision task precisely.
-2. Start from a pretrained backbone.
-3. Train with task-appropriate augmentation.
-4. Validate across real deployment conditions and hardware constraints.
+The important production question is not "what CNN block is fashionable right now?"
+It is "will this model still behave when the lighting changes, the camera changes, the objects are partly occluded, or the inference budget shrinks on the real target hardware?"
 
 ```mermaid
 flowchart LR
@@ -64,6 +49,9 @@ Key properties:
 
 These make CNNs data-efficient relative to dense networks on images.
 
+That is why CNNs still matter even in a world with strong transformer-based vision models.
+They are often easier to deploy, easier to fine-tune on modest datasets, and easier to operate under strict latency or device constraints.
+
 ---
 
 ## Common Vision Tasks
@@ -74,6 +62,9 @@ These make CNNs data-efficient relative to dense networks on images.
 - embedding/search: visual similarity retrieval
 
 Task definition affects labeling cost, model choice, and evaluation protocol.
+
+An image classifier for product categories is not the same problem as a defect detector on a factory line.
+The output shape, error cost, and labeling strategy change the whole pipeline.
 
 ---
 
@@ -87,6 +78,8 @@ High-impact practices:
 - resolution tuning for quality/latency balance
 
 For small datasets, transfer learning usually dominates architecture novelty.
+
+In many production teams, the highest-ROI decision is simply choosing the right pretrained backbone and spending more effort on labeling and data curation.
 
 ---
 
@@ -102,6 +95,12 @@ Useful augmentations:
 Augmentation should match real deployment distortions.
 Over-aggressive augmentation can hurt task fidelity.
 
+For example, if a warehouse scanner produces motion blur and uneven lighting, those are useful augmentations.
+If the task depends on fine-grained texture, heavy blur may teach the model to ignore the very signal you need.
+
+> [!important]
+> Augmentation is a hypothesis about real deployment conditions. If the hypothesis is wrong, the model may become more robust to fake distortions while becoming worse on the distortions users actually generate.
+
 ---
 
 ## Metrics by Task Type
@@ -112,6 +111,8 @@ Over-aggressive augmentation can hurt task fidelity.
 
 Always include per-class metrics and confusion slices.
 Average accuracy can hide severe minority-class failures.
+
+In a safety or inspection workflow, one rare but critical miss may matter far more than the mean metric suggests.
 
 ---
 
@@ -127,6 +128,9 @@ Slice performance by:
 
 Vision models often fail under distribution shifts not represented in benchmark datasets.
 
+This is one of the most important differences between a lab-ready model and a production-ready one.
+If a defect detector only saw clear daytime images in training, it may collapse on low-light, reflective, or cluttered scenes even though the benchmark score looked excellent.
+
 ---
 
 ## Deployment Trade-Offs
@@ -139,6 +143,9 @@ Production concerns:
 - monitoring false positives/negatives in field data
 
 Model that wins offline may fail on edge hardware constraints.
+
+A larger backbone may gain a few points of offline quality while exceeding the device memory budget or forcing latency above the product threshold.
+That trade-off should be evaluated early, not after the model is already socially "chosen."
 
 ---
 
@@ -153,6 +160,8 @@ For high-stakes uses (inspection, medical triage, safety):
 
 Vision deployments need explicit fail-safe behavior.
 
+If the model supports a high-stakes process, the surrounding workflow should know what happens when confidence is low, when the image is out of distribution, or when the hardware path degrades.
+
 ---
 
 ## Common Mistakes
@@ -161,6 +170,7 @@ Vision deployments need explicit fail-safe behavior.
 2. no per-environment evaluation
 3. skipping calibration for confidence-driven decisions
 4. focusing on model architecture before dataset quality
+5. assuming a validation set from one camera source represents the full fleet
 
 ---
 

@@ -23,17 +23,72 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Compare baseline windows**.
+Time semantics are one of the fastest ways to get a streaming system that is technically healthy but analytically wrong. The topology runs, the dashboard updates, and only later does someone notice that delayed or backfilled events were counted in the wrong window.
 
----
+Part 1 is about making the time model explicit. Before tuning grace periods or late-event handling, the team has to agree on a more basic question: are we measuring when the event happened or when the system happened to process it.
 
-## Real-World Scenario
+## Two Different Clocks, Two Different Answers
 
-Delayed and out-of-order events can distort business metrics when processing-time windows are used blindly.
+Processing time asks:
 
----
+"When did this application see the record?"
 
-## Run It Locally
+Event time asks:
+
+"When did the underlying business event actually happen?"
+
+Those clocks can diverge when there is:
+
+- network delay
+- broker backlog
+- consumer lag
+- replay
+- backfill
+
+```mermaid
+flowchart LR
+    A[Event created at 10:00] --> B[Arrives for processing at 10:03]
+    A --> C[Event-time window: 10:00 bucket]
+    B --> D[Processing-time window: 10:03 bucket]
+```
+
+If the team never names this choice, the system will still choose for you, usually by default.
+
+## A Better Example Than "Late Events Exist"
+
+Suppose you publish order events from retail stores with unstable connectivity:
+
+- the store emits the sale at 10:00
+- the message reaches Kafka at 10:02
+- the consumer processes it at 10:03
+
+If revenue per minute should reflect when the sale occurred, event time is the closer fit.
+If the only thing you care about is operational system load right now, processing time may be sufficient.
+
+The right answer depends on the question the pipeline exists to answer.
+
+## Event-Time Extraction
+
+For a baseline, make timestamp extraction explicit instead of relying on hidden defaults:
+
+~~~java
+Consumed<String, Event> consumed = Consumed.with(keySerde, eventSerde)
+    .withTimestampExtractor((record, partitionTime) -> record.value().eventTimeEpochMs());
+~~~
+
+This small step matters because it moves time semantics into code the team can reason about and test.
+
+## What to Test Early
+
+Use the same event set in three ways:
+
+1. in order
+2. out of order
+3. as a replay or backfill
+
+If the results differ and the team cannot explain why, the time model is not yet clear enough for production.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,101 +121,44 @@ services:
 docker compose up -d
 ~~~
 
----
+## A Useful Comparison Drill
 
-## Lab Steps
+Build two windowed aggregations from the same stream:
 
-1. Produce timestamped events with intentional delay.
-2. Aggregate with processing-time windows.
-3. Compare with event-time windows.
+- one using processing time defaults
+- one using explicit event-time extraction
 
----
-
-## Runnable Code Block
-
-~~~java
-Consumed<String, Event> consumed = Consumed.with(keySerde, eventSerde)
-    .withTimestampExtractor((r, ts) -> r.value().eventTimeMillis());
-~~~
-
----
-
-## Verify
+Then publish delayed events and compare the outputs.
 
 ~~~bash
 # compare output topics for processing-time and event-time pipelines
 ~~~
 
----
+That test usually teaches more than a definition section because it produces two different answers from the same inputs.
 
-## Failure Drill
+> [!important]
+> Late data is not an edge case if your system ever replays, backfills, or operates across unreliable producers. It is part of the normal correctness model.
 
-Delay events by 2 minutes and inspect bucket placement differences.
+## Where Teams Usually Get Burned
 
----
+### Picking a window before picking a clock
 
-## What You Should Learn
+Grace periods and lateness handling are downstream decisions. The first decision is which timestamp the business actually trusts.
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+### Mixing timestamp extraction with business parsing
 
----
+Keep time extraction simple and explicit. If it gets tangled with validation and transformation logic, debugging late-event behavior becomes harder.
 
-        ## Problem 1: Choose Time Semantics Before You Tune Windows
+### Never testing replay
 
-        Problem description:
-        Late events, out-of-order delivery, and backfills create different answers depending on whether the topology uses processing time or event time. Build the baseline and make the risky default behavior visible.
+A topology that looks perfect under ordered live traffic can produce the wrong result the first time an old batch is replayed.
 
-        What we are solving actually:
-        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
+## What This Part Should Leave You With
 
-        What we are doing actually:
+After Part 1, the team should be able to answer:
 
-        1. build the smallest working topology that demonstrates the problem clearly
-2. capture one concrete correctness or latency metric before tuning
-3. exercise the happy path and one controlled failure path
-4. write down what a clean operator signal looks like before the system grows
+1. whether the pipeline is anchored on event time or processing time
+2. what kinds of delay or disorder it expects
+3. how to prove the chosen time model with a controlled test
 
-        ```mermaid
-flowchart LR
-    A[Event timestamp] --> B[Window assignment]
-    C[Processing timestamp] --> D[Alternative window assignment]
-    B --> E[Aggregation result]
-    D --> F[Different result]
-```
-
-        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        Consumed.with(Serdes.String(), eventSerde)
-    .withTimestampExtractor((record, partitionTime) -> record.value().eventTimeEpochMs());
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Feed the same event set in order and out of order, then compare the window results. If the answers surprise the team, the time model still is not explicit enough.
-
-        ## Failure Drill
-
-        Backfill yesterday's events into a topology configured for processing time and inspect the aggregates. The wrong answer teaches more than a definition paragraph ever will.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - write down the late-arrival policy before choosing grace periods
-- separate event timestamp extraction from business parsing logic
-- test backfill and replay flows, not only live ordered traffic
-- monitor dropped late events so data loss is visible
-
----
-
-## Operator Prompt
-
-For event time versus processing time tradeoffs in stream pipelines (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That clarity is the foundation for every later decision about windows, grace, and late-data policy.

@@ -23,17 +23,67 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Define SLO and baseline dashboard**.
+Kafka teams often have plenty of metrics and still struggle during incidents. They can see lag, throughput, and broker health, but they cannot answer the question that actually matters in the moment: is the system still within an acceptable operating window, or are we actively violating the promise the service makes to users.
 
----
+Part 1 is about building observability around decisions, not just numbers. Lag only becomes useful when it is translated into business time, partition-level reality, and an explicit service objective.
 
-## Real-World Scenario
+## Why Raw Lag Is Not Enough
 
-Average metrics hide partition-level pain; operations must be SLO-driven and per-partition aware.
+Ten thousand records of lag can mean:
 
----
+- harmless backlog that drains in seconds
+- an urgent incident
+- one hot partition while the rest of the group looks fine
 
-## Run It Locally
+Without context, lag is a noisy integer. Operators need to know what it means for processing delay and user-visible impact.
+
+```mermaid
+flowchart LR
+    A[Producer rate] --> B[Lag]
+    C[Consumer rate] --> B
+    B --> D[Estimated time to drain]
+    D --> E[SLO decision]
+```
+
+That is the shift this post is aiming for: from metric collection to operational judgment.
+
+## Start With the Service Objective
+
+Before you design the dashboard, write the promise down.
+
+For example:
+
+- 99% of order events are processed within 60 seconds
+- no partition should remain stalled beyond 5 minutes without alerting
+
+Those are not universal numbers. They are examples of the kind of target that turns monitoring into something actionable.
+
+## The Metrics That Matter Together
+
+A useful baseline dashboard combines:
+
+- per-partition lag
+- consumer throughput
+- lag growth slope
+- rebalance activity
+- error rate or failure classification
+
+Looking at aggregate lag alone is how teams miss the partition that is already failing while the average still looks manageable.
+
+## Turning Lag Into a Better Signal
+
+One practical derived metric is estimated time to drain:
+
+~~~java
+double lagSeconds = recordsLagMax / Math.max(consumeRatePerSecond, 1.0);
+if (lagSeconds > 120) {
+    alert();
+}
+~~~
+
+This is not perfect, but it is much closer to an operational answer than lag on its own.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,104 +116,47 @@ services:
 docker compose up -d
 ~~~
 
----
+## A Better Validation Drill
 
-## Lab Steps
-
-1. Define end-to-end processing SLO.
-2. Add per-partition lag dashboard.
-3. Add lag growth slope panel.
-
----
-
-## Runnable Code Block
-
-~~~text
-SLO example:
-- 99% events processed within 60s
-- partition lag cap by service tier
-~~~
-
----
-
-## Verify
+Throttle one consumer and watch what happens:
 
 ~~~bash
-kafka-consumer-groups --bootstrap-server localhost:9092 --group orders-cg --describe
+kafka-consumer-groups --bootstrap-server localhost:9092 \
+  --group orders-cg \
+  --describe
 ~~~
 
----
+Now ask three questions:
 
-## Failure Drill
+1. does the dashboard identify the affected partition quickly
+2. does the alert speak in time or only in record count
+3. does the operator know the next action from the dashboard and runbook
 
-Throttle one consumer and verify dashboard highlights partition divergence.
+If the answer to any of those is no, the observability model is still incomplete.
 
----
+> [!important]
+> A dashboard that shows everything but guides nothing is still immature observability.
 
-## What You Should Learn
+## Common Mistakes
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+### Alerting on totals instead of shape
 
----
+A single hot partition can be lost inside healthy group averages.
 
-        ## Problem 1: Operate Kafka With Decision-Oriented Signals
+### Separating lag from throughput
 
-        Problem description:
-        Teams gather lots of Kafka metrics but still cannot answer whether consumer lag is healthy, urgent, or simply a temporary backlog within SLO. Build the baseline and make the risky default behavior visible.
+Lag without consumption rate hides whether the backlog is growing, stable, or draining.
 
-        What we are solving actually:
-        We are establishing the baseline topology and naming the exact failure mode we want to control before we add tuning or governance.
+### No runbook attached to the signal
 
-        What we are doing actually:
+If the graph says "bad" but the team still debates whether to scale, pause producers, or restart consumers, the signal is not operationally complete.
 
-        1. build the smallest working topology that demonstrates the problem clearly
-2. capture one concrete correctness or latency metric before tuning
-3. exercise the happy path and one controlled failure path
-4. write down what a clean operator signal looks like before the system grows
+## What This Part Should Leave You With
 
-        ```mermaid
-flowchart LR
-    A[Producer rate] --> B[Lag]
-    C[Consumer rate] --> B
-    B --> D[Time-to-drain]
-    D --> E[SLO decision]
-```
+After Part 1, the team should be able to define:
 
-        This first stage is where teams decide whether the design is actually observable or only theoretically correct.
+1. an SLO in business time
+2. the metrics that explain whether the SLO is at risk
+3. the first dashboard and alert set that supports a real operator decision
 
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        lag_seconds = records_lag_max / max(consume_rate_per_second, 1)
-if (lag_seconds > 120) {
-    alert();
-}
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Translate lag into time-to-drain and compare it with an explicit SLO. Operators need a decision signal, not just an ever-growing integer on a dashboard.
-
-        ## Failure Drill
-
-        Throttle consumers for five minutes and practice triage using only your dashboards and alerts. If the team still cannot tell whether to scale, pause producers, or do nothing, the observability model needs work.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - watch partition skew as well as aggregate lag
-- pair lag with throughput and rebalance events to avoid false narratives
-- define alert thresholds in business time rather than raw record counts
-- keep runbooks next to dashboards so operators know the next move
-
----
-
-## Operator Prompt
-
-For kafka observability lag saturation and slo driven operations (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That baseline is what makes later tuning and automation meaningful instead of decorative.

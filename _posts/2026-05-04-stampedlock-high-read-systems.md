@@ -21,181 +21,199 @@ header:
   show_overlay_excerpt: false
   caption: Optimistic Reads for Read-Heavy Workloads
 ---
-`StampedLock` can reduce read overhead in read-heavy workloads via optimistic reads.
-It is powerful but more error-prone than standard read-write locks.
+`StampedLock` is one of the easiest Java concurrency tools to overestimate. On paper, optimistic reads look like a cheap path to better throughput. In practice, they only help when the data is genuinely read-mostly and the validation path is disciplined.
+
+This is not a default replacement for `ReentrantReadWriteLock`. It is a specialized tool for workloads where failed optimistic reads are rare enough to justify the extra complexity.
 
 ---
 
-## Why Teams Adopt StampedLock
+## What `StampedLock` Is Actually Buying You
 
-- high read-to-write ratio
-- low write frequency but strict consistency during writes
-- performance-sensitive in-memory structures
+The attraction is simple:
+
+- readers can speculatively read without taking a full read lock
+- writes still retain exclusive access
+- successful validations avoid some read-lock overhead
+
+That is useful only when the optimistic path succeeds most of the time.
+
+If writes are frequent, or the optimistic read does too much work before validation, the design becomes harder to reason about without delivering a real win.
 
 ---
 
-## Optimistic Read Pattern
+## The Safe Optimistic Read Pattern
+
+The correct pattern is short, boring, and strict:
 
 ```java
-class Point {
+final class Point {
     private final StampedLock lock = new StampedLock();
-    private double x, y;
+    private double x;
+    private double y;
 
-    double distance() {
+    double distanceFromOrigin() {
         long stamp = lock.tryOptimisticRead();
-        double cx = x, cy = y;
+        double localX = x;
+        double localY = y;
+
         if (!lock.validate(stamp)) {
             stamp = lock.readLock();
-            try { cx = x; cy = y; }
-            finally { lock.unlockRead(stamp); }
+            try {
+                localX = x;
+                localY = y;
+            } finally {
+                lock.unlockRead(stamp);
+            }
         }
-        return Math.hypot(cx, cy);
+
+        return Math.hypot(localX, localY);
     }
 }
 ```
 
----
+What matters here:
 
-## Safety Rules
+- snapshot only the fields you need
+- validate before trusting the snapshot
+- fall back to a real read lock immediately on failure
 
-- optimistic reads are not lock-free consistency guarantees until validated.
-- always fallback to read lock on failed validation.
-- avoid reentrant assumptions; `StampedLock` is not reentrant.
-
-Optional improvement: for write-after-read flows, evaluate `tryConvertToWriteLock` to reduce unlock/relock transitions when safe.
+The optimistic read is only an attempt. The fallback is what makes it correct.
 
 ---
 
-## Migration Checklist
+## Where Teams Get Into Trouble
 
-1. benchmark against `ReentrantReadWriteLock` baseline.
-2. ensure no lock reentry paths.
-3. add invariants and concurrency tests.
-4. monitor correctness before throughput gains.
+`StampedLock` usually fails in one of these ways:
+
+- the optimistic block grows too large
+- derived work happens before validation
+- the code assumes reentrancy
+- writers are common enough that validation fails constantly
+
+Those mistakes quietly erase the benefit while keeping the complexity.
+
+> [!WARNING]
+> `StampedLock` is not reentrant. If the same thread can re-enter the protected path, treat that as a design warning before you treat it as an implementation challenge.
+
+---
+
+## A Good Fit: Read-Mostly Snapshot Views
+
+Imagine an in-memory inventory view updated occasionally from a stream but read on nearly every request.
+
+```java
+final class InventoryView {
+    private final StampedLock lock = new StampedLock();
+    private long available;
+    private long reserved;
+
+    long totalUnits() {
+        long stamp = lock.tryOptimisticRead();
+        long availableSnapshot = available;
+        long reservedSnapshot = reserved;
+
+        if (!lock.validate(stamp)) {
+            stamp = lock.readLock();
+            try {
+                availableSnapshot = available;
+                reservedSnapshot = reserved;
+            } finally {
+                lock.unlockRead(stamp);
+            }
+        }
+
+        return availableSnapshot + reservedSnapshot;
+    }
+
+    void applyDelta(long availableDelta, long reservedDelta) {
+        long stamp = lock.writeLock();
+        try {
+            available += availableDelta;
+            reserved += reservedDelta;
+        } finally {
+            lock.unlockWrite(stamp);
+        }
+    }
+}
+```
+
+This pattern works because:
+
+- reads are tiny
+- writes are infrequent
+- the optimistic path can be validated cheaply
+
+If the read path starts doing formatting, downstream calls, or larger derived calculations before validation, it is no longer a good `StampedLock` candidate.
+
+---
+
+## Measure Validation Failure Rate, Not Just Throughput
+
+A common mistake is claiming a `StampedLock` win after a clean micro-benchmark. In production, the more useful question is:
+
+How often did the optimistic path fail?
+
+If validation fails often, readers are effectively paying for:
+
+- an optimistic attempt
+- a failed validation
+- a fallback lock acquisition
+
+That can be worse than taking a normal read lock in the first place.
+
+One useful operational metric is:
+
+- optimistic reads attempted
+- optimistic reads validated successfully
+- fallback read-lock acquisitions
+
+That tells you whether the workload still deserves this design.
+
+---
+
+## Keep the Write Path Small
+
+Optimistic reads only look good when writes are bounded.
+
+That means:
+
+- no I/O under the write lock
+- no downstream calls
+- no heavy object rebuilding while holding the lock
+
+Do prep work before taking the write lock, then make the mutation small and obvious.
+
+This is the same discipline that helps any locking strategy, but `StampedLock` depends on it more because long writes directly increase optimistic failure rates.
+
+---
+
+## What to Compare Before Choosing It
+
+Before adopting `StampedLock`, compare it against:
+
+- `ReentrantReadWriteLock`
+- immutable snapshot publication with `volatile`
+- redesigning ownership so fewer threads share the same state
+
+Sometimes the best optimization is not a smarter lock. It is making the shared state simpler.
+
+---
+
+## A Practical Adoption Checklist
+
+- confirm the workload is truly read-mostly
+- keep optimistic reads tiny and validation immediate
+- verify no reentrant paths exist
+- measure validation failure rate under realistic write bursts
+- compare with a simpler baseline before keeping the complexity
+
+If you cannot explain why `StampedLock` beats a simpler design, it probably does not.
 
 ---
 
 ## Key Takeaways
 
-- StampedLock is a specialized optimization, not a default lock.
-- optimistic reads help only when writes are rare.
-- correctness discipline is mandatory due to API complexity.
-
----
-
-## When Optimistic Reads Backfire
-
-Optimistic reads are valuable only when writes are rare and validation mostly succeeds.
-If writes are frequent, retries can cost more than a normal read lock.
-
-```java
-long stamp = lock.tryOptimisticRead();
-State s = state;
-if (!lock.validate(stamp)) {
-    stamp = lock.readLock();
-    try { s = state; } finally { lock.unlockRead(stamp); }
-}
-```
-
-Track optimistic validation failure rate in production. If failure is high, redesign the access pattern.
-
----
-
-## Case Study: Price Cache Snapshot Reads
-
-A price cache usually serves many reads and occasional updates.
-`StampedLock` optimistic reads are useful when price mutations are infrequent.
-
-Engineering guardrails:
-
-- keep optimistic read block tiny
-- revalidate stamp before using derived values
-- avoid calling external methods before validation
-- capture optimistic-failure metric for tuning decisions
-
----
-
-## Dry Scenario: Validation Failure Path
-
-1. Reader calls `tryOptimisticRead()` and snapshots fields.
-2. Writer acquires write lock and updates fields.
-3. Reader calls `validate(stamp)` -> `false`.
-4. Reader retries under `readLock()` and returns consistent view.
-
-This fallback is what preserves correctness; without it, stale/inconsistent reads can leak.
-
----
-
-        ## Problem 1: Use Optimistic Reads Only When You Can Validate Aggressively
-
-        Problem description:
-        `StampedLock` looks attractive for high-read workloads, but optimistic reads are only safe when validation is cheap and write windows are clearly bounded.
-
-        What we are solving actually:
-        We are solving contention without lying to ourselves about correctness. The real win comes from fast validation and a clear fallback path, not from optimistic reads by themselves.
-
-        What we are doing actually:
-
-        1. start with an optimistic read for a read-mostly structure
-2. validate the stamp before using derived values
-3. fall back to a real read lock when validation fails
-4. measure retry rate so optimistic mode remains a benefit rather than ceremony
-
-        ```mermaid
-flowchart TD
-    A[Optimistic read] --> B{validate stamp?}
-    B -->|Yes| C[Use snapshot]
-    B -->|No| D[Acquire read lock]
-    D --> E[Read stable state]
-```
-
-        This section is worth making concrete because architecture advice around stampedlock high read systems often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        final class InventoryView {
-    private final StampedLock lock = new StampedLock();
-    private long reserved;
-    private long available;
-
-    long total() {
-        long stamp = lock.tryOptimisticRead();
-        long reservedSnapshot = reserved;
-        long availableSnapshot = available;
-        if (!lock.validate(stamp)) {
-            stamp = lock.readLock();
-            try {
-                reservedSnapshot = reserved;
-                availableSnapshot = available;
-            } finally {
-                lock.unlockRead(stamp);
-            }
-        }
-        return reservedSnapshot + availableSnapshot;
-    }
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Drive a write-heavy burst and count optimistic validation failures. If validation collapses under modest write pressure, the lock is telling you the workload is not actually read-mostly enough for this design.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - log optimistic-read validation failure rate during peak traffic
-- avoid holding the write lock across I/O or remote calls
-- check for derived calculations that use stale snapshots after validation
-- compare end-to-end latency with a plain read-write lock before claiming a win
-
-        ## Review Checklist
-
-        - Keep write sections tiny.
-- Only use optimistic reads when fallback cost is acceptable.
-- Benchmark contention patterns, not just no-load micro tests.
+- `StampedLock` is a specialized optimization for disciplined read-mostly workloads.
+- The optimistic path is only correct because the fallback path exists.
+- Validation failure rate is one of the most important production signals.
+- If writes are frequent or reads are complex, a simpler design is usually better.

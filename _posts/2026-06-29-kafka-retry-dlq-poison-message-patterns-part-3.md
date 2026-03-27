@@ -23,40 +23,55 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Turn DLQ handling into an owned operational playbook**.
+Part 1 created the bounded retry and DLQ topology. Part 2 made the failure path traceable. Part 3 is about ownership: who decides what happens to dead-lettered messages, which classes are replayable, and how the team stops the DLQ from becoming a long-lived pile of unresolved operational debt.
 
----
+A DLQ is only useful when policy exists after the message lands there.
 
-## Problem 1: Stop Treating the DLQ as a Dumping Ground
+## Why a DLQ Needs a Playbook
 
-Problem description:
-A DLQ is helpful only when teams know what kinds of failures belong there, who owns them, and what replay policy applies after a fix.
+Sending a record to a dead-letter topic is not resolution. It is only isolation.
 
-What we are solving actually:
-We are solving governance of failed events after they are isolated.
-The hard problem is not sending a message to DLQ; it is deciding what to do next in a way that is fast, safe, and repeatable.
+The real questions begin immediately after:
 
-What we are doing actually:
-
-1. Classify DLQ records by failure type.
-2. Assign owners and SLAs for each class.
-3. Automate safe replay where policy allows it.
+- what kind of failure is this
+- who owns investigation
+- is replay allowed
+- under what SLA should this be resolved
 
 ```mermaid
 flowchart LR
-    A[DLQ event] --> B{Classify root cause}
-    B -->|Transient infra| C[Auto-replay]
-    B -->|Schema / contract| D[Replay after fix]
-    B -->|Business reject| E[No replay]
+    A[DLQ event] --> B{Failure class}
+    B -->|Transient infra| C[Replay after stabilization]
+    B -->|Schema or contract| D[Replay after fix]
+    B -->|Business reject| E[No replay, manual resolution]
 ```
 
-## Real-World Scenario
+That classification is what turns the DLQ from storage into governance.
 
-A poison event can block partition progress unless retries and DLQ are bounded and policy-driven.
+## Not Every DLQ Message Should Be Replayed
 
----
+One of the most expensive mistakes teams make is treating replay as the universal answer.
 
-## Run It Locally
+Some failure classes deserve different treatment:
+
+- transient infrastructure failures may be replayable once the environment is healthy
+- schema or contract failures may be replayable only after the producer or consumer is fixed
+- business rejections may never be replayable without manual correction
+
+The playbook should say that explicitly, so incident response does not default to "put it back on the main topic and hope."
+
+## Ownership Has to Be Concrete
+
+For each DLQ class, define:
+
+- the owning team
+- expected response time
+- replay eligibility
+- the signal that marks the issue as resolved
+
+If no owner exists, the queue becomes a quiet backlog instead of an operating system.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -89,71 +104,51 @@ services:
 docker compose up -d
 ~~~
 
----
-
-## Lab Steps
-
-1. Classify DLQ by root cause.
-2. Assign owner and SLA.
-3. Automate replay after fix.
-4. Audit replay outcomes.
-
----
-
-## Runnable Code Block
+## A Useful Governance Template
 
 ~~~text
 DLQ policy:
-- transient infra errors: auto-replay
-- schema errors: replay after producer fix
-- business rejects: no replay
+- transient infra errors: replay after environment recovery
+- schema errors: replay after producer or consumer fix
+- business rejects: no automatic replay
 ~~~
 
----
+The purpose of a simple policy like this is speed and clarity during incidents, not theoretical completeness.
 
-## Verify
+## The Right Drill for Part 3
 
-~~~bash
-# sample replay command pipeline (replace with internal tool)
-kafka-console-consumer --bootstrap-server localhost:9092 --topic orders.dlq --from-beginning | head
-~~~
+Run a synthetic DLQ exercise with multiple failure classes and verify:
 
----
+- the classification is clear
+- the right owner is obvious
+- only replayable classes are replayed
+- replay outcomes are audited afterward
 
-## Failure Drill
+That drill is more valuable than merely proving a replay script exists.
 
-Run synthetic DLQ drill and verify playbook completion within target recovery window.
+> [!important]
+> A DLQ playbook should optimize for safe decisions under pressure, not for maximum theoretical flexibility.
 
----
+## Common Mistakes
 
-## Debug Steps
+### Letting "just replay it" become the default reflex
 
-Debug steps:
+That often reintroduces the same bad message into the hot path without addressing the cause.
 
-- confirm every DLQ class has an owner and response expectation
-- keep replay rules explicit so “just replay it” does not become the default answer
-- audit replay outcomes to prove whether fixes really resolved the issue
-- run synthetic DLQ drills so the playbook is practiced before a real incident
+### No SLA or owner for DLQ classes
 
-## Operational Note
+Without ownership, the queue may be operationally visible but practically unmanaged.
 
-The best DLQ playbooks are short, explicit, and practiced.
-If responders need to rediscover policy during an incident, the DLQ is still functioning as storage rather than governance.
+### No replay audit
 
-## What You Should Learn
+If replay results are never reviewed, the team never learns whether the fix actually resolved the underlying issue.
 
-- a DLQ is only useful when replay policy and ownership are clear
-- not every failed message should be replayed
-- governance turns DLQ handling from improvisation into operations
+## What This Part Should Leave You With
 
----
+After Part 3, the team should understand:
 
-## Operator Prompt
+1. why DLQ handling needs ownership and policy, not only tooling
+2. why replay should differ by failure class
+3. how a practiced playbook keeps the queue from turning into unresolved system debt
 
-For retry topics dlq design and poison message governance (part 3), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
-
----
-
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That is what makes retry and DLQ design operationally complete by the end of the series.

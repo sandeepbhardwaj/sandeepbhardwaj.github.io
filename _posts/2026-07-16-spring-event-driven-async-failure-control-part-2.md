@@ -25,98 +25,159 @@ header:
   show_overlay_excerpt: false
   caption: Advanced Spring Boot Runtime Engineering
 ---
-Event-driven Spring architecture with async failure control (Part 2) becomes valuable only when the Spring container behavior, runtime constraints, and rollout risks are all made explicit. The interesting part is rarely the annotation itself; it is how the application behaves under startup pressure, configuration drift, and live traffic.
+Part 1 established the core rule: Spring events are useful for in-process decoupling, not for pretending durable messaging exists where it does not.
+Part 2 goes deeper into the next operational question: once you do choose async listeners, how do you stop one weak listener from quietly becoming a hidden reliability boundary for the whole service.
 
 ---
 
-## Problem 1: Event-driven Spring architecture with async failure control (Part 2)
+## The Harder Problem Is Listener Failure Containment
 
-Problem description:
-We want to apply event-driven spring architecture with async failure control (part 2) in a way that stays predictable during startup, configuration changes, and production rollout. This part focuses on hardening, edge cases, and where the first design usually starts to bend.
+The first version of an event-driven Spring workflow often looks reasonable:
 
-What we are solving actually:
-We are solving for operational hardening: failure semantics, trade-offs, and the places where naive implementations start leaking risk. For Spring systems, the hidden risk is often framework magic that obscures order of initialization or override behavior.
+- publish a domain event after commit
+- handle it asynchronously
+- log failures
+- move on
 
-What we are doing actually:
+The second version is where the real questions show up:
 
-1. make Spring Boot explicit: stress the baseline with the most likely failure or contention mode
-2. make Spring Boot explicit: introduce one hardening mechanism at a time
-3. make Spring Boot explicit: measure the operational trade-off instead of trusting intuition
-4. make Spring Boot explicit: document where the pattern should stop and another pattern should begin
+- what prevents a slow listener from saturating the executor
+- what happens when one event type is much noisier than another
+- how does the team know which events were dropped, delayed, or retried
+- where does the system draw the line between best-effort side effects and durable obligations
 
----
-
-## Why This Topic Matters
-
-- startup order and bean wiring become operational concerns in large services
-- safe customization matters more than clever override tricks
-- rollback and configuration drift should be considered before production rollout
+That is where async event handling becomes an operations design problem, not just a decoupling trick.
 
 ---
 
-## Architecture Model
+## One Executor for Everything Is Usually a Smell
+
+Teams get into trouble when all async listeners share one default executor.
+That model couples unrelated workloads:
+
+- email notifications
+- cache refreshes
+- audit logging
+- enrichment calls to downstream systems
+
+If one of those paths backs up, the others can degrade with it.
+
+The better pattern is to classify listeners by business criticality and latency tolerance.
+
+---
+
+## A Better Failure Model
 
 ```mermaid
 flowchart TD
-    A[Baseline from part 1] --> B[Hard failure mode]
-    B --> C[Refined design for Event-driven Spring architecture with async failure control (Part 2)]
-    C --> D[Trade-off measurement]
-    D --> E[Operational decision]
+    A[Transactional business write] --> B[After-commit event publication]
+    B --> C[Dedicated listener executor]
+    C --> D[Success metrics and failure metrics]
+    D --> E[Retry, degrade, or escalate to durable delivery]
 ```
 
-The model keeps bean lifecycle, override points, and rollout behavior in one frame so event-driven spring architecture with async failure control (part 2) stays reviewable under pressure.
-Once those three signals are visible, the deeper framework detail has somewhere safe to attach.
+The missing piece in many systems is the last one.
+If the listener fails repeatedly, the application needs a conscious policy rather than a pile of stack traces.
 
 ---
 
-## Practical Design Pattern
+## Separate Best-Effort Listeners from Must-Observe Listeners
+
+If a listener is truly best effort, the code should say so through its execution model and monitoring.
+If it is not best effort, it probably needs a stronger delivery model than plain async events.
 
 ```java
 @Configuration
-class TopicConfiguration {
+class EventExecutorsConfiguration {
 
     @Bean
-    TopicPolicy topicPolicy() {
-        return new TopicPolicy("Event-driven Spring architecture with async failure control (Part 2)", 2);
+    ThreadPoolTaskExecutor notificationEventsExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("notification-events-");
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(200);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
     }
 }
 ```
 
-This code sketch stays intentionally narrow because the real value in event-driven spring architecture with async failure control (part 2) is choosing one safe extension point and one predictable fallback path.
-If the customization needs surprises in three different configuration layers, the design is already too hard to operate.
+And then bind the listener to that policy explicitly:
+
+```java
+@Component
+class OrderNotificationListener {
+
+    @Async("notificationEventsExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    void onOrderPlaced(OrderPlacedEvent event) {
+        // send customer notification
+    }
+}
+```
+
+This does not create durability, but it does make the failure surface visible and reviewable.
+
+> [!IMPORTANT]
+> If the business cannot tolerate losing the side effect when the node crashes after commit, plain async listeners are the wrong tool. That is the line where an outbox or broker-backed design becomes justified.
+
+---
+
+## Backpressure Still Exists Even Without a Broker
+
+Async listeners do not remove backpressure.
+They hide it until the queue fills, the executor saturates, or the downstream dependency starts timing out.
+
+That means every listener design should answer:
+
+- what is the maximum queued work we are willing to hold
+- what happens when the queue is full
+- which events can be shed
+- which events must be promoted to a durable path instead
+
+If those questions are unanswered, the architecture is event-driven only in appearance.
 
 ---
 
 ## Failure Drill
 
-Hardening drill: inject a startup or override misconfiguration and verify the failure mode is obvious, bounded, and recoverable for event-driven spring architecture with async failure control (part 2).
+A strong drill here is selective listener pressure:
 
-That check matters while the design is being stressed by mixed versions, retries, or recovery edge cases because Spring issues around event-driven spring architecture with async failure control (part 2) often show up in startup order, refresh timing, or rollback windows rather than in straightforward unit tests.
+1. publish a steady stream of domain events
+2. make one async listener slow or intermittently failing
+3. verify unrelated listeners do not degrade with it
+4. inspect queue depth, rejection behavior, and failure metrics
+5. decide whether the side effect is still acceptable as best effort
+
+This exposes whether failure is actually contained or merely deferred.
 
 ---
 
 ## Debug Steps
 
-Debug steps:
-
-- trace bean creation, condition evaluation, and configuration precedence while validating event-driven spring architecture with async failure control (part 2)
-- keep customization close to the intended extension point instead of scattered overrides while validating event-driven spring architecture with async failure control (part 2)
-- observe startup, request, and shutdown phases separately while validating event-driven spring architecture with async failure control (part 2)
-- verify rollback by disabling the new behavior, not by rewriting it live while validating event-driven spring architecture with async failure control (part 2)
+- trace listener execution by event type, not only by exception logs
+- separate executor saturation from downstream dependency failure
+- inspect queue depth and rejection policy under load
+- verify after-commit timing so side effects do not publish uncommitted truth
+- escalate critical listeners to an outbox or broker when best effort stops being acceptable
 
 ---
 
 ## Production Checklist
 
-- mixed-config or mixed-version behavior exercised once
-- error or timeout path measured under real startup/runtime timing
-- override and rollback rules still simple after hardening
-- incident notes updated with the real failure signature
+- async listeners use named executors with explicit queue and rejection policies
+- listener workloads are separated by criticality or latency profile
+- failure metrics exist per event type, not only globally
+- teams can explain which listeners are best effort and which require durable delivery
+- crash-after-commit behavior has been discussed, not ignored
 
 ---
 
 ## Key Takeaways
 
-- Event-driven Spring architecture with async failure control (Part 2) should be designed as a production decision, not just an implementation detail
-- framework behavior should stay observable and override paths should stay intentional
-- harden one failure mode at a time instead of stacking speculative complexity
+- Async Spring events need failure containment, not just decoupling.
+- A shared default executor is often the first hidden coupling point in event-driven application code.
+- Best-effort side effects should be explicitly treated as best effort.
+- If the business needs durability, move from in-process async listeners to an outbox or broker-backed path.

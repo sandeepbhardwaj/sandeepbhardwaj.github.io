@@ -21,22 +21,40 @@ header:
   show_overlay_excerpt: false
   caption: Load Time Instrumentation and Runtime Introspection
 ---
-Java agents let you instrument classes without modifying application source code.
-They are powerful for tracing, profiling, and policy enforcement, but they run at platform-critical boundaries.
+Java agents are powerful because they operate at a boundary most application code never reaches: class loading and runtime instrumentation.
+
+That is also why they deserve more caution than ordinary libraries. An agent can improve observability, profiling, or policy enforcement across the JVM, but it can also make startup opaque, widen blast radius, and complicate rollback if the design is too broad.
 
 ---
 
-## Entry Modes
+## What an Agent Is Good At
 
-- `premain(String, Instrumentation)`: loaded at JVM startup via `-javaagent`
-- `agentmain(String, Instrumentation)`: attached to running JVM (dynamic attach)
+Custom agents make sense when the concern is genuinely cross-cutting:
 
-Use `premain` for predictable startup instrumentation.
-Use `agentmain` for diagnostics and emergency attach workflows.
+- timing or tracing many classes consistently
+- lightweight runtime diagnostics
+- enforcement of a narrow policy at load time
+- targeted bytecode transformation without changing source
+
+They are much weaker when used to hide behavior that should really live in normal application code.
 
 ---
 
-## Minimal, Targeted Transformer
+## Choose the Right Entry Mode
+
+Agents have two main entry modes:
+
+- `premain(String, Instrumentation)` for JVM startup via `-javaagent`
+- `agentmain(String, Instrumentation)` for dynamic attach
+
+Use `premain` when instrumentation should be part of the normal process startup contract.
+Use `agentmain` for diagnostics, emergency analysis, or controlled runtime attach scenarios.
+
+The operational difference matters because startup agents participate directly in boot success and startup time.
+
+---
+
+## A Narrow Transformer Is a Healthy Transformer
 
 ```java
 public final class Agent {
@@ -44,7 +62,7 @@ public final class Agent {
     public static void premain(String args, Instrumentation inst) {
         ClassFileTransformer transformer = (loader, className, classBeingRedefined, domain, bytes) -> {
             if (className == null || !className.startsWith("com/company/service/")) {
-                return null; // no change
+                return null;
             }
             return transformClass(className, bytes);
         };
@@ -53,137 +71,99 @@ public final class Agent {
     }
 
     private static byte[] transformClass(String className, byte[] original) {
-        // Apply bytecode transformation with ASM/ByteBuddy and return modified bytes.
         return original;
     }
 }
 ```
 
-Return `null` when no transformation is needed to reduce overhead.
+The most important detail here is not the lambda. It is the scope.
+
+Agents should usually begin with:
+
+- a narrow package match
+- deterministic transformation rules
+- the ability to skip most classes quickly
+
+Broad class matching is one of the fastest ways to turn a useful agent into an infrastructure incident.
 
 ---
 
-## Manifest Requirements
+## Manifest Capabilities Should Be Intentional
 
-Agent JAR manifest typically includes:
+Typical manifest entries include:
 
-- `Premain-Class: com.company.agent.Agent`
-- `Agent-Class: com.company.agent.Agent` (if dynamic attach supported)
-- `Can-Redefine-Classes: true` (only if needed)
-- `Can-Retransform-Classes: true` (only if needed)
+- `Premain-Class`
+- `Agent-Class`
+- `Can-Redefine-Classes`
+- `Can-Retransform-Classes`
 
-Enable capabilities only when required.
+Only enable the capabilities you genuinely need.
 
----
-
-## Safe Transformation Rules
-
-- instrument only explicit package/method targets
-- avoid transforming JDK/core framework classes unless absolutely necessary
-- keep transformation deterministic and idempotent
-- fail closed to no-op on transform errors (do not crash app by default)
-
-Agent bugs can break application startup; treat code with platform-level rigor.
+Extra capabilities are not harmless decoration. They widen the runtime surface and the number of cases the agent must handle correctly.
 
 ---
 
-## Dry Run: Request Timing Instrumentation
+## The Main Design Questions Are Operational
 
-1. canary deploy with `-javaagent:agent.jar=mode=observe,packages=com.company.api`.
-2. transformer adds timing hooks to controller methods only.
-3. measure startup delta, p95 latency delta, and CPU overhead.
-4. compare canary vs control cluster.
-5. expand scope gradually if overhead stays within budget.
+Before shipping an agent, decide:
 
-Keep kill switch in agent args to disable instrumentation instantly.
+- what exact classes are eligible for transformation
+- what happens if transformation fails
+- how the agent is disabled quickly
+- how transformed classes are identified during incidents
 
----
+Those questions matter more than the bytecode details at first. An elegant transformer with no rollback story is not production-ready.
 
-## Testing Strategy
-
-- bytecode golden tests for transformed classes
-- integration tests on target JDK versions
-- startup tests with agent enabled/disabled
-- stress tests for retransformation and classloader interactions
-
-Agents must be tested against the same runtime matrix as production.
+> [!TIP]
+> A good first rollout transforms a small, named slice of classes and makes its own behavior easy to explain in logs and startup diagnostics.
 
 ---
 
-## Common Mistakes
+## A Good Canary Pattern
 
-- broad instrumentation patterns (`com/.*`) in first rollout
-- mutating method semantics instead of adding orthogonal telemetry
-- unbounded logging from transformer path
-- ignoring classloader-specific behavior in app servers/plugins
+For a request-timing agent, a safe rollout looks like this:
+
+1. instrument only one narrow package
+2. record transformed class names at startup
+3. compare startup time with and without the agent
+4. compare CPU and latency overhead in canary traffic
+5. keep a kill switch in agent args or deployment config
+
+This treats the agent like infrastructure, which is exactly what it is.
+
+---
+
+## Test the Agent Against the Runtime Matrix
+
+Agent testing should include:
+
+- bytecode golden tests or transformed-class snapshots
+- startup tests with the agent enabled and disabled
+- compatibility tests across supported JDKs
+- classloader interaction tests where applicable
+- stress tests for retransformation if you support it
+
+Agents are especially sensitive to runtime variation, so version coverage matters more than it does for ordinary application code.
+
+---
+
+## Common Failure Modes
+
+The failures to design against are predictable:
+
+- transforming too many classes
+- mutating semantics instead of adding orthogonal instrumentation
+- excessive logging from the transform path
+- bytecode that works on one JDK and breaks on another
+- dynamic attach workflows with no clear audit or rollback model
+
+An agent should leave a small, understandable footprint.
 
 ---
 
 ## Key Takeaways
 
-- Java agents are best for cross-cutting runtime instrumentation with strict scope.
-- prioritize deterministic transforms, feature flags, and rollback safety.
-- roll out like an infrastructure change, not a normal library upgrade.
-
----
-
-        ## Problem 1: Instrument Behavior Without Making Startup Opaque
-
-        Problem description:
-        Java agents are powerful, but teams often use them without defining class-match scope, startup failure behavior, or rollback controls.
-
-        What we are solving actually:
-        We are solving targeted observability or policy injection at JVM startup. The safe design keeps agent intent narrow, startup diagnostics explicit, and transformed classes easy to identify during incidents.
-
-        What we are doing actually:
-
-        1. limit instrumentation to a small, well-named set of packages or classes
-2. log the transformed class names and agent version at startup
-3. treat agent failure mode as a product decision: fail fast or disable safely
-4. validate transformed bytecode in tests before attaching to production services
-
-        ```mermaid
-flowchart LR
-    A[JVM startup] --> B[premain]
-    B --> C[ClassFileTransformer]
-    C --> D[Instrumented classes]
-    D --> E[Runtime telemetry]
-```
-
-        This section is worth making concrete because architecture advice around custom java agent instrumentation api often stays too abstract.
-        In real services, the improvement only counts when the team can point to one measured risk that became easier to reason about after the change.
-
-        ## Production Example
-
-        ```java
-        public static void premain(String args, Instrumentation instrumentation) {
-    instrumentation.addTransformer((loader, name, type, domain, bytes) -> {
-        if (name != null && name.startsWith("com/example/service/")) {
-            return bytes;
-        }
-        return null;
-    });
-}
-        ```
-
-        The code above is intentionally small.
-        The important part is not the syntax itself; it is the boundary it makes explicit so code review and incident review get easier.
-
-        ## Failure Drill
-
-        Start the app with the agent disabled and enabled while comparing startup time and transformed classes. If nobody can explain the delta, the agent is too magical for production.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - log which classes are transformed and which are intentionally skipped
-- keep a fast off-switch for emergencies through config or startup flags
-- verify bytecode compatibility across the JDK versions you support
-- avoid using an agent to hide behavior that should live in application code
-
-        ## Review Checklist
-
-        - Instrument narrowly.
-- Expose agent version and transformed classes.
-- Keep rollback simple.
+- Java agents are best for narrow, cross-cutting runtime instrumentation.
+- The first design question is scope, not clever transformation.
+- Startup behavior, kill switches, and transformed-class visibility are part of the product.
+- Roll agents out like infrastructure changes, with canaries and explicit rollback.

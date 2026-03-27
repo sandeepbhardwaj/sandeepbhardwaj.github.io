@@ -23,17 +23,55 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Tune cache/commit/threads**.
+Part 1 established the stateful baseline and made restore cost visible. Part 2 is where tuning becomes worth discussing, but only in relation to that baseline. Cache size, commit interval, and stream-thread count are not generic performance knobs. Each one shifts the balance between throughput, latency, and recovery behavior.
 
----
+That trade-off is the real subject of this post.
 
-## Real-World Scenario
+## What Each Knob Actually Changes
 
-Stateful stream apps are constrained by state restore time, disk IO, and changelog replay behavior.
+For a simple baseline, these are the main controls:
 
----
+~~~properties
+cache.max.bytes.buffering=104857600
+commit.interval.ms=1000
+num.stream.threads=4
+~~~
 
-## Run It Locally
+Their effects are different:
+
+- larger cache can improve steady-state throughput, but may change flush behavior and memory pressure
+- shorter commit intervals can reduce how much state is buffered before commit, but may increase overhead
+- more stream threads can improve concurrency, but only if the topology and host resources support it
+
+Part 2 is not about maximizing all three. It is about choosing a defensible balance.
+
+## Why Restore Still Matters While Tuning
+
+It is easy to optimize for steady-state benchmarks and forget restart behavior. That mistake is expensive in production.
+
+A tuning change is only truly useful if you understand its impact on:
+
+- processing latency
+- local state growth
+- changelog pressure
+- restore time after restart
+
+That last metric keeps the tuning honest.
+
+## A Better Way to Compare Changes
+
+Change one knob at a time and keep the workload stable.
+
+For example:
+
+1. increase cache size and record throughput plus restore cost
+2. reset to baseline
+3. change commit interval and compare again
+4. only then experiment with thread count
+
+If you move all three together, you may get a faster topology, but you will not know why.
+
+## Local Setup
 
 ### Prerequisites
 
@@ -66,104 +104,39 @@ services:
 docker compose up -d
 ~~~
 
----
+## A More Useful Failure Drill
 
-## Lab Steps
+Force a restart under load after each tuning change and compare recovery against the Part 1 baseline.
 
-1. Change `cache.max.bytes.buffering`.
-2. Tune `commit.interval.ms`.
-3. Measure throughput and restore impact.
+That question is more valuable than raw throughput alone:
 
----
+"Did we speed up steady-state processing by making restart behavior worse?"
 
-## Runnable Code Block
+If the answer is yes, the topology may still need more design work before more tuning.
 
-~~~properties
-cache.max.bytes.buffering=104857600
-commit.interval.ms=1000
-num.stream.threads=4
-~~~
+> [!important]
+> Stateful streaming performance is not just records per second. Recovery characteristics are part of the runtime contract.
 
----
+## Common Mistakes
 
-## Verify
+### Treating bigger cache as automatically better
 
-~~~bash
-# capture restore lag and processing latency before/after tuning
-~~~
+It may help throughput, but it also changes memory behavior and can make the system feel different under burst or failure conditions.
 
----
+### Adding threads without checking partition-level parallelism
 
-## Failure Drill
+More threads do not help if the topology is not partitioned in a way that can use them.
 
-Force restart under load and compare recovery time against baseline.
+### Ignoring the changelog while tuning local state
 
----
+A local improvement that overloads changelog traffic or restore cost is not really a net win.
 
-## What You Should Learn
+## What This Part Should Leave You With
 
-- where this pattern fails under load or restart conditions
-- which metrics prove correctness and stability
-- how to convert this into a production runbook
+After Part 2, the team should understand:
 
----
+1. what cache, commit interval, and threads each influence
+2. how to compare tuning changes against the Part 1 baseline
+3. why recovery metrics have to stay in the tuning conversation
 
-        ## Problem 1: State Stores Are Operational Assets, Not Hidden Internals
-
-        Problem description:
-        Kafka Streams stateful processing looks simple in code, but restore time, changelog pressure, and RocksDB tuning decide whether the topology survives restarts gracefully. Harden the baseline against the edge cases that appear under load and replay.
-
-        What we are solving actually:
-        We are solving the second-order operational problems: mixed versions, crashes at awkward times, or contention that only appears when traffic is not clean.
-
-        What we are doing actually:
-
-        1. introduce the hardening mechanism one layer at a time
-2. test with replay, restart, or mixed-version conditions rather than only steady-state traffic
-3. measure what becomes safer and what becomes more complex
-4. leave behind a rule the team can apply during future changes
-
-        ```mermaid
-flowchart LR
-    A[Input stream] --> B[Stateful topology]
-    B --> C[(RocksDB state store)]
-    C --> D[Changelog topic]
-    D --> C
-```
-
-        Part 2 is where the pattern either becomes trustworthy or reveals itself as too magical for production.
-
-        ## Runnable Deep-Dive Snippet
-
-        ```java
-        builder.stream("orders.events")
-    .groupByKey()
-    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
-    .count(Materialized.as("orders-counts"));
-        ```
-
-        The snippet is not meant to be a full application.
-        Its job is to make the ownership boundary, failure boundary, or observability hook visible so the rest of the topology stays explainable.
-
-        ## Verification Notes
-
-        Measure local state size, changelog throughput, and restore duration together. Any one metric on its own gives an incomplete picture of state-store health.
-
-        ## Failure Drill
-
-        Delete local state and restart the app during traffic. The restore behavior will quickly show whether changelog sizing and topology design are realistic for production recovery.
-
-        ## Debug Steps
-
-        Debug steps:
-
-        - separate local disk pressure from broker-side changelog pressure
-- track restore duration after restarts and scale events
-- keep state store names stable so operational visibility stays consistent
-- watch compaction and retention settings on changelog topics
-
----
-
-## Operator Prompt
-
-For kafka streams stateful processing and rocksdb tuning (part 2), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+That is what makes RocksDB and Streams tuning an engineering exercise instead of a guess-and-hope loop.

@@ -23,39 +23,123 @@ header:
   show_overlay_excerpt: false
   caption: June Kafka Hands-On Series
 ---
-Part goal: **Establish the transactional outbox baseline and close the dual-write gap**.
+The transactional outbox pattern exists because "write to the database, then publish to Kafka" is not one action. It is two actions with a crash window between them. If the application commits business state and dies before publishing, you now have data that says one thing and an event stream that says nothing.
 
----
+Part 1 is about closing that gap with the simplest reliable shape: business row and outbox row in one transaction, then CDC moves the outbox row into Kafka.
 
-## Problem 1: Persist Business State and Publish Events Reliably
+## The Failure Window You Are Actually Removing
 
-Problem description:
-An application often needs to update its database and publish an event about that change.
-Doing those two writes separately creates a classic dual-write failure window.
+Without an outbox, a typical service flow looks harmless:
 
-What we are solving actually:
-We are solving reliability between database commit and event publication.
-The goal is to guarantee that once business state is committed, the corresponding event can still be emitted even if the application crashes immediately after the commit.
+1. insert or update the business record
+2. commit the database transaction
+3. publish the event
 
-What we are doing actually:
-
-1. Write business data and an outbox row in the same database transaction.
-2. Use CDC to publish the outbox row to Kafka.
-3. Verify that app crashes after commit do not lose the event.
+The problem is that step 3 happens after the commit. A process crash in that gap does not roll anything back.
 
 ```mermaid
 flowchart LR
-    A[DB transaction] --> B[Business row]
-    A --> C[Outbox row]
-    C --> D[Debezium CDC]
-    D --> E[Kafka event]
+    A[Application transaction] --> B[Order row committed]
+    B --> C[Process crashes]
+    B --> D[No Kafka event emitted]
+    E[Outbox pattern] --> F[Order row + outbox row committed together]
+    F --> G[Debezium reads WAL/binlog]
+    G --> H[Kafka event published later]
 ```
 
-## Real-World Scenario
+That is why this pattern is not mainly about convenience. It is about moving publish reliability out of the application process.
 
-An order write succeeds, but app crashes before publish; outbox+CDC is needed to close this dual-write gap.
+## Where This Pattern Fits Best
 
----
+Transactional outbox is strongest when:
+
+- the source of truth is a relational database
+- the service already commits meaningful business state there
+- event publication must reflect committed state, not best effort
+- the team wants replayable, inspectable publication behavior
+
+It is less compelling when there is no durable database write in the path, or when the outbox becomes an excuse to keep too much event-shaping logic inside the write transaction.
+
+## A More Realistic Order-Service Example
+
+Suppose an order service does three things:
+
+- inserts the order row
+- reserves some internal state such as payment intent linkage
+- emits `OrderCreated`
+
+If publishing is done directly after the commit, a crash can leave the order durable but invisible to every downstream consumer. Inventory, analytics, notifications, and orchestration pipelines now disagree about reality.
+
+With an outbox table, the same transaction persists both:
+
+- the business change
+- the fact that an event must be published
+
+CDC then turns that recorded intent into an actual Kafka event.
+
+## Schema Baseline
+
+Keep the outbox shape boring. Boring is good here.
+
+~~~sql
+create table orders (
+  id varchar(64) primary key,
+  amount_minor bigint not null,
+  status varchar(32) not null,
+  created_at timestamp not null default current_timestamp
+);
+
+create table outbox_event (
+  id varchar(64) primary key,
+  aggregate_type varchar(64) not null,
+  aggregate_id varchar(64) not null,
+  event_type varchar(128) not null,
+  payload json not null,
+  created_at timestamp not null default current_timestamp
+);
+~~~
+
+The goal is not to recreate Kafka inside the database. The outbox should be just enough to express "this committed change needs to be published."
+
+## Write Path in One Transaction
+
+This is the core guarantee:
+
+~~~sql
+begin;
+
+insert into orders(id, amount_minor, status)
+values ('ord-1001', 2500, 'CREATED');
+
+insert into outbox_event(id, aggregate_type, aggregate_id, event_type, payload)
+values (
+  'evt-1001',
+  'Order',
+  'ord-1001',
+  'OrderCreated',
+  '{"orderId":"ord-1001","amountMinor":2500}'
+);
+
+commit;
+~~~
+
+If the transaction rolls back, neither row exists. If it commits, both rows exist. That is the reliability boundary you want.
+
+> [!important]
+> The outbox pattern does not mean "publish inside the transaction." It means "persist the instruction to publish inside the transaction."
+
+That distinction keeps the write path stable and lets CDC handle delivery separately.
+
+## CDC with Debezium
+
+Once the outbox row is committed, Debezium can read the database log and emit the change into Kafka without asking the application to stay alive long enough to do it itself.
+
+That is the real architectural benefit:
+
+- the application is responsible for recording intent
+- CDC is responsible for forwarding that intent reliably
+
+Those are cleaner failure boundaries than a direct dual write.
 
 ## Run It Locally
 
@@ -90,72 +174,57 @@ services:
 docker compose up -d
 ~~~
 
----
+## What to Verify
 
-## Lab Steps
+The important proof for Part 1 is not "a message appeared in Kafka once." It is:
 
-1. Create `orders` and `outbox_event` tables.
-2. Insert business row + outbox row in one transaction.
-3. Register Debezium connector.
-4. Consume emitted events.
+1. business row and outbox row commit together
+2. the application can disappear after commit
+3. the event still arrives through CDC
 
----
-
-## Runnable Code Block
-
-~~~sql
-begin;
-insert into orders(id,amount_minor,status) values ('ord-1001',2500,'CREATED');
-insert into outbox_event(id,aggregate_type,aggregate_id,event_type,payload)
-values ('evt-1001','Order','ord-1001','OrderCreated','{"orderId":"ord-1001"}');
-commit;
-~~~
-
----
-
-## Verify
+If you only test the happy path with the app still running, you miss the entire reason the pattern exists.
 
 ~~~bash
-curl -X POST http://localhost:8083/connectors -H "Content-Type: application/json" -d @connector-outbox.json
-kafka-console-consumer --bootstrap-server localhost:9092 --topic ordersdb.public.outbox_event --from-beginning
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d @connector-outbox.json
+
+kafka-console-consumer \
+  --bootstrap-server localhost:9092 \
+  --topic ordersdb.public.outbox_event \
+  --from-beginning
 ~~~
 
----
+## Operational Guidance
 
-## Failure Drill
+### Keep event shaping simple in the transaction
 
-Stop application after DB commit; Debezium should still publish the outbox event.
+Complex branching in the write transaction is the fastest way to make the outbox path fragile. Build the payload you need, but do not turn the transaction into an orchestration engine.
 
----
+### Monitor backlog, not just success
 
-## Debug Steps
+An outbox table that keeps growing is not a harmless queue. It is a sign that publication is falling behind, and the gap between committed truth and published truth is widening.
 
-Debug steps:
+### Decide who owns cleanup
 
-- prove business-row and outbox-row insertion happen in the same transaction
-- simulate app crash after commit to validate the whole reason for the pattern
-- check connector offsets and topic output, not just database state
-- treat outbox backlog growth as an operational health signal
+Many teams implement outbox and forget retention. If rows are never archived or deleted safely, the pattern slowly becomes a storage and operational burden.
 
-## Operational Note
+## Common Misunderstandings
 
-Outbox is easiest to defend when the write path stays boring and predictable.
-Complex branching inside the transaction usually creates more reliability risk than the pattern removes.
+### "Outbox gives exactly-once everywhere"
 
-## What You Should Learn
+No. It gives a safer bridge from committed database state to published event intent. Consumers still need their own correctness model.
 
-- the outbox pattern closes the gap between state change and event publication
-- CDC is valuable because it moves publish reliability out of the application process
-- correctness should be tested with crash timing, not only happy-path success
+### "CDC means we no longer need to think about schemas"
 
----
+Also no. Badly designed payloads stay badly designed after CDC. Reliability and event quality are different concerns.
 
-## Operator Prompt
+## What This Part Should Leave You With
 
-For outbox plus cdc with debezium for reliable event publishing (part 1), keep one rollout question in the runbook: what metric tells us the topology is healthy, and what metric tells us to stop or roll back? Kafka systems usually fail operationally before they fail conceptually.
+After Part 1, the team should be clear on three things:
 
----
+1. why direct dual writes fail under crash timing
+2. why the outbox row belongs in the same transaction as business state
+3. why CDC is useful precisely because it decouples event delivery from application uptime
 
-## Final Operations Note
-
-One more practical rule helps this series topic stay useful in real systems: always pair the design with one rollback move and one "healthy again" signal. In Kafka, teams often know how to add topology complexity faster than they know how to back out safely, and that gap is exactly where routine changes turn into incidents.
+That is the right baseline before you optimize connector shape, routing, or downstream contracts.
