@@ -23,95 +23,222 @@ header:
   show_overlay_excerpt: false
   caption: Distributed System Design Patterns and Tradeoffs
 ---
-Cache coherence patterns in multi-writer systems is a systems trade-off, not a binary rule. Latency, ownership, failure recovery, and operator visibility all matter more than whether the pattern sounds theoretically elegant.
+Cache coherence gets genuinely difficult when more than one writer can change the same logical entity.
+At that point the problem is no longer "how do we cache this row?"
+It becomes "how do we stop stale data from regaining authority after a newer write already happened?"
 
----
+That is a versioning and ownership problem before it is a cache library problem.
 
-## Problem 1: Cache coherence patterns in multi-writer systems
+## Quick Summary
 
-Problem description:
-We want cache coherence patterns in multi-writer systems to improve reliability and coordination without creating operational complexity we cannot observe or recover from. This part focuses on the baseline model and the safe default shape.
+| Design choice | Strong default | Risky shortcut |
+| --- | --- | --- |
+| Source of truth | one authoritative store with versions | cache treated as partially authoritative |
+| Write path | update source of truth first, then emit invalidation or new version | mutate cache and database independently |
+| Multi-writer safety | version checks, ordering strategy, ownership boundaries | last write wins with no visibility |
+| Recovery | rebuild from durable state and events | trust the cache to self-heal |
+| Success metric | stale-read rate and invalidation lag | cache hit rate alone |
 
-What we are solving actually:
-We are establishing the core boundary, deciding what must stay explicit, and choosing a baseline that is easy to observe. For distributed systems, the hidden risk is that a locally correct mechanism can still fail badly once latency, partial failure, and recovery are involved.
+Part 1 is about the baseline model.
+Before debating cache topology, decide how a newer value proves that it is newer.
 
-What we are doing actually:
+## Why Multi-Writer Makes This Hard
 
-1. make the distributed workflow explicit: identify the ownership boundary and the non-negotiable invariant
-2. make the distributed workflow explicit: choose the simplest baseline design that preserves correctness
-3. make the distributed workflow explicit: make observability visible from the first implementation
-4. make the distributed workflow explicit: validate the baseline with one concrete failure drill
+With a single writer, cache coherence is already annoying.
+With multiple writers, these become common:
 
----
+- writes arrive out of order
+- invalidation events race with cache fills
+- one region or worker updates from stale state
+- a slower replica repopulates an older value after a newer write
 
-## Why This Topic Matters
+That is why "just delete the cache key on update" stops being enough.
+Deletion helps only if every subsequent refill reads a sufficiently fresh source and arrives in a predictable order.
 
-- correctness depends on time, retries, and partial failure, not only code structure
-- operators need clear recovery rules when coordination breaks down
-- latency and ownership trade-offs matter as much as algorithmic elegance
+In many real systems, neither is guaranteed.
 
----
+## The Baseline Principle: Versioned Authority
 
-## Architecture Model
+A strong baseline has three parts:
+
+1. one durable source of truth
+2. a monotonic version, sequence, or timestamp with real ordering meaning
+3. a rule that prevents older data from overwriting newer cache state
+
+Without version semantics, the system cannot distinguish fresh from stale.
+It can only guess based on timing.
 
 ```mermaid
 flowchart LR
-    A[Production pressure] --> B[Cache coherence patterns in multi-writer systems]
-    B --> C[Baseline design]
-    C --> D[Observability]
-    D --> E[Failure drill]
+    A[Writer A or B] --> B[Source of truth]
+    B --> C[Version N recorded]
+    C --> D[Invalidate or publish update]
+    D --> E[Cache entry updated only if version is newer]
+    B --> F[Readers and rebuilders]
 ```
 
-The model keeps ownership, latency, and recovery visible because cache coherence patterns in multi-writer systems is only useful when operators can still reason about it during partial failure.
-A simpler picture here is a feature: it exposes the trade-off the rest of the design must honor.
+The important guarantee is not that the cache always updates instantly.
+It is that once version `N+1` is known, version `N` cannot quietly reassert itself.
 
----
+## Good Baseline Patterns
 
-## Practical Design Pattern
+### Cache-aside with versioned invalidation
 
-```text
-Control loop for Cache coherence patterns in multi-writer systems:
-- choose one ownership rule
-- measure one correctness signal
-- define one rollback gate
-- avoid unbounded coordination
+Update the source of truth first.
+Then emit an invalidation or change event that includes the new version.
+
+Good fit:
+
+- read-heavy systems
+- durable database already exists
+- eventual consistency is acceptable
+
+Main risk:
+if readers repopulate from stale replicas, old values may return unless version checks exist.
+
+### Write-through or write-behind with strict ownership
+
+This works best when one service truly owns the writes and can serialize them.
+
+Good fit:
+
+- clear service ownership
+- bounded write paths
+- strong desire to keep cache freshness tight
+
+Main risk:
+teams assume this solves coherence globally, but it only helps if every writer actually goes through the same authority.
+
+### Event-driven cache propagation
+
+Change events broadcast new versions or invalidations to downstream caches.
+
+Good fit:
+
+- many read models
+- cross-service consumers
+- systems already operating with event streams
+
+Main risk:
+ordering, replay, and duplicate handling now become part of cache correctness.
+
+## Dangerous Patterns to Avoid
+
+### Delete-then-pray invalidation
+
+The service updates the database, deletes the cache key, and assumes the next read will be correct.
+
+This fails when:
+
+- a stale replica is used for refill
+- two writers race
+- out-of-order invalidations arrive
+- multiple cache layers refill differently
+
+### Dual writes to database and cache
+
+If the application writes both independently, partial failure creates ambiguity:
+
+- database update succeeds, cache write fails
+- cache update succeeds, database commit fails
+- old writer overwrites new cache entry later
+
+Multi-writer systems need a stronger contract than best-effort dual writes.
+
+### Treating hit rate as the main metric
+
+A cache can have a great hit rate and still serve dangerously stale data.
+Performance success does not imply coherence success.
+
+## Practical Versioning Rules
+
+The exact version mechanism depends on the system:
+
+- database sequence
+- aggregate version
+- log offset
+- monotonically increasing event number
+
+What matters is that the cache layer can compare freshness meaningfully.
+
+A minimal pattern:
+
+```java
+public record VersionedValue<T>(long version, T value) {}
+
+public final class CacheUpdater {
+    public void putIfNewer(String key, VersionedValue<String> candidate) {
+        cache.compute(key, (k, existing) -> {
+            if (existing == null || candidate.version() > existing.version()) {
+                return candidate;
+            }
+            return existing;
+        });
+    }
+}
 ```
 
-The sketch is not trying to simulate the whole system. It is there to pin down the most important control point behind cache coherence patterns in multi-writer systems.
-Once that point is explicit, the team can add retries, leases, or replication details without losing the recovery story.
+This does not solve global ordering by itself.
+It does block one of the ugliest failure modes: stale repopulation winning by accident.
 
----
+## Ownership Helps More Than Clever Invalidation
 
-## Failure Drill
+One of the best ways to reduce cache coherence pain is to reduce multi-writer freedom.
 
-Baseline drill: introduce a partial failure or delay and verify the coordination rule fails safely instead of ambiguously for cache coherence patterns in multi-writer systems.
+Examples:
 
-That drill matters early, before rollout assumptions harden into defaults because cache coherence patterns in multi-writer systems only earns its complexity when recovery behavior stays understandable under delay, replay, or partial failure.
+- one service owns profile writes
+- one region owns a tenant shard
+- one worker owns a partition
 
----
+The more writers the system allows without clear boundaries, the more coherence logic gets pushed into invalidation plumbing.
+That is usually a losing trade.
 
-## Debug Steps
+## Observability That Actually Matters
 
-Debug steps:
+Measure:
 
-- measure the failure mode that matters before tuning the mechanism while validating cache coherence patterns in multi-writer systems
-- check whether ownership, timeout, and replay rules are explicit while validating cache coherence patterns in multi-writer systems
-- separate control-plane signals from data-plane success assumptions while validating cache coherence patterns in multi-writer systems
-- test operator playbooks with synthetic drills before trusting them in production while validating cache coherence patterns in multi-writer systems
+- invalidation lag
+- stale-read rate
+- version regression rejections
+- cache refill source freshness
+- out-of-order event count
+- divergence between cache and source-of-truth reads
 
----
+If operators only see hit rate and latency, they will miss the correctness failure until users report inconsistent behavior.
 
-## Production Checklist
+## Failure Drills Worth Running
 
-- ownership rule defined for the coordination point
-- latency or correctness budget attached to the mechanism
-- partial-failure recovery signal exposed to operators
-- rollback move documented before the pattern spreads
+Test these on purpose:
 
----
+1. two writers update the same key in quick succession
+2. invalidation arrives out of order
+3. cache refill reads from a lagging replica
+4. consumer replays an older event after a newer one
+5. one region goes isolated and rejoins later
+
+These are the situations where cache coherence stops being a theoretical concern and becomes a user-visible bug.
+
+## A Practical Decision Rule
+
+In a multi-writer system, the first question should be:
+"What proves that one value is newer than another?"
+
+If the answer is vague, the cache design is not ready.
+No invalidation strategy can compensate for missing authority and version semantics.
+
+## Part 1 Checklist
+
+- source of truth is explicit
+- version or ordering semantics are real and comparable
+- stale values cannot overwrite newer ones silently
+- cache refill paths are evaluated for source freshness
+- ownership boundaries are tightened where possible
+- metrics include stale-read and invalidation correctness, not only speed
 
 ## Key Takeaways
 
-- Cache coherence patterns in multi-writer systems should be designed as a production decision, not just an implementation detail
-- distributed mechanisms need recovery rules as much as steady-state logic
-- start from a measurable baseline before optimizing
+- Multi-writer cache coherence is mainly a versioning and ownership problem.
+- Simple cache deletion is often too weak once writes can race or arrive out of order.
+- A cache should never be more authoritative than the system can safely prove.
+- Start with explicit freshness rules before optimizing for hit rate.

@@ -22,25 +22,69 @@ header:
   caption: Engineering Notes and Practical Examples
   show_overlay_excerpt: false
 ---
-This is one of the cleanest bit-manipulation problems.
-The whole solution comes from one idea: duplicate values cancel under XOR.
+This is one of the best interview problems for learning how a bitwise invariant can replace extra memory.
+If every number appears twice except one, XOR gives us cancellation for free.
 
----
+The elegant part is that the algorithm is not a trick you memorize.
+It is a direct consequence of four small XOR properties.
 
-## Problem 1: Single Number
+## Quick Summary
 
-Problem description:
-Given an integer array where every element appears exactly twice except for one element, return the value that appears only once.
+| Fact | Why it matters |
+| --- | --- |
+| `a ^ a = 0` | duplicate values cancel |
+| `a ^ 0 = a` | the surviving value remains unchanged |
+| XOR is associative | grouping does not matter |
+| XOR is commutative | processing order does not matter |
 
-What we are solving actually:
-A frequency map would work, but it uses extra memory for a problem with a much simpler bitwise invariant. The real task is to accumulate all values in a way that makes pairs disappear automatically.
+The invariant is:
+after processing the first `i` numbers, `result` equals the XOR of those `i` numbers.
 
-What we are doing actually:
+## Problem Statement
 
-1. Start with accumulator `result = 0`.
-2. XOR every number into `result`.
-3. Let duplicate pairs cancel because `a ^ a = 0`.
-4. Return the only value left in the accumulator.
+Given an integer array where every value appears exactly twice except one value that appears once, return the single value.
+
+The obvious solution is a frequency map.
+It works, but it uses memory to count something the problem structure already guarantees.
+
+The stronger solution is to exploit pair cancellation directly.
+
+## Why XOR Solves It
+
+Suppose the array is:
+
+```text
+[4, 1, 2, 1, 2]
+```
+
+If we XOR everything together:
+
+```text
+4 ^ 1 ^ 2 ^ 1 ^ 2
+```
+
+we can reorder and regroup because XOR is associative and commutative:
+
+```text
+4 ^ (1 ^ 1) ^ (2 ^ 2)
+```
+
+Now apply the key rule:
+
+```text
+1 ^ 1 = 0
+2 ^ 2 = 0
+```
+
+So the expression becomes:
+
+```text
+4 ^ 0 ^ 0 = 4
+```
+
+That is the entire proof.
+
+## Java Solution
 
 ```java
 class Solution {
@@ -48,7 +92,7 @@ class Solution {
         int result = 0;
 
         for (int n : nums) {
-            result ^= n; // Duplicate values cancel, so only the unpaired value survives.
+            result ^= n;
         }
 
         return result;
@@ -56,107 +100,135 @@ class Solution {
 }
 ```
 
-Debug steps:
+## Why the Running Accumulator Works
 
-- print `result` after each XOR operation
-- test `[7]`, `[4,1,2,1,2]`, and a case including `0`
-- verify the invariant that `result` equals the XOR of all values processed so far
+At any moment, `result` stores the XOR of everything processed so far.
 
----
+When we XOR in a value:
 
-## Why XOR Solves It
+- if it is the first time we see that value, it enters the accumulator
+- if it is the second time, it cancels out
 
-The important XOR properties are:
+So paired values keep appearing and disappearing, and only the unpaired value survives to the end.
 
-- `a ^ a = 0`
-- `a ^ 0 = a`
-- XOR is associative
-- XOR is commutative
-
-So the order does not matter.
-Every duplicated number removes itself from the running XOR, and only the unpaired number remains.
-
----
+That is why the code is just one loop and one accumulator.
 
 ## Dry Run
 
-Input: `[4, 1, 2, 1, 2]`
+Input:
 
-1. start: `result = 0`
+```text
+[4, 1, 2, 1, 2]
+```
+
+Step by step:
+
+1. `result = 0`
 2. `result ^= 4` -> `4`
 3. `result ^= 1` -> `5`
 4. `result ^= 2` -> `7`
 5. `result ^= 1` -> `6`
 6. `result ^= 2` -> `4`
 
-Answer: `4`
+Final answer:
 
-The two `1`s cancel.
-The two `2`s cancel.
-Only `4` remains.
+```text
+4
+```
 
----
+The intermediate values are not meaningful by themselves.
+What matters is that pairs eventually cancel.
 
-## Why Order Does Not Matter
+## Why This Beats a Frequency Map Here
 
-Because XOR is associative and commutative, these are equivalent:
+A map-based solution is easy to explain:
 
-- `((4 ^ 1) ^ 2) ^ 1 ^ 2`
-- `(1 ^ 1) ^ (2 ^ 2) ^ 4`
+- count every value
+- return the one with frequency `1`
 
-That is why we can process the array in one pass without sorting.
+But compared with XOR, it is weaker for this exact problem:
 
----
+- more code
+- `O(n)` extra space instead of `O(1)`
+- less insight into the special structure of the input
 
-## When This Trick Does Not Apply
+In interviews, the map solution is acceptable as a starting point.
+The XOR solution is the answer that shows you recognized the constraint.
 
-This exact XOR trick works only for the variant:
+## Important Constraint Check
 
+This method works because the frequency pattern is exact:
+
+- one value appears once
 - every other value appears exactly twice
 
-If the problem changes to:
+If the problem changes, the solution may change too.
 
-- every other value appears three times
+Examples:
 
-then plain XOR no longer works.
-That variant needs bit counting or a different state-machine approach.
+- every other number appears three times -> plain XOR no longer works
+- two numbers appear once -> use partition-by-bit logic
+- unspecific repetition counts -> use a map
 
-Always check the frequency pattern before applying the XOR trick automatically.
-
----
+This is the real interview lesson:
+do not apply XOR because the problem "looks similar."
+Apply it because the frequency invariant matches.
 
 ## Common Mistakes
 
-1. using sorting first, which adds unnecessary `O(n log n)` work
-2. using a frequency map when `O(1)` extra space is possible
-3. applying the same XOR logic to the wrong frequency variant
-4. assuming negative numbers break XOR, even though XOR works on bit patterns
+### Using Sorting First
 
----
+Sorting works, but it adds unnecessary `O(n log n)` cost to a problem with a linear solution.
+
+### Reaching for a HashMap Too Early
+
+That is a reasonable baseline, but it misses the stronger invariant.
+
+### Misapplying the Trick to the Wrong Variant
+
+The XOR approach is narrow and precise.
+Its strength comes from the exact pair-cancellation pattern.
+
+### Thinking Negative Numbers Break It
+
+They do not.
+XOR operates on bit patterns, and Java integers use a well-defined binary representation.
 
 ## Boundary Cases
 
-- single element array -> answer is that element
-- array containing `0` -> still works
-- negative numbers -> still works
+- `[7]` -> answer is `7`
+- `[0, 1, 1]` -> answer is `0`
+- negative values still work
 
----
+The important thing is not positivity.
+It is the repetition pattern.
 
 ## Complexity
 
 - Time: `O(n)`
 - Space: `O(1)`
 
----
+We scan the array once and keep only one accumulator.
 
-## Key Takeaways
+## Where This Pattern Generalizes
 
-- XOR cancellation is the full invariant behind this solution
-- duplicate pairs disappear automatically in a running XOR
-- always confirm the problem's repetition pattern before using this trick
+The broader pattern is not "always use XOR."
+It is:
 
----
+1. identify whether values cancel under some operation
+2. keep a running accumulator
+3. let the input structure do the work
 
-## Pattern Extension
+That mindset shows up again in:
 
-One good review question for single number in java using xor is whether the same invariant still holds when the input becomes degenerate: empty arrays, repeated values, already-sorted data, or the smallest possible string. That quick pressure test usually reveals whether we truly understood the pattern or only copied the happy path.
+- parity checks
+- bitmask state tracking
+- missing-number style problems
+- power-of-two and low-bit manipulations
+
+## Final Takeaway
+
+`Single Number` is a great reminder that the best solution is sometimes just the right invariant made operational.
+
+Here the invariant is simple:
+duplicate pairs vanish under XOR, so one pass is enough to leave the only unpaired value behind.

@@ -20,41 +20,61 @@ toc: true
 toc_label: In This Article
 toc_icon: cog
 ---
-Double-checked locking provides lazy initialization with lower synchronization overhead after initialization.
+Double-checked locking is one of those Java patterns that is both legitimate and overused.
 
-## Problem description:
+It solves a real problem:
+lazy initialization of a shared object without paying synchronization cost on every read.
 
-We want one lazily created shared instance without synchronizing every read after initialization.
+But it is not the default answer to "I need a singleton."
+In many production codebases, the better answer is an enum singleton, the holder idiom, or simply letting a DI container manage lifecycle.
 
-What we are solving actually:
+## The Short Version
 
-We are solving safe lazy initialization under concurrency.
-Without the right memory-visibility guarantees, one thread can observe a partially constructed object.
+Use double-checked locking only when all three of these are true:
 
-What we are doing actually:
+1. lazy initialization is genuinely valuable
+2. the object must be globally shared in-process
+3. simpler alternatives do not fit the design
 
-1. Check whether the instance already exists before locking.
-2. Synchronize only during the first initialization race.
-3. Mark the field `volatile` so construction becomes safely visible to other threads.
+If those conditions are not true, this pattern usually adds more ceremony than value.
 
-```mermaid
-flowchart LR
-    A[getInstance call] --> B{instance null?}
-    B -->|No| C[Return existing instance]
-    B -->|Yes| D[Enter synchronized block]
-    D --> E{instance still null?}
-    E -->|Yes| F[Create instance]
-    E -->|No| C
-    F --> C
+## Why This Pattern Exists
+
+The naive singleton implementation is easy:
+
+```java
+public final class Singleton {
+    private static Singleton instance;
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+}
 ```
 
-## Real-World Use Cases
+The problem is concurrency.
+Two threads can observe `instance == null` at the same time and both create an object.
 
-- expensive configuration object
-- app-level registry / metadata cache
-- shared parser/serializer setup
+The obvious fix is to synchronize the whole method:
 
-## Java Implementation
+```java
+public static synchronized Singleton getInstance() {
+    if (instance == null) {
+        instance = new Singleton();
+    }
+    return instance;
+}
+```
+
+That is correct, but every read now pays synchronization cost even after initialization is complete.
+Double-checked locking exists to reduce that cost while keeping the initialization race safe.
+
+## Correct Java Implementation
 
 ```java
 public final class Singleton {
@@ -75,7 +95,49 @@ public final class Singleton {
 }
 ```
 
-## Safer Alternative
+Two details matter:
+
+- the first null check avoids locking after initialization
+- `volatile` is mandatory
+
+Without `volatile`, the pattern is broken.
+
+## Why `volatile` Is Non-Negotiable
+
+The danger is not just "two objects might get created."
+The subtler problem is publication safety.
+
+Without `volatile`, one thread can observe a reference to an object whose construction is not safely visible yet.
+That means another thread may see a partially initialized instance.
+
+Modern Java makes double-checked locking valid only when the field is `volatile`.
+
+> [!important]
+> If the singleton field is not `volatile`, do not call the implementation thread-safe.
+
+## When Double-Checked Locking Is Reasonable
+
+This pattern can make sense for:
+
+- expensive in-process helper initialization
+- lazily created caches or registries
+- shared parsers, metadata builders, or adapters created on first use
+
+Even then, ask one more question:
+"Does this really need a hand-written singleton, or is lazy dependency wiring enough?"
+
+That question prevents a lot of unnecessary global state.
+
+## Better Alternatives Most of the Time
+
+| Option | Best when | Why it is often better |
+| --- | --- | --- |
+| enum singleton | one instance for the whole JVM is fine | simple, serialization-safe, hard to break |
+| initialization-on-demand holder | you want lazy loading without explicit synchronization code | concise and usually clearer |
+| DI container singleton | application/service code | testable, configurable, lifecycle managed |
+| synchronized accessor | the access path is cold and simplicity matters more than micro-optimization | easier to read |
+
+### Enum Singleton
 
 ```java
 public enum AppSingleton {
@@ -83,11 +145,9 @@ public enum AppSingleton {
 }
 ```
 
-Use enum singleton when possible.
+This is often the safest singleton pattern in plain Java when you truly want one instance and no extra lifecycle complexity.
 
-## Another Strong Alternative: Initialization-on-Demand Holder
-
-This is lazy, thread-safe, and avoids explicit synchronization code.
+### Holder Idiom
 
 ```java
 public final class HolderSingleton {
@@ -103,13 +163,11 @@ public final class HolderSingleton {
 }
 ```
 
-For many cases, this is clearer than double-checked locking.
+This is lazy, thread-safe, and easier to explain than double-checked locking.
 
-## Production API Equivalent (Dependency Injection Singleton)
+### Dependency Injection Singleton
 
-In most backend applications, prefer framework-managed singletons over hand-written singleton patterns.
-
-Spring example:
+In most backend applications, a framework-managed singleton is better than a static global singleton.
 
 ```java
 import org.springframework.stereotype.Service;
@@ -122,48 +180,77 @@ public class CurrencyRateService {
 }
 ```
 
-`@Service` beans are singleton-scoped by default, test-friendly, and easier to evolve than static/global singleton holders.
+That design is easier to test, easier to replace, and easier to evolve than hiding everything behind `Singleton.getInstance()`.
 
-## Common Pitfalls
+## The Real Production Tradeoff
 
-1. Missing `volatile` in double-checked locking implementation.
-2. Hiding expensive I/O in singleton constructor (slow startup surprises).
-3. Using static singleton in code that should be dependency-injected.
-4. Assuming one singleton instance across isolated classloaders.
+Double-checked locking optimizes access overhead after initialization.
+What it does not optimize is design quality.
 
-In plugin/container environments, each classloader can have its own singleton copy.
+The real questions are:
 
-## Testing Guidance
+- should this state be global at all?
+- who owns lifecycle and reset behavior?
+- how will tests isolate state?
+- does classloader scope matter in this environment?
 
-- avoid global mutable singleton state where possible
-- if singleton keeps cache/config, expose explicit reset hooks for tests only
-- prefer constructor injection and DI singletons for easier mocking
+If those questions are ignored, the code may be thread-safe and still be difficult to maintain.
 
-This reduces hidden coupling across test cases.
+## Common Mistakes
 
-## Debug steps:
+### Forgetting `volatile`
 
-- confirm the instance field is `volatile`
-- stress-test concurrent access so initialization races actually occur in tests
-- prefer holder idiom or enum singleton if the double-checked variant adds unnecessary complexity
-- inspect whether a DI container would solve the real problem more cleanly
+This is the classic bug.
+It invalidates the pattern.
 
-## Java 8/11/17/21/25 Notes
+### Hiding Heavy Side Effects in the Constructor
 
-- Java 8+: double-checked locking is safe with `volatile`.
-- JDK 11 / Java 17: same guidance, widely used in enterprise LTS environments.
-- Java 21+: same guidance, no behavioral change.
-- Java 25: no expected API or memory-model change for this pattern.
+A singleton constructor that performs network I/O, reads big files, or acquires locks turns initialization into an operational surprise.
 
-## Key Takeaways
+If startup cost matters, surface it explicitly.
 
-- `volatile` is mandatory in double-checked locking.
-- Prefer enum singleton for simplicity and serialization safety.
-- Use lazy singleton only when initialization cost justifies it.
-- In modern services, DI-managed singleton scope is usually the best default.
+### Using a Singleton Where Dependency Injection Should Be Used
 
----
+Static global access feels convenient at first.
+Later it becomes test coupling, hidden configuration, and awkward replacement logic.
 
-## Practical Checkpoint
+### Assuming One Singleton Means One Instance Everywhere
 
-A short but valuable final check for double-checked locking singleton pattern in java is to write down the one misuse pattern most likely to appear during maintenance. That small note makes the article more useful when someone revisits it months later under pressure.
+In plugin systems, application servers, or other multi-classloader environments, you can end up with one singleton per classloader.
+
+That may be correct or disastrous depending on the design.
+
+## Testing and Maintenance Advice
+
+If your singleton carries mutable state, tests will feel the pain first.
+
+Practical rules:
+
+- avoid mutable singleton state when possible
+- keep initialization deterministic
+- prefer DI-managed scope for business services
+- expose reset hooks only when test isolation truly requires them
+
+The best testing story is often not "better singleton tests."
+It is "less singleton design."
+
+## Decision Rule
+
+Use double-checked locking when:
+
+- laziness matters
+- access is frequent enough that you care about post-init overhead
+- you understand the memory-model requirements
+- simpler alternatives would make the design worse, not better
+
+Otherwise, prefer one of the simpler options.
+
+## Final Takeaways
+
+- Double-checked locking is valid in Java only with `volatile`.
+- The pattern solves lazy initialization, not general lifecycle design.
+- The holder idiom or enum singleton is often simpler.
+- In service applications, DI-managed singletons are usually the healthiest default.
+
+If a team reaches for double-checked locking by reflex, that is usually a design smell.
+If a team reaches for it after ruling out simpler options, it can be a good tool.
