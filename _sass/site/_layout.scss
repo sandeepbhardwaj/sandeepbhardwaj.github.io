@@ -288,9 +288,7 @@
 
 .home-hero__inner {
   background:
-    linear-gradient(145deg, var(--surface-tint-soft-start), transparent 55%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 120%),
-    var(--bg-surface);
+    var(--home-hero-bg);
   border: 1px solid var(--border-soft);
   border-radius: calc(var(--radius-lg) + 0.3rem);
   box-shadow: var(--shadow-md);
@@ -372,11 +370,10 @@
 }
 
 .home-hero__stat {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 120%),
-    var(--surface-highlight);
-  border: 1px solid var(--border-soft);
+  background: var(--home-hero-card-bg);
+  border: 1px solid var(--stat-card-border);
   border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   display: grid;
   gap: 0.15rem;
   min-width: 0;
@@ -406,12 +403,10 @@
 
 .home-hero__guide-item {
   backdrop-filter: blur(12px);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 120%),
-    var(--surface-highlight);
-  border: 1px solid var(--border-soft);
+  background: var(--home-hero-card-bg);
+  border: 1px solid var(--stat-card-border);
   border-radius: calc(var(--radius-md) - 0.05rem);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: inherit;
   display: grid;
   gap: 0.4rem;
@@ -487,7 +482,48 @@
 }
 
 .home-section {
-  padding-bottom: 3.4rem;
+  border: 1px solid var(--border-soft);
+  border-radius: calc(var(--radius-lg) + 0.15rem);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  padding: clamp(1.2rem, 2.1vw, 1.8rem);
+  position: relative;
+}
+
+.home-section::before {
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  content: "";
+  height: 3px;
+  left: 1.2rem;
+  opacity: 0.75;
+  position: absolute;
+  right: 1.2rem;
+  top: 0;
+}
+
+.home-section--tracks {
+  background: var(--home-track-section-bg);
+}
+
+.home-section--tracks::before {
+  background: linear-gradient(90deg, var(--accent), rgba(123, 94, 59, 0.28));
+}
+
+.home-section--roadmaps {
+  background: var(--home-roadmap-section-bg);
+}
+
+.home-section--roadmaps::before {
+  background: linear-gradient(90deg, var(--accent-alt), var(--accent));
+}
+
+.home-feed {
+  background: var(--home-feed-section-bg);
+  padding-bottom: clamp(1.5rem, 2.4vw, 2.25rem);
+}
+
+.home-feed::before {
+  background: linear-gradient(90deg, var(--accent), rgba(93, 108, 108, 0.38));
 }
 
 .section-heading__copy {
@@ -507,10 +543,7 @@
 
 .learning-track,
 .roadmap-card {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 120%),
-    var(--bg-surface);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--home-track-card-border);
   border-radius: calc(var(--radius-md) + 0.05rem);
   box-shadow: var(--shadow-sm);
   color: inherit;
@@ -523,6 +556,10 @@
     transform var(--transition),
     border-color var(--transition),
     box-shadow var(--transition);
+}
+
+.learning-track {
+  background: var(--home-track-card-bg);
 }
 
 .learning-track:hover,
@@ -570,19 +607,11 @@
 }
 
 .roadmap-card {
-  background:
-    linear-gradient(135deg, var(--surface-tint-subtle-start), var(--surface-tint-subtle-end)),
-    var(--bg-surface);
+  background: var(--home-roadmap-card-bg);
 }
 
 .roadmap-card--planned {
-  background:
-    linear-gradient(135deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0.02)),
-    var(--bg-surface);
-}
-
-.home-feed {
-  padding-bottom: 4rem;
+  background: var(--home-roadmap-planned-bg);
 }
 
 .home-feed .section-heading__title {
@@ -610,15 +639,15 @@
 .archive__item--home,
 .archive__item--home-featured {
   align-content: start;
+  background: var(--home-feed-card-bg);
   display: grid;
   gap: 0.8rem;
   padding: 1.45rem 1.5rem;
 }
 
 .archive__item--home-featured {
-  background:
-    linear-gradient(135deg, var(--surface-tint-soft-start), var(--surface-tint-soft-end)),
-    var(--bg-surface);
+  background: var(--home-feed-featured-bg);
+  border-color: var(--border-strong);
 }
 
 .archive__item--home .archive__item-title,
@@ -1628,4 +1657,19 @@
 .type-post .page-header__title {
   font-size: clamp(1.75rem, 2.8vw, 2.35rem);
   max-width: 14ch;
+}
+
+.page-roadmaps .page-shell__article {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 20%),
+    var(--home-roadmap-section-bg);
+  border-color: var(--home-track-card-border);
+}
+
+.page-roadmaps .page-shell__article::before {
+  background: linear-gradient(90deg, var(--accent-alt), var(--accent));
+}
+
+.page-roadmaps .page-header {
+  padding-bottom: 1.2rem;
 }
