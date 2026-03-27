@@ -22,12 +22,51 @@ header:
   caption: Linear-Time Neighbor Discovery
   show_overlay_excerpt: false
 ---
-Monotonic stack helps find next/previous greater or smaller elements in linear time.
-It avoids repeated backward or forward scans.
+Monotonic stack is the interview pattern for nearest-greater, nearest-smaller, and range-boundary problems that would otherwise keep rescanning left or right.
+It replaces repeated local searches with one disciplined push-pop invariant.
+
+Strong candidates do not describe it as "a stack that stays sorted."
+They explain what unresolved indices are waiting for, what condition triggers a pop, and why each index is pushed and popped at most once.
+
+> [!NOTE] Interview lens
+> A strong monotonic-stack explanation usually has four parts:
+> 1. what each stack entry is still waiting to discover,
+> 2. whether the stack must be increasing or decreasing,
+> 3. why the current value resolves one or more older indices,
+> 4. how the final flush or sentinel handles still-unresolved elements.
 
 ---
 
-## Core Idea
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Next greater to the right | find the next strictly larger value after each position | keep a decreasing stack of unresolved indices | Daily Temperatures |
+| Next smaller to the right | find the next smaller boundary for each position | keep an increasing stack of unresolved indices | Sum of Subarray Minimums |
+| Circular next greater | array wraps around and unresolved positions may be answered after the end | simulate two passes while pushing each index once | Next Greater Element II |
+| Range boundary contribution | every element contributes across a maximal span | previous/next smaller or greater boundaries determine width | Largest Rectangle in Histogram |
+
+## Problem Statement
+
+Given an array, find the nearest greater or smaller element, or compute the maximal range where a value remains dominant.
+
+Typical interview signals:
+
+- brute force keeps scanning left or right from every index
+- each index only needs one nearest boundary
+- the expected solution is `O(n)`
+- widths, spans, and contribution counts matter more than a full sorted structure
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  next greater, next smaller, previous greater, previous smaller, nearest warmer day, span, boundary, rectangle width.
+- Structural signals:
+  each position waits for the first future or past value that breaks a comparison rule.
+- Complexity signal:
+  nested scans are too slow, but the answer for one index can be finalized permanently once a stronger boundary appears.
+
+## Visual Intuition
 
 Store indices in a stack with monotonic order of values.
 
@@ -38,7 +77,7 @@ Each index is pushed and popped at most once.
 
 ---
 
-## Template: Next Greater Element (Right)
+## Optimized Template: Next Greater Element to the Right
 
 What we are doing actually:
 
@@ -221,7 +260,7 @@ Most monotonic stack bugs are comparator or flush mistakes.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Next Greater Element I (LC 496)  
    [LeetCode](https://leetcode.com/problems/next-greater-element-i/)

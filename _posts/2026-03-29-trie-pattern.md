@@ -22,6 +22,49 @@ header:
   caption: Efficient Prefix-Based String Search
   show_overlay_excerpt: false
 ---
+Trie (prefix tree) is the interview pattern for prefix-aware string search on a shared dictionary.
+It becomes valuable when repeated prefix queries or branching word searches would waste work in a plain set or repeated string scans.
+
+Strong candidates do not say "use a trie for prefixes" and stop there.
+They explain the difference between a path existing and a word ending, how branching works during wildcard or board search, and what memory trade-off the structure is buying.
+
+> [!NOTE] Interview lens
+> A strong trie explanation usually has four parts:
+> 1. what each node represents,
+> 2. why prefix existence and full-word existence are different checks,
+> 3. how insert, search, and DFS reuse shared prefix structure,
+> 4. what memory cost is being traded for faster repeated prefix operations.
+
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Prefix dictionary | many words share common prefixes | shared nodes avoid repeating the same prefix path | Implement Trie |
+| Wildcard dictionary search | search may branch at unknown characters | DFS from the current trie node handles branching | Design Add and Search Words Data Structure |
+| Trie-guided backtracking | DFS should prune impossible prefixes early | stop as soon as the trie path disappears | Word Search II |
+
+## Problem Statement
+
+Given many words and repeated prefix-oriented queries, support fast insert, full-word search, prefix checks, or dictionary-guided DFS.
+
+Typical interview signals:
+
+- the problem involves many strings with shared prefixes
+- repeated prefix checks matter
+- a wildcard or board-search problem needs aggressive pruning
+- hashing can answer full-word lookup, but not prefix traversal efficiently
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  prefix, dictionary, autocomplete, startsWith, wildcard word search.
+- Structural signals:
+  many operations walk character by character, and shared prefixes can reuse structure.
+- Complexity signal:
+  repeated prefix scanning across many candidate words is too expensive without shared prefix state.
+
+## Visual Intuition
+
 Trie (prefix tree) is optimized for prefix operations on string sets.
 It is widely used in dictionaries, autocomplete, and word-search style problems.
 
@@ -190,6 +233,18 @@ Build trie of dictionary words and DFS on board; prune paths missing trie childr
 
 ---
 
+## Pattern Variations
+
+- compressed trie or radix tree for long sparse strings
+- map-based children for larger alphabets
+- trie plus backtracking for board and dictionary search
+
+## Pattern Composition (Advanced)
+
+- trie + DFS for wildcard matching and board search
+- trie + sorting or lexicographic traversal for ordered dictionary output
+- trie + frequency metadata for autocomplete ranking
+
 ## Memory Optimization Note
 
 For sparse dictionaries, `Map<Character, TrieNode>` children can reduce memory versus fixed `TrieNode[26]`.
@@ -210,7 +265,7 @@ Most trie bugs come from word-end handling or missing prune conditions.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Implement Trie (Prefix Tree) (LC 208)  
    [LeetCode](https://leetcode.com/problems/implement-trie-prefix-tree/)
@@ -227,6 +282,7 @@ Most trie bugs come from word-end handling or missing prune conditions.
 
 ## Key Takeaways
 
-- Trie is the right tool for repeated prefix queries.
-- Trie + DFS is powerful for grid/dictionary search problems.
-- Memory tradeoff is the cost for fast prefix operations.
+- tries pay memory to make repeated prefix operations cheap
+- `isWord` is essential because prefix existence is not the same as word completion
+- wildcard and board-search problems work because the trie prunes impossible branches early
+- choose array or map children based on alphabet size and memory constraints

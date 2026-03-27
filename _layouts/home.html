@@ -11,9 +11,6 @@ layout: default
 {% if paginator and paginator.page > 1 %}
   {% assign is_first_page = false %}
 {% endif %}
-{% capture concurrency_roadmap_url %}{% post_url 2024-12-31-java-multithreading-concurrency-series-roadmap %}{% endcapture %}
-{% capture design_patterns_roadmap_url %}{% post_url 2025-12-01-java-design-patterns-series-roadmap %}{% endcapture %}
-
 {% if is_first_page %}
   <section class="home-hero">
     <div class="site-container home-hero__inner">
@@ -144,19 +141,18 @@ layout: default
     </div>
 
     <div class="roadmap-grid">
-      <a class="roadmap-card" href="{{ concurrency_roadmap_url | relative_url }}">
-        <span class="roadmap-card__status">Roadmap</span>
-        <h3 class="roadmap-card__title">Java Concurrency Roadmap</h3>
-        <p class="roadmap-card__copy">A structured path from thread fundamentals and memory visibility to executors, atomics, diagnostics, and modern Java concurrency.</p>
-        <span class="roadmap-card__meta">Java · Concurrency</span>
-      </a>
-
-      <a class="roadmap-card" href="{{ design_patterns_roadmap_url | relative_url }}">
-        <span class="roadmap-card__status">Roadmap</span>
-        <h3 class="roadmap-card__title">Java Design Patterns Roadmap</h3>
-        <p class="roadmap-card__copy">A practical reading path for design patterns in Java with backend use cases, trade-offs, and production-oriented examples.</p>
-        <span class="roadmap-card__meta">Java · Design</span>
-      </a>
+      {% for post in roadmap_posts limit: 3 %}
+        <a class="roadmap-card" href="{{ post.url | relative_url }}">
+          <span class="roadmap-card__status">Roadmap</span>
+          <h3 class="roadmap-card__title">{{ post.title }}</h3>
+          {% if post.roadmap_summary %}
+            <p class="roadmap-card__copy">{{ post.roadmap_summary }}</p>
+          {% elsif post.excerpt %}
+            <p class="roadmap-card__copy">{{ post.excerpt | strip_html | truncate: 160 }}</p>
+          {% endif %}
+          <span class="roadmap-card__meta">{{ post.roadmap_meta | default: post.categories | join: " · " }}</span>
+        </a>
+      {% endfor %}
     </div>
   </section>
 {% endif %}

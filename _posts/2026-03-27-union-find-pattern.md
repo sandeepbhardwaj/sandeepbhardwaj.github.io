@@ -23,6 +23,48 @@ header:
   show_overlay_excerpt: false
 ---
 Union-Find solves dynamic connectivity problems efficiently.
+It is the interview pattern for answering "are these items already in the same component?" while edges or relations keep arriving.
+
+Strong candidates do not stop at naming DSU.
+They explain what the parent structure represents, why path compression matters, and when Union-Find is the right abstraction instead of DFS, BFS, or adjacency traversal.
+
+> [!NOTE] Interview lens
+> A strong Union-Find explanation usually has four parts:
+> 1. what each root represents,
+> 2. why `find` and `union` are the only essential operations,
+> 3. how path compression and union by rank keep the structure shallow,
+> 4. why the problem is really about connectivity, grouping, or cycle detection.
+
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Dynamic connectivity | edges arrive over time and you need to know whether nodes are connected | each root represents one connected component | Number of Connected Components |
+| Cycle detection in undirected graphs | adding an edge may create a cycle | if two endpoints already share a root, the edge is redundant | Redundant Connection |
+| Grouping by relation | many entities belong to the same merged cluster | union related items, then group by representative root | Accounts Merge |
+
+## Problem Statement
+
+Given nodes and pairwise relations, determine connected components, detect redundant edges, or merge related groups efficiently.
+
+Typical interview signals:
+
+- edges are processed incrementally
+- the key question is connectivity, not path shape
+- repeated DFS or BFS would be too expensive
+- the graph is undirected or the relation is equivalence-like
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  connected components, disjoint set, merge groups, redundant edge, connectivity queries.
+- Structural signals:
+  you care whether two items end up in the same group, not about the actual route between them.
+- Complexity signal:
+  many union or connectivity operations appear, so recomputing components from scratch is wasteful.
+
+## Visual Intuition
+
 It supports two core operations:
 
 - `find(x)` -> representative of component
@@ -167,6 +209,18 @@ Use DSU to connect emails belonging to same user account, then group by root.
 
 ---
 
+## Pattern Variations
+
+- union by size instead of rank
+- string-key or email-key Union-Find via index compression or map-based IDs
+- offline connectivity problems after sorting or batching queries
+
+## Pattern Composition (Advanced)
+
+- Union-Find + hashmap for entity-to-index normalization
+- Union-Find + sorting for Kruskal-style minimum spanning tree logic
+- Union-Find + grouping pass after all unions to build final merged output
+
 ## Debug Checklist
 
 When DSU output is wrong:
@@ -180,7 +234,7 @@ Most DSU bugs are indexing or incorrect decrement logic.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Redundant Connection (LC 684)  
    [LeetCode](https://leetcode.com/problems/redundant-connection/)
@@ -197,6 +251,7 @@ Most DSU bugs are indexing or incorrect decrement logic.
 
 ## Key Takeaways
 
-- DSU is the standard for dynamic connectivity.
-- Path compression + rank/size is mandatory for performance.
-- It simplifies many graph problems that don't need full traversal logic.
+- Union-Find is for connectivity and grouping, not path exploration
+- `find` must return stable representatives, and `union` must only reduce groups on real merges
+- path compression and union by rank make the structure practically near-constant time
+- most DSU bugs are indexing mistakes or incorrect component-count updates

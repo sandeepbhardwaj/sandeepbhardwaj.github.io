@@ -10,6 +10,13 @@ tags:
 - multithreading
 - roadmap
 - backend
+roadmap_summary: Move from thread fundamentals and memory visibility to locks,
+  atomics, executors, futures, diagnostics, and modern Java concurrency patterns.
+roadmap_meta: Java · Concurrency
+roadmap_highlights:
+- foundations and mental models
+- coordination, safety, and throughput
+- diagnostics and modern Java concurrency
 toc: true
 toc_label: In This Article
 toc_icon: cog

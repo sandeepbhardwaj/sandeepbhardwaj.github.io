@@ -11,6 +11,7 @@ classes:
   - page-roadmaps
 excerpt: "Structured reading paths that organize the archive into clear sequences across Java, concurrency, and backend engineering."
 ---
+{% assign roadmap_posts = site.tags.roadmap | sort: "date" | reverse %}
 <div class="roadmaps-hub">
   <section class="roadmaps-intro full-width">
     <div class="roadmaps-intro__surface">
@@ -36,29 +37,25 @@ excerpt: "Structured reading paths that organize the archive into clear sequence
     </div>
 
     <div class="roadmaps-grid">
-      <a class="roadmap-hub-card roadmap-hub-card--live" href="{% post_url 2024-12-31-java-multithreading-concurrency-series-roadmap %}">
-        <span class="roadmap-hub-card__status">Roadmap</span>
-        <h3 class="roadmap-hub-card__title">Java Concurrency Roadmap</h3>
-        <p class="roadmap-hub-card__copy">Move from thread fundamentals and memory visibility to locks, atomics, executors, futures, debugging, and modern Java concurrency patterns.</p>
-        <ul class="roadmap-hub-card__list">
-          <li>foundations and mental models</li>
-          <li>coordination, safety, and throughput</li>
-          <li>diagnostics and modern Java concurrency</li>
-        </ul>
-        <span class="roadmap-hub-card__meta">Java · Concurrency</span>
-      </a>
-
-      <a class="roadmap-hub-card roadmap-hub-card--live" href="{% post_url 2025-12-01-java-design-patterns-series-roadmap %}">
-        <span class="roadmap-hub-card__status">Roadmap</span>
-        <h3 class="roadmap-hub-card__title">Java Design Patterns Roadmap</h3>
-        <p class="roadmap-hub-card__copy">A guided path through practical Java design patterns with backend examples, trade-offs, and system-oriented design decisions.</p>
-        <ul class="roadmap-hub-card__list">
-          <li>core composition and object design</li>
-          <li>behavioral and structural patterns</li>
-          <li>backend use cases and trade-offs</li>
-        </ul>
-        <span class="roadmap-hub-card__meta">Java · Design</span>
-      </a>
+      {% for post in roadmap_posts %}
+        <a class="roadmap-hub-card roadmap-hub-card--live" href="{{ post.url | relative_url }}">
+          <span class="roadmap-hub-card__status">Roadmap</span>
+          <h3 class="roadmap-hub-card__title">{{ post.title }}</h3>
+          {% if post.roadmap_summary %}
+            <p class="roadmap-hub-card__copy">{{ post.roadmap_summary }}</p>
+          {% elsif post.excerpt %}
+            <p class="roadmap-hub-card__copy">{{ post.excerpt | strip_html | truncate: 180 }}</p>
+          {% endif %}
+          {% if post.roadmap_highlights %}
+            <ul class="roadmap-hub-card__list">
+              {% for item in post.roadmap_highlights limit: 3 %}
+                <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <span class="roadmap-hub-card__meta">{{ post.roadmap_meta | default: post.categories | join: " · " }}</span>
+        </a>
+      {% endfor %}
     </div>
   </section>
 

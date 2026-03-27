@@ -22,12 +22,51 @@ header:
   caption: Efficient Access to Extreme Elements
   show_overlay_excerpt: false
 ---
-Use heaps when you need repeated access to the smallest or largest element under updates.
-Java provides this via `PriorityQueue`.
+Heap and priority-queue problems show up when the answer depends on repeatedly taking the current best, worst, or next item while the candidate set keeps changing.
+Java gives you this through `PriorityQueue`.
+
+Strong candidates do not just recognize "top k means heap."
+They explain which heap type they need, what invariant the heap is maintaining, and why a heap beats full sorting when only a small frontier matters.
+
+> [!NOTE] Interview lens
+> A strong heap explanation usually has four parts:
+> 1. what the heap root represents at every moment,
+> 2. why a min-heap or max-heap is the right direction,
+> 3. what gets inserted and when stale or excess elements are removed,
+> 4. why the resulting complexity beats sorting or repeated rescans.
 
 ---
 
-## Core Idea
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Top-k frontier | only the best `k` items matter | keep a bounded heap of the current best candidates | Kth Largest Element in an Array |
+| Two heaps | maintain a balanced lower and upper half | max-heap for left half, min-heap for right half | Find Median from Data Stream |
+| K-way merge | repeatedly choose the smallest current head among many sorted streams | heap stores one frontier item per stream | Merge K Sorted Lists |
+| Greedy scheduling | choose the earliest finishing or cheapest next option under updates | heap stores the active frontier of choices | Meeting Rooms, task scheduling variants |
+
+## Problem Statement
+
+Given a changing set of candidates, repeatedly return the smallest, largest, or next most relevant element efficiently.
+
+Typical interview signals:
+
+- the candidate set changes as you process input
+- you only need the next extreme or the current top `k`
+- full sorting would do extra unnecessary work
+- the prompt involves streams, scheduling, merging, or running medians
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  top k, kth largest, smallest range, median stream, merge k sorted lists, earliest ending, most frequent.
+- Structural signals:
+  you need fast access to one extreme while still supporting insertion of new candidates.
+- Complexity signal:
+  expected `O(n log k)`, `O(log n)` updates, or `O(n log m)` frontier processing instead of resorting everything.
+
+## Visual Intuition
 
 - Min-heap: root is smallest
 - Max-heap: simulate via reversed comparator
@@ -228,7 +267,7 @@ Heaps fail silently when comparator semantics are inverted.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Kth Largest Element in an Array (LC 215)  
    [LeetCode](https://leetcode.com/problems/kth-largest-element-in-an-array/)

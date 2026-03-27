@@ -22,12 +22,51 @@ header:
   caption: Sorting and Sweep Logic for Range Problems
   show_overlay_excerpt: false
 ---
-Intervals problems are mostly about ordering and overlap rules.
-Once sorted, many become simple linear scans.
+Interval problems are the interview pattern for reasoning about overlap, ordering, and resource usage across ranges.
+Once the intervals are sorted using the right key, many messy-looking problems collapse into one linear scan.
+
+Strong candidates do not say "sort and merge" as a reflex.
+They first clarify interval semantics, choose the correct sort key, and explain exactly when two ranges should be treated as overlapping versus merely touching.
+
+> [!NOTE] Interview lens
+> A strong interval explanation usually has four parts:
+> 1. whether the intervals are closed or half-open,
+> 2. what sort order makes the local decision correct,
+> 3. what state summarizes the merged or active answer so far,
+> 4. why each new interval can be handled by comparing against only that state.
 
 ---
 
-## Core Idea
+## Pattern Summary Table
+
+| Pattern | When to use | Key idea | Example problem |
+| --- | --- | --- | --- |
+| Merge overlaps | combine touching or overlapping ranges into disjoint output | sort by start and merge into the last output interval | Merge Intervals |
+| Insert and merge | add one range into an already ordered non-overlapping set | process before, overlap, and after phases | Insert Interval |
+| Greedy keep-by-end | maximize non-overlapping intervals or minimize removals | keep the interval that ends earliest | Non-overlapping Intervals |
+| Active resource counting | count how many intervals overlap at once | sort starts and track active ends with a heap or sweep line | Meeting Rooms II |
+
+## Problem Statement
+
+Given intervals that may overlap, touch, or compete for the same resource, merge them, insert one more interval, remove conflicts, or count simultaneous activity.
+
+Typical interview signals:
+
+- each item has a start and end
+- sorting seems unavoidable
+- overlap semantics determine correctness
+- the expected solution is `O(n log n)` because sorting dominates
+
+## Pattern Recognition Signals
+
+- Keywords in the problem:
+  merge, overlap, insert interval, meeting rooms, non-overlapping, schedule, active intervals.
+- Structural signals:
+  once intervals are ordered, the next decision only depends on the last merged interval or the earliest finishing active one.
+- Complexity signal:
+  the core work after sorting is often a linear scan.
+
+## Visual Intuition
 
 1. Sort by start time.
 2. Iterate and decide overlap vs non-overlap.
@@ -42,7 +81,7 @@ This changes overlap condition (`<` vs `<=`) in edge cases.
 
 ---
 
-## Template: Merge Intervals
+## Optimized Template: Merge Intervals
 
 This is the base interval problem: given many ranges, combine every overlapping pair so the final answer contains only disjoint intervals.
 
@@ -239,7 +278,7 @@ Most interval bugs are boundary definition bugs, not algorithm bugs.
 
 ---
 
-## Practice Set (Recommended Order)
+## Practice Problems
 
 1. Merge Intervals (LC 56)  
    [LeetCode](https://leetcode.com/problems/merge-intervals/)
