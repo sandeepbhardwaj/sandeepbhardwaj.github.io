@@ -80,4 +80,4 @@ jobs:
         id: deployment
         # Track the v4 major so we automatically pick up the first Node 24-compatible
         # patch release when GitHub publishes it.
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
