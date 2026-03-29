@@ -9,7 +9,7 @@ related: false
 toc: false
 classes:
   - page-topics
-excerpt: "Browse the archive by topic when you know the area and want depth fast."
+excerpt: "Browse the ScaleMind archive by topic when you know the area and want depth fast."
 ---
 {% assign total_posts = site.posts | size %}
 {% assign total_topics = site.categories | size %}
@@ -18,7 +18,7 @@ excerpt: "Browse the archive by topic when you know the area and want depth fast
     <div class="topics-intro__copy">
       <p class="topics-kicker">Topics</p>
       <h2 class="topics-intro__title">Browse the archive by subject.</h2>
-      <p class="topics-intro__text">Open the part of the archive that matches the language, problem space, or system area you want to explore next.</p>
+      <p class="topics-intro__text">Open the part of the ScaleMind archive that matches the language, problem space, or system area you want to explore next.</p>
     </div>
 
     <div class="topics-intro__stats" aria-label="Topics overview">

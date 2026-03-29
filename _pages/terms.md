@@ -9,7 +9,7 @@ Last updated: March 2, 2026
 
 ## Acceptance of Terms
 
-By using this website (`https://sandeepbhardwaj.github.io`), you agree to these terms.
+By using this website (`https://scalemind.dev`), you agree to these terms.
 If you do not agree, please do not use the site.
 
 ## Content Purpose

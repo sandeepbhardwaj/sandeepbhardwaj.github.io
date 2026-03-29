@@ -9,7 +9,7 @@ Last updated: March 2, 2026
 
 ## Overview
 
-This website (`https://sandeepbhardwaj.github.io`) shares technical content related to Java, backend engineering, and software architecture.
+This website (`https://scalemind.dev`) shares technical content related to system design, backend engineering, and scalable architecture.
 Your privacy matters, and this page explains what data may be collected and how it may be used.
 
 ## Information Collected

@@ -1,8 +1,8 @@
-title: "Code to Architecture"
-subtitle: "Designing Systems That Scale Beyond Code"
+title: "ScaleMind"
+subtitle: "System Design & Scalable Architecture"
 name: "Sandeep Bhardwaj"
-description: "Technical deep dives on backend systems and SaaS architecture."
-url: "https://sandeepbhardwaj.github.io"
+description: "ScaleMind publishes technical deep dives on system design, scalable architecture, backend engineering, and distributed systems."
+url: "https://scalemind.dev"
 baseurl: ""
 repository: "sandeepbhardwaj/sandeepbhardwaj.github.io"
 
@@ -16,7 +16,7 @@ sass:
 author:
   name: "Sandeep Bhardwaj"
   avatar: "/assets/images/author-avatar.svg"
-  bio: "Backend Engineer • SaaS Builder"
+  bio: "Backend Engineer • System Design & Scalable Architecture"
   location: "India"
   links:
     - label: "Email"
@@ -69,7 +69,7 @@ integrations:
     provider: "followit"
     enabled: true
     url: "https://follow.it/code-to-architecture?leanpub"
-    footer_label: "Subscribe via email"
+    footer_label: "Subscribe to ScaleMind"
   comments:
     provider: "giscus"
     enabled: true
@@ -179,8 +179,8 @@ social:
 
 seo:
   type: Blog
-  name: "Sandeep Bhardwaj Technical Blog"
+  name: "ScaleMind"
 
 og_image: /assets/images/site-og-image.png
 social_share_image: /assets/images/site-og-image.png
-og_image_alt: "Code to Architecture banner with the tagline Designing Systems That Scale Beyond Code."
+og_image_alt: "ScaleMind banner with the tagline System Design & Scalable Architecture."
