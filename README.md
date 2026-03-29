@@ -1,15 +1,15 @@
-# Code to Architecture
+# ScaleMind
 
 [![CI](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/ci.yml)
 [![Deploy Jekyll site to Pages](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/sandeepbhardwaj/sandeepbhardwaj.github.io/actions/workflows/deploy-pages.yml)
 
 Personal technical blog built with Jekyll and the `minimal-mistakes-jekyll` theme.
 
-🌐 Live site: `https://sandeepbhardwaj.github.io`
+🌐 Live site: `https://scalemind.dev`
 
 ## 🧭 What This Repo Contains
 
-This repository powers a static blog focused on backend engineering, distributed systems, system design, and SaaS architecture.
+This repository powers the ScaleMind blog focused on backend engineering, distributed systems, system design, and scalable architecture.
 
 The site uses:
 
@@ -30,7 +30,7 @@ The site uses:
 
 - 📰 paginated posts
 - 🗂️ category archives
-- 📡 RSS feed at `https://sandeepbhardwaj.github.io/feed.xml`
+- 📡 RSS feed at `https://scalemind.dev/feed.xml`
 - 💬 Giscus-based comments
 - ✉️ email subscribe link via `follow.it`
 - 📈 Mermaid diagram rendering with an expanded viewer

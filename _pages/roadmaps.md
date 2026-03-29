@@ -9,7 +9,7 @@ related: false
 toc: false
 classes:
   - page-roadmaps
-excerpt: "Structured reading paths that organize the archive into clear sequences across Java, concurrency, and backend engineering."
+excerpt: "Structured ScaleMind reading paths that organize the archive into clear sequences across Java, concurrency, system design, and backend engineering."
 ---
 {% assign roadmap_posts = site.tags.roadmap | sort: "date" | reverse %}
 <div class="roadmaps-hub">
@@ -18,7 +18,7 @@ excerpt: "Structured reading paths that organize the archive into clear sequence
       <div class="roadmaps-intro__copy">
         <p class="roadmaps-kicker">Roadmaps</p>
         <h2 class="roadmaps-intro__title">Follow a structured path through the archive.</h2>
-        <p class="roadmaps-intro__text">Roadmaps organize related writing into a clear sequence. Start here when continuity matters more than browsing one article at a time.</p>
+        <p class="roadmaps-intro__text">ScaleMind roadmaps organize related writing into a clear sequence. Start here when continuity matters more than browsing one article at a time.</p>
       </div>
 
       <div class="roadmaps-intro__meta">

@@ -28,6 +28,7 @@
   --accent-strong: #62482c;
   --accent-soft: rgba(123, 94, 59, 0.12);
   --accent-alt: #5d6c6c;
+  --brand-gradient: linear-gradient(120deg, var(--text-strong), var(--accent-strong) 58%, var(--accent-alt));
   --success: #15803d;
   --warning: #b45309;
   --danger: #dc2626;
@@ -143,6 +144,7 @@
   --accent-strong: #d9bd98;
   --accent-soft: rgba(201, 169, 127, 0.18);
   --accent-alt: #9fb0b0;
+  --brand-gradient: linear-gradient(120deg, var(--text-strong), var(--accent-strong) 58%, var(--accent-alt));
   --success: #4ade80;
   --warning: #fdba74;
   --danger: #fb7185;

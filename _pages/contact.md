@@ -8,15 +8,15 @@ share: false
 related: false
 comments: false
 classes: [page-contact]
-excerpt: "Reach out for collaboration, consulting, technical discussion, or thoughtful feedback on the work published here."
+excerpt: "Reach out about ScaleMind, collaboration, consulting, or thoughtful technical discussion."
 ---
 
 <div class="contact-hub">
   <section class="contact-intro__surface">
     <div class="contact-intro__copy">
       <p class="contact-kicker">Get In Touch</p>
-      <h2 class="contact-intro__title">The easiest way to reach me is still a clear, direct message.</h2>
-      <p class="contact-intro__text">If you want to discuss backend engineering, architecture, roadmaps, writing, or possible collaboration, feel free to reach out. I prefer communication that gets to the point and includes enough context to understand what would be useful.</p>
+      <h2 class="contact-intro__title">The easiest way to reach ScaleMind is still a clear, direct message.</h2>
+      <p class="contact-intro__text">If you want to discuss system design, architecture, roadmaps, writing, or possible collaboration, feel free to reach out. I prefer communication that gets to the point and includes enough context to understand what would be useful.</p>
       <div class="contact-intro__actions">
         <a class="btn btn--primary" href="mailto:hello@sandeepbhardwaj.dev">Email Me</a>
         <a class="btn" href="https://www.linkedin.com/in/sandeepbhardwaj01/">Connect on LinkedIn</a>
@@ -29,7 +29,7 @@ excerpt: "Reach out for collaboration, consulting, technical discussion, or thou
       <ul class="contact-note__list">
         <li>technical collaboration and consulting conversations</li>
         <li>feedback on a post, roadmap, or architecture idea</li>
-        <li>backend engineering, Java, concurrency, and systems discussions</li>
+        <li>system design, Java, concurrency, and distributed systems discussions</li>
       </ul>
     </div>
   </section>

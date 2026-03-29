@@ -8,16 +8,16 @@ share: false
 related: false
 comments: false
 classes: [page-about]
-excerpt: "Backend engineering, architecture trade-offs, and long-form technical writing focused on systems that need to perform reliably at scale."
+excerpt: "ScaleMind is where I write about system design, architecture trade-offs, and long-form technical thinking for systems that need to scale cleanly."
 ---
 
 <div class="about-hub">
   <section class="about-intro__surface">
     <div class="about-intro__copy">
       <p class="about-kicker">Who I Am</p>
-      <h2 class="about-intro__title">I write about backend engineering the way teams experience it in production.</h2>
+      <h2 class="about-intro__title">ScaleMind is where I write about system design the way teams experience it in production.</h2>
       <p class="about-intro__text">I work on backend systems, platform decisions, and architecture trade-offs that need to survive real throughput, failure, scale, and delivery pressure. The focus is not theory for its own sake. It is practical engineering that helps teams move with more clarity and less accidental complexity.</p>
-      <p class="about-intro__text">This site brings together long-form technical writing on DSA, Java, concurrency, backend systems, architecture, and distributed systems. Some posts are implementation-heavy. Some are learning roadmaps. Some are decision frameworks for engineering teams trying to build reliably over time.</p>
+      <p class="about-intro__text">ScaleMind brings together long-form technical writing on DSA, Java, concurrency, backend systems, architecture, and distributed systems. Some posts are implementation-heavy. Some are learning roadmaps. Some are decision frameworks for engineering teams trying to build reliably over time.</p>
       <div class="about-intro__actions">
         <a class="btn btn--primary" href="{{ '/roadmaps/' | relative_url }}">Browse Roadmaps</a>
         <a class="btn" href="{{ '/categories/' | relative_url }}">Explore Topics</a>
@@ -30,7 +30,7 @@ excerpt: "Backend engineering, architecture trade-offs, and long-form technical 
     <div class="about-section-head">
       <p class="about-kicker">Working Focus</p>
       <h2 class="about-section-title">The kind of problems I care about most</h2>
-      <p class="about-section-copy">The strongest through-line across my writing and engineering work is helping systems stay understandable as they grow more demanding.</p>
+      <p class="about-section-copy">The strongest through-line across ScaleMind is helping systems stay understandable as they grow more demanding.</p>
     </div>
 
     <div class="about-focus-grid">
@@ -59,7 +59,7 @@ excerpt: "Backend engineering, architecture trade-offs, and long-form technical 
   <section class="about-block about-block--editorial">
     <div class="about-section-head">
       <p class="about-kicker">What You Will Find Here</p>
-      <h2 class="about-section-title">This site is built for engineers who want depth, not noise.</h2>
+      <h2 class="about-section-title">ScaleMind is built for engineers who want depth, not noise.</h2>
       <p class="about-section-copy">The writing aims to be practical, opinionated when it helps, and grounded in implementation details instead of generic advice.</p>
     </div>
 
