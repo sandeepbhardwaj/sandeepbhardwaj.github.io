@@ -63,7 +63,7 @@ integrations:
     google: "2CJcM2GggRVsrjgINoCQzUNh4UPupGbAIKCSeS7nfoI"
   analytics:
     provider: "google-gtag"
-    tracking_id: "G-B895SGXR6X"
+    tracking_id: "G-PB1WC30XS1"
     anonymize_ip: true
   newsletter:
     provider: "followit"
