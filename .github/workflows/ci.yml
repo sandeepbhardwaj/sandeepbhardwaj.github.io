@@ -80,3 +80,64 @@ jobs:
 
           puts "sitemap.xml validation passed (#{urls.size} URLs)"
           '
+
+      - name: Validate feed.xml
+        run: |
+          if [ ! -f _site/feed.xml ]; then
+            echo "::error::_site/feed.xml not found"
+            exit 1
+          fi
+
+          ruby -e '
+          require "rexml/document"
+          require "rexml/xpath"
+
+          path = "_site/feed.xml"
+          xml = File.read(path)
+          begin
+            doc = REXML::Document.new(xml)
+          rescue REXML::ParseException => e
+            abort("feed.xml is not valid XML: #{e.message}")
+          end
+
+          urls = []
+          REXML::XPath.each(doc, "//*[local-name()=\"link\"]") do |el|
+            href = el.attributes["href"]&.strip
+            text = el.text.to_s.strip
+            urls << href if href && !href.empty?
+            urls << text if !text.empty? && text.start_with?("http")
+          end
+
+          REXML::XPath.each(doc, "//*[local-name()=\"id\"]") do |el|
+            text = el.text.to_s.strip
+            urls << text if text.start_with?("http")
+          end
+
+          urls.uniq!
+          if urls.empty?
+            abort("feed.xml has no URLs")
+          end
+
+          invalid = urls.select { |u| !(u.start_with?("https://scalemind.dev/") || u == "https://scalemind.dev") }
+          if invalid.any?
+            puts "Invalid feed URLs (first 5):"
+            invalid.first(5).each { |u| puts "  #{u}" }
+            abort("feed.xml contains non-production URLs")
+          end
+
+          bad_http = urls.select { |u| u.start_with?("http://") }
+          if bad_http.any?
+            puts "Non-HTTPS feed URLs (first 5):"
+            bad_http.first(5).each { |u| puts "  #{u}" }
+            abort("feed.xml contains non-HTTPS URLs")
+          end
+
+          local = urls.select { |u| u.include?("localhost") }
+          if local.any?
+            puts "localhost feed URLs found (first 5):"
+            local.first(5).each { |u| puts "  #{u}" }
+            abort("feed.xml contains localhost URLs")
+          end
+
+          puts "feed.xml validation passed (#{urls.size} URLs)"
+          '

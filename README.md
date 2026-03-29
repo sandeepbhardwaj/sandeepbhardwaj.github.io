@@ -185,6 +185,7 @@ It:
 - 🧪 runs `bundle exec jekyll build --strict_front_matter`
 - 📄 validates that `_site/sitemap.xml` exists
 - 🔒 validates that sitemap URLs use the `https://scalemind.dev` production domain
+- 📡 validates that `_site/feed.xml` exists and only contains `https://scalemind.dev` URLs
 
 ### 🚀 Deployment
 
