@@ -57,7 +57,7 @@ jobs:
             abort("sitemap.xml has no URLs")
           end
 
-          invalid = urls.select { |u| !(u.start_with?("https://sandeepbhardwaj.github.io/")) }
+          invalid = urls.select { |u| !(u.start_with?("https://scalemind.dev/")) }
           if invalid.any?
             puts "Invalid sitemap URLs (first 5):"
             invalid.first(5).each { |u| puts "  #{u}" }

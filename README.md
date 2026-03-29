@@ -184,7 +184,7 @@ It:
 - 📦 installs Ruby dependencies with Bundler cache
 - 🧪 runs `bundle exec jekyll build --strict_front_matter`
 - 📄 validates that `_site/sitemap.xml` exists
-- 🔒 validates that sitemap URLs use the production HTTPS domain
+- 🔒 validates that sitemap URLs use the `https://scalemind.dev` production domain
 
 ### 🚀 Deployment
 
