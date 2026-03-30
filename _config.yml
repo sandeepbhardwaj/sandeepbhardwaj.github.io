@@ -53,6 +53,8 @@ footer:
 appearance:
   default_theme: dark
 
+bing_site_verification: "45459EBB99855D11A10308AEC542B6AE"
+
 integrations:
   adsense:
     enabled: true
