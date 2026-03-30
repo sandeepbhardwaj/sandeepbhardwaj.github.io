@@ -151,9 +151,8 @@
   <link rel="next" href="{{ paginator.next_page_path | absolute_url }}">
 {% endif %}
 
-{% if page.url == '/' %}
-  {% include schema.html %}
-{% endif %}
+{% include schema.html %}
+{% include breadcrumbs-schema.html %}
 
 {% if site_verification.google %}
   <meta name="google-site-verification" content="{{ site_verification.google }}" />

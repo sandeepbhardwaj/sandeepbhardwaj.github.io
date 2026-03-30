@@ -1,0 +1,89 @@
+{% assign breadcrumb_page_url = page.canonical_url | default: page.url | replace: "/index.html", "/" | absolute_url %}
+{% assign breadcrumb_title = page.title | default: site.title | markdownify | strip_html | strip_newlines | strip %}
+
+{% unless page.url == '/' or page.url == '/404.html' or page.layout == 'home' or breadcrumb_title == '' %}
+  {% capture breadcrumb_items %}
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": {{ site.url | jsonify }}
+    }
+    {% assign breadcrumb_position = 2 %}
+    {% if page.date %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": "Topics",
+        "item": {{ '/categories/' | absolute_url | jsonify }}
+      }
+      {% assign breadcrumb_position = breadcrumb_position | plus: 1 %}
+      {% assign primary_category = page.categories | first %}
+      {% if primary_category %}
+        ,
+        {
+          "@type": "ListItem",
+          "position": {{ breadcrumb_position }},
+          "name": {{ primary_category | jsonify }},
+          "item": {{ '/categories/' | append: primary_category | slugify | append: '/' | absolute_url | jsonify }}
+        }
+        {% assign breadcrumb_position = breadcrumb_position | plus: 1 %}
+      {% endif %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": {{ breadcrumb_title | jsonify }},
+        "item": {{ breadcrumb_page_url | jsonify }}
+      }
+    {% elsif page.url == '/categories/' %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": "Topics",
+        "item": {{ breadcrumb_page_url | jsonify }}
+      }
+    {% elsif page.url contains '/categories/' %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": "Topics",
+        "item": {{ '/categories/' | absolute_url | jsonify }}
+      }
+      {% assign breadcrumb_position = breadcrumb_position | plus: 1 %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": {{ breadcrumb_title | jsonify }},
+        "item": {{ breadcrumb_page_url | jsonify }}
+      }
+    {% elsif page.url == '/tags/' %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": "Tags",
+        "item": {{ breadcrumb_page_url | jsonify }}
+      }
+    {% else %}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ breadcrumb_position }},
+        "name": {{ breadcrumb_title | jsonify }},
+        "item": {{ breadcrumb_page_url | jsonify }}
+      }
+    {% endif %}
+  {% endcapture %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{{ breadcrumb_items | strip }}]
+    }
+  </script>
+{% endunless %}
