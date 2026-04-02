@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-boot-graceful-shutdown-draining-part-2/
 tags:
 - java
 - spring-boot

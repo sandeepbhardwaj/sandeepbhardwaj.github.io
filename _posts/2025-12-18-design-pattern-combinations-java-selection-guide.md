@@ -4,6 +4,7 @@ date: 2025-12-18
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/design-pattern-combinations-java-selection-guide/
 tags:
 - java
 - java8

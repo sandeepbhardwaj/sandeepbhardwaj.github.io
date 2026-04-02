@@ -4,6 +4,7 @@ date: 2025-12-15
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/template-method-pattern-java-file-import/
 tags:
 - java
 - java8

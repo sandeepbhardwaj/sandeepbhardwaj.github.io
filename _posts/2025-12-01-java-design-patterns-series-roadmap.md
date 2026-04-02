@@ -4,6 +4,7 @@ date: 2025-12-01
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/java-design-patterns-series-roadmap/
 tags:
 - java
 - java8

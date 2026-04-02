@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/adaptive-concurrency-overload-protection-part-3/
 tags:
 - distributed-systems
 - architecture

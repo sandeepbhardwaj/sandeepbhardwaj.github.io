@@ -5,6 +5,7 @@ categories:
 - Java
 - Design Patterns
 - Architecture
+permalink: /java/design-patterns/architecture/java-pattern-selection-matrix-tradeoffs-part-2/
 tags:
 - java
 - design-patterns

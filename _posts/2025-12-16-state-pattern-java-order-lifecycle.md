@@ -4,6 +4,7 @@ date: 2025-12-16
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/state-pattern-java-order-lifecycle/
 tags:
 - java
 - java8

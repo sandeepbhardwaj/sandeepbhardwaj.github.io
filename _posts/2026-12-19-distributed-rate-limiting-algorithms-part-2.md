@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/distributed-rate-limiting-algorithms-part-2/
 tags:
 - distributed-systems
 - architecture

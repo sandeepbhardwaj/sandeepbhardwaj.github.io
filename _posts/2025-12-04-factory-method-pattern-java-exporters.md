@@ -4,6 +4,7 @@ date: 2025-12-04
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/factory-method-pattern-java-exporters/
 tags:
 - java
 - java8

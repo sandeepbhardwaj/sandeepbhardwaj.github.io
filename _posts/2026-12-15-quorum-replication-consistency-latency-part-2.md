@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/quorum-replication-consistency-latency-part-2/
 tags:
 - distributed-systems
 - architecture

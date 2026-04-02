@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-multi-region-replication-failover-part-2/
 tags:
 - java
 - kafka

@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-exactly-once-practical-semantics-part-1/
 tags:
 - java
 - kafka

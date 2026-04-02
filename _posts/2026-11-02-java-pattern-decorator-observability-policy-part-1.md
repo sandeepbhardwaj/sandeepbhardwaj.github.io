@@ -5,6 +5,7 @@ categories:
 - Java
 - Design Patterns
 - Architecture
+permalink: /java/design-patterns/architecture/java-pattern-decorator-observability-policy-part-1/
 tags:
 - java
 - design-patterns

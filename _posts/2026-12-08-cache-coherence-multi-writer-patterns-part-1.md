@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/cache-coherence-multi-writer-patterns-part-1/
 tags:
 - distributed-systems
 - architecture

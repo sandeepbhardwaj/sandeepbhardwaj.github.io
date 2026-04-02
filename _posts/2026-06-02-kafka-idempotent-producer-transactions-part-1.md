@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-idempotent-producer-transactions-part-1/
 tags:
 - java
 - kafka

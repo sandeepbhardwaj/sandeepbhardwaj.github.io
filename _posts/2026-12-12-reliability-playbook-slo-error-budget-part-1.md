@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/reliability-playbook-slo-error-budget-part-1/
 tags:
 - distributed-systems
 - architecture

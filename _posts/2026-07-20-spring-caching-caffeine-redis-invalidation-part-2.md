@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-caching-caffeine-redis-invalidation-part-2/
 tags:
 - java
 - spring-boot

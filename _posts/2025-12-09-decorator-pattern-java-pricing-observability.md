@@ -4,6 +4,7 @@ date: 2025-12-09
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/decorator-pattern-java-pricing-observability/
 tags:
 - java
 - java8

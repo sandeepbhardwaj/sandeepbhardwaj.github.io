@@ -4,6 +4,7 @@ date: 2025-12-11
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/proxy-pattern-java-caching-access-control/
 tags:
 - java
 - java8

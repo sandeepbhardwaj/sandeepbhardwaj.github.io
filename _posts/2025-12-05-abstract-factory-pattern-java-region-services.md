@@ -4,6 +4,7 @@ date: 2025-12-05
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/abstract-factory-pattern-java-region-services/
 tags:
 - java
 - java8

@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-observability-lag-slo-operations-part-1/
 tags:
 - java
 - kafka

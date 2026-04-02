@@ -4,6 +4,7 @@ date: 2025-12-14
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/command-pattern-java-queueable-actions/
 tags:
 - java
 - java8

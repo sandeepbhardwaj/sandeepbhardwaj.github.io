@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-transaction-propagation-isolation-advanced-part-3/
 tags:
 - java
 - spring-boot

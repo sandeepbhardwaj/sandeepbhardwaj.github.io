@@ -4,6 +4,7 @@ date: 2025-12-17
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/chain-of-responsibility-pattern-java-request-validation/
 tags:
 - java
 - java8

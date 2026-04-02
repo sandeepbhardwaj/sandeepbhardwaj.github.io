@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-resilience4j-patterns-production-part-1/
 tags:
 - java
 - spring-boot

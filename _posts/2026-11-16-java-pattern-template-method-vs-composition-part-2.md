@@ -5,6 +5,7 @@ categories:
 - Java
 - Design Patterns
 - Architecture
+permalink: /java/design-patterns/architecture/java-pattern-template-method-vs-composition-part-2/
 tags:
 - java
 - design-patterns

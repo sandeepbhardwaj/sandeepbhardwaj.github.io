@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-reactive-vs-virtual-threads-part-1/
 tags:
 - java
 - spring-boot

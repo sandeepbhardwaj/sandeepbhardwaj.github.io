@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/outbox-inbox-reliable-communication-pattern-part-2/
 tags:
 - distributed-systems
 - architecture
