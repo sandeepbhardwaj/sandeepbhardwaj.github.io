@@ -5,6 +5,7 @@ categories:
 - Java
 - Design Patterns
 - Architecture
+permalink: /java/design-patterns/architecture/java-pattern-chain-of-responsibility-pipeline-part-3/
 tags:
 - java
 - design-patterns

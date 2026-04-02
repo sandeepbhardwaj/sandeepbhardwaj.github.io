@@ -4,6 +4,7 @@ date: 2025-12-03
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/singleton-pattern-java-configuration-registry/
 tags:
 - java
 - java8

@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-consumer-rebalance-zero-downtime-part-1/
 tags:
 - java
 - kafka

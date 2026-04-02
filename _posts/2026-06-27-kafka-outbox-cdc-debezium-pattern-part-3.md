@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-outbox-cdc-debezium-pattern-part-3/
 tags:
 - java
 - kafka

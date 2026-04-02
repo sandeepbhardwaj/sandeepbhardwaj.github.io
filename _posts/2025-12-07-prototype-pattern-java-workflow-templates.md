@@ -4,6 +4,7 @@ date: 2025-12-07
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/prototype-pattern-java-workflow-templates/
 tags:
 - java
 - java8

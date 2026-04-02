@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-retry-dlq-poison-message-patterns-part-2/
 tags:
 - java
 - kafka

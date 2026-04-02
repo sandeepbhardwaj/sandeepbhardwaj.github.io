@@ -4,6 +4,7 @@ date: 2025-12-02
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/solid-principles-before-design-patterns-java/
 tags:
 - java
 - java8

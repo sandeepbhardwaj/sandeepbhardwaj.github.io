@@ -5,6 +5,7 @@ categories:
 - AI
 - ML
 - Developer Tools
+permalink: /ai/ml/developer-tools/spec-kit-explained-with-end-to-end-example/
 tags:
 - ai
 - llm

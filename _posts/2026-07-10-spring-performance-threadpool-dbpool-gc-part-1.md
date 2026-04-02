@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-performance-threadpool-dbpool-gc-part-1/
 tags:
 - java
 - spring-boot

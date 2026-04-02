@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/causality-ordering-logical-vector-clocks-part-2/
 tags:
 - distributed-systems
 - architecture

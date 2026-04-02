@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-testing-large-codebase-testcontainers-part-1/
 tags:
 - java
 - spring-boot

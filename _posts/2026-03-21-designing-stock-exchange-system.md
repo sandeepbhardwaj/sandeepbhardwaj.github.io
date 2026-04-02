@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/designing-stock-exchange-system/
 tags:
 - distributed-systems
 - architecture

@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-observability-micrometer-opentelemetry-part-2/
 tags:
 - java
 - spring-boot

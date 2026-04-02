@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/geo-distributed-locality-aware-routing-part-1/
 tags:
 - distributed-systems
 - architecture

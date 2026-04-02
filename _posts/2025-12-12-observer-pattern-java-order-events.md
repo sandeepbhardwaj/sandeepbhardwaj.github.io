@@ -4,6 +4,7 @@ date: 2025-12-12
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/observer-pattern-java-order-events/
 tags:
 - java
 - java8

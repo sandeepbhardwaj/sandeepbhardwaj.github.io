@@ -5,6 +5,7 @@ categories:
 - Java
 - Kafka
 - Distributed Systems
+permalink: /java/kafka/distributed-systems/kafka-event-time-vs-processing-time-part-1/
 tags:
 - java
 - kafka

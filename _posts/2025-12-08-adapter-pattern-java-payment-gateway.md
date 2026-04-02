@@ -4,6 +4,7 @@ date: 2025-12-08
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/adapter-pattern-java-payment-gateway/
 tags:
 - java
 - java8

@@ -4,6 +4,7 @@ date: 2025-12-13
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/strategy-pattern-java-discount-engine/
 tags:
 - java
 - java8

@@ -4,6 +4,7 @@ date: 2025-12-06
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/builder-pattern-java-report-assembly/
 tags:
 - java
 - java8

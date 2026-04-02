@@ -4,6 +4,7 @@ date: 2025-12-10
 categories:
 - Java
 - Design Patterns
+permalink: /java/design-patterns/facade-pattern-java-checkout-orchestration/
 tags:
 - java
 - java8

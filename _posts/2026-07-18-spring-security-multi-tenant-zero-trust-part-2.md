@@ -5,6 +5,7 @@ categories:
 - Java
 - Spring Boot
 - Backend
+permalink: /java/spring-boot/backend/spring-security-multi-tenant-zero-trust-part-2/
 tags:
 - java
 - spring-boot

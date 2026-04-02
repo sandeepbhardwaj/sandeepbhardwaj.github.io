@@ -5,6 +5,7 @@ categories:
 - Distributed Systems
 - Architecture
 - Backend
+permalink: /distributed-systems/architecture/backend/event-sourcing-tradeoffs-advanced-part-2/
 tags:
 - distributed-systems
 - architecture

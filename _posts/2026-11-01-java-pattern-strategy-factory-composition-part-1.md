@@ -5,6 +5,7 @@ categories:
 - Java
 - Design Patterns
 - Architecture
+permalink: /java/design-patterns/architecture/java-pattern-strategy-factory-composition-part-1/
 tags:
 - java
 - design-patterns
