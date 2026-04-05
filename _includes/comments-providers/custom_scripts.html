@@ -38,30 +38,8 @@
         loading: {{ loading | jsonify }}
       };
 
-      function activeSiteTheme() {
-        return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
-      }
-
-      function activeGiscusTheme() {
-        return activeSiteTheme() === "dark" ? config.darkTheme : config.lightTheme;
-      }
-
       function giscusContainer() {
         return document.querySelector(".giscus");
-      }
-
-      function giscusFrame() {
-        return document.querySelector("iframe.giscus-frame");
-      }
-
-      function syncGiscusTheme() {
-        var frame = giscusFrame();
-        if (!frame || !frame.contentWindow) return;
-
-        frame.contentWindow.postMessage(
-          { giscus: { setConfig: { theme: activeGiscusTheme() } } },
-          "https://giscus.app"
-        );
       }
 
       function loadGiscus() {
@@ -81,7 +59,7 @@
         script.setAttribute("data-reactions-enabled", config.reactionsEnabled);
         script.setAttribute("data-emit-metadata", config.emitMetadata);
         script.setAttribute("data-input-position", config.inputPosition);
-        script.setAttribute("data-theme", activeGiscusTheme());
+        script.setAttribute("data-theme", config.lightTheme);
         script.setAttribute("data-lang", config.lang);
 
         if (config.term) {
@@ -98,7 +76,6 @@
 
       function init() {
         loadGiscus();
-        window.addEventListener("site-theme-change", syncGiscusTheme);
       }
 
       if (document.readyState === "loading") {

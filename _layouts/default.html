@@ -1,7 +1,7 @@
 <!doctype html>
 {% assign locale = page.locale | default: site.locale | default: "en-US" %}
 {% capture body_classes %}layout-{{ page.layout | default: "default" }}{% if page.date %} type-post{% else %} type-page{% endif %}{% if page.classes %} {{ page.classes | join: " " }}{% endif %}{% endcapture %}
-<html lang="{{ locale }}" data-theme="dark" data-theme-default="{{ site.appearance.default_theme | default: 'dark' }}">
+<html lang="{{ locale }}" data-theme="light">
   <head>
     {% include head.html %}
   </head>

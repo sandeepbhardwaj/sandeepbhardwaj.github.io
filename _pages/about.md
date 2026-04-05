@@ -24,6 +24,16 @@ excerpt: "ScaleMind is where I write about system design, architecture trade-off
         <a class="btn btn--ghost" href="{{ '/contact/' | relative_url }}">Get In Touch</a>
       </div>
     </div>
+
+    <div class="about-intro__note">
+      <p class="about-note__label">What You Can Expect</p>
+      <ul class="about-note__list">
+        <li>engineering trade-offs explained in concrete terms</li>
+        <li>pattern-driven learning across DSA and backend systems</li>
+        <li>Java, concurrency, and reliability topics with production context</li>
+        <li>writing that prioritizes clarity over content volume</li>
+      </ul>
+    </div>
   </section>
 
   <section class="about-block">

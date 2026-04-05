@@ -3,7 +3,6 @@
 {% assign adsense_client = adsense.client | default: "" | strip %}
 {% assign ads_enabled = adsense.enabled %}
 {% assign ads_load_in_production_only = adsense.load_in_production_only %}
-{% assign theme_toggle_enabled = features.theme_toggle %}
 {% assign code_copy_enabled = features.code_copy %}
 {% assign mermaid_enabled = features.mermaid %}
 
@@ -12,9 +11,6 @@
 {% endif %}
 {% if ads_load_in_production_only != false %}
   {% assign ads_load_in_production_only = true %}
-{% endif %}
-{% if theme_toggle_enabled != false %}
-  {% assign theme_toggle_enabled = true %}
 {% endif %}
 {% if code_copy_enabled != false %}
   {% assign code_copy_enabled = true %}
@@ -49,9 +45,6 @@
 <script>
   window.__SITE_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
-{% if theme_toggle_enabled %}
-<script defer src="{{ '/assets/js/theme-toggle.js' | relative_url }}"></script>
-{% endif %}
 {% if code_copy_enabled %}
 <script defer src="{{ '/assets/js/code-copy.js' | relative_url }}"></script>
 {% endif %}

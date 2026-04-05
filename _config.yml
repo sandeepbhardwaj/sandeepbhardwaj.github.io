@@ -51,7 +51,7 @@ footer:
       url: "/cookie-policy/"
 
 appearance:
-  default_theme: dark
+  default_theme: light
 
 bing_site_verification: "45459EBB99855D11A10308AEC542B6AE"
 
@@ -93,7 +93,7 @@ integrations:
 features:
   search:
     enabled: true
-  theme_toggle: true
+  theme_toggle: false
   code_copy: true
   mermaid: true
   toc:
@@ -104,11 +104,11 @@ features:
   read_time:
     enabled_by_default: true
   comments:
-    enabled_by_default: true
+    enabled_by_default: false
   social_share:
-    enabled_by_default: true
+    enabled_by_default: false
   related_posts:
-    enabled_by_default: true
+    enabled_by_default: false
 
 plugins:
   - jekyll-archives
@@ -144,9 +144,9 @@ defaults:
       layout: post
       author_profile: false
       read_time: true
-      comments: true
-      share: true
-      related: true
+      comments: false
+      share: false
+      related: false
       toc: false
       toc_sticky: true
   - scope:

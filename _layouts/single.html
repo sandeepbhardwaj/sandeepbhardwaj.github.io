@@ -1,112 +1,58 @@
 ---
 layout: default
 ---
-{% assign toc_enabled = page.toc %}
-{% if toc_enabled == nil %}
-  {% assign toc_enabled = site.features.toc.enabled_by_default %}
-{% endif %}
-{% assign share_enabled = page.share %}
-{% if share_enabled == nil %}
-  {% if page.date %}
-    {% assign share_enabled = site.features.social_share.enabled_by_default %}
-  {% else %}
-    {% assign share_enabled = false %}
-  {% endif %}
-{% endif %}
-{% assign related_enabled = page.related %}
-{% if related_enabled == nil %}
-  {% assign related_enabled = site.features.related_posts.enabled_by_default %}
-{% endif %}
-{% assign comments_enabled = page.comments %}
-{% if comments_enabled == nil %}
-  {% if page.date %}
-    {% assign comments_enabled = site.features.comments.enabled_by_default %}
-  {% else %}
-    {% assign comments_enabled = false %}
-  {% endif %}
-{% endif %}
-
 {% include page-header.html source=page %}
 
-<div class="site-container page-shell{% if toc_enabled %} page-shell--with-toc{% endif %}{% if page.author_profile %} page-shell--with-profile{% endif %}">
-  {% if page.author_profile %}
-    <aside class="page-shell__aside">
-      {% include author-profile.html %}
-    </aside>
-  {% endif %}
-
-  <article class="page-shell__article">
-    <div class="page__content">
-      {{ content }}
-    </div>
-
-    {% if page.categories and page.categories.size > 0 or page.tags and page.tags.size > 0 %}
-      <section class="page__taxonomies page__taxonomies--summary">
-        <div class="post-panel post-panel--taxonomy">
-          {% if page.categories and page.categories.size > 0 %}
-            <div class="post-taxonomy-group">
-              <p class="post-taxonomy-group__label">Categories</p>
-              <div class="tag-list tag-list--category">
-                {% for category in page.categories %}
-                  <a class="tag-list__item tag-list__item--category" href="/categories/{{ category | slugify }}/">{{ category }}</a>
-                {% endfor %}
-              </div>
-            </div>
-          {% endif %}
-
-          {% if page.tags and page.tags.size > 0 %}
-            <div class="post-taxonomy-group">
-              <p class="post-taxonomy-group__label">Tags</p>
-              <div class="tag-list tag-list--tag">
-                {% for tag in page.tags %}
-                  <a class="tag-list__item tag-list__item--tag" href="/tags/#{{ tag | slugify }}">{{ tag }}</a>
-                {% endfor %}
-              </div>
-            </div>
-          {% endif %}
-        </div>
-      </section>
-    {% endif %}
-
-    {% if share_enabled %}
-      {% include share-links.html %}
-    {% endif %}
-
-    {% if page.date %}
-      {% include post-navigation.html %}
-    {% endif %}
-
-    {% if related_enabled and page.date %}
-      {% include related-posts.html %}
-    {% endif %}
-
-    {% if comments_enabled %}
-      {% include comments-providers/custom.html %}
-    {% endif %}
-  </article>
-
-  {% if toc_enabled %}
-    <aside class="page-shell__toc">
-      <div class="page__toc" data-toc-container>
-        <div class="page__toc-header">
-          <p class="page__toc-eyebrow">Navigate</p>
-          <p class="page__toc-label">{{ page.toc_label | default: site.features.toc.default_label | default: "In This Article" }}</p>
-          <div class="page__toc-meta">
-            <span data-toc-count>0 sections</span>
-            <span data-toc-progress-label>0% read</span>
-          </div>
-        </div>
-        <div class="page__toc-progress" aria-hidden="true">
-          <span class="page__toc-progress-bar" data-toc-progress-bar></span>
-        </div>
-        <nav class="page__toc-body" aria-label="{{ page.toc_label | default: site.features.toc.default_label | default: 'Table of contents' }}">
-          <ol class="page__toc-list" data-toc-list></ol>
-        </nav>
-        <div class="page__toc-footer">
-          <p class="page__toc-current" data-toc-current>Start with the first section.</p>
-          <a class="page__toc-back" href="#page-title">Back to top</a>
-        </div>
+{% if page.date %}
+  <div class="site-container page-shell">
+    <article class="page-shell__article">
+      <div class="page__content">
+        {{ content }}
       </div>
-    </aside>
-  {% endif %}
-</div>
+
+      {% if page.categories and page.categories.size > 0 or page.tags and page.tags.size > 0 %}
+        <section class="page__taxonomies page__taxonomies--summary">
+          <div class="post-panel post-panel--taxonomy">
+            {% if page.categories and page.categories.size > 0 %}
+              <div class="post-taxonomy-group">
+                <p class="post-taxonomy-group__label">Categories</p>
+                <div class="tag-list tag-list--category">
+                  {% for category in page.categories %}
+                    <a class="tag-list__item tag-list__item--category" href="/categories/{{ category | slugify }}/">{{ category }}</a>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+
+            {% if page.tags and page.tags.size > 0 %}
+              <div class="post-taxonomy-group">
+                <p class="post-taxonomy-group__label">Tags</p>
+                <div class="tag-list tag-list--tag">
+                  {% for tag in page.tags %}
+                    <a class="tag-list__item tag-list__item--tag" href="/tags/#{{ tag | slugify }}">{{ tag }}</a>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+      {% endif %}
+
+      {% if page.date %}
+        {% include post-navigation.html %}
+      {% endif %}
+    </article>
+  </div>
+
+  <a href="#page-title" class="taxonomy__floating-top taxonomy__floating-top--icon" aria-label="Back to Top">
+    <span class="taxonomy__floating-top-icon" aria-hidden="true">^</span>
+  </a>
+{% else %}
+  <div class="site-container page-shell page-shell--open">
+    <div class="page-shell__body">
+      <div class="page__content">
+        {{ content }}
+      </div>
+    </div>
+  </div>
+{% endif %}
