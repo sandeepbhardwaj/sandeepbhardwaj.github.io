@@ -1,7 +1,4 @@
 <header class="site-header">
-  <div class="site-header__progress" data-reading-progress hidden>
-    <span class="site-header__progress-bar" data-reading-progress-bar></span>
-  </div>
   <div class="site-container site-header__inner">
     <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="{{ site.title }}">
       <span class="site-brand__title">{{ site.title }}</span>
@@ -37,12 +34,6 @@
           <button class="nav-action nav-action--search" type="button" data-search-open aria-haspopup="dialog" aria-controls="site-search-panel">
             <span>Search</span>
             <span class="nav-action__hint" aria-hidden="true">/</span>
-          </button>
-        {% endif %}
-        {% if site.features.theme_toggle != false %}
-          <button class="nav-action nav-action--theme" type="button" data-theme-toggle aria-pressed="true">
-            <span class="nav-action__icon nav-action__icon--theme" aria-hidden="true"></span>
-            <span class="sr-only" data-theme-label>Switch to light theme</span>
           </button>
         {% endif %}
       </div>

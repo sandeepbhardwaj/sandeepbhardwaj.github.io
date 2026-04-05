@@ -3,24 +3,6 @@
 <meta name="generator" content="Jekyll v{{ jekyll.version }}">
 {% include seo.html %}
 {% feed_meta %}
-<script>
-  (function () {
-    var storageKey = "theme-preference";
-    var defaultTheme = {{ site.appearance.default_theme | default: "dark" | jsonify }};
-    var resolvedTheme = defaultTheme;
-
-    try {
-      var storedTheme = localStorage.getItem(storageKey);
-      if (storedTheme === "light" || storedTheme === "dark") {
-        resolvedTheme = storedTheme;
-      } else if (defaultTheme === "system" && window.matchMedia) {
-        resolvedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      }
-    } catch (_error) {}
-
-    document.documentElement.setAttribute("data-theme", resolvedTheme === "light" ? "light" : "dark");
-  })();
-</script>
 <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
 {% include analytics.html %}
 {% include head/custom.html %}
